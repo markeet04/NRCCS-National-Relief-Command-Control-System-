@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Logs
 logs
 *.log
@@ -17,8 +18,47 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 .DS_Store
+=======
+# ===========================
+# Node / Backend
+# ===========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.DS_Store
+/dist
+/build
+
+# ===========================
+# React / Frontend
+# ===========================
+# Build output
+frontend/build/
+frontend/node_modules/
+frontend/.env
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor files
+.vscode/
+.idea/
+>>>>>>> 4abd5b4fc01744427d43f961f8b7755da3d5f464
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
+<<<<<<< HEAD
 *.sw?
+=======
+**/node_modules/
+
+# Optional: npm cache folder
+.npm
+>>>>>>> 4abd5b4fc01744427d43f961f8b7755da3d5f464
