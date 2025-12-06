@@ -2,10 +2,15 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@shared/components/layout';
 import { Phone, Users, AlertTriangle, MapPin } from 'lucide-react';
+import { useSettings } from '@app/providers/ThemeProvider';
+import { getThemeColors } from '@shared/utils/themeColors';
 
 const CivilianDashboard = () => {
   const navigate = useNavigate();
   const [activeRoute, setActiveRoute] = useState('home');
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
   
   const menuItems = [
     { route: 'home', label: 'Home', icon: 'dashboard' },
@@ -72,17 +77,17 @@ const CivilianDashboard = () => {
         }}>
           {/* Emergency SOS Card */}
           <div style={{
-            background: 'rgba(239, 68, 68, 0.1)',
+            background: isLight ? 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)' : 'rgba(239, 68, 68, 0.1)',
             borderRadius: '12px',
             padding: '32px',
-            border: '1px solid rgba(239, 68, 68, 0.2)',
+            border: isLight ? '1px solid #fecaca' : '1px solid rgba(239, 68, 68, 0.2)',
             textAlign: 'center'
           }}>
             <div style={{
               width: '80px',
               height: '80px',
               borderRadius: '50%',
-              background: 'rgba(239, 68, 68, 0.2)',
+              background: isLight ? '#fecaca' : 'rgba(239, 68, 68, 0.2)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -90,19 +95,19 @@ const CivilianDashboard = () => {
             }}>
               <Phone size={40} style={{ color: '#ef4444' }} />
             </div>
-            <h3 style={{ fontSize: '24px', fontWeight: '600', color: '#fff', marginBottom: '8px' }}>
+            <h3 style={{ fontSize: '24px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
               Emergency SOS
             </h3>
-            <p style={{ color: 'rgba(255, 255, 255, 0.7)', marginBottom: '24px', fontSize: '14px' }}>
+            <p style={{ color: colors.textMuted, marginBottom: '24px', fontSize: '14px' }}>
               Request immediate rescue assistance
             </p>
             <button
               onClick={handleSOSClick}
               style={{
                 padding: '12px 32px',
-                background: 'rgba(59, 130, 246, 0.2)',
-                color: '#60a5fa',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
+                background: isLight ? '#ef4444' : 'rgba(59, 130, 246, 0.2)',
+                color: isLight ? '#ffffff' : '#60a5fa',
+                border: isLight ? 'none' : '1px solid rgba(59, 130, 246, 0.3)',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 fontSize: '14px',
@@ -115,37 +120,37 @@ const CivilianDashboard = () => {
 
           {/* Missing Person Card */}
           <div style={{
-            background: 'rgba(59, 130, 246, 0.1)',
+            background: isLight ? 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)' : 'rgba(59, 130, 246, 0.1)',
             borderRadius: '12px',
             padding: '32px',
-            border: '1px solid rgba(59, 130, 246, 0.2)',
+            border: isLight ? '1px solid #bfdbfe' : '1px solid rgba(59, 130, 246, 0.2)',
             textAlign: 'center'
           }}>
             <div style={{
               width: '80px',
               height: '80px',
               borderRadius: '50%',
-              background: 'rgba(59, 130, 246, 0.2)',
+              background: isLight ? '#bfdbfe' : 'rgba(59, 130, 246, 0.2)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 20px'
             }}>
-              <Users size={40} style={{ color: '#60a5fa' }} />
+              <Users size={40} style={{ color: '#3b82f6' }} />
             </div>
-            <h3 style={{ fontSize: '24px', fontWeight: '600', color: '#fff', marginBottom: '8px' }}>
+            <h3 style={{ fontSize: '24px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
               Missing Person
             </h3>
-            <p style={{ color: 'rgba(255, 255, 255, 0.7)', marginBottom: '24px', fontSize: '14px' }}>
+            <p style={{ color: colors.textMuted, marginBottom: '24px', fontSize: '14px' }}>
               Report or search for missing persons
             </p>
             <button
               onClick={handleMissingPersonClick}
               style={{
                 padding: '12px 32px',
-                background: 'rgba(59, 130, 246, 0.2)',
-                color: '#60a5fa',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
+                background: isLight ? '#3b82f6' : 'rgba(59, 130, 246, 0.2)',
+                color: isLight ? '#ffffff' : '#60a5fa',
+                border: isLight ? 'none' : '1px solid rgba(59, 130, 246, 0.3)',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 fontSize: '14px',
@@ -159,13 +164,13 @@ const CivilianDashboard = () => {
 
         {/* Active Alerts & Notices */}
         <div style={{
-          background: 'rgba(255, 255, 255, 0.05)',
+          background: colors.cardBg,
           borderRadius: '12px',
           padding: '24px',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          border: `1px solid ${colors.border}`,
           marginBottom: '32px'
         }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#fff', marginBottom: '20px' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: '600', color: colors.textPrimary, marginBottom: '20px' }}>
             Active Alerts & Notices
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -173,7 +178,7 @@ const CivilianDashboard = () => {
               <div
                 key={alert.id}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.03)',
+                  background: isLight ? '#fef2f2' : 'rgba(255, 255, 255, 0.03)',
                   borderRadius: '8px',
                   padding: '16px',
                   borderLeft: '4px solid #ef4444'
@@ -182,7 +187,7 @@ const CivilianDashboard = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <AlertTriangle size={20} style={{ color: '#ef4444' }} />
-                    <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#fff' }}>
+                    <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary }}>
                       {alert.title}
                     </h3>
                   </div>
@@ -190,14 +195,22 @@ const CivilianDashboard = () => {
                     padding: '4px 12px',
                     borderRadius: '12px',
                     fontSize: '12px',
-                    background: 'rgba(239, 68, 68, 0.2)',
+                    background: isLight ? '#fee2e2' : 'rgba(239, 68, 68, 0.2)',
                     color: '#ef4444'
                   }}>
                     {alert.severity}
                   </span>
                 </div>
-                <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '14px', marginBottom: '8px' }}>
+                <p style={{ color: colors.textSecondary, fontSize: '14px', marginBottom: '8px' }}>
                   {alert.description}
+                </p>
+                <p style={{ color: colors.textMuted, fontSize: '12px' }}>
+                  {alert.date}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
                 </p>
                 <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px' }}>
                   {alert.date}
@@ -209,12 +222,12 @@ const CivilianDashboard = () => {
 
         {/* Nearby Shelters */}
         <div style={{
-          background: 'rgba(255, 255, 255, 0.05)',
+          background: colors.cardBg,
           borderRadius: '12px',
           padding: '24px',
-          border: '1px solid rgba(255, 255, 255, 0.1)'
+          border: `1px solid ${colors.border}`
         }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#fff', marginBottom: '20px' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: '600', color: colors.textPrimary, marginBottom: '20px' }}>
             Nearby Shelters
           </h2>
           <div style={{
@@ -228,18 +241,18 @@ const CivilianDashboard = () => {
                 <div
                   key={shelter.id}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.03)',
+                    background: isLight ? colors.background : 'rgba(255, 255, 255, 0.03)',
                     borderRadius: '8px',
                     padding: '20px',
-                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                    border: `1px solid ${colors.border}`
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                     <div>
-                      <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#fff', marginBottom: '4px' }}>
+                      <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>
                         {shelter.name}
                       </h3>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255, 255, 255, 0.6)', fontSize: '13px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: colors.textMuted, fontSize: '13px' }}>
                         <MapPin size={14} />
                         {shelter.location}
                       </div>
@@ -248,7 +261,7 @@ const CivilianDashboard = () => {
                       padding: '4px 12px',
                       borderRadius: '12px',
                       fontSize: '12px',
-                      background: 'rgba(16, 185, 129, 0.2)',
+                      background: isLight ? '#d1fae5' : 'rgba(16, 185, 129, 0.2)',
                       color: '#10b981'
                     }}>
                       {shelter.status}
@@ -256,14 +269,14 @@ const CivilianDashboard = () => {
                   </div>
                   <div style={{ marginTop: '16px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                      <span style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.7)' }}>Capacity</span>
-                      <span style={{ fontSize: '13px', color: '#fff', fontWeight: '500' }}>
+                      <span style={{ fontSize: '13px', color: colors.textSecondary }}>Capacity</span>
+                      <span style={{ fontSize: '13px', color: colors.textPrimary, fontWeight: '500' }}>
                         {shelter.capacity} / {shelter.maxCapacity}
                       </span>
                     </div>
                     <div style={{
                       height: '6px',
-                      background: 'rgba(255, 255, 255, 0.1)',
+                      background: isLight ? '#e2e8f0' : 'rgba(255, 255, 255, 0.1)',
                       borderRadius: '3px',
                       overflow: 'hidden'
                     }}>

@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
+import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
 
 const UserManagement = () => {
   const [activeRoute, setActiveRoute] = useState('users');
@@ -11,13 +12,9 @@ const UserManagement = () => {
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
   
-  const menuItems = [
-    { route: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
-    { route: 'users', label: 'User Management', icon: 'users' },
-    { route: 'provinces', label: 'Provinces & Districts', icon: 'provinces' },
-    { route: 'settings', label: 'System Settings', icon: 'settings' },
-    { route: 'api', label: 'API Integration', icon: 'api' }
-  ];
+  // Get role configuration and menu items from shared config
+  const roleConfig = ROLE_CONFIG.superadmin;
+  const menuItems = useMemo(() => getMenuItemsByRole('superadmin'), []);
   const [users, setUsers] = useState([
     {
       id: 1,

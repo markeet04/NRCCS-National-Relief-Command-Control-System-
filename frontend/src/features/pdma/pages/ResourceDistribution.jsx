@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { Plus, Package, Droplet, Heart } from 'lucide-react';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
+import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
 
 const ResourceDistribution = () => {
   const { theme } = useSettings();
@@ -11,13 +12,9 @@ const ResourceDistribution = () => {
   
   const [activeRoute, setActiveRoute] = useState('resources');
   
-  const menuItems = [
-    { route: 'dashboard', label: 'Provincial Dashboard', icon: 'dashboard' },
-    { route: 'resources', label: 'Resource Distribution', icon: 'resources' },
-    { route: 'shelters', label: 'Shelter Management', icon: 'map' },
-    { route: 'districts', label: 'District Coordination', icon: 'alerts' },
-    { route: 'map', label: 'Provincial Map', icon: 'map' },
-  ];
+  // Get role configuration and menu items from shared config
+  const roleConfig = ROLE_CONFIG.pdma;
+  const menuItems = useMemo(() => getMenuItemsByRole('pdma'), []);
 
   const [resources] = useState([
     {

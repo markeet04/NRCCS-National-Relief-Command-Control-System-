@@ -1,10 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { StatCard } from '@shared/components/dashboard';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { Users, AlertTriangle, Activity, Zap, TrendingUp, Settings } from 'lucide-react';
+import { 
+  getMenuItemsByRole, 
+  ROLE_CONFIG, 
+  STAT_GRADIENT_KEYS 
+} from '@shared/constants/dashboardConfig';
 
+/**
+ * SuperAdminDashboard Component
+ * System-wide management and configuration dashboard
+ * Uses shared layout and configuration from dashboardConfig
+ */
 const SuperAdminDashboard = () => {
   const [activeRoute, setActiveRoute] = useState('dashboard');
   
@@ -13,15 +23,14 @@ const SuperAdminDashboard = () => {
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
   
-  const menuItems = [
-    { route: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
-    { route: 'users', label: 'User Management', icon: 'users' },
-    { route: 'provinces', label: 'Provinces & Districts', icon: 'provinces' },
-    { route: 'settings', label: 'System Settings', icon: 'settings' },
-    { route: 'api', label: 'API Integration', icon: 'api' }
-  ];
+  // Get role configuration from shared config
+  const roleConfig = ROLE_CONFIG.superadmin;
 
-  const [stats, setStats] = useState([
+  // Get menu items from shared config
+  const menuItems = useMemo(() => getMenuItemsByRole('superadmin'), []);
+
+  // Stats using shared gradient keys
+  const stats = [
     {
       title: 'Total Users',
       value: '142',
@@ -29,7 +38,7 @@ const SuperAdminDashboard = () => {
       trend: 12,
       trendLabel: 'vs last month',
       color: 'success',
-      gradientKey: 'emerald'
+      gradientKey: STAT_GRADIENT_KEYS.users
     },
     {
       title: 'Active Alerts',
@@ -38,7 +47,7 @@ const SuperAdminDashboard = () => {
       trend: -5,
       trendLabel: 'vs last week',
       color: 'warning',
-      gradientKey: 'amber'
+      gradientKey: STAT_GRADIENT_KEYS.alerts
     },
     {
       title: 'System Uptime',
@@ -47,7 +56,7 @@ const SuperAdminDashboard = () => {
       trend: 0.1,
       trendLabel: 'This month',
       color: 'success',
-      gradientKey: 'violet'
+      gradientKey: STAT_GRADIENT_KEYS.uptime
     },
     {
       title: 'API Calls Today',
@@ -56,19 +65,19 @@ const SuperAdminDashboard = () => {
       trend: 23,
       trendLabel: 'vs yesterday',
       color: 'primary',
-      gradientKey: 'blue'
+      gradientKey: STAT_GRADIENT_KEYS.api
     }
-  ]);
+  ];
 
   return (
     <DashboardLayout
       menuItems={menuItems}
       activeRoute={activeRoute}
       onNavigate={setActiveRoute}
-      pageTitle="Super Admin Dashboard"
-      pageSubtitle="System-wide management and configuration"
-      userRole="Super Admin"
-      userName="Admin"
+      pageTitle={roleConfig.title}
+      pageSubtitle={roleConfig.subtitle}
+      userRole={roleConfig.userRole}
+      userName={roleConfig.userName}
     >
       <div style={{ padding: '24px' }}>
         {/* Stats Grid */}

@@ -219,7 +219,7 @@ const DetailModal = ({ request, onClose, onStatusUpdate, onMarkRescued, colors, 
   const overlayStyles = {
     position: 'fixed',
     inset: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: colors.modalOverlay,
     backdropFilter: 'blur(4px)',
     display: 'flex',
     alignItems: 'center',

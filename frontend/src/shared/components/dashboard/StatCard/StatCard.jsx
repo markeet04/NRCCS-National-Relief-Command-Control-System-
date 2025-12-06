@@ -1,9 +1,26 @@
 import PropTypes from 'prop-types';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Radio, Home, Users, Package, FileText, AlertTriangle, Truck, Activity, Shield, Heart, MapPin, Bell, Zap } from 'lucide-react';
 import { formatNumber } from '@utils/formatUtils';
 import { getSeverityColor, getStatusColor } from '@utils/colorUtils';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
+
+// Icon mapping for string icon names
+const ICON_MAP = {
+  radio: Radio,
+  home: Home,
+  users: Users,
+  package: Package,
+  file: FileText,
+  alert: AlertTriangle,
+  truck: Truck,
+  activity: Activity,
+  shield: Shield,
+  heart: Heart,
+  map: MapPin,
+  bell: Bell,
+  zap: Zap,
+};
 
 /**
  * StatCard Component
@@ -11,7 +28,7 @@ import { getThemeColors } from '@shared/utils/themeColors';
  * @param {Object} props - Component props
  * @param {string} props.title - Stat title
  * @param {string|number} props.value - Main stat value
- * @param {string} props.icon - Icon component from lucide-react
+ * @param {string|elementType} props.icon - Icon component from lucide-react or string key
  * @param {number} props.trend - Percentage trend (positive/negative)
  * @param {string} props.trendLabel - Label for trend
  * @param {string} props.color - Color theme (default, success, warning, danger)
@@ -20,9 +37,10 @@ import { getThemeColors } from '@shared/utils/themeColors';
 const StatCard = ({ 
   title, 
   value, 
-  icon: Icon, 
+  icon, 
   trend, 
   trendLabel,
+  trendDirection,
   color = 'default',
   gradientKey
 }) => {
@@ -32,6 +50,10 @@ const StatCard = ({
   
   // Get gradient colors for light mode stat cards
   const gradient = isLight && colors.gradients && gradientKey ? colors.gradients[gradientKey] : null;
+  const isWhiteText = gradient && gradient.textColor === '#ffffff';
+  
+  // Resolve icon - can be a component or a string key
+  const IconComponent = typeof icon === 'string' ? ICON_MAP[icon] : icon;
   
   // Ensure values are valid before processing
   const safeValue = value === null || value === undefined || isNaN(value) ? 0 : value;
@@ -43,12 +65,13 @@ const StatCard = ({
   };
 
   const getTrendColor = () => {
-    if (gradient) {
-      // For bold colored cards, use white with opacity for trends
-      return gradient.textColor === '#ffffff' ? 'rgba(255, 255, 255, 0.9)' : (safeTrend > 0 ? '#059669' : safeTrend < 0 ? '#dc2626' : gradient.accent);
+    if (isWhiteText) {
+      return 'rgba(255, 255, 255, 0.9)';
     }
-    if (!safeTrend || safeTrend === 0 || isNaN(safeTrend)) return 'var(--text-muted)';
-    return safeTrend > 0 ? '#059669' : '#dc2626';
+    // Use trendDirection if provided, otherwise infer from trend value
+    const direction = trendDirection || (safeTrend > 0 ? 'up' : safeTrend < 0 ? 'down' : null);
+    if (!direction || direction === null) return colors.textMuted;
+    return direction === 'up' ? '#059669' : '#dc2626';
   };
 
   const formattedValue = formatNumber(safeValue);
@@ -65,13 +88,30 @@ const StatCard = ({
       }}
     >
       <div className="flex items-start justify-between">
+        {/* Icon in top-left for light mode with gradients */}
+        {IconComponent && gradient && (
+          <div 
+            className="w-12 h-12 rounded-xl flex items-center justify-center"
+            style={{ 
+              background: gradient.iconBg,
+              marginRight: '16px'
+            }}
+          >
+            <IconComponent 
+              className="w-6 h-6" 
+              style={{ color: '#ffffff' }} 
+            />
+          </div>
+        )}
+        
         <div className="flex-1">
           <p 
             className="font-semibold mb-2 uppercase tracking-wider" 
             style={{ 
               color: gradient ? gradient.textColor : colors.textMuted, 
               fontSize: '11px',
-              opacity: gradient ? 0.9 : 1
+              opacity: isWhiteText ? 0.9 : 1,
+              textAlign: gradient ? 'right' : 'left'
             }}
           >
             {title}
@@ -89,7 +129,9 @@ const StatCard = ({
           
           {(safeTrend !== undefined && safeTrend !== 0) || trendLabel ? (
             <div className="flex items-center gap-1 mt-3" style={{ color: getTrendColor() }}>
-              {safeTrend !== 0 && getTrendIcon()}
+              {safeTrend !== 0 && !isWhiteText && getTrendIcon()}
+              {isWhiteText && trendDirection === 'up' && <span>↗</span>}
+              {isWhiteText && trendDirection === 'down' && <span>↘</span>}
               {safeTrend !== 0 && (
                 <span className="text-xs font-semibold">
                   {safeTrend > 0 ? '+' : ''}{Math.abs(safeTrend)}%
@@ -98,7 +140,7 @@ const StatCard = ({
               {trendLabel && (
                 <span 
                   className="text-xs ml-1" 
-                  style={{ color: gradient ? gradient.textColor : colors.textMuted, opacity: gradient ? 0.85 : 0.7 }}
+                  style={{ color: gradient ? gradient.textColor : colors.textMuted, opacity: isWhiteText ? 0.85 : 0.7 }}
                 >
                   {trendLabel}
                 </span>
@@ -107,14 +149,15 @@ const StatCard = ({
           ) : null}
         </div>
 
-        {Icon && (
+        {/* Icon in top-right for dark mode (no gradient) */}
+        {IconComponent && !gradient && (
           <div 
             className="w-12 h-12 rounded-xl flex items-center justify-center"
             style={{ 
-              background: gradient ? gradient.iconBg : colors.iconBg
+              background: colors.iconBg
             }}
           >
-            <Icon 
+            <IconComponent 
               className="w-6 h-6" 
               style={{ color: '#ffffff' }} 
             />
@@ -128,9 +171,10 @@ const StatCard = ({
 StatCard.propTypes = {
   title: PropTypes.string.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  icon: PropTypes.elementType,
+  icon: PropTypes.oneOfType([PropTypes.elementType, PropTypes.string]),
   trend: PropTypes.number,
   trendLabel: PropTypes.string,
+  trendDirection: PropTypes.oneOf(['up', 'down', null]),
   color: PropTypes.oneOf(['default', 'success', 'warning', 'danger', 'info']),
   gradientKey: PropTypes.string,
 };

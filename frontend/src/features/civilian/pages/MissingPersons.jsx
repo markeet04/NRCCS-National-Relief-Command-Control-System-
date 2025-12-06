@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { Search, User, MapPin, Phone, Plus } from 'lucide-react';
+import { useSettings } from '@app/providers/ThemeProvider';
+import { getThemeColors } from '@shared/utils/themeColors';
 
 const MissingPersons = () => {
   const [activeRoute, setActiveRoute] = useState('missing');
   const [searchQuery, setSearchQuery] = useState('');
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
   
   const menuItems = [
     { route: 'home', label: 'Home', icon: 'dashboard' },
@@ -70,7 +75,7 @@ const MissingPersons = () => {
           alignItems: 'center',
           marginBottom: '24px'
         }}>
-          <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#fff' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: '600', color: colors.textPrimary }}>
             Missing Persons
           </h2>
           <button
@@ -96,10 +101,10 @@ const MissingPersons = () => {
 
         {/* Search Bar */}
         <div style={{
-          background: 'rgba(255, 255, 255, 0.05)',
+          background: colors.cardBg,
           borderRadius: '12px',
           padding: '24px',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          border: `1px solid ${colors.border}`,
           marginBottom: '24px'
         }}>
           <div style={{ position: 'relative' }}>
@@ -110,7 +115,7 @@ const MissingPersons = () => {
                 left: '12px',
                 top: '50%',
                 transform: 'translateY(-50%)',
-                color: 'rgba(255, 255, 255, 0.4)'
+                color: colors.textMuted
               }}
             />
             <input
@@ -121,10 +126,10 @@ const MissingPersons = () => {
               style={{
                 width: '100%',
                 padding: '12px 12px 12px 44px',
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                background: isLight ? '#f8fafc' : 'rgba(255, 255, 255, 0.05)',
+                border: `1px solid ${colors.border}`,
                 borderRadius: '8px',
-                color: '#fff',
+                color: colors.textPrimary,
                 fontSize: '14px',
                 outline: 'none'
               }}
@@ -138,10 +143,10 @@ const MissingPersons = () => {
             <div
               key={person.id}
               style={{
-                background: 'rgba(255, 255, 255, 0.05)',
+                background: colors.cardBg,
                 borderRadius: '12px',
                 padding: '24px',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
+                border: `1px solid ${colors.border}`
               }}
             >
               <div style={{ display: 'flex', gap: '20px' }}>
@@ -150,13 +155,13 @@ const MissingPersons = () => {
                   width: '80px',
                   height: '80px',
                   borderRadius: '8px',
-                  background: 'rgba(255, 255, 255, 0.1)',
+                  background: isLight ? '#e2e8f0' : 'rgba(255, 255, 255, 0.1)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexShrink: 0
                 }}>
-                  <User size={40} style={{ color: 'rgba(255, 255, 255, 0.4)' }} />
+                  <User size={40} style={{ color: colors.textMuted }} />
                 </div>
 
                 {/* Content */}
@@ -171,14 +176,14 @@ const MissingPersons = () => {
                       <h3 style={{ 
                         fontSize: '20px', 
                         fontWeight: '600', 
-                        color: '#fff',
+                        color: colors.textPrimary,
                         marginBottom: '4px'
                       }}>
                         {person.name}
                       </h3>
                       <p style={{ 
                         fontSize: '14px', 
-                        color: 'rgba(255, 255, 255, 0.6)'
+                        color: colors.textMuted
                       }}>
                         Age: {person.age}
                       </p>
@@ -187,7 +192,7 @@ const MissingPersons = () => {
                       padding: '4px 12px',
                       borderRadius: '12px',
                       fontSize: '12px',
-                      background: 'rgba(239, 68, 68, 0.2)',
+                      background: isLight ? '#fee2e2' : 'rgba(239, 68, 68, 0.2)',
                       color: '#ef4444'
                     }}>
                       {person.status}
@@ -202,33 +207,33 @@ const MissingPersons = () => {
                     marginBottom: '16px'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <MapPin size={16} style={{ color: 'rgba(255, 255, 255, 0.6)' }} />
+                      <MapPin size={16} style={{ color: colors.textMuted }} />
                       <div>
-                        <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)' }}>
+                        <div style={{ fontSize: '12px', color: colors.textMuted }}>
                           Last seen:
                         </div>
-                        <div style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.9)' }}>
+                        <div style={{ fontSize: '14px', color: colors.textPrimary }}>
                           {person.lastSeen}
                         </div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Phone size={16} style={{ color: 'rgba(255, 255, 255, 0.6)' }} />
+                      <Phone size={16} style={{ color: colors.textMuted }} />
                       <div>
-                        <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)' }}>
+                        <div style={{ fontSize: '12px', color: colors.textMuted }}>
                           Contact:
                         </div>
-                        <div style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.9)' }}>
+                        <div style={{ fontSize: '14px', color: colors.textPrimary }}>
                           {person.contact}
                         </div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <div>
-                        <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)' }}>
+                        <div style={{ fontSize: '12px', color: colors.textMuted }}>
                           Date:
                         </div>
-                        <div style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.9)' }}>
+                        <div style={{ fontSize: '14px', color: colors.textPrimary }}>
                           {person.date}
                         </div>
                       </div>
@@ -241,9 +246,9 @@ const MissingPersons = () => {
                       onClick={() => handleViewDetails(person.id)}
                       style={{
                         padding: '8px 16px',
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        color: 'rgba(255, 255, 255, 0.9)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        background: isLight ? '#f1f5f9' : 'rgba(255, 255, 255, 0.05)',
+                        color: colors.textPrimary,
+                        border: `1px solid ${colors.border}`,
                         borderRadius: '6px',
                         cursor: 'pointer',
                         fontSize: '13px',

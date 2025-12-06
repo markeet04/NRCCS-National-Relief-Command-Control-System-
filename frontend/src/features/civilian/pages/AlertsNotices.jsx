@@ -1,9 +1,14 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { AlertTriangle, Plus, CheckCircle } from 'lucide-react';
+import { useSettings } from '@app/providers/ThemeProvider';
+import { getThemeColors } from '@shared/utils/themeColors';
 
 const AlertsNotices = () => {
   const [activeRoute, setActiveRoute] = useState('alerts');
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
   
   const menuItems = [
     { route: 'home', label: 'Home', icon: 'dashboard' },
@@ -62,7 +67,7 @@ const AlertsNotices = () => {
           alignItems: 'center',
           marginBottom: '24px'
         }}>
-          <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#fff' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: '600', color: colors.textPrimary }}>
             Alert Management
           </h2>
           <button
@@ -92,10 +97,10 @@ const AlertsNotices = () => {
             <div
               key={alert.id}
               style={{
-                background: 'rgba(255, 255, 255, 0.05)',
+                background: colors.cardBg,
                 borderRadius: '12px',
                 padding: '24px',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
+                border: `1px solid ${colors.border}`
               }}
             >
               {/* Header */}
@@ -116,7 +121,7 @@ const AlertsNotices = () => {
                   <h3 style={{ 
                     fontSize: '20px', 
                     fontWeight: '600', 
-                    color: '#fff'
+                    color: colors.textPrimary
                   }}>
                     {alert.title}
                   </h3>
@@ -128,8 +133,8 @@ const AlertsNotices = () => {
                     fontSize: '12px',
                     fontWeight: '500',
                     background: alert.severity === 'critical' 
-                      ? 'rgba(239, 68, 68, 0.2)' 
-                      : 'rgba(251, 146, 60, 0.2)',
+                      ? (isLight ? '#fee2e2' : 'rgba(239, 68, 68, 0.2)')
+                      : (isLight ? '#ffedd5' : 'rgba(251, 146, 60, 0.2)'),
                     color: alert.severity === 'critical' ? '#ef4444' : '#fb923c'
                   }}>
                     {alert.severity}
@@ -139,7 +144,7 @@ const AlertsNotices = () => {
                     borderRadius: '12px',
                     fontSize: '12px',
                     fontWeight: '500',
-                    background: 'rgba(16, 185, 129, 0.2)',
+                    background: isLight ? '#d1fae5' : 'rgba(16, 185, 129, 0.2)',
                     color: '#10b981'
                   }}>
                     {alert.status}
@@ -149,7 +154,7 @@ const AlertsNotices = () => {
 
               {/* Description */}
               <p style={{ 
-                color: 'rgba(255, 255, 255, 0.7)', 
+                color: colors.textSecondary, 
                 fontSize: '14px',
                 marginBottom: '16px',
                 lineHeight: '1.6'
@@ -167,13 +172,13 @@ const AlertsNotices = () => {
                 <div>
                   <span style={{ 
                     fontSize: '12px', 
-                    color: 'rgba(255, 255, 255, 0.5)' 
+                    color: colors.textMuted 
                   }}>
                     Type:
                   </span>
                   <span style={{ 
                     fontSize: '14px', 
-                    color: 'rgba(255, 255, 255, 0.9)',
+                    color: colors.textPrimary,
                     marginLeft: '8px'
                   }}>
                     {alert.type}
@@ -182,13 +187,13 @@ const AlertsNotices = () => {
                 <div>
                   <span style={{ 
                     fontSize: '12px', 
-                    color: 'rgba(255, 255, 255, 0.5)' 
+                    color: colors.textMuted 
                   }}>
                     Location:
                   </span>
                   <span style={{ 
                     fontSize: '14px', 
-                    color: 'rgba(255, 255, 255, 0.9)',
+                    color: colors.textPrimary,
                     marginLeft: '8px'
                   }}>
                     {alert.location}
@@ -197,13 +202,13 @@ const AlertsNotices = () => {
                 <div>
                   <span style={{ 
                     fontSize: '12px', 
-                    color: 'rgba(255, 255, 255, 0.5)' 
+                    color: colors.textMuted 
                   }}>
                     By:
                   </span>
                   <span style={{ 
                     fontSize: '14px', 
-                    color: 'rgba(255, 255, 255, 0.9)',
+                    color: colors.textPrimary,
                     marginLeft: '8px'
                   }}>
                     {alert.issuedBy}

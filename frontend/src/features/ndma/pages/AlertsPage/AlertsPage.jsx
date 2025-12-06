@@ -2,9 +2,10 @@ import { useState, useMemo, useEffect } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { AlertCard } from '@shared/components/dashboard';
 import { Plus, X, CheckCircle, AlertTriangle } from 'lucide-react';
-import { useBadge } from '@shared/contexts/BadgeContext';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
+import { useBadge } from '@shared/contexts/BadgeContext';
+import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
 
 // Import service layers and utilities
 import { AlertService } from '@services/AlertService';
@@ -64,13 +65,11 @@ const AlertsPage = () => {
     }
   };
 
-  // Menu items for NDMA role with dynamic badges
-  const menuItems = useMemo(() => [
-    { route: 'dashboard', label: 'National Dashboard', icon: 'dashboard' },
-    { route: 'alerts', label: 'Nationwide Alerts', icon: 'alerts' }, // no badge when on alerts page
-    { route: 'resources', label: 'Resource Allocation', icon: 'resources' },
-    { route: 'map', label: 'Flood Map', icon: 'map' },
-  ], []);
+  // Get role configuration from shared config
+  const roleConfig = ROLE_CONFIG.ndma;
+
+  // Menu items for NDMA role from shared config (no badge on alerts page since we're on it)
+  const menuItems = useMemo(() => getMenuItemsByRole('ndma', 0), []);
 
   // Province and district data from constants
   const provinceDistrictsMap = UI_CONSTANTS.PROVINCE_DISTRICTS;
@@ -342,34 +341,54 @@ const AlertsPage = () => {
 
         {/* Alert Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-6" style={{ marginTop: '24px' }}>
-          <div className="bg-gradient-to-r from-red-500/10 to-red-600/10 rounded-lg p-4 border border-red-500/20">
+          <div style={{ 
+            background: isLight ? 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)' : 'linear-gradient(to right, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1))',
+            borderRadius: '8px',
+            padding: '16px',
+            border: isLight ? '1px solid #fecaca' : '1px solid rgba(239, 68, 68, 0.2)'
+          }}>
             <div className="text-center">
-              <p className="text-sm font-medium text-red-400 mb-1">Critical</p>
-              <p className="text-2xl font-bold text-red-500">
+              <p style={{ fontSize: '14px', fontWeight: '500', color: '#ef4444', marginBottom: '4px' }}>Critical</p>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: '#dc2626' }}>
                 {formatNumber(alerts.filter(a => a.severity === 'critical' && a.status === 'active').length)}
               </p>
             </div>
           </div>
-          <div className="bg-gradient-to-r from-orange-500/10 to-orange-600/10 rounded-lg p-4 border border-orange-500/20">
+          <div style={{ 
+            background: isLight ? 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)' : 'linear-gradient(to right, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.1))',
+            borderRadius: '8px',
+            padding: '16px',
+            border: isLight ? '1px solid #fed7aa' : '1px solid rgba(249, 115, 22, 0.2)'
+          }}>
             <div className="text-center">
-              <p className="text-sm font-medium text-orange-400 mb-1">High</p>
-              <p className="text-2xl font-bold text-orange-500">
+              <p style={{ fontSize: '14px', fontWeight: '500', color: '#f97316', marginBottom: '4px' }}>High</p>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: '#ea580c' }}>
                 {formatNumber(alerts.filter(a => a.severity === 'high' && a.status === 'active').length)}
               </p>
             </div>
           </div>
-          <div className="bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 rounded-lg p-4 border border-yellow-500/20">
+          <div style={{ 
+            background: isLight ? 'linear-gradient(135deg, #fefce8 0%, #fef9c3 100%)' : 'linear-gradient(to right, rgba(234, 179, 8, 0.1), rgba(202, 138, 4, 0.1))',
+            borderRadius: '8px',
+            padding: '16px',
+            border: isLight ? '1px solid #fde047' : '1px solid rgba(234, 179, 8, 0.2)'
+          }}>
             <div className="text-center">
-              <p className="text-sm font-medium text-yellow-400 mb-1">Medium</p>
-              <p className="text-2xl font-bold text-yellow-500">
+              <p style={{ fontSize: '14px', fontWeight: '500', color: '#eab308', marginBottom: '4px' }}>Medium</p>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: '#ca8a04' }}>
                 {formatNumber(alerts.filter(a => a.severity === 'medium' && a.status === 'active').length)}
               </p>
             </div>
           </div>
-          <div className="bg-gradient-to-r from-green-500/10 to-green-600/10 rounded-lg p-4 border border-green-500/20">
+          <div style={{ 
+            background: isLight ? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' : 'linear-gradient(to right, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1))',
+            borderRadius: '8px',
+            padding: '16px',
+            border: isLight ? '1px solid #bbf7d0' : '1px solid rgba(34, 197, 94, 0.2)'
+          }}>
             <div className="text-center">
-              <p className="text-sm font-medium text-green-400 mb-1">Resolved Today</p>
-              <p className="text-2xl font-bold text-green-500">
+              <p style={{ fontSize: '14px', fontWeight: '500', color: '#22c55e', marginBottom: '4px' }}>Resolved Today</p>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: '#16a34a' }}>
                 {formatNumber(alerts.filter(a => a.status === 'resolved' && 
                   isToday(a.resolvedAt || a.timestamp)).length)}
               </p>
@@ -403,17 +422,17 @@ const AlertsPage = () => {
 
       {/* Create Alert Modal */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)', zIndex: 9999, padding: '1rem' }}>
-          <div className="w-full" style={{ maxWidth: '500px', backgroundColor: '#1e293b', borderRadius: '12px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
-            <div className="flex items-center justify-between" style={{ padding: '16px 20px', borderBottom: '1px solid rgba(148, 163, 184, 0.1)', flexShrink: 0 }}>
-              <h3 className="text-lg font-semibold" style={{ color: '#f8fafc', margin: 0 }}>Create New Alert</h3>
+        <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: isLight ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.85)', zIndex: 9999, padding: '1rem' }}>
+          <div className="w-full" style={{ maxWidth: '500px', backgroundColor: isLight ? '#ffffff' : '#1e293b', borderRadius: '12px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+            <div className="flex items-center justify-between" style={{ padding: '16px 20px', borderBottom: `1px solid ${colors.border}`, flexShrink: 0 }}>
+              <h3 className="text-lg font-semibold" style={{ color: colors.textPrimary, margin: 0 }}>Create New Alert</h3>
               <button
                 className="p-1.5 rounded transition-colors"
-                style={{ color: '#94a3b8', backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }}
+                style={{ color: colors.textSecondary, backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }}
                 onClick={() => setIsCreateModalOpen(false)}
                 aria-label="Close create alert modal"
                 disabled={loading}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(148, 163, 184, 0.1)'}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isLight ? '#f1f5f9' : 'rgba(148, 163, 184, 0.1)'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <X className="w-5 h-5" />
@@ -425,7 +444,7 @@ const AlertsPage = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {/* Alert Title */}
                   <div>
-                    <label className="block text-sm font-medium" style={{ color: '#94a3b8', marginBottom: '6px' }}>
+                    <label className="block text-sm font-medium" style={{ color: colors.textSecondary, marginBottom: '6px' }}>
                       Alert Title
                     </label>
                     <input
@@ -436,9 +455,9 @@ const AlertsPage = () => {
                       required
                       className="w-full rounded-md"
                       style={{ 
-                        backgroundColor: '#0f172a', 
-                        color: '#e2e8f0', 
-                        border: '1px solid #334155',
+                        backgroundColor: isLight ? '#f8fafc' : '#0f172a', 
+                        color: colors.textPrimary, 
+                        border: `1px solid ${colors.border}`,
                         padding: '8px 12px',
                         fontSize: '14px',
                         outline: 'none'
@@ -446,13 +465,13 @@ const AlertsPage = () => {
                       placeholder="e.g., Flash Flood Warning"
                       disabled={loading}
                       onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                      onBlur={(e) => e.target.style.borderColor = '#334155'}
+                      onBlur={(e) => e.target.style.borderColor = isLight ? '#e2e8f0' : '#334155'}
                     />
                   </div>
 
                   {/* Severity Level */}
                   <div>
-                    <label className="block text-sm font-medium" style={{ color: '#94a3b8', marginBottom: '6px' }}>
+                    <label className="block text-sm font-medium" style={{ color: colors.textSecondary, marginBottom: '6px' }}>
                       Severity Level
                     </label>
                     <select
@@ -462,9 +481,9 @@ const AlertsPage = () => {
                       required
                       className="w-full rounded-md"
                       style={{ 
-                        backgroundColor: '#0f172a', 
-                        color: '#e2e8f0', 
-                        border: '1px solid #334155',
+                        backgroundColor: isLight ? '#f8fafc' : '#0f172a', 
+                        color: colors.textPrimary, 
+                        border: `1px solid ${colors.border}`,
                         padding: '8px 12px',
                         fontSize: '14px',
                         outline: 'none',
@@ -472,7 +491,7 @@ const AlertsPage = () => {
                       }}
                       disabled={loading}
                       onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                      onBlur={(e) => e.target.style.borderColor = '#334155'}
+                      onBlur={(e) => e.target.style.borderColor = isLight ? '#e2e8f0' : '#334155'}
                     >
                       <option value="critical">Critical</option>
                       <option value="high">High</option>
@@ -483,7 +502,7 @@ const AlertsPage = () => {
 
                   {/* Affected Provinces */}
                   <div>
-                    <label className="block text-sm font-medium" style={{ color: '#94a3b8', marginBottom: '8px' }}>
+                    <label className="block text-sm font-medium" style={{ color: colors.textSecondary, marginBottom: '8px' }}>
                       Affected Provinces
                     </label>
                     <div className="grid grid-cols-2 gap-2">
@@ -493,14 +512,14 @@ const AlertsPage = () => {
                           className="flex items-center" 
                           style={{ 
                             padding: '8px 10px',
-                            backgroundColor: '#0f172a',
-                            border: '1px solid #334155',
+                            backgroundColor: isLight ? '#f8fafc' : '#0f172a',
+                            border: `1px solid ${colors.border}`,
                             borderRadius: '6px',
                             cursor: 'pointer',
                             transition: 'all 0.2s'
                           }}
-                          onMouseEnter={(e) => e.currentTarget.style.borderColor = '#475569'}
-                          onMouseLeave={(e) => e.currentTarget.style.borderColor = '#334155'}
+                          onMouseEnter={(e) => e.currentTarget.style.borderColor = isLight ? '#94a3b8' : '#475569'}
+                          onMouseLeave={(e) => e.currentTarget.style.borderColor = isLight ? '#e2e8f0' : '#334155'}
                         >
                           <input
                             type="checkbox"
@@ -521,7 +540,7 @@ const AlertsPage = () => {
                             }}
                             disabled={loading}
                           />
-                          <span style={{ color: '#e2e8f0', fontSize: '13px' }}>{province}</span>
+                          <span style={{ color: colors.textPrimary, fontSize: '13px' }}>{province}</span>
                         </label>
                       ))}
                     </div>
@@ -530,7 +549,7 @@ const AlertsPage = () => {
                   {/* District */}
                   {newAlert.province && (
                     <div>
-                      <label className="block text-sm font-medium" style={{ color: '#94a3b8', marginBottom: '6px' }}>
+                      <label className="block text-sm font-medium" style={{ color: colors.textSecondary, marginBottom: '6px' }}>
                         District (Optional)
                       </label>
                       <select
@@ -539,9 +558,9 @@ const AlertsPage = () => {
                         onChange={handleChangeNewAlert}
                         className="w-full rounded-md"
                         style={{ 
-                          backgroundColor: '#0f172a', 
-                          color: '#e2e8f0', 
-                          border: '1px solid #334155',
+                          backgroundColor: isLight ? '#f8fafc' : '#0f172a', 
+                          color: colors.textPrimary, 
+                          border: `1px solid ${colors.border}`,
                           padding: '8px 12px',
                           fontSize: '14px',
                           outline: 'none',
@@ -549,7 +568,7 @@ const AlertsPage = () => {
                         }}
                         disabled={loading}
                         onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                        onBlur={(e) => e.target.style.borderColor = '#334155'}
+                        onBlur={(e) => e.target.style.borderColor = isLight ? '#e2e8f0' : '#334155'}
                       >
                         <option value="">Select District</option>
                         {availableDistricts.map(district => (
@@ -561,7 +580,7 @@ const AlertsPage = () => {
 
                   {/* Alert Message */}
                   <div>
-                    <label className="block text-sm font-medium" style={{ color: '#94a3b8', marginBottom: '6px' }}>
+                    <label className="block text-sm font-medium" style={{ color: colors.textSecondary, marginBottom: '6px' }}>
                       Alert Message
                     </label>
                     <textarea
@@ -572,9 +591,9 @@ const AlertsPage = () => {
                       rows="3"
                       className="w-full rounded-md"
                       style={{ 
-                        backgroundColor: '#0f172a', 
-                        color: '#e2e8f0', 
-                        border: '1px solid #334155',
+                        backgroundColor: isLight ? '#f8fafc' : '#0f172a', 
+                        color: colors.textPrimary, 
+                        border: `1px solid ${colors.border}`,
                         padding: '8px 12px',
                         fontSize: '14px',
                         resize: 'vertical',
@@ -584,21 +603,21 @@ const AlertsPage = () => {
                       placeholder="Detailed alert message..."
                       disabled={loading}
                       onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                      onBlur={(e) => e.target.style.borderColor = '#334155'}
+                      onBlur={(e) => e.target.style.borderColor = isLight ? '#e2e8f0' : '#334155'}
                     />
                   </div>
                 </div>
               </div>
 
               {/* Footer Buttons */}
-              <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(148, 163, 184, 0.1)', flexShrink: 0 }}>
+              <div style={{ padding: '16px 20px', borderTop: `1px solid ${colors.border}`, flexShrink: 0 }}>
                 <div className="flex gap-3">
                   <button
                     type="button"
                     className="flex-1 rounded-md font-medium transition-colors focus:outline-none"
                     style={{ 
-                      backgroundColor: '#334155', 
-                      color: '#e2e8f0',
+                      backgroundColor: isLight ? '#e2e8f0' : '#334155', 
+                      color: colors.textPrimary,
                       padding: '10px 16px',
                       border: 'none',
                       cursor: 'pointer',
@@ -610,8 +629,8 @@ const AlertsPage = () => {
                     disabled={loading}
                     onFocus={e => e.currentTarget.style.boxShadow = '0 0 0 2px #3b82f6'}
                     onBlur={e => e.currentTarget.style.boxShadow = '0 0 0 0px #3b82f6'}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = '#475569'}
-                    onMouseLeave={e => e.currentTarget.style.backgroundColor = '#334155'}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = isLight ? '#cbd5e1' : '#475569'}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = isLight ? '#e2e8f0' : '#334155'}
                     onMouseDown={e => e.currentTarget.style.boxShadow = '0 0 0 2px #3b82f6'}
                     onMouseUp={e => e.currentTarget.style.boxShadow = '0 0 0 0px #3b82f6'}
                   >

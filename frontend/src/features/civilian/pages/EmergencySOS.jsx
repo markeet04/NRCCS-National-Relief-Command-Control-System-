@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { Phone, MapPin, Clock, User, CheckCircle } from 'lucide-react';
+import { useSettings } from '@app/providers/ThemeProvider';
+import { getThemeColors } from '@shared/utils/themeColors';
 
 const EmergencySOS = () => {
   const [activeRoute, setActiveRoute] = useState('sos');
-  
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
   const menuItems = [
     { route: 'home', label: 'Home', icon: 'dashboard' },
     { route: 'sos', label: 'Emergency SOS', icon: 'alerts' },
@@ -61,7 +65,7 @@ const EmergencySOS = () => {
       userName="sgb"
     >
       <div style={{ padding: '24px' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#fff', marginBottom: '24px' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: '600', color: colors.textPrimary, marginBottom: '24px' }}>
           SOS Emergency Requests
         </h2>
 
@@ -70,10 +74,10 @@ const EmergencySOS = () => {
             <div
               key={request.id}
               style={{
-                background: 'rgba(255, 255, 255, 0.05)',
+                background: colors.cardBg,
                 borderRadius: '12px',
                 padding: '24px',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                border: `1px solid ${colors.border}`,
                 borderLeft: '4px solid #ef4444'
               }}
             >
@@ -106,12 +110,12 @@ const EmergencySOS = () => {
               </div>
 
               {/* Person Name */}
-              <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#fff', marginBottom: '12px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: '600', color: colors.textPrimary, marginBottom: '12px' }}>
                 {request.name}
               </h3>
 
               {/* Description */}
-              <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '14px', marginBottom: '20px' }}>
+              <p style={{ color: colors.textSecondary, fontSize: '14px', marginBottom: '20px' }}>
                 {request.description}
               </p>
 
@@ -123,27 +127,27 @@ const EmergencySOS = () => {
                 marginBottom: '20px'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Phone size={16} style={{ color: 'rgba(255, 255, 255, 0.6)' }} />
-                  <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '14px' }}>
+                  <Phone size={16} style={{ color: colors.textMuted }} />
+                  <span style={{ color: colors.textSecondary, fontSize: '14px' }}>
                     {request.phone}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <MapPin size={16} style={{ color: 'rgba(255, 255, 255, 0.6)' }} />
-                  <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '14px' }}>
+                  <MapPin size={16} style={{ color: colors.textMuted }} />
+                  <span style={{ color: colors.textSecondary, fontSize: '14px' }}>
                     {request.location}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Clock size={16} style={{ color: 'rgba(255, 255, 255, 0.6)' }} />
-                  <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '14px' }}>
+                  <Clock size={16} style={{ color: colors.textMuted }} />
+                  <span style={{ color: colors.textSecondary, fontSize: '14px' }}>
                     {request.time}
                   </span>
                 </div>
                 {request.assignedTo && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <User size={16} style={{ color: 'rgba(255, 255, 255, 0.6)' }} />
-                    <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '14px' }}>
+                    <User size={16} style={{ color: colors.textMuted }} />
+                    <span style={{ color: colors.textSecondary, fontSize: '14px' }}>
                       Assigned to: {request.assignedTo}
                     </span>
                   </div>
@@ -194,9 +198,9 @@ const EmergencySOS = () => {
                   onClick={() => handleViewOnMap(request.location)}
                   style={{
                     padding: '10px 20px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    color: 'rgba(255, 255, 255, 0.9)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: colors.inputBg,
+                    color: colors.textSecondary,
+                    border: `1px solid ${colors.border}`,
                     borderRadius: '6px',
                     cursor: 'pointer',
                     fontSize: '14px',

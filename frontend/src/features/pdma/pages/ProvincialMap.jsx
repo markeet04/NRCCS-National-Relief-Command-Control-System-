@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
+import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
 
 const ProvincialMap = () => {
   const { theme } = useSettings();
@@ -10,13 +11,9 @@ const ProvincialMap = () => {
   
   const [activeRoute, setActiveRoute] = useState('map');
   
-  const menuItems = [
-    { route: 'dashboard', label: 'Provincial Dashboard', icon: 'dashboard' },
-    { route: 'resources', label: 'Resource Distribution', icon: 'resources' },
-    { route: 'shelters', label: 'Shelter Management', icon: 'map' },
-    { route: 'districts', label: 'District Coordination', icon: 'alerts' },
-    { route: 'map', label: 'Provincial Map', icon: 'map' },
-  ];
+  // Get role configuration and menu items from shared config
+  const roleConfig = ROLE_CONFIG.pdma;
+  const menuItems = useMemo(() => getMenuItemsByRole('pdma'), []);
 
   return (
     <DashboardLayout
