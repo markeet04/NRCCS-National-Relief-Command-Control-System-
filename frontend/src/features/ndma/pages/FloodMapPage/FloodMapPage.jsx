@@ -1,12 +1,18 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { MapPin, CheckCircle, AlertCircle } from 'lucide-react';
+import { useSettings } from '@app/providers/ThemeProvider';
+import { getThemeColors } from '@shared/utils/themeColors';
 
 /**
  * FloodMapPage Component
  * Interactive Pakistan flood map with province status monitoring
  */
 const FloodMapPage = () => {
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
+  
   const [selectedProvince, setSelectedProvince] = useState(null);
 
   // Province status data
@@ -84,20 +90,20 @@ const FloodMapPage = () => {
           </div>
 
           {/* Interactive Map */}
-          <div style={{ backgroundColor: '#1e293b', borderRadius: '12px', border: '1px solid #334155', padding: '24px', minHeight: '500px', position: 'relative' }}>
+          <div style={{ backgroundColor: isLight ? colors.cardBg : '#1e293b', borderRadius: '12px', border: `1px solid ${colors.border}`, padding: '24px', minHeight: '500px', position: 'relative' }}>
             <div style={{ textAlign: 'center', paddingTop: '100px' }}>
               <MapPin className="w-16 h-16 mx-auto mb-4" style={{ color: '#3b82f6' }} />
-              <h3 style={{ color: '#f8fafc', fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>
+              <h3 style={{ color: colors.textPrimary, fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>
                 Interactive Pakistan Map
               </h3>
-              <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: '1.6' }}>
+              <p style={{ color: colors.textSecondary, fontSize: '14px', lineHeight: '1.6' }}>
                 All provinces, GDA locations, districts, flood areas and rescue teams
               </p>
             </div>
 
             {/* Map Legend */}
-            <div style={{ position: 'absolute', bottom: '24px', left: '24px', backgroundColor: '#0f172a', borderRadius: '8px', padding: '12px', border: '1px solid #334155' }}>
-              <div style={{ color: '#94a3b8', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', marginBottom: '8px' }}>
+            <div style={{ position: 'absolute', bottom: '24px', left: '24px', backgroundColor: isLight ? colors.cardBg : '#0f172a', borderRadius: '8px', padding: '12px', border: `1px solid ${colors.border}` }}>
+              <div style={{ color: colors.textMuted, fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', marginBottom: '8px' }}>
                 Legend
               </div>
               <div className="flex flex-col gap-2">

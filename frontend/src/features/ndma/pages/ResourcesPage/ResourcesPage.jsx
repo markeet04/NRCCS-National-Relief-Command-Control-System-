@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { Package, TrendingUp, Layers, AlertCircle, Plus } from 'lucide-react';
+import { useSettings } from '@app/providers/ThemeProvider';
+import { getThemeColors } from '@shared/utils/themeColors';
 
 const ResourcesPage = () => {
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
+  
   const [activeTab, setActiveTab] = useState('national');
   const [isAllocateModalOpen, setIsAllocateModalOpen] = useState(false);
   const [selectedProvince, setSelectedProvince] = useState('Punjab');
@@ -94,8 +100,8 @@ const ResourcesPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: '#f8fafc' }}>Resource Inventory</h1>
-          <p className="text-sm mt-1" style={{ color: '#94a3b8' }}>Manage and allocate national relief resources</p>
+          <h1 className="text-2xl font-bold" style={{ color: colors.textPrimary }}>Resource Inventory</h1>
+          <p className="text-sm mt-1" style={{ color: colors.textSecondary }}>Manage and allocate national relief resources</p>
         </div>
         <button
           onClick={() => setIsAllocateModalOpen(true)}
@@ -112,70 +118,70 @@ const ResourcesPage = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         {/* Total Stock */}
-        <div style={{ backgroundColor: '#1e293b', borderRadius: '12px', padding: '20px', border: '1px solid #334155' }}>
+        <div style={{ backgroundColor: colors.cardBg, borderRadius: '12px', padding: '20px', border: `1px solid ${colors.border}` }}>
           <div className="flex items-center justify-between mb-3">
-            <span style={{ color: '#94a3b8', fontSize: '14px' }}>Total Stock</span>
+            <span style={{ color: colors.textSecondary, fontSize: '14px' }}>Total Stock</span>
             <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Package className="w-4 h-4" style={{ color: '#3b82f6' }} />
             </div>
           </div>
-          <div style={{ color: '#f8fafc', fontSize: '28px', fontWeight: '600', marginBottom: '4px' }}>
+          <div style={{ color: colors.textPrimary, fontSize: '28px', fontWeight: '600', marginBottom: '4px' }}>
             {totalStock.toLocaleString()}
           </div>
-          <div style={{ color: '#64748b', fontSize: '12px' }}>Items available</div>
+          <div style={{ color: colors.textMuted, fontSize: '12px' }}>Items available</div>
         </div>
 
         {/* Allocated */}
-        <div style={{ backgroundColor: '#1e293b', borderRadius: '12px', padding: '20px', border: '1px solid #334155' }}>
+        <div style={{ backgroundColor: colors.cardBg, borderRadius: '12px', padding: '20px', border: `1px solid ${colors.border}` }}>
           <div className="flex items-center justify-between mb-3">
-            <span style={{ color: '#94a3b8', fontSize: '14px' }}>Allocated</span>
+            <span style={{ color: colors.textSecondary, fontSize: '14px' }}>Allocated</span>
             <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <TrendingUp className="w-4 h-4" style={{ color: '#10b981' }} />
             </div>
           </div>
-          <div style={{ color: '#f8fafc', fontSize: '28px', fontWeight: '600', marginBottom: '4px' }}>
+          <div style={{ color: colors.textPrimary, fontSize: '28px', fontWeight: '600', marginBottom: '4px' }}>
             {allocated.toLocaleString()}
           </div>
-          <div style={{ color: '#64748b', fontSize: '12px' }}>To provinces</div>
+          <div style={{ color: colors.textMuted, fontSize: '12px' }}>To provinces</div>
         </div>
 
         {/* Categories */}
-        <div style={{ backgroundColor: '#1e293b', borderRadius: '12px', padding: '20px', border: '1px solid #334155' }}>
+        <div style={{ backgroundColor: colors.cardBg, borderRadius: '12px', padding: '20px', border: `1px solid ${colors.border}` }}>
           <div className="flex items-center justify-between mb-3">
-            <span style={{ color: '#94a3b8', fontSize: '14px' }}>Categories</span>
+            <span style={{ color: colors.textSecondary, fontSize: '14px' }}>Categories</span>
             <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Layers className="w-4 h-4" style={{ color: '#f59e0b' }} />
             </div>
           </div>
-          <div style={{ color: '#f8fafc', fontSize: '28px', fontWeight: '600', marginBottom: '4px' }}>
+          <div style={{ color: colors.textPrimary, fontSize: '28px', fontWeight: '600', marginBottom: '4px' }}>
             {categories}
           </div>
-          <div style={{ color: '#64748b', fontSize: '12px' }}>Resource types</div>
+          <div style={{ color: colors.textMuted, fontSize: '12px' }}>Resource types</div>
         </div>
 
         {/* Low Stock */}
-        <div style={{ backgroundColor: '#1e293b', borderRadius: '12px', padding: '20px', border: '1px solid #334155' }}>
+        <div style={{ backgroundColor: colors.cardBg, borderRadius: '12px', padding: '20px', border: `1px solid ${colors.border}` }}>
           <div className="flex items-center justify-between mb-3">
-            <span style={{ color: '#94a3b8', fontSize: '14px' }}>Low Stock</span>
+            <span style={{ color: colors.textSecondary, fontSize: '14px' }}>Low Stock</span>
             <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <AlertCircle className="w-4 h-4" style={{ color: '#ef4444' }} />
             </div>
           </div>
-          <div style={{ color: '#f8fafc', fontSize: '28px', fontWeight: '600', marginBottom: '4px' }}>
+          <div style={{ color: colors.textPrimary, fontSize: '28px', fontWeight: '600', marginBottom: '4px' }}>
             {lowStock}
           </div>
-          <div style={{ color: '#64748b', fontSize: '12px' }}>Items need restock</div>
+          <div style={{ color: colors.textMuted, fontSize: '12px' }}>Items need restock</div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6" style={{ borderBottom: '1px solid #334155' }}>
+      <div className="flex gap-1 mb-6" style={{ borderBottom: `1px solid ${colors.border}` }}>
         <button
           onClick={() => setActiveTab('national')}
           className="px-6 py-3 font-medium transition-all relative"
           style={{
-            color: activeTab === 'national' ? '#3b82f6' : '#94a3b8',
-            backgroundColor: activeTab === 'national' ? '#1e40af15' : 'transparent',
+            color: activeTab === 'national' ? '#3b82f6' : colors.textSecondary,
+            backgroundColor: activeTab === 'national' ? (isLight ? 'rgba(59, 130, 246, 0.1)' : '#1e40af15') : 'transparent',
             borderRadius: '8px 8px 0 0',
             borderBottom: activeTab === 'national' ? '2px solid #3b82f6' : '2px solid transparent'
           }}
@@ -186,8 +192,8 @@ const ResourcesPage = () => {
           onClick={() => setActiveTab('provincial')}
           className="px-6 py-3 font-medium transition-all relative"
           style={{
-            color: activeTab === 'provincial' ? '#3b82f6' : '#94a3b8',
-            backgroundColor: activeTab === 'provincial' ? '#1e40af15' : 'transparent',
+            color: activeTab === 'provincial' ? '#3b82f6' : colors.textSecondary,
+            backgroundColor: activeTab === 'provincial' ? (isLight ? 'rgba(59, 130, 246, 0.1)' : '#1e40af15') : 'transparent',
             borderRadius: '8px 8px 0 0',
             borderBottom: activeTab === 'provincial' ? '2px solid #3b82f6' : '2px solid transparent'
           }}
@@ -198,36 +204,36 @@ const ResourcesPage = () => {
 
       {/* National Stock Table */}
       {activeTab === 'national' && (
-        <div style={{ backgroundColor: '#1e293b', borderRadius: '12px', border: '1px solid #334155', overflow: 'hidden' }}>
-          <div style={{ padding: '20px', borderBottom: '1px solid #334155' }}>
-            <h3 style={{ color: '#f8fafc', fontSize: '16px', fontWeight: '600' }}>National Warehouse Stock</h3>
+        <div style={{ backgroundColor: colors.cardBg, borderRadius: '12px', border: `1px solid ${colors.border}`, overflow: 'hidden' }}>
+          <div style={{ padding: '20px', borderBottom: `1px solid ${colors.border}` }}>
+            <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600' }}>National Warehouse Stock</h3>
           </div>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ backgroundColor: '#0f172a', borderBottom: '1px solid #334155' }}>
-                  <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Resource</th>
-                  <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Category</th>
-                  <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Quantity</th>
-                  <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Unit</th>
-                  <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Status</th>
-                  <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Action</th>
+                <tr style={{ backgroundColor: isLight ? colors.background : '#0f172a', borderBottom: `1px solid ${colors.border}` }}>
+                  <th style={{ padding: '16px', textAlign: 'left', color: colors.textMuted, fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Resource</th>
+                  <th style={{ padding: '16px', textAlign: 'left', color: colors.textMuted, fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Category</th>
+                  <th style={{ padding: '16px', textAlign: 'left', color: colors.textMuted, fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Quantity</th>
+                  <th style={{ padding: '16px', textAlign: 'left', color: colors.textMuted, fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Unit</th>
+                  <th style={{ padding: '16px', textAlign: 'left', color: colors.textMuted, fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Status</th>
+                  <th style={{ padding: '16px', textAlign: 'left', color: colors.textMuted, fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {nationalStock.map((item, index) => (
-                  <tr key={item.id} style={{ borderBottom: index < nationalStock.length - 1 ? '1px solid #334155' : 'none' }}>
+                  <tr key={item.id} style={{ borderBottom: index < nationalStock.length - 1 ? `1px solid ${colors.border}` : 'none' }}>
                     <td style={{ padding: '16px' }}>
                       <div className="flex items-center gap-3">
                         <span style={{ fontSize: '24px' }}>{item.icon}</span>
-                        <span style={{ color: '#f8fafc', fontSize: '14px', fontWeight: '500' }}>{item.name}</span>
+                        <span style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500' }}>{item.name}</span>
                       </div>
                     </td>
-                    <td style={{ padding: '16px', color: '#cbd5e1', fontSize: '14px' }}>{item.category}</td>
-                    <td style={{ padding: '16px', color: '#f8fafc', fontSize: '14px', fontWeight: '600' }}>
+                    <td style={{ padding: '16px', color: colors.textSecondary, fontSize: '14px' }}>{item.category}</td>
+                    <td style={{ padding: '16px', color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>
                       {item.quantity.toLocaleString()}
                     </td>
-                    <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px' }}>{item.unit}</td>
+                    <td style={{ padding: '16px', color: colors.textMuted, fontSize: '14px' }}>{item.unit}</td>
                     <td style={{ padding: '16px' }}>
                       <span
                         className="px-3 py-1 rounded-full text-xs font-medium"
@@ -269,11 +275,11 @@ const ResourcesPage = () => {
             const totalAllocated = provinceAllocations.reduce((sum, item) => sum + item.quantity, 0);
             
             return (
-              <div key={province} style={{ backgroundColor: '#1e293b', borderRadius: '12px', border: '1px solid #334155', padding: '20px' }}>
+              <div key={province} style={{ backgroundColor: colors.cardBg, borderRadius: '12px', border: `1px solid ${colors.border}`, padding: '20px' }}>
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 style={{ color: '#f8fafc', fontSize: '18px', fontWeight: '600' }}>{province}</h3>
-                    <p style={{ color: '#64748b', fontSize: '13px', marginTop: '4px' }}>
+                    <h3 style={{ color: colors.textPrimary, fontSize: '18px', fontWeight: '600' }}>{province}</h3>
+                    <p style={{ color: colors.textMuted, fontSize: '13px', marginTop: '4px' }}>
                       Total: {totalAllocated.toLocaleString()} units
                     </p>
                   </div>

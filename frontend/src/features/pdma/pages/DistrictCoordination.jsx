@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
+import { useSettings } from '@app/providers/ThemeProvider';
+import { getThemeColors } from '@shared/utils/themeColors';
 
 const DistrictCoordination = () => {
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
+  
   const [activeRoute, setActiveRoute] = useState('districts');
   
   const menuItems = [
@@ -23,16 +29,16 @@ const DistrictCoordination = () => {
       userName="fz"
     >
       <div style={{ padding: '24px' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#fff', marginBottom: '24px' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: '600', color: colors.textPrimary, marginBottom: '24px' }}>
           District Coordination
         </h2>
         <div style={{
-          background: 'rgba(255, 255, 255, 0.05)',
+          background: colors.cardBg,
           borderRadius: '12px',
           padding: '24px',
-          border: '1px solid rgba(255, 255, 255, 0.1)'
+          border: `1px solid ${colors.border}`
         }}>
-          <p style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+          <p style={{ color: colors.textSecondary }}>
             District coordination features will be implemented here.
           </p>
         </div>

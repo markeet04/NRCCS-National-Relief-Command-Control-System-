@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { StatCard, AlertCard, ResourceCard, MapContainer } from '@shared/components/dashboard';
+import { useSettings } from '@app/providers/ThemeProvider';
+import { getThemeColors } from '@shared/utils/themeColors';
 import { 
   AlertTriangle, 
   Radio, 
@@ -19,6 +21,11 @@ import {
 const PDMADashboard = () => {
   const [activeRoute, setActiveRoute] = useState('dashboard');
   const provinceName = 'Sindh'; // This would come from auth context
+  
+  // Theme support
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
 
   // Menu items for PDMA role
   const menuItems = [
@@ -38,6 +45,7 @@ const PDMADashboard = () => {
       trend: -10,
       trendLabel: 'vs last week',
       color: 'danger',
+      gradientKey: 'rose',
     },
     {
       title: 'SOS Requests',
@@ -46,6 +54,7 @@ const PDMADashboard = () => {
       trend: -5,
       trendLabel: 'vs yesterday',
       color: 'warning',
+      gradientKey: 'amber',
     },
     {
       title: 'Active Shelters',
@@ -54,6 +63,7 @@ const PDMADashboard = () => {
       trend: 8,
       trendLabel: 'in province',
       color: 'success',
+      gradientKey: 'emerald',
     },
     {
       title: 'Resources Available',
@@ -62,6 +72,7 @@ const PDMADashboard = () => {
       trend: 0,
       trendLabel: 'units',
       color: 'info',
+      gradientKey: 'blue',
     },
     {
       title: 'Rescue Teams',
@@ -70,6 +81,7 @@ const PDMADashboard = () => {
       trend: 3,
       trendLabel: 'active',
       color: 'success',
+      gradientKey: 'violet',
     },
     {
       title: 'Affected Population',
@@ -78,6 +90,7 @@ const PDMADashboard = () => {
       trend: 2,
       trendLabel: 'estimated',
       color: 'default',
+      gradientKey: 'cyan',
     },
   ];
 
@@ -207,8 +220,14 @@ const PDMADashboard = () => {
         {/* Alert Management */}
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-neutral-900">Provincial Alerts</h2>
-            <button className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+            <h2 className="text-xl font-bold" style={{ color: colors.textPrimary }}>Provincial Alerts</h2>
+            <button 
+              className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-all duration-200"
+              style={{ 
+                background: isLight ? colors.btnSuccessBg : '#059669',
+                boxShadow: isLight ? colors.btnSuccessShadow : 'none'
+              }}
+            >
               <Plus className="w-4 h-4" />
               Create Alert
             </button>
@@ -228,36 +247,63 @@ const PDMADashboard = () => {
 
         {/* District Overview */}
         <div className="space-y-6">
-          <h2 className="text-xl font-bold text-neutral-900">District Status</h2>
-          <div className="bg-white rounded-xl p-6 shadow-card border border-neutral-200">
+          <h2 className="text-xl font-bold" style={{ color: colors.textPrimary }}>District Status</h2>
+          <div 
+            className="rounded-xl p-6 transition-all duration-300"
+            style={{ 
+              background: colors.cardBg,
+              border: `1px solid ${colors.cardBorder}`,
+              boxShadow: isLight ? colors.cardShadow : 'none'
+            }}
+          >
             <div className="space-y-4">
-              <div className="pb-3 border-b border-neutral-200">
+              <div style={{ paddingBottom: '12px', borderBottom: `1px solid ${colors.cardBorder}` }}>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-neutral-700">Karachi</span>
-                  <span className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded-full">Critical</span>
+                  <span className="text-sm font-medium" style={{ color: colors.textSecondary }}>Karachi</span>
+                  <span 
+                    className="text-xs px-2 py-1 rounded-full"
+                    style={{ ...colors.getStatusBadge('#ef4444') }}
+                  >
+                    Critical
+                  </span>
                 </div>
-                <p className="text-xs text-neutral-600">5 active alerts, 12 SOS</p>
+                <p className="text-xs" style={{ color: colors.textMuted }}>5 active alerts, 12 SOS</p>
               </div>
-              <div className="pb-3 border-b border-neutral-200">
+              <div style={{ paddingBottom: '12px', borderBottom: `1px solid ${colors.cardBorder}` }}>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-neutral-700">Sukkur</span>
-                  <span className="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded-full">High</span>
+                  <span className="text-sm font-medium" style={{ color: colors.textSecondary }}>Sukkur</span>
+                  <span 
+                    className="text-xs px-2 py-1 rounded-full"
+                    style={{ ...colors.getStatusBadge('#f97316') }}
+                  >
+                    High
+                  </span>
                 </div>
-                <p className="text-xs text-neutral-600">3 active alerts, 8 SOS</p>
+                <p className="text-xs" style={{ color: colors.textMuted }}>3 active alerts, 8 SOS</p>
               </div>
-              <div className="pb-3 border-b border-neutral-200">
+              <div style={{ paddingBottom: '12px', borderBottom: `1px solid ${colors.cardBorder}` }}>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-neutral-700">Hyderabad</span>
-                  <span className="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded-full">Medium</span>
+                  <span className="text-sm font-medium" style={{ color: colors.textSecondary }}>Hyderabad</span>
+                  <span 
+                    className="text-xs px-2 py-1 rounded-full"
+                    style={{ ...colors.getStatusBadge('#f59e0b') }}
+                  >
+                    Medium
+                  </span>
                 </div>
-                <p className="text-xs text-neutral-600">2 active alerts, 3 SOS</p>
+                <p className="text-xs" style={{ color: colors.textMuted }}>2 active alerts, 3 SOS</p>
               </div>
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-neutral-700">Larkana</span>
-                  <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">Stable</span>
+                  <span className="text-sm font-medium" style={{ color: colors.textSecondary }}>Larkana</span>
+                  <span 
+                    className="text-xs px-2 py-1 rounded-full"
+                    style={{ ...colors.getStatusBadge('#10b981') }}
+                  >
+                    Stable
+                  </span>
                 </div>
-                <p className="text-xs text-neutral-600">0 active alerts</p>
+                <p className="text-xs" style={{ color: colors.textMuted }}>0 active alerts</p>
               </div>
             </div>
           </div>
@@ -275,8 +321,14 @@ const PDMADashboard = () => {
       {/* Resource Inventory */}
       <div style={{ marginTop: '32px', marginBottom: '32px' }}>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-neutral-900">Provincial Resource Inventory</h2>
-          <button className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+          <h2 className="text-xl font-bold" style={{ color: colors.textPrimary }}>Provincial Resource Inventory</h2>
+          <button 
+            className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-all duration-200"
+            style={{ 
+              background: isLight ? colors.btnSuccessBg : '#059669',
+              boxShadow: isLight ? colors.btnSuccessShadow : 'none'
+            }}
+          >
             <Plus className="w-4 h-4" />
             Add Resource
           </button>

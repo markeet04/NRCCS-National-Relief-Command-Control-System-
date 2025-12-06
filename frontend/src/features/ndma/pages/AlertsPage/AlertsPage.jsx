@@ -2,6 +2,8 @@ import { useState, useMemo, useEffect } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { AlertCard } from '@shared/components/dashboard';
 import { Plus, X, CheckCircle, AlertTriangle } from 'lucide-react';
+import { useSettings } from '@app/providers/ThemeProvider';
+import { getThemeColors } from '@shared/utils/themeColors';
 
 // Import service layers and utilities
 import { AlertService } from '@services/AlertService';
@@ -16,6 +18,10 @@ import { getCurrentTimestamp, isToday } from '@utils/dateUtils';
  * Comprehensive alert management interface for viewing, creating, and managing alerts
  */
 const AlertsPage = () => {
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
+  
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [viewAlertId, setViewAlertId] = useState(null);
   const [showResolved, setShowResolved] = useState(false);

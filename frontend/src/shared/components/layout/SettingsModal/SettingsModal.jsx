@@ -1,144 +1,262 @@
-import { X, Sun, Moon, Plus, Minus, Type } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Sun, Moon, Type } from 'lucide-react';
 import PropTypes from 'prop-types';
 import { useSettings } from '@hooks';
 
 const SettingsModal = ({ isOpen, onClose }) => {
   const { theme, fontSize, toggleTheme, increaseFontSize, decreaseFontSize } = useSettings();
+  
+  const [pendingTheme, setPendingTheme] = useState(theme);
+  const [pendingFontSize, setPendingFontSize] = useState(fontSize);
+  
+  const fontSizeMap = { small: 14, medium: 16, large: 18 };
+  const fontSizeToValue = { small: 0, medium: 50, large: 100 };
+  
+  useEffect(() => {
+    if (isOpen) {
+      setPendingTheme(theme);
+      setPendingFontSize(fontSize);
+    }
+  }, [isOpen, theme, fontSize]);
+
+  const handleSave = () => {
+    if (pendingTheme !== theme) toggleTheme();
+    if (pendingFontSize !== fontSize) {
+      const currentIndex = ['small', 'medium', 'large'].indexOf(fontSize);
+      const targetIndex = ['small', 'medium', 'large'].indexOf(pendingFontSize);
+      const diff = targetIndex - currentIndex;
+      if (diff > 0) for (let i = 0; i < diff; i++) increaseFontSize();
+      else for (let i = 0; i < Math.abs(diff); i++) decreaseFontSize();
+    }
+    onClose();
+  };
+
+  const handleCancel = () => {
+    setPendingTheme(theme);
+    setPendingFontSize(fontSize);
+    onClose();
+  };
+
+  const handleSliderChange = (e) => {
+    const value = parseInt(e.target.value);
+    if (value <= 25) setPendingFontSize('small');
+    else if (value <= 75) setPendingFontSize('medium');
+    else setPendingFontSize('large');
+  };
 
   if (!isOpen) return null;
 
+  const isDark = pendingTheme === 'dark';
+  const modalBg = isDark ? '#0f172a' : '#ffffff';
+  const cardBg = isDark ? '#1e293b' : '#f8fafc';
+  const cardBorder = isDark ? '#334155' : '#e2e8f0';
+  const textPrimary = isDark ? '#f1f5f9' : '#0f172a';
+  const textSecondary = isDark ? '#94a3b8' : '#64748b';
+  const sliderTrack = isDark ? '#334155' : '#e2e8f0';
+
   return (
     <div 
-      className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ backgroundColor: 'rgba(2, 6, 23, 0.35)', backdropFilter: 'blur(2px)' }}
-      onClick={onClose}
+      onClick={handleCancel}
+      style={{ 
+        position: 'fixed',
+        inset: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 50,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+        backdropFilter: 'blur(4px)',
+      }}
     >
       <div 
-        className="rounded-2xl shadow-2xl max-w-lg w-full mx-4"
-        style={{ backgroundColor: theme === 'dark' ? '#252d3d' : '#ffffff', padding: '36px 32px', boxSizing: 'border-box', border: theme === 'dark' ? '1.5px solid #334155' : '1.5px solid #e2e8f0' }}
         onClick={(e) => e.stopPropagation()}
+        style={{ 
+          backgroundColor: modalBg,
+          width: '360px',
+          maxWidth: '90vw',
+          borderRadius: '16px',
+          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.25)',
+          overflow: 'hidden'
+        }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between pb-6 mb-4 border-b" style={{ borderColor: theme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : '#e2e8f0' }}>
-          <h2 className="text-xl font-bold" style={{ color: theme === 'dark' ? '#ffffff' : '#1e293b' }}>
-            Settings
-          </h2>
+        <div style={{ 
+          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+          padding: '16px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <h2 style={{ color: '#fff', fontSize: '18px', fontWeight: 600, margin: 0 }}>Settings</h2>
           <button
-            onClick={onClose}
-            className="p-2 rounded-lg hover:bg-opacity-10 hover:bg-gray-500 transition-colors"
+            onClick={handleCancel}
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
+              backgroundColor: 'rgba(255,255,255,0.15)',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
           >
-            <X className="w-5 h-5" style={{ color: theme === 'dark' ? '#94a3b8' : '#64748b' }} />
+            <X style={{ width: '18px', height: '18px', color: '#fff' }} />
           </button>
         </div>
 
         {/* Content */}
-        <div className="space-y-7">
-          {/* Theme Toggle */}
-          <div className="mb-2">
-            <label className="text-sm font-semibold mb-3 block" style={{ color: theme === 'dark' ? '#cbd5e1' : '#475569' }}>
-              Theme
-            </label>
-            <button
-              onClick={toggleTheme}
-              className="w-full flex items-center justify-between p-4 rounded-lg border transition-colors"
-              style={{ 
-                backgroundColor: theme === 'dark' ? '#1a1f2e' : '#f8fafc',
-                borderColor: theme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : '#e2e8f0'
-              }}
-            >
-              <div className="flex items-center gap-3">
-                {theme === 'dark' ? (
-                  <Moon className="w-5 h-5" style={{ color: '#60a5fa' }} />
-                ) : (
-                  <Sun className="w-5 h-5" style={{ color: '#f59e0b' }} />
-                )}
-                <span className="font-medium" style={{ color: theme === 'dark' ? '#ffffff' : '#1e293b' }}>
-                  {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
-                </span>
-              </div>
-              <span className="text-xs px-3 py-1 rounded-full" style={{ 
-                backgroundColor: theme === 'dark' ? 'rgba(96, 165, 250, 0.2)' : 'rgba(245, 158, 11, 0.2)',
-                color: theme === 'dark' ? '#60a5fa' : '#f59e0b'
-              }}>
-                Active
-              </span>
-            </button>
-          </div>
-
-          {/* Font Size */}
-          <div className="mb-2">
-            <label className="text-sm font-semibold mb-3 block" style={{ color: theme === 'dark' ? '#cbd5e1' : '#475569' }}>
-              Font Size
-            </label>
-            <div className="flex items-center gap-5">
+        <div style={{ padding: '20px' }}>
+          {/* Appearance */}
+          <div style={{ marginBottom: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+              <Sun style={{ width: '16px', height: '16px', color: '#f59e0b' }} />
+              <span style={{ fontSize: '13px', fontWeight: 600, color: textPrimary }}>Appearance</span>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              {/* Light */}
               <button
-                onClick={decreaseFontSize}
-                disabled={fontSize === 'small'}
-                className="flex-1 flex items-center justify-center gap-2 p-4 rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => setPendingTheme('light')}
                 style={{ 
-                  backgroundColor: theme === 'dark' ? '#1a1f2e' : '#f8fafc',
-                  borderColor: theme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : '#e2e8f0'
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '16px 12px',
+                  borderRadius: '12px',
+                  backgroundColor: cardBg,
+                  border: pendingTheme === 'light' ? '2px solid #10b981' : `1.5px solid ${cardBorder}`,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
                 }}
               >
-                <Minus className="w-4 h-4" style={{ color: theme === 'dark' ? '#94a3b8' : '#64748b' }} />
-                <span className="font-medium" style={{ color: theme === 'dark' ? '#ffffff' : '#1e293b' }}>Smaller</span>
+                <div style={{ 
+                  width: '44px', height: '44px', borderRadius: '10px',
+                  backgroundColor: isDark ? '#334155' : '#f1f5f9',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }}>
+                  <Sun style={{ width: '22px', height: '22px', color: '#f59e0b' }} />
+                </div>
+                <span style={{ fontSize: '13px', fontWeight: 500, color: textPrimary }}>Light</span>
               </button>
               
-              <div className="flex items-center justify-center px-6 py-4 rounded-lg border" style={{ 
-                backgroundColor: theme === 'dark' ? '#1a1f2e' : '#f8fafc',
-                borderColor: theme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : '#e2e8f0',
-                minWidth: '110px'
-              }}>
-                <Type className="w-5 h-5 mr-2" style={{ color: theme === 'dark' ? '#60a5fa' : '#3b82f6' }} />
-                <span className="font-semibold capitalize" style={{ color: theme === 'dark' ? '#ffffff' : '#1e293b' }}>
-                  {fontSize}
-                </span>
-              </div>
-
+              {/* Dark */}
               <button
-                onClick={increaseFontSize}
-                disabled={fontSize === 'large'}
-                className="flex-1 flex items-center justify-center gap-2 p-4 rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => setPendingTheme('dark')}
                 style={{ 
-                  backgroundColor: theme === 'dark' ? '#1a1f2e' : '#f8fafc',
-                  borderColor: theme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : '#e2e8f0'
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '16px 12px',
+                  borderRadius: '12px',
+                  backgroundColor: cardBg,
+                  border: pendingTheme === 'dark' ? '2px solid #10b981' : `1.5px solid ${cardBorder}`,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
                 }}
               >
-                <Plus className="w-4 h-4" style={{ color: theme === 'dark' ? '#94a3b8' : '#64748b' }} />
-                <span className="font-medium" style={{ color: theme === 'dark' ? '#ffffff' : '#1e293b' }}>Larger</span>
+                <div style={{ 
+                  width: '44px', height: '44px', borderRadius: '10px',
+                  backgroundColor: isDark ? '#0f172a' : '#1e293b',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }}>
+                  <Moon style={{ width: '22px', height: '22px', color: '#60a5fa' }} />
+                </div>
+                <span style={{ fontSize: '13px', fontWeight: 500, color: textPrimary }}>Dark</span>
               </button>
             </div>
+          </div>
+
+          {/* Text Size */}
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Type style={{ width: '16px', height: '16px', color: textSecondary }} />
+                <span style={{ fontSize: '13px', fontWeight: 600, color: textPrimary }}>Text Size</span>
+              </div>
+              <span style={{ 
+                fontSize: '12px', fontWeight: 500, color: '#10b981',
+                backgroundColor: 'rgba(16,185,129,0.1)',
+                padding: '3px 10px', borderRadius: '6px'
+              }}>
+                {fontSizeMap[pendingFontSize]}px
+              </span>
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '12px', fontWeight: 600, color: textSecondary }}>A</span>
+              <input
+                type="range" min="0" max="100" step="50"
+                value={fontSizeToValue[pendingFontSize]}
+                onChange={handleSliderChange}
+                style={{
+                  flex: 1, height: '6px', borderRadius: '3px',
+                  appearance: 'none', cursor: 'pointer',
+                  background: `linear-gradient(to right, #10b981 ${fontSizeToValue[pendingFontSize]}%, ${sliderTrack} ${fontSizeToValue[pendingFontSize]}%)`
+                }}
+              />
+              <span style={{ fontSize: '16px', fontWeight: 600, color: textSecondary }}>A</span>
+            </div>
+            <style>{`
+              input[type="range"]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 18px; height: 18px; border-radius: 50%;
+                background: #10b981; cursor: pointer;
+                border: 3px solid white;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+              }
+              input[type="range"]::-moz-range-thumb {
+                width: 18px; height: 18px; border-radius: 50%;
+                background: #10b981; cursor: pointer;
+                border: 3px solid white;
+              }
+              input[type="range"]:focus { outline: none; }
+            `}</style>
           </div>
 
           {/* Preview */}
-          <div className="p-5 rounded-lg border" style={{ 
-            backgroundColor: theme === 'dark' ? '#1a1f2e' : '#f8fafc',
-            borderColor: theme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : '#e2e8f0',
-            marginTop: '10px',
-            marginBottom: '10px'
+          <div style={{ 
+            backgroundColor: cardBg, borderRadius: '10px',
+            padding: '14px 16px', marginBottom: '20px',
+            border: `1px solid ${cardBorder}`
           }}>
-            <p className="text-xs mb-2" style={{ color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>Preview:</p>
-            <div style={{ padding: '12px 16px', background: theme === 'dark' ? 'rgba(30,41,59,0.7)' : 'rgba(241,245,249,0.7)', borderRadius: '8px' }}>
-              <p style={{ 
-                color: theme === 'dark' ? '#ffffff' : '#1e293b',
-                fontSize: `${fontSize === 'small' ? 0.875 : fontSize === 'large' ? 1.125 : 1}rem`,
-                margin: 0
-              }}>
-                The quick brown fox jumps over the lazy dog
-              </p>
-            </div>
+            <p style={{ 
+              color: textPrimary, fontSize: `${fontSizeMap[pendingFontSize]}px`,
+              textAlign: 'center', margin: 0, lineHeight: 1.5
+            }}>
+              The quick brown fox jumps
+            </p>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="pt-6 mt-4 border-t flex justify-end" style={{ borderColor: theme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : '#e2e8f0' }}>
-          <button
-            onClick={onClose}
-            className="px-8 py-3 rounded-lg font-medium transition-colors shadow-sm"
-            style={{ backgroundColor: '#0ea5e9', color: '#ffffff', fontSize: '1rem', letterSpacing: '0.01em' }}
-          >
-            Done
-          </button>
+          {/* Buttons */}
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={handleCancel}
+              style={{ 
+                flex: 1, padding: '11px 16px', borderRadius: '10px',
+                fontSize: '14px', fontWeight: 600,
+                backgroundColor: cardBg, color: textSecondary,
+                border: `1px solid ${cardBorder}`, cursor: 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              style={{ 
+                flex: 1, padding: '11px 16px', borderRadius: '10px',
+                fontSize: '14px', fontWeight: 600,
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                color: '#fff', border: 'none', cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(16,185,129,0.3)'
+              }}
+            >
+              Save
+            </button>
+          </div>
         </div>
       </div>
     </div>

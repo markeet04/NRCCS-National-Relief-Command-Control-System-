@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 import { MapPin, Maximize2 } from 'lucide-react';
+import { useSettings } from '@app/providers/ThemeProvider';
+import { getThemeColors } from '@shared/utils/themeColors';
 
 /**
  * MapContainer Component
@@ -21,21 +23,42 @@ const MapContainer = ({
     { label: 'Low', color: 'bg-blue-500' },
   ]
 }) => {
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
+
   return (
-    <div className="rounded-xl overflow-hidden" style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', boxShadow: 'var(--card-shadow)' }}>
+    <div 
+      className="rounded-xl overflow-hidden transition-all duration-300" 
+      style={{ 
+        background: isLight ? 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)' : colors.cardBg, 
+        border: `1px solid ${isLight ? '#e2e8f0' : colors.cardBorder}`, 
+        boxShadow: isLight ? '0 8px 32px rgba(0,0,0,0.08)' : 'none'
+      }}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
+      <div 
+        className="flex items-center justify-between px-6 py-4" 
+        style={{ 
+          borderBottom: `1px solid ${isLight ? '#e2e8f0' : colors.cardBorder}`,
+          background: isLight ? 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' : 'transparent'
+        }}
+      >
         <div className="flex items-center gap-2">
-          <MapPin className="w-5 h-5" style={{ color: 'var(--text-muted)' }} />
-          <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{title}</h2>
+          <MapPin className="w-5 h-5" style={{ color: isLight ? '#0284c7' : colors.textMuted }} />
+          <h2 className="text-lg font-semibold" style={{ color: colors.textPrimary }}>{title}</h2>
         </div>
         {onExpand && (
           <button
             onClick={onExpand}
-            className="p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+            className="p-2 rounded-lg transition-all duration-200 hover:scale-105"
+            style={{ 
+              background: isLight ? 'rgba(2, 132, 199, 0.1)' : 'rgba(255,255,255,0.1)',
+              color: isLight ? '#0284c7' : '#94a3b8'
+            }}
             title="Expand map"
           >
-            <Maximize2 className="w-5 h-5 text-neutral-600" />
+            <Maximize2 className="w-5 h-5" />
           </button>
         )}
       </div>

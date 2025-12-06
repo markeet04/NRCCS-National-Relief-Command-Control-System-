@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
+import { useSettings } from '@app/providers/ThemeProvider';
+import { getThemeColors } from '@shared/utils/themeColors';
 
 const UserManagement = () => {
   const [activeRoute, setActiveRoute] = useState('users');
   const [searchQuery, setSearchQuery] = useState('');
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
   
   const menuItems = [
     { route: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
@@ -67,7 +72,7 @@ const UserManagement = () => {
           alignItems: 'center',
           marginBottom: '24px'
         }}>
-          <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#fff' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: '600', color: colors.textPrimary }}>
             User Management
           </h2>
           <button
@@ -93,10 +98,10 @@ const UserManagement = () => {
 
         {/* Search Bar */}
         <div style={{
-          background: 'rgba(255, 255, 255, 0.05)',
+          background: colors.cardBg,
           borderRadius: '12px',
           padding: '24px',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          border: `1px solid ${colors.border}`,
           marginBottom: '24px'
         }}>
           <div style={{ position: 'relative' }}>
@@ -107,7 +112,7 @@ const UserManagement = () => {
                 left: '12px',
                 top: '50%',
                 transform: 'translateY(-50%)',
-                color: 'rgba(255, 255, 255, 0.4)'
+                color: colors.textMuted
               }}
             />
             <input
@@ -118,10 +123,10 @@ const UserManagement = () => {
               style={{
                 width: '100%',
                 padding: '12px 12px 12px 44px',
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                background: colors.inputBg,
+                border: `1px solid ${colors.border}`,
                 borderRadius: '8px',
-                color: '#fff',
+                color: colors.textPrimary,
                 fontSize: '14px',
                 outline: 'none'
               }}
@@ -131,31 +136,31 @@ const UserManagement = () => {
 
         {/* Users Table */}
         <div style={{
-          background: 'rgba(255, 255, 255, 0.05)',
+          background: colors.cardBg,
           borderRadius: '12px',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          border: `1px solid ${colors.border}`,
           overflow: 'hidden'
         }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                <th style={tableHeaderStyle}>Name</th>
-                <th style={tableHeaderStyle}>Email</th>
-                <th style={tableHeaderStyle}>Role</th>
-                <th style={tableHeaderStyle}>Location</th>
-                <th style={tableHeaderStyle}>Status</th>
-                <th style={tableHeaderStyle}>Actions</th>
+              <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                <th style={{ ...tableHeaderStyle, color: colors.textSecondary }}>Name</th>
+                <th style={{ ...tableHeaderStyle, color: colors.textSecondary }}>Email</th>
+                <th style={{ ...tableHeaderStyle, color: colors.textSecondary }}>Role</th>
+                <th style={{ ...tableHeaderStyle, color: colors.textSecondary }}>Location</th>
+                <th style={{ ...tableHeaderStyle, color: colors.textSecondary }}>Status</th>
+                <th style={{ ...tableHeaderStyle, color: colors.textSecondary }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredUsers.map((user) => (
                 <tr 
                   key={user.id}
-                  style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}
+                  style={{ borderBottom: `1px solid ${colors.border}` }}
                 >
-                  <td style={tableCellStyle}>{user.name}</td>
+                  <td style={{ ...tableCellStyle, color: colors.textPrimary }}>{user.name}</td>
                   <td style={tableCellStyle}>
-                    <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                    <span style={{ color: colors.textSecondary }}>
                       {user.email}
                     </span>
                   </td>
@@ -170,7 +175,7 @@ const UserManagement = () => {
                       {user.role}
                     </span>
                   </td>
-                  <td style={tableCellStyle}>{user.location}</td>
+                  <td style={{ ...tableCellStyle, color: colors.textPrimary }}>{user.location}</td>
                   <td style={tableCellStyle}>
                     <span style={{
                       color: user.status === 'active' ? '#10b981' : '#ef4444'
@@ -221,14 +226,12 @@ const tableHeaderStyle = {
   textAlign: 'left',
   fontSize: '13px',
   fontWeight: '500',
-  color: 'rgba(255, 255, 255, 0.7)',
   textTransform: 'uppercase',
   letterSpacing: '0.5px'
 };
 
 const tableCellStyle = {
   padding: '16px',
-  color: '#fff',
   fontSize: '14px'
 };
 

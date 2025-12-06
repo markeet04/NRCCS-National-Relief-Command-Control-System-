@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { Plus, MapPin, Phone } from 'lucide-react';
+import { useSettings } from '@app/providers/ThemeProvider';
+import { getThemeColors } from '@shared/utils/themeColors';
 
 const ShelterManagement = () => {
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
+  
   const [activeRoute, setActiveRoute] = useState('shelters');
   
   const menuItems = [
@@ -58,7 +64,7 @@ const ShelterManagement = () => {
           alignItems: 'center',
           marginBottom: '24px'
         }}>
-          <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#fff' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: '600', color: colors.textPrimary }}>
             Shelter Registry
           </h2>
           <button
@@ -94,10 +100,10 @@ const ShelterManagement = () => {
               <div
                 key={shelter.id}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
+                  background: colors.cardBg,
                   borderRadius: '12px',
                   padding: '24px',
-                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                  border: `1px solid ${colors.border}`
                 }}
               >
                 {/* Header */}
@@ -111,7 +117,7 @@ const ShelterManagement = () => {
                     <h3 style={{ 
                       fontSize: '18px', 
                       fontWeight: '600', 
-                      color: '#fff',
+                      color: colors.textPrimary,
                       marginBottom: '8px'
                     }}>
                       {shelter.name}
@@ -120,7 +126,7 @@ const ShelterManagement = () => {
                       display: 'flex', 
                       alignItems: 'center', 
                       gap: '6px',
-                      color: 'rgba(255, 255, 255, 0.6)',
+                      color: colors.textSecondary,
                       fontSize: '13px',
                       marginBottom: '4px'
                     }}>
@@ -146,16 +152,16 @@ const ShelterManagement = () => {
                     justifyContent: 'space-between',
                     marginBottom: '8px'
                   }}>
-                    <span style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.7)' }}>
+                    <span style={{ fontSize: '13px', color: colors.textSecondary }}>
                       Capacity
                     </span>
-                    <span style={{ fontSize: '14px', color: '#fff', fontWeight: '500' }}>
+                    <span style={{ fontSize: '14px', color: colors.textPrimary, fontWeight: '500' }}>
                       {shelter.capacity} / {shelter.maxCapacity}
                     </span>
                   </div>
                   <div style={{
                     height: '6px',
-                    background: 'rgba(255, 255, 255, 0.1)',
+                    background: isLight ? '#e2e8f0' : 'rgba(255, 255, 255, 0.1)',
                     borderRadius: '3px',
                     overflow: 'hidden'
                   }}>
@@ -175,8 +181,8 @@ const ShelterManagement = () => {
                   gap: '8px',
                   marginBottom: '16px'
                 }}>
-                  <Phone size={16} style={{ color: 'rgba(255, 255, 255, 0.6)' }} />
-                  <span style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '14px' }}>
+                  <Phone size={16} style={{ color: colors.textMuted }} />
+                  <span style={{ color: colors.textPrimary, fontSize: '14px' }}>
                     {shelter.phone}
                   </span>
                 </div>

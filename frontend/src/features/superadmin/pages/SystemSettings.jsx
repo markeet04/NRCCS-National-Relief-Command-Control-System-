@@ -1,8 +1,13 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
+import { useSettings } from '@app/providers/ThemeProvider';
+import { getThemeColors } from '@shared/utils/themeColors';
 
 const SystemSettings = () => {
   const [activeRoute, setActiveRoute] = useState('settings');
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
   
   const menuItems = [
     { route: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
@@ -40,25 +45,25 @@ const SystemSettings = () => {
       userName="Admin"
     >
       <div style={{ padding: '24px' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#fff', marginBottom: '24px' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: '600', color: colors.textPrimary, marginBottom: '24px' }}>
           System Settings
         </h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
           {/* General Settings */}
           <div style={{
-            background: 'rgba(255, 255, 255, 0.05)',
+            background: colors.cardBg,
             borderRadius: '12px',
             padding: '24px',
-            border: '1px solid rgba(255, 255, 255, 0.1)'
+            border: `1px solid ${colors.border}`
           }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#fff', marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', color: colors.textPrimary, marginBottom: '20px' }}>
               General Settings
             </h3>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '13px', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '8px' }}>
+                <label style={{ display: 'block', fontSize: '13px', color: colors.textSecondary, marginBottom: '8px' }}>
                   System Name
                 </label>
                 <input
@@ -68,10 +73,10 @@ const SystemSettings = () => {
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: colors.inputBg,
+                    border: `1px solid ${colors.border}`,
                     borderRadius: '8px',
-                    color: '#fff',
+                    color: colors.textPrimary,
                     fontSize: '14px',
                     outline: 'none'
                   }}
@@ -79,7 +84,7 @@ const SystemSettings = () => {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '8px' }}>
+                <label style={{ display: 'block', fontSize: '13px', color: colors.textSecondary, marginBottom: '8px' }}>
                   Alert Threshold
                 </label>
                 <select
@@ -88,10 +93,10 @@ const SystemSettings = () => {
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: colors.inputBg,
+                    border: `1px solid ${colors.border}`,
                     borderRadius: '8px',
-                    color: '#fff',
+                    color: colors.textPrimary,
                     fontSize: '14px',
                     outline: 'none'
                   }}
@@ -104,7 +109,7 @@ const SystemSettings = () => {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '8px' }}>
+                <label style={{ display: 'block', fontSize: '13px', color: colors.textSecondary, marginBottom: '8px' }}>
                   Session Timeout (minutes)
                 </label>
                 <input
@@ -114,10 +119,10 @@ const SystemSettings = () => {
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: colors.inputBg,
+                    border: `1px solid ${colors.border}`,
                     borderRadius: '8px',
-                    color: '#fff',
+                    color: colors.textPrimary,
                     fontSize: '14px',
                     outline: 'none'
                   }}
@@ -128,12 +133,12 @@ const SystemSettings = () => {
 
           {/* System Status */}
           <div style={{
-            background: 'rgba(255, 255, 255, 0.05)',
+            background: colors.cardBg,
             borderRadius: '12px',
             padding: '24px',
-            border: '1px solid rgba(255, 255, 255, 0.1)'
+            border: `1px solid ${colors.border}`
           }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#fff', marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', color: colors.textPrimary, marginBottom: '20px' }}>
               System Status
             </h3>
 
@@ -143,12 +148,12 @@ const SystemSettings = () => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '16px',
-                background: 'rgba(255, 255, 255, 0.03)',
+                background: colors.inputBg,
                 borderRadius: '8px'
               }}>
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: '500', color: '#fff' }}>Auto Backup</div>
-                  <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.6)' }}>Automatic daily backups</div>
+                  <div style={{ fontSize: '14px', fontWeight: '500', color: colors.textPrimary }}>Auto Backup</div>
+                  <div style={{ fontSize: '12px', color: colors.textSecondary }}>Automatic daily backups</div>
                 </div>
                 <div style={{ 
                   fontSize: '13px', 
@@ -164,12 +169,12 @@ const SystemSettings = () => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '16px',
-                background: 'rgba(255, 255, 255, 0.03)',
+                background: colors.inputBg,
                 borderRadius: '8px'
               }}>
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: '500', color: '#fff' }}>Maintenance Mode</div>
-                  <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.6)' }}>System maintenance status</div>
+                  <div style={{ fontSize: '14px', fontWeight: '500', color: colors.textPrimary }}>Maintenance Mode</div>
+                  <div style={{ fontSize: '12px', color: colors.textSecondary }}>System maintenance status</div>
                 </div>
                 <div style={{ 
                   fontSize: '13px', 
@@ -185,12 +190,12 @@ const SystemSettings = () => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '16px',
-                background: 'rgba(255, 255, 255, 0.03)',
+                background: colors.inputBg,
                 borderRadius: '8px'
               }}>
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: '500', color: '#fff' }}>Database</div>
-                  <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.6)' }}>Connection status</div>
+                  <div style={{ fontSize: '14px', fontWeight: '500', color: colors.textPrimary }}>Database</div>
+                  <div style={{ fontSize: '12px', color: colors.textSecondary }}>Connection status</div>
                 </div>
                 <div style={{ 
                   fontSize: '13px', 
@@ -206,16 +211,16 @@ const SystemSettings = () => {
 
         {/* Security Settings */}
         <div style={{
-          background: 'rgba(255, 255, 255, 0.05)',
+          background: colors.cardBg,
           borderRadius: '12px',
           padding: '24px',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          border: `1px solid ${colors.border}`,
           marginTop: '24px'
         }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#fff', marginBottom: '20px' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '600', color: colors.textPrimary, marginBottom: '20px' }}>
             Security Settings
           </h3>
-          <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '14px' }}>
+          <p style={{ color: colors.textSecondary, fontSize: '14px' }}>
             Configure authentication, password policies, and access controls.
           </p>
         </div>

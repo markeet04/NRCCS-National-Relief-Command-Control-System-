@@ -1,9 +1,14 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { Plus, Cloud } from 'lucide-react';
+import { useSettings } from '@app/providers/ThemeProvider';
+import { getThemeColors } from '@shared/utils/themeColors';
 
 const APIIntegration = () => {
   const [activeRoute, setActiveRoute] = useState('api');
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
   
   const menuItems = [
     { route: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
@@ -70,7 +75,7 @@ const APIIntegration = () => {
           alignItems: 'center',
           marginBottom: '24px'
         }}>
-          <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#fff' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: '600', color: colors.textPrimary }}>
             API Integration
           </h2>
           <button
@@ -104,10 +109,10 @@ const APIIntegration = () => {
             <div
               key={integration.id}
               style={{
-                background: 'rgba(255, 255, 255, 0.05)',
+                background: colors.cardBg,
                 borderRadius: '12px',
                 padding: '24px',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
+                border: `1px solid ${colors.border}`
               }}
             >
               {/* Integration Header */}
@@ -136,14 +141,14 @@ const APIIntegration = () => {
                     <h3 style={{ 
                       fontSize: '18px', 
                       fontWeight: '600', 
-                      color: '#fff',
+                      color: colors.textPrimary,
                       marginBottom: '2px'
                     }}>
                       {integration.name}
                     </h3>
                     <p style={{ 
                       fontSize: '13px', 
-                      color: 'rgba(147, 147, 255, 0.8)'
+                      color: colors.primary
                     }}>
                       {integration.url}
                     </p>
@@ -168,18 +173,18 @@ const APIIntegration = () => {
                 <label style={{ 
                   display: 'block', 
                   fontSize: '12px', 
-                  color: 'rgba(255, 255, 255, 0.6)',
+                  color: colors.textSecondary,
                   marginBottom: '6px'
                 }}>
                   API Key
                 </label>
                 <div style={{
                   padding: '10px 12px',
-                  background: 'rgba(255, 255, 255, 0.03)',
+                  background: colors.inputBg,
                   borderRadius: '6px',
                   fontFamily: 'monospace',
                   fontSize: '13px',
-                  color: 'rgba(255, 255, 255, 0.8)'
+                  color: colors.textPrimary
                 }}>
                   {integration.apiKey}
                 </div>
@@ -188,7 +193,7 @@ const APIIntegration = () => {
               {/* Last Tested */}
               <div style={{ 
                 fontSize: '13px', 
-                color: 'rgba(255, 255, 255, 0.6)',
+                color: colors.textSecondary,
                 marginBottom: '16px'
               }}>
                 Last tested: {integration.lastTested}
@@ -217,9 +222,9 @@ const APIIntegration = () => {
                   style={{
                     flex: 1,
                     padding: '10px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    color: 'rgba(255, 255, 255, 0.8)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: colors.inputBg,
+                    color: colors.textPrimary,
+                    border: `1px solid ${colors.border}`,
                     borderRadius: '6px',
                     cursor: 'pointer',
                     fontSize: '13px',

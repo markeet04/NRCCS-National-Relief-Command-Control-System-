@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { Plus, Package, Droplet, Heart } from 'lucide-react';
+import { useSettings } from '@app/providers/ThemeProvider';
+import { getThemeColors } from '@shared/utils/themeColors';
 
 const ResourceDistribution = () => {
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
+  
   const [activeRoute, setActiveRoute] = useState('resources');
   
   const menuItems = [
@@ -65,7 +71,7 @@ const ResourceDistribution = () => {
           alignItems: 'center',
           marginBottom: '24px'
         }}>
-          <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#fff' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: '600', color: colors.textPrimary }}>
             Resource Inventory
           </h2>
           <button
@@ -102,10 +108,10 @@ const ResourceDistribution = () => {
               <div
                 key={resource.id}
                 style={{
-                  background: '#fff',
+                  background: colors.cardBg,
                   borderRadius: '12px',
                   padding: '24px',
-                  border: '1px solid rgba(0, 0, 0, 0.1)'
+                  border: `1px solid ${colors.border}`
                 }}
               >
                 {/* Header */}
@@ -137,7 +143,7 @@ const ResourceDistribution = () => {
                     <h3 style={{ 
                       fontSize: '18px', 
                       fontWeight: '600', 
-                      color: '#111',
+                      color: colors.textPrimary,
                       textTransform: 'capitalize'
                     }}>
                       {resource.name}
@@ -159,13 +165,13 @@ const ResourceDistribution = () => {
 
                 {/* Details */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{ fontSize: '14px', color: '#999' }}>
+                  <div style={{ fontSize: '14px', color: colors.textSecondary }}>
                     Quantity:
                   </div>
-                  <div style={{ fontSize: '14px', color: '#999' }}>
+                  <div style={{ fontSize: '14px', color: colors.textSecondary }}>
                     Location:
                   </div>
-                  <div style={{ fontSize: '14px', color: '#999' }}>
+                  <div style={{ fontSize: '14px', color: colors.textSecondary }}>
                     Province:
                   </div>
                 </div>
@@ -176,10 +182,10 @@ const ResourceDistribution = () => {
 
         {/* Shelter Registry Section */}
         <div style={{
-          background: 'rgba(255, 255, 255, 0.05)',
+          background: colors.cardBg,
           borderRadius: '12px',
           padding: '24px',
-          border: '1px solid rgba(255, 255, 255, 0.1)'
+          border: `1px solid ${colors.border}`
         }}>
           <div style={{ 
             display: 'flex', 
@@ -187,7 +193,7 @@ const ResourceDistribution = () => {
             alignItems: 'center',
             marginBottom: '24px'
           }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#fff' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '600', color: colors.textPrimary }}>
               Shelter Registry
             </h2>
             <button

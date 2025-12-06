@@ -2,6 +2,8 @@ import PropTypes from 'prop-types';
 import { AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import { UI_CONSTANTS } from '@config/constants';
 import { getSeverityColor, getStatusColor } from '@utils/colorUtils';
+import { useSettings } from '@app/providers/ThemeProvider';
+import { getThemeColors } from '@shared/utils/themeColors';
 
 /**
  * AlertCard Component
@@ -30,8 +32,43 @@ const AlertCard = ({
   onView,
   showSeverityBadge = false
 }) => {
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
+  
   const severityColor = getSeverityColor(severity);
   const statusColor = getStatusColor(status);
+
+  // Get severity-based styling for light mode
+  const getSeverityStyle = () => {
+    if (!isLight) return { bg: colors.cardBg, border: colors.cardBorder, accentLine: '#ef4444' };
+    
+    const styles = {
+      critical: { 
+        bg: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)', 
+        border: '#fecaca',
+        accentLine: '#dc2626'
+      },
+      high: { 
+        bg: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)', 
+        border: '#fed7aa',
+        accentLine: '#ea580c'
+      },
+      medium: { 
+        bg: 'linear-gradient(135deg, #fefce8 0%, #fef9c3 100%)', 
+        border: '#fde047',
+        accentLine: '#ca8a04'
+      },
+      low: { 
+        bg: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', 
+        border: '#bbf7d0',
+        accentLine: '#16a34a'
+      }
+    };
+    return styles[severity] || styles.medium;
+  };
+  
+  const severityStyle = getSeverityStyle();
 
   const getStatusIcon = () => {
     const icons = {
@@ -43,17 +80,27 @@ const AlertCard = ({
   };
 
   return (
-    <div className="rounded-lg transition-all duration-200" style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', padding: '20px', boxShadow: 'var(--card-shadow)', margin: '0' }}>
+    <div 
+      className="rounded-xl transition-all duration-300 hover:scale-[1.01]" 
+      style={{ 
+        background: isLight ? severityStyle.bg : colors.cardBg, 
+        border: `1px solid ${isLight ? severityStyle.border : colors.cardBorder}`, 
+        borderLeft: `4px solid ${severityStyle.accentLine}`,
+        padding: '20px', 
+        boxShadow: isLight ? `0 4px 20px ${severityStyle.accentLine}15` : 'none',
+        margin: '0' 
+      }}
+    >
       {/* Header with badges */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-4">
-          <AlertTriangle style={{ width: '22px', height: '22px', color: '#a3e635' }} />
+          <AlertTriangle style={{ width: '22px', height: '22px', color: severityStyle.accentLine }} />
           <div className="flex flex-wrap gap-2">
             {showSeverityBadge && (
               <span
                 className="text-xs font-semibold uppercase"
                 style={{
-                  backgroundColor: severity === 'critical' ? '#b91c1c' : severity === 'high' ? '#c2410c' : severity === 'medium' ? '#ca8a04' : '#16a34a',
+                  backgroundColor: severity === 'critical' ? '#dc2626' : severity === 'high' ? '#ea580c' : severity === 'medium' ? '#ca8a04' : '#16a34a',
                   color: '#fff',
                   letterSpacing: '0.05em',
                   padding: '5px 14px',
@@ -70,9 +117,9 @@ const AlertCard = ({
             <span
               className="text-xs font-medium flex items-center"
               style={{
-                backgroundColor: 'var(--bg-secondary)',
-                color: 'var(--text-secondary)',
-                border: '1px solid var(--border-color)',
+                backgroundColor: isLight ? 'rgba(255,255,255,0.7)' : 'var(--bg-secondary)',
+                color: colors.textSecondary,
+                border: `1px solid ${isLight ? severityStyle.border : colors.cardBorder}`,
                 padding: '5px 14px',
                 gap: '8px',
                 borderRadius: '16px',
@@ -88,41 +135,48 @@ const AlertCard = ({
       </div>
 
       {/* Title */}
-      <h3 className="font-semibold mb-4" style={{ color: 'var(--text-primary)', fontSize: '18px' }}>{title}</h3>
+      <h3 className="font-semibold mb-4" style={{ color: colors.textPrimary, fontSize: '18px' }}>{title}</h3>
       
       {/* Description */}
-      <p className="mb-6" style={{ color: 'var(--text-muted)', lineHeight: '1.7', fontSize: '15px' }}>{description}</p>
+      <p className="mb-6" style={{ color: colors.textMuted, lineHeight: '1.7', fontSize: '15px' }}>{description}</p>
 
       {/* Metadata */}
-      <div className="flex flex-wrap gap-5 mb-6" style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+      <div className="flex flex-wrap gap-5 mb-6" style={{ color: colors.textSecondary, fontSize: '14px' }}>
         {type && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span>Type:</span>
-            <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>{type}</span>
+            <span className="font-medium" style={{ color: colors.textSecondary }}>{type}</span>
           </div>
         )}
         {location && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span>Location:</span>
-            <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>{location}</span>
+            <span className="font-medium" style={{ color: colors.textSecondary }}>{location}</span>
           </div>
         )}
         {source && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span>By:</span>
-            <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>{source}</span>
+            <span className="font-medium" style={{ color: colors.textSecondary }}>{source}</span>
           </div>
         )}
       </div>
 
       {/* Actions */}
       {(onResolve || onReopen || onView) && (
-        <div className="flex gap-2 mt-3" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
+        <div className="flex gap-2 mt-3" style={{ borderTop: `1px solid ${isLight ? severityStyle.border : colors.cardBorder}`, paddingTop: '12px' }}>
           {onView && (
             <button
               onClick={onView}
-              className="flex-1 font-medium rounded-lg transition-colors"
-              style={{ color: '#0ea5e9', backgroundColor: 'rgba(14, 165, 233, 0.1)', fontSize: '0.875rem', padding: '10px 16px', minHeight: '40px' }}
+              className="flex-1 font-medium rounded-lg transition-all duration-200 hover:scale-[1.02]"
+              style={{ 
+                color: '#0284c7', 
+                backgroundColor: isLight ? 'rgba(14, 165, 233, 0.15)' : 'rgba(14, 165, 233, 0.1)', 
+                fontSize: '0.875rem', 
+                padding: '10px 16px', 
+                minHeight: '40px',
+                boxShadow: isLight ? '0 2px 8px rgba(14, 165, 233, 0.2)' : 'none'
+              }}
             >
               View Details
             </button>
@@ -130,13 +184,14 @@ const AlertCard = ({
           {status === 'resolved' && onReopen && (
             <button
               onClick={onReopen}
-              className="flex-1 font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5"
+              className="flex-1 font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center gap-1.5"
               style={{
                 color: '#ffffff',
                 backgroundColor: '#f59e0b',
                 fontSize: '0.875rem',
                 padding: '10px 16px',
-                minHeight: '40px'
+                minHeight: '40px',
+                boxShadow: isLight ? '0 4px 12px rgba(245, 158, 11, 0.35)' : 'none'
               }}
             >
               <CheckCircle style={{ width: '16px', height: '16px' }} />
@@ -146,13 +201,14 @@ const AlertCard = ({
           {status !== 'resolved' && onResolve && (
             <button
               onClick={onResolve}
-              className="flex-1 font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5"
+              className="flex-1 font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] flex items-center justify-center gap-1.5"
               style={{
                 color: '#ffffff',
-                backgroundColor: '#10b981',
+                backgroundColor: '#059669',
                 fontSize: '0.875rem',
                 padding: '10px 16px',
-                minHeight: '40px'
+                minHeight: '40px',
+                boxShadow: isLight ? '0 4px 12px rgba(5, 150, 105, 0.35)' : 'none'
               }}
             >
               <CheckCircle style={{ width: '16px', height: '16px' }} />

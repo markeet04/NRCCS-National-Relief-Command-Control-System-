@@ -10,6 +10,9 @@ export { default as storageUtils } from './storageUtils';
 export { default as apiUtils } from './apiUtils';
 export { default as colorUtils } from './colorUtils';
 
+// Theme color utilities
+export { getThemeColors, getStatusColor, STATUS_COLORS, useThemeColors } from './themeColors';
+
 // Re-export individual utility functions for convenience
 export * from './dateUtils';
 export * from './formatUtils';
