@@ -29,6 +29,7 @@ const AlertCard = ({
   source,
   onResolve,
   onReopen,
+  onDelete,
   onView,
   showSeverityBadge = false
 }) => {
@@ -163,8 +164,8 @@ const AlertCard = ({
       </div>
 
       {/* Actions */}
-      {(onResolve || onReopen || onView) && (
-        <div className="flex gap-2 mt-3" style={{ borderTop: `1px solid ${isLight ? severityStyle.border : colors.cardBorder}`, paddingTop: '12px' }}>
+      {(onResolve || onReopen || onDelete || onView) && (
+        <div className="flex gap-2 mt-3" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
           {onView && (
             <button
               onClick={onView}
@@ -196,6 +197,36 @@ const AlertCard = ({
             >
               <CheckCircle style={{ width: '16px', height: '16px' }} />
               Reopen
+            </button>
+          )}
+          {status === 'resolved' && onDelete && (
+            <button
+              onClick={onDelete}
+              className="flex-1 font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5"
+              style={{
+                color: '#ffffff',
+                backgroundColor: '#ef4444',
+                fontSize: '0.875rem',
+                padding: '10px 16px',
+                minHeight: '40px'
+              }}
+            >
+              Delete
+            </button>
+          )}
+          {status !== 'resolved' && onResolve && (
+            <button
+              onClick={onResolve}
+              className="flex-1 font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5"
+              style={{
+                color: '#ffffff',
+                backgroundColor: '#10b981',
+                fontSize: '0.875rem',
+                padding: '10px 16px',
+                minHeight: '40px'
+              }}
+            >
+              Delete
             </button>
           )}
           {status !== 'resolved' && onResolve && (
@@ -231,6 +262,7 @@ AlertCard.propTypes = {
   source: PropTypes.string,
   onResolve: PropTypes.func,
   onReopen: PropTypes.func,
+  onDelete: PropTypes.func,
   onView: PropTypes.func,
 };
 

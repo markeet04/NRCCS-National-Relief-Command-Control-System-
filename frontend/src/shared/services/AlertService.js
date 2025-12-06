@@ -84,9 +84,10 @@ class AlertService {
       };
       
       console.log('🆕 New alert object:', newAlert);
-      alerts.push(newAlert);
-      this.saveLocalAlerts(alerts);
-      console.log('💾 Saved to localStorage, total alerts:', alerts.length);
+      // Add new alert at the beginning for most recent first
+      const updatedAlerts = [newAlert, ...alerts];
+      this.saveLocalAlerts(updatedAlerts);
+      console.log('💾 Saved to localStorage, total alerts:', updatedAlerts.length);
       
       return newAlert;
     } catch (error) {

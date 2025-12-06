@@ -3,17 +3,23 @@ import { DashboardLayout } from '@shared/components/layout';
 import { MapPin, CheckCircle, AlertCircle } from 'lucide-react';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
+import { useBadge } from '@shared/contexts/BadgeContext';
 
 /**
  * FloodMapPage Component
  * Interactive Pakistan flood map with province status monitoring
  */
 const FloodMapPage = () => {
+  const { activeStatusCount } = useBadge();
   const { theme } = useSettings();
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
   
   const [selectedProvince, setSelectedProvince] = useState(null);
+  const [mapView, setMapView] = useState('western'); // 'western', 'zones', 'shelters', 'teams', plus dynamic
+  const [extraMaps, setExtraMaps] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalInput, setModalInput] = useState({ name: '', type: '' });
 
   // Province status data
   const provinces = [
@@ -39,10 +45,31 @@ const FloodMapPage = () => {
   // Menu items
   const menuItems = [
     { route: 'dashboard', label: 'National Dashboard', icon: 'dashboard' },
-    { route: 'alerts', label: 'Nationwide Alerts', icon: 'alerts', badge: 12 },
+    { route: 'alerts', label: 'Nationwide Alerts', icon: 'alerts', badge: activeStatusCount },
     { route: 'resources', label: 'Resource Allocation', icon: 'resources' },
     { route: 'map', label: 'Flood Map', icon: 'map' },
   ];
+
+  const handleAddMapSection = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleModalChange = (e) => {
+    const { name, value } = e.target;
+    setModalInput(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleModalSubmit = (e) => {
+    e.preventDefault();
+    if (modalInput.name.trim() !== '') {
+      setExtraMaps(prev => [
+        ...prev,
+        { id: Date.now(), name: modalInput.name, type: modalInput.type }
+      ]);
+      setModalInput({ name: '', type: '' });
+      setIsModalOpen(false);
+    }
+  };
 
   return (
     <DashboardLayout
@@ -55,38 +82,89 @@ const FloodMapPage = () => {
       pageSubtitle="Flood Risk Map"
       notificationCount={5}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Map Section */}
-        <div className="lg:col-span-2">
-          {/* Map Header Filters */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            <button 
-              className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
-              style={{ backgroundColor: '#ef4444', color: '#ffffff' }}
-            >
-              <span className="flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5" />
-                Western Priority
-              </span>
-            </button>
-            <button 
-              className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
-              style={{ backgroundColor: 'transparent', color: '#64748b', border: '1px solid #334155' }}
-            >
-              Flood Zones
-            </button>
-            <button 
-              className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
-              style={{ backgroundColor: 'transparent', color: '#64748b', border: '1px solid #334155' }}
-            >
-              Active Shelters
-            </button>
-            <button 
-              className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
-              style={{ backgroundColor: 'transparent', color: '#64748b', border: '1px solid #334155' }}
-            >
-              Rescue Teams
-            </button>
+      {/* Map Section above the cards */}
+      <div className="lg:col-span-2 mb-6">
+        {/* Modal for adding map section */}
+        {isModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: 'rgba(2, 6, 23, 0.75)', zIndex: 9999 }}>
+            <div className="w-full max-w-md rounded-2xl" style={{ backgroundColor: '#1e293b', border: '1px solid #334155', maxHeight: '90vh', overflow: 'auto', padding: '32px' }}>
+              <h3 className="text-xl font-bold mb-4" style={{ color: '#f8fafc' }}>Manage Map Sections</h3>
+              {/* List all maps */}
+              <div className="mb-6">
+                <div style={{ color: '#94a3b8', fontWeight: 500, marginBottom: '8px' }}>All Map Sections</div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                  {defaultMaps.map(map => (
+                    <li key={map.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0', color: '#f8fafc', fontSize: '15px' }}>
+                      <span>{map.label}</span>
+                      <span style={{ color: '#64748b', fontSize: '13px', fontStyle: 'italic' }}>Default</span>
+                    </li>
+                  ))}
+                  {extraMaps.map(map => (
+                    <li key={map.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0', color: '#f8fafc', fontSize: '15px' }}>
+                      <span>{map.name}</span>
+                      <button
+                        aria-label={`Delete ${map.name}`}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#ef4444',
+                          fontSize: '16px',
+                          cursor: 'pointer',
+                          padding: 0
+                        }}
+                        onClick={() => handleDeleteMapSection(map.id)}
+                        tabIndex={0}
+                      >
+                        &#10005;
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  className="flex-1 rounded-md font-medium transition-colors focus:outline-none"
+                  style={{ backgroundColor: '#334155', color: '#f8fafc', padding: '10px 16px', border: 'none', cursor: 'pointer', fontSize: '14px' }}
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Map Header Filters + Search Bar */}
+          {/* Buttons moved to dropdown below */}
+          <div style={{ display: 'flex', alignItems: 'center', minWidth: '340px', marginLeft: 'auto', gap: '8px', background: '#0f172a', borderRadius: '8px', padding: '10px 18px' }}>
+            <div style={{ position: 'relative', width: '140px', flex: '1 1 auto' }}>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                placeholder="Search by name or location..."
+                className="rounded-md px-3 py-2 border focus:outline-none"
+                style={{ backgroundColor: 'transparent', color: '#f8fafc', border: '1px solid #334155', width: '100%', fontSize: '15px', paddingLeft: '36px' }}
+              />
+              <Search style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', width: '18px', height: '18px', pointerEvents: 'none' }} />
+            </div>
+            <div style={{ flex: '0 0 auto', marginLeft: 'auto' }}>
+              <select
+                value={mapView}
+                onChange={e => setMapView(e.target.value)}
+                className="rounded-md px-3 py-2 border focus:outline-none"
+                style={{ backgroundColor: '#0f172a', color: '#f8fafc', border: '1px solid #334155', fontSize: '15px', minWidth: '140px', cursor: 'pointer' }}
+              >
+                <option value="all" style={{ color: '#f8fafc', backgroundColor: '#0f172a' }}>All</option>
+                <option value="western" style={{ color: '#f8fafc', backgroundColor: '#0f172a' }}>Western Priority</option>
+                <option value="zones" style={{ color: '#f8fafc', backgroundColor: '#0f172a' }}>Flood Zones</option>
+                <option value="shelters" style={{ color: '#f8fafc', backgroundColor: '#0f172a' }}>Active Shelters</option>
+                <option value="teams" style={{ color: '#f8fafc', backgroundColor: '#0f172a' }}>Rescue Teams</option>
+                {extraMaps.map(map => (
+                  <option key={map.id} value={map.name} style={{ color: '#f8fafc', backgroundColor: '#0f172a' }}>{map.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {/* Interactive Map */}
