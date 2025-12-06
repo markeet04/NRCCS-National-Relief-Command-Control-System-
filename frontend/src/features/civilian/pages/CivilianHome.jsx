@@ -1,68 +1,48 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { AlertTriangle, Home, Megaphone, Search, Zap } from 'lucide-react';
+import heroImage1 from '../../../assets/1.png';
+import heroImage2 from '../../../assets/2.png';
+import heroImage3 from '../../../assets/3.png';
 import './CivilianHome.css';
 
 const CivilianHome = () => {
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
-  const [currentTip, setCurrentTip] = useState(0);
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
 
-  // Safety tips data
-  const safetyTips = [
-    { icon: '📱', title: 'Stay Connected', tip: 'Keep your phone charged and emergency contacts readily available at all times.' },
-    { icon: '🎒', title: 'Emergency Kit', tip: 'Prepare an emergency kit with water, food, first aid, and essential documents.' },
-    { icon: '🏠', title: 'Know Your Shelters', tip: 'Familiarize yourself with the location of nearest emergency shelters in your area.' },
-    { icon: '📻', title: 'Stay Informed', tip: 'Monitor weather alerts and official disaster warnings through reliable sources.' },
-    { icon: '👨‍👩‍👧‍👦', title: 'Family Plan', tip: 'Create a family emergency plan with meeting points and communication strategies.' },
-    { icon: '💊', title: 'Medical Preparedness', tip: 'Keep a supply of essential medications and medical supplies for at least one week.' },
-  ];
-
-  // Auto-rotate safety tips
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTip((prev) => (prev + 1) % safetyTips.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [safetyTips.length]);
-
-  const stats = [
-    { label: 'Active Shelters', value: '24', icon: '🏠', color: 'from-blue-500 to-blue-600', path: '/civilian/shelters' },
-    { label: 'Active Alerts', value: '3', icon: '⚠️', color: 'from-amber-500 to-orange-500', path: '/civilian/alerts' },
-    { label: 'Missing Persons', value: '12', icon: '🔍', color: 'from-purple-500 to-purple-600', path: '/civilian/missing' },
-  ];
 
   const quickActions = [
     {
       title: 'Emergency SOS',
       description: 'Send immediate distress signal',
-      icon: '🚨',
-      gradient: 'from-red-500 to-red-600',
+      icon: <AlertTriangle size={32} strokeWidth={2.5} />,
+      gradient: 'red',
       path: '/civilian/sos',
       isEmergency: true,
     },
     {
       title: 'Find Shelters',
       description: 'Locate nearby emergency shelters',
-      icon: '🏠',
-      gradient: 'from-blue-500 to-blue-600',
+      icon: <Home size={32} strokeWidth={2.5} />,
+      gradient: 'blue',
       path: '/civilian/shelters',
     },
     {
       title: 'View Alerts',
       description: 'Check disaster alerts',
-      icon: '📢',
-      gradient: 'from-amber-500 to-orange-500',
+      icon: <Megaphone size={32} strokeWidth={2.5} />,
+      gradient: 'amber',
       path: '/civilian/alerts',
     },
     {
       title: 'Missing Persons',
       description: 'Report or search',
-      icon: '🔍',
-      gradient: 'from-purple-500 to-purple-600',
+      icon: <Search size={32} strokeWidth={2.5} />,
+      gradient: 'purple',
       path: '/civilian/missing',
     },
   ];
@@ -97,10 +77,11 @@ const CivilianHome = () => {
           <div className="hero-content-left">
             <div className="hero-badge">🛡️ Civilian Safety Portal</div>
             <h1 className="hero-title">
-              Welcome to <span className="highlight">NRCCS</span>
+              Welcome To <span className="highlight">NRCCS</span>
               <br />
-              <span className="subtitle">National Relief Command & Control</span>
+              <span className="subtitle">National Relief Command & Control System</span>
             </h1>
+    
             <p className="hero-description">
               Your safety is our priority. Access emergency services, find shelters, 
               and stay informed about disaster situations in real-time.
@@ -110,44 +91,25 @@ const CivilianHome = () => {
                 <span className="btn-icon pulse-icon">🚨</span>
                 <span>EMERGENCY SOS</span>
               </button>
-              <button onClick={() => navigate('/civilian/shelters')} className="btn btn-secondary">
-                <span className="btn-icon">🏠</span>
-                <span>Find Shelters</span>
-              </button>
             </div>
           </div>
 
-          {/* Right Side - Safety Tips Carousel */}
-          <div className="hero-content-right">
-            <div className="hero-carousel-card">
-              <h3 className="carousel-card-title">
-                <span>💡</span>
-                <span>Safety Tips</span>
-              </h3>
-              <div className="carousel-compact">
-                <div className="carousel-track-compact">
-                  {safetyTips.map((tip, index) => (
-                    <div
-                      key={index}
-                      className={`carousel-slide-compact ${index === currentTip ? 'active' : ''}`}
-                    >
-                      <div className="tip-icon-large">{tip.icon}</div>
-                      <h4>{tip.title}</h4>
-                      <p>{tip.tip}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="carousel-indicators-compact">
-                  {safetyTips.map((_, index) => (
-                    <button
-                      key={index}
-                      className={`indicator ${index === currentTip ? 'active' : ''}`}
-                      onClick={() => setCurrentTip(index)}
-                      aria-label={`Go to tip ${index + 1}`}
-                    ></button>
-                  ))}
-                </div>
+          {/* Right Side - Hero Image */}
+          <div className="hero-image-container">
+            <div className="hero-image-wrapper">
+              <img 
+                src={heroImage1} 
+                alt="Pakistan flood relief operations" 
+                className="hero-main-image"
+              />
+              <div className="floating-element element-1">
+                <img 
+                  src={heroImage2} 
+                  alt="Emergency rescue team" 
+                  className="floating-image"
+                />
               </div>
+         
             </div>
           </div>
         </div>
@@ -160,19 +122,31 @@ const CivilianHome = () => {
         </div>
       </div>
 
-      <div className="content-container">
-        {/* Stats Grid */}
-        <div className="stats-grid">
-          {stats.map((stat, index) => (
-            <div key={index} onClick={() => navigate(stat.path)} className="stat-card" style={{ animationDelay: `${index * 0.1}s` }}>
-              <div className={`stat-icon ${stat.color.includes('blue') ? 'blue' : stat.color.includes('amber') ? 'amber' : stat.color.includes('purple') ? 'purple' : 'green'}`}>
-                {stat.icon}
+      {/* Quick Actions - Half overlapping hero */}
+      <div className="quick-actions-overlay">
+        <div className="quick-actions-grid">
+          {quickActions.map((action, index) => (
+            <div
+              key={index}
+              className={`action-card ${action.gradient}`}
+              onClick={() => navigate(action.path)}
+            >
+              <div className={`action-icon ${action.gradient}`}>
+                {action.icon}
               </div>
-              <div className="stat-value">{stat.value}</div>
-              <div className="stat-label">{stat.label}</div>
+              <div className="action-content">
+                <h3>{action.title}</h3>
+                <p>{action.description}</p>
+              </div>
+              <span className="action-arrow">→</span>
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="content-container">
+        {/* Stats Grid */}
+       
 
         {/* Recent Alerts */}
         <div className="alerts-section">
@@ -205,31 +179,43 @@ const CivilianHome = () => {
         </div>
 
         {/* Quick Actions */}
-        <div>
-          <h2 className="section-title">
-            <span>⚡</span>
-            <span>Quick Actions</span>
-          </h2>
-          <div className="quick-actions-grid">
-            {quickActions.map((action, index) => (
-              <div
-                key={index}
-                onClick={() => navigate(action.path)}
-                className={`action-card ${action.isEmergency ? 'emergency' : ''}`}
-              >
-                <div className={`action-icon ${action.gradient.includes('red') ? 'red' : action.gradient.includes('blue') ? 'blue' : action.gradient.includes('amber') ? 'amber' : 'purple'}`}>
-                  {action.icon}
-                </div>
-                <div className="action-content">
-                  <h3>{action.title}</h3>
-                  <p>{action.description}</p>
-                </div>
-                <div className="action-arrow">→</div>
-              </div>
-            ))}
+       
+ {/* Tips Section */}
+      <section className="tips-section">
+        <h2>🛡️ Safety Tips & Guidelines</h2>
+        <div className="tips-grid">
+          <div className="tip-card">
+            <span className="tip-icon">⚡</span>
+            <h3>During Emergencies</h3>
+            <ul>
+              <li>Stay calm and assess the situation</li>
+              <li>Use the SOS feature for immediate help</li>
+              <li>Keep your phone charged</li>
+              <li>Follow official instructions</li>
+            </ul>
+          </div>
+          <div className="tip-card">
+            <span className="tip-icon">🛡️</span>
+            <h3>Preparation</h3>
+            <ul>
+              <li>Keep emergency contacts saved</li>
+              <li>Know your nearest shelter location</li>
+              <li>Prepare an emergency kit</li>
+              <li>Stay informed about weather alerts</li>
+            </ul>
+          </div>
+          <div className="tip-card">
+            <span className="tip-icon">📱</span>
+            <h3>Using NRCCS</h3>
+            <ul>
+              <li>Enable location services for accurate help</li>
+              <li>Turn on push notifications</li>
+              <li>Keep your CNIC handy</li>
+              <li>Update your contact information</li>
+            </ul>
           </div>
         </div>
-
+      </section>
        
 
         {/* Help Section */}

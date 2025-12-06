@@ -92,9 +92,9 @@
 }
 
 .search-type-tab.active {
-  background: linear-gradient(135deg, #14b8a6 0%, #10b981 100%);
+  background: linear-gradient(135deg, #638ECB 0%, #395886 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(0, 102, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(99, 142, 203, 0.3);
 }
 
 .tab-icon {
@@ -142,8 +142,8 @@
 
 .search-form input:focus {
   outline: none;
-  border-color: #14b8a6;
-  box-shadow: 0 0 0 4px rgba(0, 102, 0, 0.1);
+  border-color: #638ECB;
+  box-shadow: 0 0 0 4px rgba(99, 142, 203, 0.1);
   transform: translateY(-2px);
 }
 
@@ -179,7 +179,7 @@
 .search-submit-btn {
   width: 100%;
   padding: 18px 24px;
-  background: linear-gradient(135deg, #006600 0%, #004d00 100%);
+  background: linear-gradient(135deg, #638ECB 0%, #395886 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -187,7 +187,7 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(0, 102, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(99, 142, 203, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -195,8 +195,8 @@
 }
 
 .search-submit-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #004d00 0%, #003300 100%);
-  box-shadow: 0 8px 20px rgba(0, 102, 0, 0.4);
+  background: linear-gradient(135deg, #395886 0%, #2d4a6e 100%);
+  box-shadow: 0 8px 20px rgba(99, 142, 203, 0.4);
   transform: translateY(-3px);
 }
 
@@ -322,7 +322,7 @@
 .stat-value {
   font-size: 2rem;
   font-weight: 800;
-  color: #14b8a6;
+  color: #638ECB;
 }
 
 .stat-label {
@@ -375,16 +375,16 @@
 }
 
 .filter-tab:hover {
-  border-color: #006600;
-  background: #f0fdf4;
+  border-color: #638ECB;
+  background: #E8F5FC;
   transform: translateY(-2px);
 }
 
 .filter-tab.active {
-  background: linear-gradient(135deg, #006600 0%, #004d00 100%);
-  border-color: #006600;
+  background: linear-gradient(135deg, #638ECB 0%, #395886 100%);
+  border-color: #638ECB;
   color: white;
-  box-shadow: 0 4px 12px rgba(0, 102, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(99, 142, 203, 0.3);
 }
 
 .tab-count {
@@ -411,7 +411,7 @@
   height: 50px;
   margin: 0 auto 20px;
   border: 4px solid #e2e8f0;
-  border-top-color: #006600;
+  border-top-color: #638ECB;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -496,7 +496,7 @@
 }
 
 .request-card:hover {
-  box-shadow: 0 8px 20px rgba(0, 102, 0, 0.15);
+  box-shadow: 0 8px 24px rgba(99, 142, 203, 0.2);
   transform: translateY(-4px);
 }
 
@@ -518,7 +518,7 @@
 .request-type {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #006600;
+  color: #638ECB;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -591,12 +591,12 @@
 
 .assigned-team {
   padding: 8px 16px;
-  background: #f0fdf4;
-  border: 2px solid #dcfce7;
+  background: #E8F5FC;
+  border: 2px solid #B1C9EF;
   border-radius: 10px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #006600;
+  color: #395886;
 }
 
 .progress-tracker {
@@ -614,7 +614,7 @@
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #006600 0%, #16a34a 100%);
+  background: linear-gradient(90deg, #638ECB 0%, #395886 100%);
   border-radius: 10px;
   transition: width 0.5s ease;
   animation: shimmer 2s infinite;
@@ -632,7 +632,7 @@
 .progress-text {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #006600;
+  color: #395886;
 }
 
 .latest-update {
@@ -678,7 +678,7 @@
 
 .view-details-btn {
   padding: 10px 20px;
-  background: linear-gradient(135deg, #006600 0%, #004d00 100%);
+  background: linear-gradient(135deg, #638ECB 0%, #395886 100%);
   color: white;
   border: none;
   border-radius: 10px;
@@ -689,9 +689,9 @@
 }
 
 .view-details-btn:hover {
-  background: linear-gradient(135deg, #004d00 0%, #003300 100%);
+  background: linear-gradient(135deg, #395886 0%, #2d4a6e 100%);
   transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(0, 102, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(99, 142, 203, 0.3);
 }
 
 .last-update {
@@ -774,7 +774,7 @@
 .modal-request-id {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #006600;
+  color: #638ECB;
 }
 
 .modal-status-badge {
@@ -809,7 +809,7 @@
 
 .detail-section h3::before {
   content: '▸';
-  color: #006600;
+  color: #638ECB;
   font-size: 1.3rem;
 }
 
@@ -1009,8 +1009,8 @@
 }
 
 .contact-item:hover {
-  border-color: #006600;
-  background: #f0fdf4;
+  border-color: #638ECB;
+  background: #E8F5FC;
 }
 
 .contact-label {
@@ -1022,13 +1022,13 @@
 .contact-value {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #006600;
+  color: #638ECB;
   text-decoration: none;
   transition: all 0.3s ease;
 }
 
 .contact-value:hover {
-  color: #004d00;
+  color: #395886;
   transform: scale(1.05);
 }
 
@@ -1138,7 +1138,7 @@
   }
 
   .filter-tab:hover {
-    border-color: #006600;
+    border-color: #638ECB;
     transform: translateY(-2px);
   }
 
@@ -1152,7 +1152,7 @@
   }
 
   .contact-value:hover {
-    color: #004d00;
+    color: #395886;
     transform: scale(1.05);
   }
 }

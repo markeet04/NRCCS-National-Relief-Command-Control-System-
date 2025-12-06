@@ -33,7 +33,7 @@ const CivilianLayout = ({ children }) => {
         <div className="civilian-navbar-container">
           <Link to="/civilian" className="civilian-brand" onClick={handleLinkClick}>
             <div className="civilian-brand-icon">🛡️</div>
-            <span>NRCCS Civilian</span>
+            <span>NRCCS</span>
           </Link>
 
           {/* Hamburger Menu Button */}
@@ -105,9 +105,37 @@ const CivilianLayout = ({ children }) => {
               <p>National Relief Command & Control System</p>
             </div>
           </div>
+
+          <div className="footer-sections">
+            <div className="footer-section">
+              <h4>Quick Links</h4>
+              <ul>
+                <li><Link to="/civilian" className="civilian-footer-link">Home</Link></li>
+                <li><Link to="/civilian/shelters" className="civilian-footer-link">Find Shelters</Link></li>
+                <li><Link to="/civilian/alerts" className="civilian-footer-link">Public Alerts</Link></li>
+                <li><Link to="/civilian/missing" className="civilian-footer-link">Missing Persons</Link></li>
+              </ul>
+            </div>
+            <div className="footer-section">
+              <h4>Support</h4>
+              <ul>
+                <li><Link to="/civilian/help" className="civilian-footer-link">Help Center</Link></li>
+                <li><Link to="/civilian/track" className="civilian-footer-link">Track Status</Link></li>
+                <li><Link to="/civilian/sos" className="civilian-footer-link">Emergency SOS</Link></li>
+              </ul>
+            </div>
+            <div className="footer-section">
+              <h4>Contact</h4>
+              <ul>
+                <li className="civilian-footer-link">Emergency: 115</li>
+                <li className="civilian-footer-link">SMS: 8000</li>
+                <li className="civilian-footer-link">help@nrccs.gov.pk</li>
+              </ul>
+            </div>
+          </div>
      
           <p className="civilian-footer-text">
-            © 2025 NRCCS. All rights reserved.
+            © 2025 NRCCS. All rights reserved. | Your safety is our priority.
           </p>
         </div>
       </footer>

@@ -7,7 +7,7 @@
 
 /* Header - Mobile First */
 .help-header {
-  background: linear-gradient(135deg, #14b8a6 0%, #10b981 100%);
+  background: linear-gradient(135deg, #638ECB 0%, #395886 100%);
   color: white;
   padding: 2rem 1rem 1.5rem;
   text-align: center;
@@ -224,7 +224,7 @@
 }
 
 .category-chip.active {
-  background: #14b8a6;
+  background: #638ECB;
   border-color: #14b8a6;
   color: white;
   box-shadow: 0 4px 12px rgba(0, 102, 0, 0.2);
@@ -501,7 +501,7 @@
   background: white;
   border-radius: 16px;
   padding: 1.5rem;
-  border-top: 4px solid #14b8a6;
+  border-top: 4px solid #1a2f4a;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   animation: fadeInUp 0.6s ease-out backwards;
 }
@@ -557,12 +557,12 @@
 }
 
 .feedback-card {
-  background: linear-gradient(135deg, #006600 0%, #004d00 100%);
+  background: linear-gradient(135deg, #638ECB 0%, #395886 100%);
   color: white;
   border-radius: 20px;
   padding: 2rem 1.5rem;
   text-align: center;
-  box-shadow: 0 8px 24px rgba(0, 102, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(99, 142, 203, 0.2);
 }
 
 .feedback-card h3 {
@@ -586,7 +586,7 @@
 
 .feedback-btn {
   background: white;
-  color: #006600;
+  color: #395886;
   border: none;
   padding: 0.75rem 2rem;
   border-radius: 50px;
@@ -607,12 +607,22 @@
   transform: scale(0.98);
 }
 
+.feedback-btn.positive:hover {
+  background: #D5DEEF;
+  color: #638ECB;
+}
+
 .feedback-btn.positive:active {
-  background: #dcfce7;
+  background: #B1C9EF;
+}
+
+.feedback-btn.negative:hover {
+  background: #fee2e2;
+  color: #dc2626;
 }
 
 .feedback-btn.negative:active {
-  background: #fee2e2;
+  background: #fecaca;
   color: #dc2626;
 }
 

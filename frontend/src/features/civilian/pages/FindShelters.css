@@ -18,7 +18,7 @@
   width: 50px;
   height: 50px;
   border: 5px solid #e0f2fe;
-  border-top-color: #14b8a6;
+  border-top-color: #1a2f4a;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -85,8 +85,8 @@
 
 .search-bar input:focus {
   outline: none;
-  border-color: #14b8a6;
-  box-shadow: 0 0 0 3px rgba(0, 102, 0, 0.1);
+  border-color: #638ECB;
+  box-shadow: 0 0 0 3px rgba(99, 142, 203, 0.1);
 }
 
 .filter-toggle {
@@ -111,13 +111,13 @@
 }
 
 .filter-toggle:hover {
-  border-color: #006600;
-  color: #14b8a6;
+  border-color: #638ECB;
+  color: #638ECB;
 }
 
 .filter-toggle.active {
-  background: #14b8a6;
-  border-color: #006600;
+  background: #638ECB;
+  border-color: #638ECB;
   color: white;
 }
 
@@ -188,7 +188,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #006600;
+  background: #638ECB;
   cursor: pointer;
 }
 
@@ -201,7 +201,7 @@
 
 .filter-group input[type="number"]:focus {
   outline: none;
-  border-color: #006600;
+  border-color: #638ECB;
 }
 
 .filter-group select {
@@ -215,12 +215,12 @@
 
 .filter-group select:focus {
   outline: none;
-  border-color: #006600;
+  border-color: #638ECB;
 }
 
 .filter-value {
   font-weight: 600;
-  color: #006600;
+  color: #638ECB;
   font-size: 0.9rem;
 }
 
@@ -246,13 +246,13 @@
 }
 
 .facility-chip:hover {
-  border-color: #006600;
-  color: #006600;
+  border-color: #638ECB;
+  color: #638ECB;
 }
 
 .facility-chip.active {
-  background: #006600;
-  border-color: #006600;
+  background: #638ECB;
+  border-color: #638ECB;
   color: white;
 }
 
@@ -379,7 +379,7 @@
 .popup-button {
   width: 100%;
   padding: 8px 12px;
-  background: #006600;
+  background: #638ECB;
   color: white;
   border: none;
   border-radius: 6px;
@@ -390,7 +390,7 @@
 }
 
 .popup-button:hover {
-  background: #004d00;
+  background: #395886;
 }
 
 /* Override Leaflet popup styles */
@@ -517,7 +517,7 @@
 }
 
 .user-label {
-  background: #006600;
+  background: #638ECB;
   color: white;
   padding: 4px 10px;
   border-radius: 12px;
@@ -570,22 +570,27 @@
 /* Shelter Card */
 .shelter-card {
   background: white;
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   cursor: pointer;
-  border: 2px solid transparent;
+  border: 2px solid #e2e8f0;
+  border-left: 4px solid #10b981;
+  
 }
 
 .shelter-card:hover {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateX(5px);
+  border-left-width: 6px;
 }
 
 .shelter-card.selected {
-  border-color: #006600;
-  box-shadow: 0 8px 20px rgba(0, 102, 0, 0.2);
+  border-left-color: #638ECB;
+  border-left-width: 6px;
+  background: #F0F3FA;
+  box-shadow: 0 8px 24px rgba(99, 142, 203, 0.15);
 }
 
 .shelter-card-header {
@@ -619,10 +624,24 @@
 .status-badge {
   padding: 6px 14px;
   border-radius: 20px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  color: white;
   white-space: nowrap;
+}
+
+.status-badge.available {
+  background: #10b981;
+  color: white;
+}
+
+.status-badge.limited {
+  background: #f59e0b;
+  color: white;
+}
+
+.status-badge.full {
+  background: #ef4444;
+  color: white;
 }
 
 .shelter-address {
@@ -642,10 +661,9 @@
 .distance {
   margin-left: auto;
   font-weight: 600;
-  color: #006600;
-  background: #f0fdf4;
-  padding: 4px 10px;
-  border-radius: 12px;
+  color: #64748b;
+  background: transparent;
+  padding: 0;
   font-size: 0.85rem;
 }
 
@@ -760,7 +778,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 18px;
-  background: linear-gradient(135deg, #14b8a6 0%, #10b981 100%);
+  background: linear-gradient(135deg, #638ECB 0%, #395886 100%);
   color: white;
   border: none;
   border-radius: 10px;
@@ -772,9 +790,9 @@
 }
 
 .directions-button:hover {
-  background: linear-gradient(135deg, #004d00 0%, #003300 100%);
+  background: linear-gradient(135deg, #395886 0%, #2d4a6e 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 102, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(99, 142, 203, 0.3);
 }
 
 .directions-button:active {
@@ -860,8 +878,8 @@
 
   /* Hover effects for desktop */
   .directions-button:hover {
-    background: linear-gradient(135deg, #004d00 0%, #003300 100%);
+    background: linear-gradient(135deg, #395886 0%, #2d4a6e 100%);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 102, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(99, 142, 203, 0.3);
   }
 }

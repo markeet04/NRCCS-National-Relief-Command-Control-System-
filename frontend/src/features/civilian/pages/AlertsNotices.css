@@ -124,7 +124,7 @@
 }
 
 .filter-chip.active {
-  background: linear-gradient(135deg, #14b8a6 0%, #10b981 100%);
+  background: linear-gradient(135deg, #638ECB 0%, #395886 100%);
   border-color: #006600;
   color: white;
   box-shadow: 0 4px 12px rgba(0, 102, 0, 0.3);

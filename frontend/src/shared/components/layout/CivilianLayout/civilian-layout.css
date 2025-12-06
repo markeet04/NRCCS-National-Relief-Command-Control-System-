@@ -11,7 +11,7 @@
   box-sizing: border-box;
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e8f5e9 50%, #f1f5f9 100%);
+  background: #E8F5FC;
   
   /* Reset only potentially conflicting properties */
   margin: 0;
@@ -60,7 +60,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #1e293b;
   text-decoration: none;
@@ -73,15 +73,15 @@
 }
 
 .civilian-scope .civilian-brand-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #14b8a6 0%, #10b981 100%);
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.3rem;
-  box-shadow: 0 4px 12px rgba(0, 102, 0, 0.25);
+  box-shadow: 0 4px 12px rgba(30, 41, 59, 0.3);
 }
 
 .civilian-scope .civilian-nav-links {
@@ -107,14 +107,15 @@
 }
 
 .civilian-scope .civilian-nav-link:hover {
-  background: rgba(0, 102, 0, 0.08);
-  color: #14b8a6;
+  background: rgba(177, 201, 239, 0.15);
+  color: #8AAEE0;
 }
 
 .civilian-scope .civilian-nav-link.active {
-  background: rgba(0, 102, 0, 0.1);
-  color: #006600;
-  font-weight: 600;
+  background: linear-gradient(135deg, rgba(99, 142, 203, 0.15) 0%, rgba(57, 88, 134, 0.15) 100%);
+  color: #638ECB;
+  font-weight: 700;
+  border-bottom: 2px solid #638ECB;
 }
 
 .civilian-scope .civilian-nav-cta {
@@ -229,10 +230,10 @@
    CIVILIAN FOOTER
    ======================================== */
 .civilian-scope .civilian-footer {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  background: linear-gradient(135deg, #638ECB 0%, #395886 50%, #2d4a6e 100%);
   color: #e2e8f0;
   padding: 50px 40px 30px;
-  border-top: 3px solid #14b8a6;
+  border-top: 3px solid #8AAEE0;
   margin-top: 80px;
 }
 
@@ -240,7 +241,7 @@
   max-width: 1400px;
   margin: 0 auto;
   display: flex;
-  flex-direction: column;
+  flex-direction: column;   
   gap: 30px;
   align-items: center;
 }
@@ -254,13 +255,13 @@
 .civilian-scope .footer-logo {
   width: 50px;
   height: 50px;
-  background: linear-gradient(135deg, #006600 0%, #009900 100%);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
-  box-shadow: 0 4px 15px rgba(0, 102, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(30, 41, 59, 0.3);
 }
 
 .civilian-scope .footer-brand h3 {
@@ -276,6 +277,32 @@
   margin: 0;
 }
 
+.civilian-scope .footer-sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 25px;
+  width: 100%;
+  max-width: 900px;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.civilian-scope .footer-section h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 15px 0;
+}
+
+.civilian-scope .footer-section ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .civilian-scope .civilian-footer-links {
   display: flex;
   gap: 30px;
@@ -289,19 +316,21 @@
 .civilian-scope .civilian-footer-link {
   color: #cbd5e1;
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
   transition: all 0.2s;
 }
 
 .civilian-scope .civilian-footer-link:hover {
-  color: #10b981;
+  color: #B1C9EF;
+  transform: translateX(2px);
 }
 
 .civilian-scope .civilian-footer-text {
   font-size: 0.85rem;
-  color: #64748b;
+  color: #cbd5e1;
   text-align: center;
+  margin-top: 10px;
 }
 
 /* ========================================
@@ -401,9 +430,9 @@
 }
 
 .civilian-scope .civilian-nav-link.active {
-  background: #f0f9ff;
-  border-left-color: #14b8a6;
-  color: #006600;
+  background: #E8F5FC;
+  border-left-color: #638ECB;
+  color: #638ECB;
 }
 
 .civilian-scope .civilian-nav-link:active {
@@ -482,13 +511,15 @@
   }
 
   .civilian-scope .civilian-nav-link.active {
-    background: #f0f9ff;
+    background: linear-gradient(135deg, rgba(99, 142, 203, 0.15) 0%, rgba(57, 88, 134, 0.15) 100%);
     border-left-color: transparent;
-    color: #006600;
+    color: #638ECB;
+    border-bottom: 2px solid #638ECB;
   }
 
   .civilian-scope .civilian-nav-link:hover {
-    background: #e0f2fe;
+    background: rgba(177, 201, 239, 0.15);
+    color: #8AAEE0;
   }
 
   .civilian-scope .civilian-nav-link:active {

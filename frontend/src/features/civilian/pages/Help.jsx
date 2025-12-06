@@ -251,26 +251,8 @@ const Help = () => {
         </div>
       </div>
 
-      {/* Quick Links Section */}
-      <section className="quick-links-section">
-        <h2>Quick Actions</h2>
-        <div className="quick-links-grid">
-          {quickLinks.map((link, index) => (
-            <a
-              key={index}
-              href={link.link}
-              className="quick-link-card"
-              style={{ borderTopColor: link.color }}
-            >
-              <div className="quick-link-icon" style={{ color: link.color }}>
-                {link.icon}
-              </div>
-              <h3>{link.title}</h3>
-              <p>{link.description}</p>
-            </a>
-          ))}
-        </div>
-      </section>
+    
+      
 
       {/* Category Filters */}
       <section className="faq-section">
@@ -375,42 +357,7 @@ const Help = () => {
         </div>
       </section>
 
-      {/* Tips Section */}
-      <section className="tips-section">
-        <h2>Safety Tips & Guidelines</h2>
-        <div className="tips-grid">
-          <div className="tip-card">
-            <span className="tip-icon">⚡</span>
-            <h3>During Emergencies</h3>
-            <ul>
-              <li>Stay calm and assess the situation</li>
-              <li>Use the SOS feature for immediate help</li>
-              <li>Keep your phone charged</li>
-              <li>Follow official instructions</li>
-            </ul>
-          </div>
-          <div className="tip-card">
-            <span className="tip-icon">🛡️</span>
-            <h3>Preparation</h3>
-            <ul>
-              <li>Keep emergency contacts saved</li>
-              <li>Know your nearest shelter location</li>
-              <li>Prepare an emergency kit</li>
-              <li>Stay informed about weather alerts</li>
-            </ul>
-          </div>
-          <div className="tip-card">
-            <span className="tip-icon">📱</span>
-            <h3>Using NRCCS</h3>
-            <ul>
-              <li>Enable location services for accurate help</li>
-              <li>Turn on push notifications</li>
-              <li>Keep your CNIC handy</li>
-              <li>Update your contact information</li>
-            </ul>
-          </div>
-        </div>
-      </section>
+     
 
       {/* Feedback Section */}
       <section className="feedback-section">
