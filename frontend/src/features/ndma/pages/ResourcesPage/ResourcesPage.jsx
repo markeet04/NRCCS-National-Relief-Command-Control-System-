@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { Package, TrendingUp, Layers, AlertCircle, Plus } from 'lucide-react';
+import { useBadge } from '@shared/contexts/BadgeContext';
 
 const ResourcesPage = () => {
+  const { activeStatusCount } = useBadge();
   const [activeTab, setActiveTab] = useState('national');
   const [isAllocateModalOpen, setIsAllocateModalOpen] = useState(false);
   const [selectedProvince, setSelectedProvince] = useState('Punjab');
@@ -39,7 +41,7 @@ const ResourcesPage = () => {
   // Menu items
   const menuItems = [
     { route: 'dashboard', label: 'National Dashboard', icon: 'dashboard' },
-    { route: 'alerts', label: 'Nationwide Alerts', icon: 'alerts', badge: 12 },
+    { route: 'alerts', label: 'Nationwide Alerts', icon: 'alerts', badge: activeStatusCount },
     { route: 'resources', label: 'Resource Allocation', icon: 'resources' },
     { route: 'map', label: 'Flood Map', icon: 'map' },
   ];
@@ -95,14 +97,22 @@ const ResourcesPage = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: '#f8fafc' }}>Resource Inventory</h1>
-          <p className="text-sm mt-1" style={{ color: '#94a3b8' }}>Manage and allocate national relief resources</p>
+          <p className="text-sm mt-1" style={{ color: '#94a3b8', marginBottom: '16px' }}>Manage and allocate national relief resources</p>
         </div>
         <button
+          type="button"
+          className="flex items-center rounded-lg transition-colors text-sm font-medium"
+          style={{ 
+            backgroundColor: '#0ea5e9', 
+            color: '#ffffff', 
+            cursor: 'pointer',
+            padding: '10px 20px',
+            gap: '8px',
+            minHeight: '40px'
+          }}
           onClick={() => setIsAllocateModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-colors"
-          style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0ea5e9'}
         >
           <Plus className="w-4 h-4" />
           Allocate Resources
@@ -169,32 +179,47 @@ const ResourcesPage = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6" style={{ borderBottom: '1px solid #334155' }}>
+      <div style={{ marginTop: '8px' }}></div>
+      <div className="flex gap-3 mb-6" style={{ borderBottom: '1px solid #334155', marginTop: '4px', marginBottom: '12px' }}>
         <button
           onClick={() => setActiveTab('national')}
-          className="px-6 py-3 font-medium transition-all relative"
+          className="px-6 font-medium transition-all relative focus:outline-none"
           style={{
             color: activeTab === 'national' ? '#3b82f6' : '#94a3b8',
-            backgroundColor: activeTab === 'national' ? '#1e40af15' : 'transparent',
+            backgroundColor: activeTab === 'national' ? '#1e293b' : 'transparent',
             borderRadius: '8px 8px 0 0',
-            borderBottom: activeTab === 'national' ? '2px solid #3b82f6' : '2px solid transparent'
+            borderBottom: activeTab === 'national' ? '2px solid #3b82f6' : '2px solid transparent',
+            fontSize: '17px',
+            paddingLeft: '12px',
+            paddingRight: '18px',
+            paddingTop: '14px', // slightly decreased space above
+            paddingBottom: '4px', // slightly decreased space below
+            transition: 'background 0.2s, color 0.2s'
           }}
         >
           National Stock
         </button>
+        <div style={{ width: '16px' }}></div>
         <button
           onClick={() => setActiveTab('provincial')}
-          className="px-6 py-3 font-medium transition-all relative"
+          className="px-6 font-medium transition-all relative focus:outline-none"
           style={{
             color: activeTab === 'provincial' ? '#3b82f6' : '#94a3b8',
-            backgroundColor: activeTab === 'provincial' ? '#1e40af15' : 'transparent',
+            backgroundColor: activeTab === 'provincial' ? '#1e293b' : 'transparent',
             borderRadius: '8px 8px 0 0',
-            borderBottom: activeTab === 'provincial' ? '2px solid #3b82f6' : '2px solid transparent'
+            borderBottom: activeTab === 'provincial' ? '2px solid #3b82f6' : '2px solid transparent',
+            fontSize: '17px',
+            paddingLeft: '12px',
+            paddingRight: '18px',
+            paddingTop: '14px', // slightly decreased space above
+            paddingBottom: '4px', // slightly decreased space below
+            transition: 'background 0.2s, color 0.2s'
           }}
         >
           Provincial Allocations
         </button>
       </div>
+      <div style={{ marginBottom: '12px' }}></div>
 
       {/* National Stock Table */}
       {activeTab === 'national' && (
@@ -230,10 +255,14 @@ const ResourcesPage = () => {
                     <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px' }}>{item.unit}</td>
                     <td style={{ padding: '16px' }}>
                       <span
-                        className="px-3 py-1 rounded-full text-xs font-medium"
+                        className="px-4 py-2 rounded-full text-xs font-medium"
                         style={{
                           backgroundColor: item.status === 'sufficient' ? '#10b98120' : '#ef444420',
-                          color: item.status === 'sufficient' ? '#10b981' : '#ef4444'
+                          color: item.status === 'sufficient' ? '#10b981' : '#ef4444',
+                          paddingLeft: '16px',
+                          paddingRight: '16px',
+                          paddingTop: '8px',
+                          paddingBottom: '8px'
                         }}
                       >
                         {item.status === 'sufficient' ? 'SUFFICIENT' : 'LOW'}
@@ -241,8 +270,8 @@ const ResourcesPage = () => {
                     </td>
                     <td style={{ padding: '16px' }}>
                       <button
-                        className="px-4 py-1.5 rounded-md text-sm font-medium transition-colors"
-                        style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
+                        className="px-6 py-2 rounded-full text-sm font-normal transition-colors"
+                        style={{ backgroundColor: '#2563eb', color: '#ffffff', paddingLeft: '20px', paddingRight: '20px', paddingTop: '10px', paddingBottom: '10px', fontWeight: '400' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
                         onClick={() => {
@@ -278,8 +307,8 @@ const ResourcesPage = () => {
                     </p>
                   </div>
                   <button
-                    className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                    style={{ backgroundColor: '#10b981', color: '#ffffff' }}
+                    className="px-5 py-2 rounded-lg text-sm font-medium transition-colors"
+                    style={{ backgroundColor: '#10b981', color: '#ffffff', paddingLeft: '16px', paddingRight: '16px', paddingTop: '8px', paddingBottom: '8px' }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
                     onClick={() => {

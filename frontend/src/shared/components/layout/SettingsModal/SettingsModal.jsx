@@ -15,7 +15,12 @@ const SettingsModal = ({ isOpen, onClose }) => {
     >
       <div 
         className="rounded-2xl shadow-2xl max-w-lg w-full mx-4"
-        style={{ backgroundColor: theme === 'dark' ? '#252d3d' : '#ffffff', padding: '36px 32px', boxSizing: 'border-box', border: theme === 'dark' ? '1.5px solid #334155' : '1.5px solid #e2e8f0' }}
+        style={{ 
+          backgroundColor: theme === 'dark' ? '#252d3d' : '#ffffff', 
+          padding: '20px 20px', // Reduced padding for the whole modal
+          boxSizing: 'border-box', 
+          border: theme === 'dark' ? '1.5px solid #334155' : '1.5px solid #e2e8f0' 
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -40,10 +45,11 @@ const SettingsModal = ({ isOpen, onClose }) => {
             </label>
             <button
               onClick={toggleTheme}
-              className="w-full flex items-center justify-between p-4 rounded-lg border transition-colors"
+              className="w-full flex items-center justify-between rounded-lg border transition-colors" // Removed Tailwind padding classes
               style={{ 
                 backgroundColor: theme === 'dark' ? '#1a1f2e' : '#f8fafc',
-                borderColor: theme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : '#e2e8f0'
+                borderColor: theme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : '#e2e8f0',
+                padding: '8px 16px', // Added padding similar to the Done button
               }}
             >
               <div className="flex items-center gap-3">
@@ -58,7 +64,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
               </div>
               <span className="text-xs px-3 py-1 rounded-full" style={{ 
                 backgroundColor: theme === 'dark' ? 'rgba(96, 165, 250, 0.2)' : 'rgba(245, 158, 11, 0.2)',
-                color: theme === 'dark' ? '#60a5fa' : '#f59e0b'
+                color: theme === 'dark' ? '#60a5fa' : '#f59e0b',
+                padding: '8px 16px', // Added padding similar to the Done button
               }}>
                 Active
               </span>
@@ -77,7 +84,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
                 className="flex-1 flex items-center justify-center gap-2 p-4 rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ 
                   backgroundColor: theme === 'dark' ? '#1a1f2e' : '#f8fafc',
-                  borderColor: theme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : '#e2e8f0'
+                  borderColor: theme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : '#e2e8f0',
+                  padding: '8px 16px', // Added padding similar to the Done button
                 }}
               >
                 <Minus className="w-4 h-4" style={{ color: theme === 'dark' ? '#94a3b8' : '#64748b' }} />
@@ -101,7 +109,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
                 className="flex-1 flex items-center justify-center gap-2 p-4 rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ 
                   backgroundColor: theme === 'dark' ? '#1a1f2e' : '#f8fafc',
-                  borderColor: theme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : '#e2e8f0'
+                  borderColor: theme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : '#e2e8f0',
+                  padding: '8px 16px', // Added padding similar to the Done button
                 }}
               >
                 <Plus className="w-4 h-4" style={{ color: theme === 'dark' ? '#94a3b8' : '#64748b' }} />
@@ -117,7 +126,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
             marginTop: '10px',
             marginBottom: '10px'
           }}>
-            <p className="text-xs mb-2" style={{ color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>Preview:</p>
+            <p className="text-xs mb-2" style={{ color: theme === 'dark' ? '#94a3b8' : '#64748b', paddingLeft: '8px' }}>Preview:</p>
             <div style={{ padding: '12px 16px', background: theme === 'dark' ? 'rgba(30,41,59,0.7)' : 'rgba(241,245,249,0.7)', borderRadius: '8px' }}>
               <p style={{ 
                 color: theme === 'dark' ? '#ffffff' : '#1e293b',
@@ -131,11 +140,19 @@ const SettingsModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="pt-6 mt-4 border-t flex justify-end" style={{ borderColor: theme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : '#e2e8f0' }}>
+        <div className="pt-6 mt-8 border-t flex justify-end" style={{ borderColor: theme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : '#e2e8f0' }}>
           <button
             onClick={onClose}
-            className="px-8 py-3 rounded-lg font-medium transition-colors shadow-sm"
-            style={{ backgroundColor: '#0ea5e9', color: '#ffffff', fontSize: '1rem', letterSpacing: '0.01em' }}
+            className="flex items-center rounded-lg transition-colors text-sm font-medium"
+            style={{ 
+              backgroundColor: '#0ea5e9', 
+              color: '#ffffff', 
+              cursor: 'pointer',
+              padding: '8px 16px', // Reduced padding
+              gap: '8px',
+              minHeight: '40px',
+              marginTop: '10px' // Slightly lowered the button
+            }}
           >
             Done
           </button>

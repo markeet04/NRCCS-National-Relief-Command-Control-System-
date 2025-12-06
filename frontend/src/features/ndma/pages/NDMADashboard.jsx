@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { AlertTriangle, Truck, Users, Package, MapPin, Cloud, Wind, Thermometer, Droplets } from 'lucide-react';
+import { useBadge } from '@shared/contexts/BadgeContext';
 
 /**
  * NDMADashboard Component
@@ -8,15 +9,16 @@ import { AlertTriangle, Truck, Users, Package, MapPin, Cloud, Wind, Thermometer,
  */
 
 const NDMADashboard = () => {
+  const { activeStatusCount } = useBadge();
   const [activeRoute, setActiveRoute] = useState('dashboard');
 
   // Menu items for NDMA role
   const menuItems = useMemo(() => [
     { route: 'dashboard', label: 'National Dashboard', icon: 'dashboard' },
-    { route: 'alerts', label: 'Nationwide Alerts', icon: 'alerts', badge: 12 },
+    { route: 'alerts', label: 'Nationwide Alerts', icon: 'alerts', badge: activeStatusCount },
     { route: 'resources', label: 'Resource Allocation', icon: 'resources' },
     { route: 'map', label: 'Flood Map', icon: 'map' }
-  ], []);
+  ], [activeStatusCount]);
 
   const handleNavigate = (route) => {
     setActiveRoute(route);
@@ -92,7 +94,7 @@ const NDMADashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map((stat, index) => (
           <div 
             key={index}
@@ -145,7 +147,7 @@ const NDMADashboard = () => {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Map Section - Takes 2 columns */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2" style={{ marginTop: '24px' }}>
           <div style={{ backgroundColor: '#1e293b', borderRadius: '12px', border: '1px solid #334155', padding: '24px' }}>
             <h3 style={{ color: '#f8fafc', fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>
               Pakistan - Live Situation Map
@@ -193,7 +195,7 @@ const NDMADashboard = () => {
         {/* Right Sidebar */}
         <div className="flex flex-col gap-6">
           {/* 24h Weather */}
-          <div style={{ backgroundColor: '#1e293b', borderRadius: '12px', border: '1px solid #334155', padding: '20px' }}>
+          <div style={{ backgroundColor: '#1e293b', borderRadius: '12px', border: '1px solid #334155', padding: '20px', marginTop: '24px' }}>
             <h3 style={{ color: '#f8fafc', fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>
               24h Weather
             </h3>

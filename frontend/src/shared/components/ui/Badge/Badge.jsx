@@ -1,3 +1,5 @@
+import { useBadge } from '../../contexts/BadgeContext';
+
 /**
  * Badge Component
  * Small status indicator with color variants
@@ -8,6 +10,8 @@ const Badge = ({
   size = 'md',
   className = '' 
 }) => {
+  const { activeStatusCount } = useBadge();
+
   const baseStyles = 'inline-flex items-center justify-center font-medium rounded-full';
   
   const variants = {
@@ -29,7 +33,7 @@ const Badge = ({
   
   return (
     <span className={classes}>
-      {children}
+      {children || activeStatusCount}
     </span>
   );
 };

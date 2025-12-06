@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { AlertCard } from '@shared/components/dashboard';
 import { Plus, X, CheckCircle, AlertTriangle } from 'lucide-react';
+import { useBadge } from '@shared/contexts/BadgeContext';
 
 // Import service layers and utilities
 import { AlertService } from '@services/AlertService';
@@ -16,6 +17,7 @@ import { getCurrentTimestamp, isToday } from '@utils/dateUtils';
  * Comprehensive alert management interface for viewing, creating, and managing alerts
  */
 const AlertsPage = () => {
+  const { updateActiveStatusCount } = useBadge();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [viewAlertId, setViewAlertId] = useState(null);
   const [showResolved, setShowResolved] = useState(false);
@@ -24,73 +26,31 @@ const AlertsPage = () => {
 
   // Initialize alerts state from service layer
   // Add sample alerts for initial feed if service is empty
-  const sampleAlerts = [
-    {
-      id: 1,
-      title: 'Flash Flood Warning - Sindh',
-      description: 'Heavy rainfall has caused flash floods in multiple districts of Sindh. Residents are advised to evacuate low-lying areas immediately.',
-      severity: 'critical',
-      type: 'flood',
-      province: 'Sindh',
-      district: 'Sukkur',
-      tehsil: 'New Sukkur',
-      source: 'NDMA',
-      location: 'Sindh, Sukkur, New Sukkur',
-      status: 'active',
-      timestamp: getCurrentTimestamp(),
-    },
-    {
-      id: 2,
-      title: 'Medical Aid Required - Punjab',
-      description: 'Outbreak of waterborne diseases reported in flood-affected areas. Medical teams are being dispatched.',
-      severity: 'high',
-      type: 'medical',
-      province: 'Punjab',
-      district: 'Lahore',
-      tehsil: 'Model Town',
-      source: 'NDMA',
-      location: 'Punjab, Lahore, Model Town',
-      status: 'resolved',
-      timestamp: getCurrentTimestamp(),
-    },
-    {
-      id: 3,
-      title: 'Evacuation Alert - Balochistan',
-      description: 'Evacuation ordered for coastal areas due to cyclone warning. Please cooperate with local authorities.',
-      severity: 'medium',
-      type: 'evacuation',
-      province: 'Balochistan',
-      district: 'Gwadar',
-      tehsil: 'Gwadar City',
-      source: 'NDMA',
-      location: 'Balochistan, Gwadar, Gwadar City',
-      status: 'active',
-      timestamp: getCurrentTimestamp(),
-    },
-  ];
-  const [alerts, setAlerts] = useState(sampleAlerts);
+  // Initialize alerts state as empty array - will be loaded from service in useEffect
+  const [alerts, setAlerts] = useState([]);
 
   // Load alerts on component mount
   useEffect(() => {
-    // On first mount, initialize localStorage with sample alerts if empty
-    const stored = localStorage.getItem('ndma_alerts');
-    if (!stored) {
-      localStorage.setItem('ndma_alerts', JSON.stringify(sampleAlerts));
-    }
-    loadAlerts(true);
+    loadAlerts(false);
   }, []);
 
   const loadAlerts = async (showSuccessMessage = false) => {
     try {
       setLoading(true);
       setError(null);
+      console.log('📥 Loading alerts from AlertService...');
       const alertsData = await AlertService.getAlerts();
+      console.log('📋 Loaded alerts:', alertsData);
       setAlerts(Array.isArray(alertsData) ? alertsData : []);
+      console.log('✅ Alerts set in state, count:', alertsData?.length || 0);
+      // Update badge count with active alerts
+      const activeAlerts = alertsData.filter(alert => alert.status !== 'resolved');
+      updateActiveStatusCount(activeAlerts.length);
       if (showSuccessMessage) {
         NotificationService.showSuccess('Alerts loaded successfully');
       }
     } catch (error) {
-      console.error('Error loading alerts:', error);
+      console.error('❌ Error loading alerts:', error);
       setError('Failed to load alerts');
       NotificationService.showError('Failed to load alerts');
     } finally {
@@ -131,9 +91,15 @@ const AlertsPage = () => {
   const handleResolveAlert = async (id) => {
     try {
       const updatedAlert = await AlertService.updateAlert(id, { status: 'resolved' });
-      setAlerts(prev => prev.map(alert =>
-        alert.id === id ? updatedAlert : alert
-      ));
+      setAlerts(prev => {
+        const newAlerts = prev.map(alert =>
+          alert.id === id ? updatedAlert : alert
+        );
+        // Update badge count with active alerts
+        const activeAlerts = newAlerts.filter(alert => alert.status !== 'resolved');
+        updateActiveStatusCount(activeAlerts.length);
+        return newAlerts;
+      });
       NotificationService.showSuccess('Alert status updated');
     } catch (error) {
       console.error('Error updating alert:', error);
@@ -144,13 +110,36 @@ const AlertsPage = () => {
   const handleReopenAlert = async (id) => {
     try {
       const updatedAlert = await AlertService.updateAlert(id, { status: 'active' });
-      setAlerts(prev => prev.map(alert =>
-        alert.id === id ? updatedAlert : alert
-      ));
+      setAlerts(prev => {
+        const newAlerts = prev.map(alert =>
+          alert.id === id ? updatedAlert : alert
+        );
+        // Update badge count with active alerts
+        const activeAlerts = newAlerts.filter(alert => alert.status !== 'resolved');
+        updateActiveStatusCount(activeAlerts.length);
+        return newAlerts;
+      });
       NotificationService.showSuccess('Alert reopened successfully');
     } catch (error) {
       console.error('Error reopening alert:', error);
       NotificationService.showError('Failed to reopen alert');
+    }
+  };
+
+  const handleDeleteAlert = async (id) => {
+    try {
+      await AlertService.deleteAlert(id);
+      setAlerts(prev => {
+        const newAlerts = prev.filter(alert => alert.id !== id);
+        // Update badge count with active alerts
+        const activeAlerts = newAlerts.filter(alert => alert.status !== 'resolved');
+        updateActiveStatusCount(activeAlerts.length);
+        return newAlerts;
+      });
+      NotificationService.showSuccess('Alert deleted successfully');
+    } catch (error) {
+      console.error('Error deleting alert:', error);
+      NotificationService.showError('Failed to delete alert');
     }
   };
 
@@ -167,17 +156,18 @@ const AlertsPage = () => {
     event.preventDefault();
 
     // Validate using validation utilities
-    console.log('Validating alert data:', newAlert);
+    console.log('🔍 Validating alert data:', newAlert);
     const validation = validateAlert(newAlert);
-    console.log('Validation result:', validation);
+    console.log('✅ Validation result:', validation);
     if (!validation.isValid) {
-      console.error('Validation errors:', validation.errors);
+      console.error('❌ Validation errors:', validation.errors);
       NotificationService.showError('Validation failed: ' + Object.values(validation.errors).join(', '));
       return;
     }
 
     try {
       setLoading(true);
+      console.log('⏳ Starting alert creation process...');
       
       const location = [newAlert.province, newAlert.district, newAlert.tehsil]
         .filter(Boolean)
@@ -189,13 +179,14 @@ const AlertsPage = () => {
         timestamp: getCurrentTimestamp()
       };
 
-      console.log('Creating alert with payload:', alertPayload);
+      console.log('📦 Creating alert with payload:', alertPayload);
       const createdAlert = await AlertService.createAlert(alertPayload);
-      console.log('Alert created:', createdAlert);
+      console.log('✅ Alert created successfully:', createdAlert);
       
-      // Immediately add to state for instant UI update
-      setAlerts(prev => [createdAlert, ...prev]);
-      console.log('Alert added to state');
+      // Reload all alerts from service to ensure UI is in sync
+      console.log('🔄 Reloading alerts from service...');
+      await loadAlerts(false);
+      console.log('✅ Alerts reloaded from service');
       
       // Reset form
       setNewAlert({ 
@@ -208,15 +199,20 @@ const AlertsPage = () => {
         tehsil: '', 
         source: 'NDMA' 
       });
-      setIsCreateModalOpen(false);
       
-      NotificationService.showSuccess('Alert created successfully');
+      // Close modal
+      setIsCreateModalOpen(false);
+      console.log('✅ Modal closed and form reset');
+      
+      NotificationService.showSuccess('Alert published successfully');
 
     } catch (error) {
-      console.error('Error creating alert:', error);
-      NotificationService.showError('Failed to create alert');
+      console.error('❌ Error creating alert:', error);
+      console.error('Error stack:', error.stack);
+      NotificationService.showError('Failed to publish alert: ' + error.message);
     } finally {
       setLoading(false);
+      console.log('✅ Alert creation process completed');
     }
   };
 
@@ -384,6 +380,7 @@ const AlertsPage = () => {
                 showSeverityBadge={true}
                 onResolve={alert.status !== 'resolved' ? () => handleResolveAlert(alert.id) : undefined}
                 onReopen={alert.status === 'resolved' ? () => handleReopenAlert(alert.id) : undefined}
+                onDelete={alert.status === 'resolved' ? () => handleDeleteAlert(alert.id) : undefined}
                 onView={() => handleViewAlert(alert.id)}
               />
             </div>
@@ -592,25 +589,31 @@ const AlertsPage = () => {
                 <div className="flex gap-3">
                   <button
                     type="button"
-                    className="flex-1 rounded-md font-medium transition-colors"
+                    className="flex-1 rounded-md font-medium transition-colors focus:outline-none"
                     style={{ 
                       backgroundColor: '#334155', 
                       color: '#e2e8f0',
                       padding: '10px 16px',
                       border: 'none',
                       cursor: 'pointer',
-                      fontSize: '14px'
+                      fontSize: '14px',
+                      boxShadow: '0 0 0 0px #3b82f6',
+                      transition: 'background 0.2s, box-shadow 0.2s'
                     }}
                     onClick={() => setIsCreateModalOpen(false)}
                     disabled={loading}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#475569'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#334155'}
+                    onFocus={e => e.currentTarget.style.boxShadow = '0 0 0 2px #3b82f6'}
+                    onBlur={e => e.currentTarget.style.boxShadow = '0 0 0 0px #3b82f6'}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = '#475569'}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = '#334155'}
+                    onMouseDown={e => e.currentTarget.style.boxShadow = '0 0 0 2px #3b82f6'}
+                    onMouseUp={e => e.currentTarget.style.boxShadow = '0 0 0 0px #3b82f6'}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 rounded-md font-medium transition-colors"
+                    className="flex-1 rounded-md font-medium transition-colors focus:outline-none"
                     style={{ 
                       backgroundColor: loading ? '#dc2626' : '#ef4444', 
                       color: '#ffffff',
@@ -618,13 +621,23 @@ const AlertsPage = () => {
                       border: 'none',
                       cursor: loading ? 'not-allowed' : 'pointer',
                       fontSize: '14px',
-                      opacity: loading ? 0.7 : 1
+                      opacity: loading ? 0.7 : 1,
+                      boxShadow: '0 0 0 0px #3b82f6',
+                      transition: 'background 0.2s, box-shadow 0.2s'
                     }}
                     disabled={loading}
-                    onMouseEnter={(e) => !loading && (e.currentTarget.style.backgroundColor = '#dc2626')}
-                    onMouseLeave={(e) => !loading && (e.currentTarget.style.backgroundColor = '#ef4444')}
+                    onClick={e => {
+                      console.log('🖱️ Publish Alert button clicked');
+                      console.log('Form will be submitted...');
+                    }}
+                    onFocus={e => e.currentTarget.style.boxShadow = '0 0 0 2px #3b82f6'}
+                    onBlur={e => e.currentTarget.style.boxShadow = '0 0 0 0px #3b82f6'}
+                    onMouseEnter={e => !loading && (e.currentTarget.style.backgroundColor = '#dc2626')}
+                    onMouseLeave={e => !loading && (e.currentTarget.style.backgroundColor = '#ef4444')}
+                    onMouseDown={e => e.currentTarget.style.boxShadow = '0 0 0 2px #3b82f6'}
+                    onMouseUp={e => e.currentTarget.style.boxShadow = '0 0 0 0px #3b82f6'}
                   >
-                    {loading ? 'Creating...' : 'Create Alert'}
+                    {loading ? 'Publishing...' : 'Publish Alert'}
                   </button>
                 </div>
               </div>
@@ -654,34 +667,36 @@ const AlertsPage = () => {
 
             <div style={{ padding: '32px' }}>
               <div style={{ marginBottom: '32px' }}>
-                <h4 className="text-2xl font-bold" style={{ color: 'var(--text-primary)', marginBottom: '20px', lineHeight: '1.3' }}>{alertToView.title}</h4>
-                <div className="flex flex-wrap gap-3">
-                  <span className="px-4 py-2 rounded-lg text-xs font-semibold uppercase" style={{
-                    backgroundColor: alertToView.severity === 'critical' ? 'rgba(239, 68, 68, 0.15)' :
-                      alertToView.severity === 'high' ? 'rgba(249, 115, 22, 0.15)' :
-                      alertToView.severity === 'medium' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(59, 130, 246, 0.15)',
-                    color: alertToView.severity === 'critical' ? '#ef4444' :
-                      alertToView.severity === 'high' ? '#f97316' :
-                      alertToView.severity === 'medium' ? '#f59e0b' : '#3b82f6',
-                    border: `1px solid ${alertToView.severity === 'critical' ? 'rgba(239, 68, 68, 0.3)' :
-                      alertToView.severity === 'high' ? 'rgba(249, 115, 22, 0.3)' :
-                      alertToView.severity === 'medium' ? 'rgba(245, 158, 11, 0.3)' : 'rgba(59, 130, 246, 0.3)'}`,
-                    letterSpacing: '0.05em'
-                  }}>
-                    {alertToView.severity}
-                  </span>
-                  <span className="px-4 py-2 rounded-lg text-xs font-medium flex items-center gap-2" style={{
-                    backgroundColor: alertToView.status === 'active' ? 'rgba(59, 130, 246, 0.15)' :
-                      alertToView.status === 'resolved' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(148, 163, 184, 0.15)',
-                    color: alertToView.status === 'active' ? '#3b82f6' :
-                      alertToView.status === 'resolved' ? '#10b981' : '#94a3b8',
-                    border: `1px solid ${alertToView.status === 'active' ? 'rgba(59, 130, 246, 0.3)' :
-                      alertToView.status === 'resolved' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(148, 163, 184, 0.3)'}`
-                  }}>
-                    {alertToView.status === 'active' && <AlertTriangle className="w-3.5 h-3.5" />}
-                    {alertToView.status}
-                  </span>
-                </div>
+                  <h4 className="text-2xl font-bold" style={{ color: 'var(--text-primary)', marginBottom: '20px', lineHeight: '1.3', fontSize: '2.2rem' }}>{alertToView.title}</h4>
+                  <div className="flex flex-wrap gap-3">
+                    <span className="px-4 py-2 rounded-lg text-xs font-semibold uppercase" style={{
+                      backgroundColor: alertToView.severity === 'critical' ? 'rgba(239, 68, 68, 0.15)' :
+                        alertToView.severity === 'high' ? 'rgba(249, 115, 22, 0.15)' :
+                        alertToView.severity === 'medium' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(59, 130, 246, 0.15)',
+                      color: alertToView.severity === 'critical' ? '#ef4444' :
+                        alertToView.severity === 'high' ? '#f97316' :
+                        alertToView.severity === 'medium' ? '#f59e0b' : '#3b82f6',
+                      border: `1px solid ${alertToView.severity === 'critical' ? 'rgba(239, 68, 68, 0.3)' :
+                        alertToView.severity === 'high' ? 'rgba(249, 115, 22, 0.3)' :
+                        alertToView.severity === 'medium' ? 'rgba(245, 158, 11, 0.3)' : 'rgba(59, 130, 246, 0.3)'}`,
+                      letterSpacing: '0.05em',
+                      fontSize: '1.1rem',
+                    }}>
+                      {alertToView.severity}
+                    </span>
+                    <span className="px-4 py-2 rounded-lg text-xs font-medium flex items-center gap-2" style={{
+                      backgroundColor: alertToView.status === 'active' ? 'rgba(59, 130, 246, 0.15)' :
+                        alertToView.status === 'resolved' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(148, 163, 184, 0.15)',
+                      color: alertToView.status === 'active' ? '#3b82f6' :
+                        alertToView.status === 'resolved' ? '#10b981' : '#94a3b8',
+                      border: `1px solid ${alertToView.status === 'active' ? 'rgba(59, 130, 246, 0.3)' :
+                        alertToView.status === 'resolved' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(148, 163, 184, 0.3)'}`,
+                      fontSize: '1.1rem',
+                    }}>
+                      {alertToView.status === 'active' && <AlertTriangle className="w-3.5 h-3.5" />}
+                      {alertToView.status}
+                    </span>
+                  </div>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

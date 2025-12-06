@@ -1,5 +1,6 @@
 import { SettingsProvider } from './ThemeProvider';
 import { AuthProvider } from './AuthProvider';
+import { BadgeProvider } from '../../shared/contexts/BadgeContext';
 
 /**
  * AppProviders - Root provider wrapper
@@ -9,7 +10,9 @@ export const AppProviders = ({ children }) => {
   return (
     <AuthProvider>
       <SettingsProvider>
-        {children}
+        <BadgeProvider>
+          {children}
+        </BadgeProvider>
       </SettingsProvider>
     </AuthProvider>
   );
