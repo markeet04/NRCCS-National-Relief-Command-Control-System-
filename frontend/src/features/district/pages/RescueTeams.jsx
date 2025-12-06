@@ -726,7 +726,7 @@ const RescueTeams = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backgroundColor: colors.modalOverlay,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -736,7 +736,7 @@ const RescueTeams = () => {
         >
           <div 
             style={{
-              background: '#1e293b',
+              background: colors.modalBg,
               borderRadius: '16px',
               padding: '28px 32px',
               width: '100%',
@@ -744,7 +744,7 @@ const RescueTeams = () => {
               maxHeight: '90vh',
               overflowY: 'auto',
               position: 'relative',
-              border: '1px solid rgba(255, 255, 255, 0.1)'
+              border: `1px solid ${colors.border}`
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -761,21 +761,21 @@ const RescueTeams = () => {
                 padding: '4px'
               }}
             >
-              <X style={{ color: 'rgba(255, 255, 255, 0.6)', width: '24px', height: '24px' }} />
+              <X style={{ color: colors.textMuted, width: '24px', height: '24px' }} />
             </button>
 
             {/* Header */}
             <div style={{ marginBottom: '20px' }}>
-              <h2 style={{ fontSize: '22px', fontWeight: '600', color: '#ffffff', marginBottom: '4px' }}>
+              <h2 style={{ fontSize: '22px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>
                 {viewingTeam.name}
               </h2>
-              <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '13px' }}>{viewingTeam.id}</p>
+              <p style={{ color: colors.textMuted, fontSize: '13px' }}>{viewingTeam.id}</p>
             </div>
 
             {/* Status Row */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '24px' }}>
               <div>
-                <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '11px', marginBottom: '6px', textTransform: 'uppercase' }}>Status</p>
+                <p style={{ color: colors.textMuted, fontSize: '11px', marginBottom: '6px', textTransform: 'uppercase' }}>Status</p>
                 <span 
                   style={{ 
                     backgroundColor: getStatusInfo(viewingTeam.status).bgColor,
@@ -790,14 +790,14 @@ const RescueTeams = () => {
                 </span>
               </div>
               <div>
-                <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '11px', marginBottom: '6px', textTransform: 'uppercase' }}>Members</p>
-                <p style={{ color: '#ffffff', fontSize: '20px', fontWeight: '700' }}>{viewingTeam.members}</p>
+                <p style={{ color: colors.textMuted, fontSize: '11px', marginBottom: '6px', textTransform: 'uppercase' }}>Members</p>
+                <p style={{ color: colors.textPrimary, fontSize: '20px', fontWeight: '700' }}>{viewingTeam.members}</p>
               </div>
               <div>
-                <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '11px', marginBottom: '6px', textTransform: 'uppercase' }}>Last Updated</p>
+                <p style={{ color: colors.textMuted, fontSize: '11px', marginBottom: '6px', textTransform: 'uppercase' }}>Last Updated</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Clock style={{ color: 'rgba(255, 255, 255, 0.5)', width: '14px', height: '14px' }} />
-                  <span style={{ color: '#ffffff', fontSize: '13px' }}>{viewingTeam.lastUpdated}</span>
+                  <Clock style={{ color: colors.textMuted, width: '14px', height: '14px' }} />
+                  <span style={{ color: colors.textPrimary, fontSize: '13px' }}>{viewingTeam.lastUpdated}</span>
                 </div>
               </div>
             </div>
@@ -806,7 +806,7 @@ const RescueTeams = () => {
             <div style={{ marginBottom: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                 <Users style={{ color: '#10b981', width: '16px', height: '16px' }} />
-                <h3 style={{ color: '#ffffff', fontSize: '14px', fontWeight: '600' }}>Team Leader Information</h3>
+                <h3 style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>Team Leader Information</h3>
               </div>
               <div 
                 style={{ 
@@ -814,22 +814,22 @@ const RescueTeams = () => {
                   gridTemplateColumns: '1fr 1fr', 
                   gap: '16px',
                   padding: '16px',
-                  background: 'rgba(255, 255, 255, 0.03)',
+                  background: colors.inputBg,
                   borderRadius: '10px'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <Users style={{ color: 'rgba(255, 255, 255, 0.4)', width: '16px', height: '16px' }} />
+                  <Users style={{ color: colors.textMuted, width: '16px', height: '16px' }} />
                   <div>
-                    <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '11px', marginBottom: '2px', textTransform: 'uppercase' }}>Leader Name</p>
-                    <p style={{ color: '#ffffff', fontSize: '14px', fontWeight: '500' }}>{viewingTeam.leader}</p>
+                    <p style={{ color: colors.textMuted, fontSize: '11px', marginBottom: '2px', textTransform: 'uppercase' }}>Leader Name</p>
+                    <p style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500' }}>{viewingTeam.leader}</p>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <Phone style={{ color: '#10b981', width: '16px', height: '16px' }} />
                   <div>
-                    <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '11px', marginBottom: '2px', textTransform: 'uppercase' }}>Contact</p>
-                    <p style={{ color: '#ffffff', fontSize: '14px', fontWeight: '500' }}>{viewingTeam.contact}</p>
+                    <p style={{ color: colors.textMuted, fontSize: '11px', marginBottom: '2px', textTransform: 'uppercase' }}>Contact</p>
+                    <p style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500' }}>{viewingTeam.contact}</p>
                   </div>
                 </div>
               </div>
@@ -839,11 +839,11 @@ const RescueTeams = () => {
             <div style={{ marginBottom: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                 <MapPin style={{ color: '#10b981', width: '16px', height: '16px' }} />
-                <h3 style={{ color: '#ffffff', fontSize: '14px', fontWeight: '600' }}>Current Location</h3>
+                <h3 style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>Current Location</h3>
               </div>
-              <div style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '10px' }}>
-                <p style={{ color: '#ffffff', fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>{viewingTeam.location}</p>
-                <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px' }}>Coordinates: {viewingTeam.coordinates}</p>
+              <div style={{ padding: '16px', background: colors.inputBg, borderRadius: '10px' }}>
+                <p style={{ color: colors.textPrimary, fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>{viewingTeam.location}</p>
+                <p style={{ color: colors.textMuted, fontSize: '12px' }}>Coordinates: {viewingTeam.coordinates}</p>
               </div>
             </div>
 
@@ -851,7 +851,7 @@ const RescueTeams = () => {
             <div style={{ marginBottom: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                 <Truck style={{ color: '#10b981', width: '16px', height: '16px' }} />
-                <h3 style={{ color: '#ffffff', fontSize: '14px', fontWeight: '600' }}>Equipment & Resources</h3>
+                <h3 style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>Equipment & Resources</h3>
               </div>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {viewingTeam.equipment.map((item, idx) => (
@@ -859,8 +859,8 @@ const RescueTeams = () => {
                     key={idx}
                     style={{
                       padding: '8px 14px',
-                      background: 'rgba(255, 255, 255, 0.08)',
-                      color: 'rgba(255, 255, 255, 0.9)',
+                      background: colors.inputBg,
+                      color: colors.textSecondary,
                       borderRadius: '6px',
                       fontSize: '13px'
                     }}
@@ -873,8 +873,8 @@ const RescueTeams = () => {
 
             {/* Additional Notes */}
             <div>
-              <h3 style={{ color: '#ffffff', fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>Additional Notes</h3>
-              <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '13px', lineHeight: '1.5' }}>{viewingTeam.notes}</p>
+              <h3 style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>Additional Notes</h3>
+              <p style={{ color: colors.textSecondary, fontSize: '13px', lineHeight: '1.5' }}>{viewingTeam.notes}</p>
             </div>
           </div>
         </div>
@@ -889,7 +889,7 @@ const RescueTeams = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backgroundColor: colors.modalOverlay,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -899,13 +899,13 @@ const RescueTeams = () => {
         >
           <div 
             style={{
-              background: '#1e293b',
+              background: colors.modalBg,
               borderRadius: '16px',
               padding: '28px 32px',
               width: '100%',
               maxWidth: '450px',
               position: 'relative',
-              border: '1px solid rgba(255, 255, 255, 0.1)'
+              border: `1px solid ${colors.border}`
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -922,20 +922,20 @@ const RescueTeams = () => {
                 padding: '4px'
               }}
             >
-              <X style={{ color: 'rgba(255, 255, 255, 0.6)', width: '24px', height: '24px' }} />
+              <X style={{ color: colors.textMuted, width: '24px', height: '24px' }} />
             </button>
 
             {/* Header */}
-            <h2 style={{ fontSize: '22px', fontWeight: '600', color: '#ffffff', marginBottom: '8px' }}>
+            <h2 style={{ fontSize: '22px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
               Update Team Status
             </h2>
-            <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '14px', marginBottom: '24px' }}>
+            <p style={{ color: colors.textMuted, fontSize: '14px', marginBottom: '24px' }}>
               {updatingTeam.name}
             </p>
 
             {/* Status Select */}
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ color: '#ffffff', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+              <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                 Status
               </label>
               <select
@@ -944,25 +944,25 @@ const RescueTeams = () => {
                 style={{
                   width: '100%',
                   padding: '12px 14px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  background: colors.inputBg,
+                  border: `1px solid ${colors.inputBorder}`,
                   borderRadius: '8px',
-                  color: '#ffffff',
+                  color: colors.textPrimary,
                   fontSize: '14px',
                   outline: 'none',
                   cursor: 'pointer'
                 }}
               >
-                <option value="available" style={{ background: '#1e293b' }}>Available</option>
-                <option value="deployed" style={{ background: '#1e293b' }}>Deployed</option>
-                <option value="on-mission" style={{ background: '#1e293b' }}>On Mission</option>
-                <option value="unavailable" style={{ background: '#1e293b' }}>Unavailable</option>
+                <option value="available" style={{ background: colors.modalBg }}>Available</option>
+                <option value="deployed" style={{ background: colors.modalBg }}>Deployed</option>
+                <option value="on-mission" style={{ background: colors.modalBg }}>On Mission</option>
+                <option value="unavailable" style={{ background: colors.modalBg }}>Unavailable</option>
               </select>
             </div>
 
             {/* Location Input */}
             <div style={{ marginBottom: '24px' }}>
-              <label style={{ color: '#ffffff', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+              <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                 Current Location
               </label>
               <input
@@ -973,10 +973,10 @@ const RescueTeams = () => {
                 style={{
                   width: '100%',
                   padding: '12px 14px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  background: colors.inputBg,
+                  border: `1px solid ${colors.inputBorder}`,
                   borderRadius: '8px',
-                  color: '#ffffff',
+                  color: colors.textPrimary,
                   fontSize: '14px',
                   outline: 'none',
                   boxSizing: 'border-box'
@@ -1005,9 +1005,9 @@ const RescueTeams = () => {
                 onClick={handleCloseUpdateModal}
                 style={{
                   padding: '12px 24px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  color: '#ffffff',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  background: colors.inputBg,
+                  color: colors.textPrimary,
+                  border: `1px solid ${colors.border}`,
                   borderRadius: '8px',
                   fontSize: '14px',
                   fontWeight: '600',

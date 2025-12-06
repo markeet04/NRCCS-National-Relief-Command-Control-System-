@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { Package, TrendingUp, Layers, AlertCircle, Plus } from 'lucide-react';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
+import { useBadge } from '@shared/contexts/BadgeContext';
+import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
 
 const ResourcesPage = () => {
+  const { activeStatusCount } = useBadge();
   const { theme } = useSettings();
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
@@ -42,13 +45,14 @@ const ResourcesPage = () => {
   const categories = [...new Set(nationalStock.map(item => item.category))].length;
   const lowStock = nationalStock.filter(item => item.status === 'low').length;
 
-  // Menu items
-  const menuItems = [
-    { route: 'dashboard', label: 'National Dashboard', icon: 'dashboard' },
-    { route: 'alerts', label: 'Nationwide Alerts', icon: 'alerts', badge: activeStatusCount },
-    { route: 'resources', label: 'Resource Allocation', icon: 'resources' },
-    { route: 'map', label: 'Flood Map', icon: 'map' },
-  ];
+  // Get role configuration from shared config
+  const roleConfig = ROLE_CONFIG.ndma;
+
+  // Get menu items from shared config with dynamic badge
+  const menuItems = useMemo(() => 
+    getMenuItemsByRole('ndma', activeStatusCount), 
+    [activeStatusCount]
+  );
 
   // Handle allocation
   const handleAllocate = (e) => {
@@ -331,10 +335,10 @@ const ResourcesPage = () => {
                         <div
                           key={idx}
                           style={{
-                            backgroundColor: '#0f172a',
+                            backgroundColor: isLight ? colors.background : '#0f172a',
                             borderRadius: '8px',
                             padding: '16px',
-                            border: '1px solid #334155',
+                            border: `1px solid ${colors.border}`,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between'
@@ -343,15 +347,15 @@ const ResourcesPage = () => {
                           <div className="flex items-center gap-3">
                             <span style={{ fontSize: '20px' }}>{resourceInfo?.icon || '📦'}</span>
                             <div>
-                              <div style={{ color: '#f8fafc', fontSize: '14px', fontWeight: '500' }}>
+                              <div style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500' }}>
                                 {allocation.name}
                               </div>
-                              <div style={{ color: '#64748b', fontSize: '12px', marginTop: '2px' }}>
+                              <div style={{ color: colors.textMuted, fontSize: '12px', marginTop: '2px' }}>
                                 {resourceInfo?.category || 'Resource'}
                               </div>
                             </div>
                           </div>
-                          <div style={{ color: '#f8fafc', fontSize: '16px', fontWeight: '600' }}>
+                          <div style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600' }}>
                             {allocation.quantity.toLocaleString()}
                           </div>
                         </div>
@@ -359,7 +363,7 @@ const ResourcesPage = () => {
                     })}
                   </div>
                 ) : (
-                  <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                  <div style={{ textAlign: 'center', padding: '40px', color: colors.textMuted }}>
                     No resources allocated to this province yet
                   </div>
                 )}
@@ -371,10 +375,10 @@ const ResourcesPage = () => {
 
       {/* Allocate Resources Modal */}
       {isAllocateModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)', zIndex: 9999, padding: '1rem' }}>
-          <div style={{ backgroundColor: '#1e293b', borderRadius: '12px', width: '100%', maxWidth: '480px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
-            <div style={{ padding: '20px', borderBottom: '1px solid #334155' }}>
-              <h3 style={{ color: '#f8fafc', fontSize: '18px', fontWeight: '600', margin: 0 }}>
+        <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: isLight ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.85)', zIndex: 9999, padding: '1rem' }}>
+          <div style={{ backgroundColor: isLight ? '#ffffff' : '#1e293b', borderRadius: '12px', width: '100%', maxWidth: '480px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
+            <div style={{ padding: '20px', borderBottom: `1px solid ${colors.border}` }}>
+              <h3 style={{ color: colors.textPrimary, fontSize: '18px', fontWeight: '600', margin: 0 }}>
                 Allocate Resources to Province
               </h3>
             </div>
@@ -382,7 +386,7 @@ const ResourcesPage = () => {
             <form onSubmit={handleAllocate} style={{ padding: '24px' }}>
               {/* Select Province */}
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', color: '#94a3b8', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                <label style={{ display: 'block', color: colors.textSecondary, fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                   Select Province
                 </label>
                 <select
@@ -392,16 +396,16 @@ const ResourcesPage = () => {
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    backgroundColor: '#0f172a',
-                    color: '#e2e8f0',
-                    border: '1px solid #334155',
+                    backgroundColor: isLight ? '#f8fafc' : '#0f172a',
+                    color: colors.textPrimary,
+                    border: `1px solid ${colors.border}`,
                     borderRadius: '8px',
                     fontSize: '14px',
                     outline: 'none',
                     cursor: 'pointer'
                   }}
                   onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                  onBlur={(e) => e.target.style.borderColor = '#334155'}
+                  onBlur={(e) => e.target.style.borderColor = isLight ? '#e2e8f0' : '#334155'}
                 >
                   {provinces.map(province => (
                     <option key={province} value={province}>{province}</option>
@@ -411,7 +415,7 @@ const ResourcesPage = () => {
 
               {/* Select Resource */}
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', color: '#94a3b8', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                <label style={{ display: 'block', color: colors.textSecondary, fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                   Select Resource
                 </label>
                 <select
@@ -421,16 +425,16 @@ const ResourcesPage = () => {
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    backgroundColor: '#0f172a',
-                    color: '#e2e8f0',
-                    border: '1px solid #334155',
+                    backgroundColor: isLight ? '#f8fafc' : '#0f172a',
+                    color: colors.textPrimary,
+                    border: `1px solid ${colors.border}`,
                     borderRadius: '8px',
                     fontSize: '14px',
                     outline: 'none',
                     cursor: 'pointer'
                   }}
                   onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                  onBlur={(e) => e.target.style.borderColor = '#334155'}
+                  onBlur={(e) => e.target.style.borderColor = isLight ? '#e2e8f0' : '#334155'}
                 >
                   <option value="">Select a resource</option>
                   {nationalStock.map(item => (
@@ -443,7 +447,7 @@ const ResourcesPage = () => {
 
               {/* Quantity to Allocate */}
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', color: '#94a3b8', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                <label style={{ display: 'block', color: colors.textSecondary, fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
                   Quantity to Allocate
                 </label>
                 <input
@@ -456,15 +460,15 @@ const ResourcesPage = () => {
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    backgroundColor: '#0f172a',
-                    color: '#e2e8f0',
-                    border: '1px solid #334155',
+                    backgroundColor: isLight ? '#f8fafc' : '#0f172a',
+                    color: colors.textPrimary,
+                    border: `1px solid ${colors.border}`,
                     borderRadius: '8px',
                     fontSize: '14px',
                     outline: 'none'
                   }}
                   onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                  onBlur={(e) => e.target.style.borderColor = '#334155'}
+                  onBlur={(e) => e.target.style.borderColor = isLight ? '#e2e8f0' : '#334155'}
                 />
               </div>
 
@@ -474,9 +478,9 @@ const ResourcesPage = () => {
                   type="button"
                   onClick={() => setIsAllocateModalOpen(false)}
                   className="flex-1 py-2.5 rounded-lg font-medium transition-colors"
-                  style={{ backgroundColor: '#334155', color: '#e2e8f0' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#475569'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#334155'}
+                  style={{ backgroundColor: isLight ? '#e2e8f0' : '#334155', color: colors.textPrimary }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isLight ? '#cbd5e1' : '#475569'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = isLight ? '#e2e8f0' : '#334155'}
                 >
                   Cancel
                 </button>

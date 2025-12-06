@@ -509,7 +509,7 @@ const DamageReports = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backgroundColor: colors.modalOverlay,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -519,13 +519,13 @@ const DamageReports = () => {
         >
           <div 
             style={{
-              background: '#1e293b',
+              background: colors.modalBg,
               borderRadius: '16px',
               padding: '28px 32px',
               width: '100%',
               maxWidth: '550px',
               position: 'relative',
-              border: '1px solid rgba(255, 255, 255, 0.1)'
+              border: `1px solid ${colors.border}`
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -542,14 +542,14 @@ const DamageReports = () => {
                 padding: '4px'
               }}
             >
-              <X style={{ color: 'rgba(255, 255, 255, 0.6)', width: '24px', height: '24px' }} />
+              <X style={{ color: colors.textMuted, width: '24px', height: '24px' }} />
             </button>
 
             {/* Modal Title */}
             <h2 style={{ 
               fontSize: '24px', 
               fontWeight: '600', 
-              color: '#ffffff',
+              color: colors.textPrimary,
               marginBottom: '24px'
             }}>
               Create New Damage Report
@@ -557,7 +557,7 @@ const DamageReports = () => {
 
             {/* Form Fields */}
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ color: '#ffffff', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+              <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                 Location
               </label>
               <input
@@ -569,10 +569,10 @@ const DamageReports = () => {
                 style={{
                   width: '100%',
                   padding: '12px 14px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  background: colors.inputBg,
+                  border: `1px solid ${colors.inputBorder}`,
                   borderRadius: '8px',
-                  color: '#ffffff',
+                  color: colors.textPrimary,
                   fontSize: '14px',
                   outline: 'none',
                   boxSizing: 'border-box'
@@ -581,7 +581,7 @@ const DamageReports = () => {
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ color: '#ffffff', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+              <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                 Description
               </label>
               <textarea
@@ -593,10 +593,10 @@ const DamageReports = () => {
                 style={{
                   width: '100%',
                   padding: '12px 14px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  background: colors.inputBg,
+                  border: `1px solid ${colors.inputBorder}`,
                   borderRadius: '8px',
-                  color: '#ffffff',
+                  color: colors.textPrimary,
                   fontSize: '14px',
                   outline: 'none',
                   boxSizing: 'border-box',
@@ -607,23 +607,23 @@ const DamageReports = () => {
             </div>
 
             <div style={{ marginBottom: '20px' }}>
-              <label style={{ color: '#ffffff', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+              <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                 Upload Photos
               </label>
               <div 
                 style={{
-                  border: '2px dashed rgba(255, 255, 255, 0.2)',
+                  border: `2px dashed ${colors.border}`,
                   borderRadius: '8px',
                   padding: '32px',
                   textAlign: 'center',
                   cursor: 'pointer'
                 }}
               >
-                <Upload style={{ color: 'rgba(255, 255, 255, 0.4)', width: '32px', height: '32px', margin: '0 auto 12px' }} />
-                <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '14px', marginBottom: '4px' }}>
+                <Upload style={{ color: colors.textMuted, width: '32px', height: '32px', margin: '0 auto 12px' }} />
+                <p style={{ color: colors.textSecondary, fontSize: '14px', marginBottom: '4px' }}>
                   Click to upload or drag and drop
                 </p>
-                <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '12px' }}>
+                <p style={{ color: colors.textMuted, fontSize: '12px' }}>
                   PNG, JPG up to 10MB
                 </p>
               </div>
@@ -650,9 +650,9 @@ const DamageReports = () => {
                 onClick={handleCloseCreateModal}
                 style={{
                   padding: '12px 24px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  color: '#ffffff',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  background: colors.inputBg,
+                  color: colors.textPrimary,
+                  border: `1px solid ${colors.border}`,
                   borderRadius: '8px',
                   fontSize: '14px',
                   fontWeight: '600',
@@ -675,7 +675,7 @@ const DamageReports = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backgroundColor: colors.modalOverlay,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -685,13 +685,13 @@ const DamageReports = () => {
         >
           <div 
             style={{
-              background: '#1e293b',
+              background: colors.modalBg,
               borderRadius: '16px',
               padding: '28px 32px',
               width: '100%',
               maxWidth: '600px',
               position: 'relative',
-              border: '1px solid rgba(255, 255, 255, 0.1)'
+              border: `1px solid ${colors.border}`
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -708,14 +708,14 @@ const DamageReports = () => {
                 padding: '4px'
               }}
             >
-              <X style={{ color: 'rgba(255, 255, 255, 0.6)', width: '24px', height: '24px' }} />
+              <X style={{ color: colors.textMuted, width: '24px', height: '24px' }} />
             </button>
 
             {/* Modal Title */}
             <h2 style={{ 
               fontSize: '24px', 
               fontWeight: '600', 
-              color: '#ffffff',
+              color: colors.textPrimary,
               marginBottom: '24px'
             }}>
               Damage Report Details
@@ -724,11 +724,11 @@ const DamageReports = () => {
             {/* Report Info Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
               <div>
-                <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px', marginBottom: '4px' }}>Report ID</p>
-                <p style={{ color: '#ffffff', fontSize: '16px', fontWeight: '600' }}>{viewingReport.id}</p>
+                <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Report ID</p>
+                <p style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600' }}>{viewingReport.id}</p>
               </div>
               <div>
-                <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px', marginBottom: '4px' }}>Status</p>
+                <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Status</p>
                 <span 
                   style={{ 
                     backgroundColor: getStatusInfo(viewingReport.status).bgColor,
@@ -743,24 +743,24 @@ const DamageReports = () => {
                 </span>
               </div>
               <div>
-                <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px', marginBottom: '4px' }}>Location</p>
-                <p style={{ color: '#ffffff', fontSize: '16px', fontWeight: '600' }}>{viewingReport.location}</p>
+                <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Location</p>
+                <p style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600' }}>{viewingReport.location}</p>
               </div>
               <div>
-                <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px', marginBottom: '4px' }}>Submitted By</p>
-                <p style={{ color: '#ffffff', fontSize: '16px', fontWeight: '600' }}>{viewingReport.submittedBy}</p>
+                <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Submitted By</p>
+                <p style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600' }}>{viewingReport.submittedBy}</p>
               </div>
             </div>
 
             {/* Description */}
             <div style={{ marginBottom: '20px' }}>
-              <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px', marginBottom: '8px' }}>Description</p>
-              <p style={{ color: '#ffffff', fontSize: '14px', lineHeight: '1.6' }}>{viewingReport.description}</p>
+              <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '8px' }}>Description</p>
+              <p style={{ color: colors.textPrimary, fontSize: '14px', lineHeight: '1.6' }}>{viewingReport.description}</p>
             </div>
 
             {/* Evidence Photos */}
             <div style={{ marginBottom: '24px' }}>
-              <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px', marginBottom: '12px' }}>Evidence Photos</p>
+              <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '12px' }}>Evidence Photos</p>
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 {viewingReport.photos.map((photo, idx) => (
                   <img 
@@ -772,7 +772,7 @@ const DamageReports = () => {
                       height: '140px',
                       objectFit: 'cover',
                       borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.1)'
+                      border: `1px solid ${colors.border}`
                     }}
                   />
                 ))}
@@ -812,7 +812,7 @@ const DamageReports = () => {
                     gap: '8px',
                     padding: '12px 24px',
                     background: 'rgba(16, 185, 129, 0.3)',
-                    color: 'rgba(255, 255, 255, 0.5)',
+                    color: colors.textMuted,
                     border: 'none',
                     borderRadius: '8px',
                     fontSize: '14px',
@@ -829,7 +829,7 @@ const DamageReports = () => {
                 style={{
                   padding: '12px 24px',
                   background: 'rgba(59, 130, 246, 0.2)',
-                  color: '#ffffff',
+                  color: isLight ? '#3b82f6' : '#ffffff',
                   border: '1px solid rgba(59, 130, 246, 0.3)',
                   borderRadius: '8px',
                   fontSize: '14px',

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { StatCard, AlertCard, ResourceCard, MapContainer } from '@shared/components/dashboard';
 import { useSettings } from '@app/providers/ThemeProvider';
@@ -12,11 +12,17 @@ import {
   Building,
   Plus
 } from 'lucide-react';
+import { 
+  getMenuItemsByRole, 
+  ROLE_CONFIG, 
+  STAT_GRADIENT_KEYS 
+} from '@shared/constants/dashboardConfig';
 
 /**
  * PDMADashboard Component
  * Provincial Dashboard for PDMA (Provincial Disaster Management Authority)
  * Displays province-level disaster coordination and resource management
+ * Uses shared layout and configuration from dashboardConfig
  */
 const PDMADashboard = () => {
   const [activeRoute, setActiveRoute] = useState('dashboard');
@@ -27,16 +33,13 @@ const PDMADashboard = () => {
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
 
-  // Menu items for PDMA role
-  const menuItems = [
-    { route: 'dashboard', label: 'Provincial Dashboard', icon: 'dashboard' },
-    { route: 'resources', label: 'Resource Distribution', icon: 'resources' },
-    { route: 'shelters', label: 'Shelter Management', icon: 'map' },
-    { route: 'districts', label: 'District Coordination', icon: 'alerts' },
-    { route: 'map', label: 'Provincial Map', icon: 'map' },
-  ];
+  // Get role configuration from shared config
+  const roleConfig = ROLE_CONFIG.pdma;
 
-  // Mock data - will be replaced with API calls
+  // Get menu items from shared config
+  const menuItems = useMemo(() => getMenuItemsByRole('pdma'), []);
+
+  // Mock data - will be replaced with API calls (using shared gradient keys)
   const stats = [
     {
       title: 'Provincial Alerts',
@@ -45,7 +48,7 @@ const PDMADashboard = () => {
       trend: -10,
       trendLabel: 'vs last week',
       color: 'danger',
-      gradientKey: 'rose',
+      gradientKey: STAT_GRADIENT_KEYS.alerts,
     },
     {
       title: 'SOS Requests',
@@ -54,7 +57,7 @@ const PDMADashboard = () => {
       trend: -5,
       trendLabel: 'vs yesterday',
       color: 'warning',
-      gradientKey: 'amber',
+      gradientKey: STAT_GRADIENT_KEYS.sos,
     },
     {
       title: 'Active Shelters',
@@ -63,7 +66,7 @@ const PDMADashboard = () => {
       trend: 8,
       trendLabel: 'in province',
       color: 'success',
-      gradientKey: 'emerald',
+      gradientKey: STAT_GRADIENT_KEYS.shelters,
     },
     {
       title: 'Resources Available',
@@ -72,7 +75,7 @@ const PDMADashboard = () => {
       trend: 0,
       trendLabel: 'units',
       color: 'info',
-      gradientKey: 'blue',
+      gradientKey: STAT_GRADIENT_KEYS.resources,
     },
     {
       title: 'Rescue Teams',
@@ -81,7 +84,7 @@ const PDMADashboard = () => {
       trend: 3,
       trendLabel: 'active',
       color: 'success',
-      gradientKey: 'violet',
+      gradientKey: STAT_GRADIENT_KEYS.teams,
     },
     {
       title: 'Affected Population',
@@ -90,7 +93,7 @@ const PDMADashboard = () => {
       trend: 2,
       trendLabel: 'estimated',
       color: 'default',
-      gradientKey: 'cyan',
+      gradientKey: STAT_GRADIENT_KEYS.population,
     },
   ];
 
@@ -202,10 +205,10 @@ const PDMADashboard = () => {
       menuItems={menuItems}
       activeRoute={activeRoute}
       onNavigate={handleNavigate}
-      userRole={`PDMA ${provinceName}`}
-      userName="Provincial Admin"
-      pageTitle="National Rescue & Crisis Coordination System"
-      pageSubtitle={`${provinceName} Provincial disaster coordination and management`}
+      userRole={`${roleConfig.userRole} ${provinceName}`}
+      userName={roleConfig.userName}
+      pageTitle={roleConfig.title}
+      pageSubtitle={`${provinceName} ${roleConfig.subtitle}`}
       notificationCount={8}
     >
       {/* Stats Grid */}

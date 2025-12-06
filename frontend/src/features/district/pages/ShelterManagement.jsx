@@ -639,7 +639,7 @@ const ShelterManagement = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backgroundColor: colors.modalOverlay,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -649,13 +649,13 @@ const ShelterManagement = () => {
         >
           <div 
             style={{
-              background: '#1e293b',
+              background: colors.modalBg,
               borderRadius: '16px',
               padding: '28px 32px',
               width: '100%',
               maxWidth: '650px',
               position: 'relative',
-              border: '1px solid rgba(255, 255, 255, 0.1)'
+              border: `1px solid ${colors.border}`
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -672,14 +672,14 @@ const ShelterManagement = () => {
                 padding: '4px'
               }}
             >
-              <X style={{ color: 'rgba(255, 255, 255, 0.6)', width: '24px', height: '24px' }} />
+              <X style={{ color: colors.textMuted, width: '24px', height: '24px' }} />
             </button>
 
             {/* Modal Title */}
             <h2 style={{ 
               fontSize: '24px', 
               fontWeight: '600', 
-              color: '#ffffff',
+              color: colors.textPrimary,
               marginBottom: '24px'
             }}>
               {editingShelter ? 'Edit Shelter' : 'Add New Shelter'}
@@ -688,7 +688,7 @@ const ShelterManagement = () => {
             {/* Form Fields - Row 1: Name and Address side by side */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
               <div>
-                <label style={{ color: '#ffffff', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                   Shelter Name
                 </label>
                 <input
@@ -700,10 +700,10 @@ const ShelterManagement = () => {
                   style={{
                     width: '100%',
                     padding: '12px 14px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: colors.inputBg,
+                    border: `1px solid ${colors.inputBorder}`,
                     borderRadius: '8px',
-                    color: '#ffffff',
+                    color: colors.textPrimary,
                     fontSize: '14px',
                     outline: 'none',
                     boxSizing: 'border-box'
@@ -711,7 +711,7 @@ const ShelterManagement = () => {
                 />
               </div>
               <div>
-                <label style={{ color: '#ffffff', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                   Address
                 </label>
                 <input
@@ -723,10 +723,10 @@ const ShelterManagement = () => {
                   style={{
                     width: '100%',
                     padding: '12px 14px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: colors.inputBg,
+                    border: `1px solid ${colors.inputBorder}`,
                     borderRadius: '8px',
-                    color: '#ffffff',
+                    color: colors.textPrimary,
                     fontSize: '14px',
                     outline: 'none',
                     boxSizing: 'border-box'
@@ -738,7 +738,7 @@ const ShelterManagement = () => {
             {/* Row 2: Capacity and Current Occupancy */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
               <div>
-                <label style={{ color: '#ffffff', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                   Capacity
                 </label>
                 <input
@@ -750,10 +750,10 @@ const ShelterManagement = () => {
                   style={{
                     width: '100%',
                     padding: '12px 14px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: colors.inputBg,
+                    border: `1px solid ${colors.inputBorder}`,
                     borderRadius: '8px',
-                    color: '#ffffff',
+                    color: colors.textPrimary,
                     fontSize: '14px',
                     outline: 'none',
                     boxSizing: 'border-box'
@@ -761,7 +761,7 @@ const ShelterManagement = () => {
                 />
               </div>
               <div>
-                <label style={{ color: '#ffffff', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                   Current Occupancy
                 </label>
                 <input
@@ -773,10 +773,10 @@ const ShelterManagement = () => {
                   style={{
                     width: '100%',
                     padding: '12px 14px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: colors.inputBg,
+                    border: `1px solid ${colors.inputBorder}`,
                     borderRadius: '8px',
-                    color: '#ffffff',
+                    color: colors.textPrimary,
                     fontSize: '14px',
                     outline: 'none',
                     boxSizing: 'border-box'
@@ -787,7 +787,7 @@ const ShelterManagement = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
               <div>
-                <label style={{ color: '#ffffff', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                   Contact Person
                 </label>
                 <input
@@ -799,10 +799,10 @@ const ShelterManagement = () => {
                   style={{
                     width: '100%',
                     padding: '12px 14px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: colors.inputBg,
+                    border: `1px solid ${colors.inputBorder}`,
                     borderRadius: '8px',
-                    color: '#ffffff',
+                    color: colors.textPrimary,
                     fontSize: '14px',
                     outline: 'none',
                     boxSizing: 'border-box'
@@ -810,7 +810,7 @@ const ShelterManagement = () => {
                 />
               </div>
               <div>
-                <label style={{ color: '#ffffff', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                   Contact Phone
                 </label>
                 <input
@@ -822,10 +822,10 @@ const ShelterManagement = () => {
                   style={{
                     width: '100%',
                     padding: '12px 14px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: colors.inputBg,
+                    border: `1px solid ${colors.inputBorder}`,
                     borderRadius: '8px',
-                    color: '#ffffff',
+                    color: colors.textPrimary,
                     fontSize: '14px',
                     outline: 'none',
                     boxSizing: 'border-box'
@@ -836,7 +836,7 @@ const ShelterManagement = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
               <div>
-                <label style={{ color: '#ffffff', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                   Latitude
                 </label>
                 <input
@@ -848,10 +848,10 @@ const ShelterManagement = () => {
                   style={{
                     width: '100%',
                     padding: '12px 14px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: colors.inputBg,
+                    border: `1px solid ${colors.inputBorder}`,
                     borderRadius: '8px',
-                    color: '#ffffff',
+                    color: colors.textPrimary,
                     fontSize: '14px',
                     outline: 'none',
                     boxSizing: 'border-box'
@@ -859,7 +859,7 @@ const ShelterManagement = () => {
                 />
               </div>
               <div>
-                <label style={{ color: '#ffffff', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                   Longitude
                 </label>
                 <input
@@ -871,10 +871,10 @@ const ShelterManagement = () => {
                   style={{
                     width: '100%',
                     padding: '12px 14px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: colors.inputBg,
+                    border: `1px solid ${colors.inputBorder}`,
                     borderRadius: '8px',
-                    color: '#ffffff',
+                    color: colors.textPrimary,
                     fontSize: '14px',
                     outline: 'none',
                     boxSizing: 'border-box'
@@ -904,9 +904,9 @@ const ShelterManagement = () => {
                 onClick={handleCloseModal}
                 style={{
                   padding: '12px 24px',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  color: '#ffffff',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  background: colors.inputBg,
+                  color: colors.textPrimary,
+                  border: `1px solid ${colors.border}`,
                   borderRadius: '8px',
                   fontSize: '14px',
                   fontWeight: '600',
@@ -929,7 +929,7 @@ const ShelterManagement = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backgroundColor: colors.modalOverlay,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -939,7 +939,7 @@ const ShelterManagement = () => {
         >
           <div 
             style={{
-              background: '#1e293b',
+              background: colors.modalBg,
               borderRadius: '16px',
               padding: '32px',
               width: '100%',
@@ -947,7 +947,7 @@ const ShelterManagement = () => {
               maxHeight: '90vh',
               overflowY: 'auto',
               position: 'relative',
-              border: '1px solid rgba(255, 255, 255, 0.1)'
+              border: `1px solid ${colors.border}`
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -964,15 +964,15 @@ const ShelterManagement = () => {
                 padding: '4px'
               }}
             >
-              <X style={{ color: 'rgba(255, 255, 255, 0.6)', width: '24px', height: '24px' }} />
+              <X style={{ color: colors.textMuted, width: '24px', height: '24px' }} />
             </button>
 
             {/* Header */}
             <div style={{ marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#ffffff', marginBottom: '4px' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>
                 {viewingShelter.name}
               </h2>
-              <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '14px' }}>
+              <p style={{ color: colors.textSecondary, fontSize: '14px' }}>
                 {viewingShelter.address}
               </p>
             </div>
@@ -985,16 +985,16 @@ const ShelterManagement = () => {
                 gap: '16px',
                 marginBottom: '24px',
                 padding: '16px',
-                background: 'rgba(255, 255, 255, 0.03)',
+                background: colors.inputBg,
                 borderRadius: '12px'
               }}
             >
               <div>
-                <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px', marginBottom: '4px' }}>Shelter ID</p>
-                <p style={{ color: '#ffffff', fontSize: '14px', fontWeight: '600' }}>{viewingShelter.id}</p>
+                <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Shelter ID</p>
+                <p style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>{viewingShelter.id}</p>
               </div>
               <div>
-                <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px', marginBottom: '4px' }}>Status</p>
+                <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Status</p>
                 <span 
                   style={{ 
                     backgroundColor: getStatusInfo(viewingShelter.occupancy, viewingShelter.capacity).bgColor,
@@ -1009,20 +1009,20 @@ const ShelterManagement = () => {
                 </span>
               </div>
               <div>
-                <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px', marginBottom: '4px' }}>Capacity</p>
-                <p style={{ color: '#ffffff', fontSize: '14px', fontWeight: '600' }}>{viewingShelter.capacity} people</p>
+                <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Capacity</p>
+                <p style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>{viewingShelter.capacity} people</p>
               </div>
               <div>
-                <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px', marginBottom: '4px' }}>Current Occupancy</p>
-                <p style={{ color: '#ffffff', fontSize: '14px', fontWeight: '600' }}>{viewingShelter.occupancy} people</p>
+                <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Current Occupancy</p>
+                <p style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>{viewingShelter.occupancy} people</p>
               </div>
             </div>
 
             {/* Contact Information */}
             <div style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                <User style={{ color: 'rgba(255, 255, 255, 0.6)', width: '18px', height: '18px' }} />
-                <h3 style={{ color: '#ffffff', fontSize: '16px', fontWeight: '600' }}>Contact Information</h3>
+                <User style={{ color: colors.textSecondary, width: '18px', height: '18px' }} />
+                <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600' }}>Contact Information</h3>
               </div>
               <div 
                 style={{ 
@@ -1030,22 +1030,22 @@ const ShelterManagement = () => {
                   gridTemplateColumns: '1fr 1fr', 
                   gap: '24px',
                   padding: '16px',
-                  background: 'rgba(255, 255, 255, 0.03)',
+                  background: colors.inputBg,
                   borderRadius: '12px'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <User style={{ color: 'rgba(255, 255, 255, 0.4)', width: '16px', height: '16px' }} />
+                  <User style={{ color: colors.textMuted, width: '16px', height: '16px' }} />
                   <div>
-                    <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px', marginBottom: '2px' }}>Contact Person</p>
-                    <p style={{ color: '#ffffff', fontSize: '14px', fontWeight: '500' }}>{viewingShelter.contactPerson}</p>
+                    <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '2px' }}>Contact Person</p>
+                    <p style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500' }}>{viewingShelter.contactPerson}</p>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <Phone style={{ color: 'rgba(255, 255, 255, 0.4)', width: '16px', height: '16px' }} />
+                  <Phone style={{ color: colors.textMuted, width: '16px', height: '16px' }} />
                   <div>
-                    <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px', marginBottom: '2px' }}>Phone Number</p>
-                    <p style={{ color: '#ffffff', fontSize: '14px', fontWeight: '500' }}>{viewingShelter.contactPhone}</p>
+                    <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '2px' }}>Phone Number</p>
+                    <p style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500' }}>{viewingShelter.contactPhone}</p>
                   </div>
                 </div>
               </div>
@@ -1055,8 +1055,8 @@ const ShelterManagement = () => {
             {viewingShelter.supplies && (
               <div style={{ marginBottom: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                  <AlertCircle style={{ color: 'rgba(255, 255, 255, 0.6)', width: '18px', height: '18px' }} />
-                  <h3 style={{ color: '#ffffff', fontSize: '16px', fontWeight: '600' }}>Available Supplies & Quantities</h3>
+                  <AlertCircle style={{ color: colors.textSecondary, width: '18px', height: '18px' }} />
+                  <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600' }}>Available Supplies & Quantities</h3>
                 </div>
                 <div 
                   style={{ 
@@ -1070,7 +1070,7 @@ const ShelterManagement = () => {
                       key={key}
                       style={{ 
                         padding: '16px',
-                        background: supply.lowStock ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+                        background: supply.lowStock ? 'rgba(239, 68, 68, 0.1)' : colors.inputBg,
                         borderRadius: '12px',
                         border: supply.lowStock ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid transparent',
                         position: 'relative'
@@ -1081,13 +1081,13 @@ const ShelterManagement = () => {
                           <AlertCircle style={{ color: '#ef4444', width: '16px', height: '16px' }} />
                         </div>
                       )}
-                      <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '12px', marginBottom: '8px', textTransform: 'capitalize' }}>
+                      <p style={{ color: colors.textSecondary, fontSize: '12px', marginBottom: '8px', textTransform: 'capitalize' }}>
                         {key}
                       </p>
-                      <p style={{ color: '#ffffff', fontSize: '24px', fontWeight: '700', marginBottom: '4px' }}>
-                        {supply.amount} <span style={{ fontSize: '14px', fontWeight: '400', color: 'rgba(255, 255, 255, 0.6)' }}>{supply.unit}</span>
+                      <p style={{ color: colors.textPrimary, fontSize: '24px', fontWeight: '700', marginBottom: '4px' }}>
+                        {supply.amount} <span style={{ fontSize: '14px', fontWeight: '400', color: colors.textSecondary }}>{supply.unit}</span>
                       </p>
-                      <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '11px' }}>
+                      <p style={{ color: colors.textMuted, fontSize: '11px' }}>
                         Updated {supply.updated}
                       </p>
                       {supply.lowStock && (
@@ -1115,7 +1115,7 @@ const ShelterManagement = () => {
             {/* Available Amenities */}
             {viewingShelter.amenities && viewingShelter.amenities.length > 0 && (
               <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ color: '#ffffff', fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
+                <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
                   Available Amenities
                 </h3>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -1124,8 +1124,8 @@ const ShelterManagement = () => {
                       key={idx}
                       style={{
                         padding: '8px 14px',
-                        background: 'rgba(255, 255, 255, 0.08)',
-                        color: 'rgba(255, 255, 255, 0.9)',
+                        background: colors.inputBg,
+                        color: colors.textSecondary,
                         borderRadius: '6px',
                         fontSize: '13px',
                         fontWeight: '400'
@@ -1141,10 +1141,10 @@ const ShelterManagement = () => {
             {/* Additional Notes */}
             {viewingShelter.notes && (
               <div style={{ marginBottom: '28px' }}>
-                <h3 style={{ color: '#ffffff', fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
+                <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
                   Additional Notes
                 </h3>
-                <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '14px', lineHeight: '1.6' }}>
+                <p style={{ color: colors.textSecondary, fontSize: '14px', lineHeight: '1.6' }}>
                   {viewingShelter.notes}
                 </p>
               </div>

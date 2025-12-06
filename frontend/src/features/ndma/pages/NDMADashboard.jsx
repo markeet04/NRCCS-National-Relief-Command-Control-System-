@@ -1,16 +1,23 @@
 import { useMemo, useState } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
+import { StatCard } from '@shared/components/dashboard';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
-import { AlertTriangle, Truck, Users, Package, MapPin, Cloud, Wind, Thermometer, Droplets } from 'lucide-react';
+import { AlertTriangle, Truck, Users, Package, MapPin } from 'lucide-react';
 import { useBadge } from '@shared/contexts/BadgeContext';
+import { 
+  getMenuItemsByRole, 
+  ROLE_CONFIG, 
+  STAT_GRADIENT_KEYS,
+  DEFAULT_WEATHER_DATA,
+  getCardStyle 
+} from '@shared/constants/dashboardConfig';
 
 /**
  * NDMADashboard Component
  * National Dashboard for NDMA (National Disaster Management Authority)
+ * Uses shared layout and configuration from dashboardConfig
  */
-
-
 const NDMADashboard = () => {
   const { activeStatusCount } = useBadge();
   const [activeRoute, setActiveRoute] = useState('dashboard');
@@ -18,34 +25,30 @@ const NDMADashboard = () => {
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
 
-  // Menu items for NDMA role
-  const menuItems = useMemo(() => [
-    { route: 'dashboard', label: 'National Dashboard', icon: 'dashboard' },
-    { route: 'alerts', label: 'Nationwide Alerts', icon: 'alerts', badge: activeStatusCount },
-    { route: 'resources', label: 'Resource Allocation', icon: 'resources' },
-    { route: 'map', label: 'Flood Map', icon: 'map' }
-  ], [activeStatusCount]);
+  // Get role configuration from shared config
+  const roleConfig = ROLE_CONFIG.ndma;
+  
+  // Get menu items from shared config with dynamic badge
+  const menuItems = useMemo(() => 
+    getMenuItemsByRole('ndma', activeStatusCount), 
+    [activeStatusCount]
+  );
 
   const handleNavigate = (route) => {
     setActiveRoute(route);
     console.log('Navigate to:', route);
   };
 
-  // Stats data
+  // Stats data - using shared gradient keys with StatCard format
   const stats = [
-    { title: 'Active Emergencies', value: 3, change: -12, trend: 'down', icon: AlertTriangle, color: '#ef4444', gradientKey: 'rose' },
-    { title: 'Teams Deployed', value: 2, change: 8, trend: 'up', icon: Truck, color: '#3b82f6', gradientKey: 'blue' },
-    { title: 'People Evacuated', value: '15,432', change: 15, trend: 'up', icon: Users, color: '#10b981', gradientKey: 'emerald' },
-    { title: 'Resources Available', value: '182,000', change: 0, trend: 'neutral', icon: Package, color: '#f59e0b', gradientKey: 'amber' }
+    { title: 'Active Emergencies', value: 3, trend: -12, trendLabel: 'vs yesterday', trendDirection: 'down', icon: AlertTriangle, gradientKey: STAT_GRADIENT_KEYS.emergencies },
+    { title: 'Teams Deployed', value: 2, trend: 8, trendLabel: 'vs yesterday', trendDirection: 'up', icon: Truck, gradientKey: STAT_GRADIENT_KEYS.teams },
+    { title: 'People Evacuated', value: '15,432', trend: 15, trendLabel: 'vs yesterday', trendDirection: 'up', icon: Users, gradientKey: STAT_GRADIENT_KEYS.success },
+    { title: 'Resources Available', value: '182,000', trend: 0, trendLabel: 'units', trendDirection: null, icon: Package, gradientKey: STAT_GRADIENT_KEYS.resources }
   ];
 
-  // Weather data
-  const weatherData = [
-    { label: 'Rainfall', value: 'Heavy' },
-    { label: 'Wind Speed', value: '45 km/h' },
-    { label: 'Temperature', value: '28°C' },
-    { label: 'Humidity', value: '85%' }
-  ];
+  // Weather data - using shared default
+  const weatherData = DEFAULT_WEATHER_DATA;
 
   // Resource status
   const resources = [
@@ -59,10 +62,10 @@ const NDMADashboard = () => {
       menuItems={menuItems}
       activeRoute={activeRoute}
       onNavigate={handleNavigate}
-      userRole="NDMA"
-      userName="Admin"
-      pageTitle="National Rescue & Crisis Coordination System"
-      pageSubtitle="Real-time national disaster management dashboard"
+      userRole={roleConfig.userRole}
+      userName={roleConfig.userName}
+      pageTitle={roleConfig.title}
+      pageSubtitle={roleConfig.subtitle}
       notificationCount={5}
     >
       {/* Header */}
@@ -94,198 +97,117 @@ const NDMADashboard = () => {
             </div>
             <div style={{ color: isLight ? '#b91c1c' : '#fca5a5', fontSize: '13px', lineHeight: '1.5' }}>
               Heavy rainfall expected in next 24 hours. Evacuate low-lying areas immediately.
-            return (
-              <DashboardLayout
-                menuItems={menuItems}
-                activeRoute={activeRoute}
-                onNavigate={handleNavigate}
-                userRole="NDMA"
-                userName="Admin"
-                pageTitle="National Rescue & Crisis Coordination System"
-                pageSubtitle="Real-time national disaster management dashboard"
-                notificationCount={5}
-              >
-                {/* Header */}
-                <div style={{ marginBottom: '24px' }}>
-                  <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.textPrimary, marginBottom: '4px' }}>
-                    National Overview - NDMA
-                  </h1>
-                  <p style={{ fontSize: '14px', color: colors.textMuted }}>
-                    Real-time national disaster management dashboard
-                  </p>
-                </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-                {/* Critical Alert Banner */}
-                <div 
-                  style={{ 
-                    backgroundColor: isLight ? '#fef2f2' : '#7f1d1d', 
-                    border: `1px solid ${isLight ? '#fecaca' : '#991b1b'}`, 
-                    borderLeft: '4px solid #ef4444',
-                    borderRadius: '8px', 
-                    padding: '16px 20px', 
-                    marginBottom: '24px' 
-                  }}
-                >
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#ef4444' }} />
-                    <div>
-                      <div style={{ color: isLight ? '#991b1b' : '#fecaca', fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
-                        Flash Flood Warning
-                      </div>
-                      <div style={{ color: isLight ? '#b91c1c' : '#fca5a5', fontSize: '13px', lineHeight: '1.5' }}>
-                        Heavy rainfall expected in next 24 hours. Evacuate low-lying areas immediately.
-                      </div>
-                    </div>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {stats.map((stat, index) => (
+          <StatCard key={index} {...stat} />
+        ))}
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Map Section - Takes 2 columns */}
+        <div className="lg:col-span-2" style={{ marginTop: '24px' }}>
+          <div style={{ backgroundColor: isLight ? colors.cardBg : '#1e293b', borderRadius: '12px', border: `1px solid ${isLight ? colors.cardBorder : '#334155'}`, padding: '24px' }}>
+            <h3 style={{ color: colors.textPrimary, fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>
+              Pakistan - Live Situation Map
+            </h3>
+  
+            {/* Map Placeholder */}
+            <div style={{ 
+              background: isLight ? '#f1f5f9' : '#0f172a', 
+              borderRadius: '8px', 
+              minHeight: '400px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '40px',
+              border: `1px solid ${colors.cardBorder}`
+            }}>
+              <MapPin className="w-16 h-16 mb-4" style={{ color: colors.primary }} />
+              <h4 style={{ color: colors.textPrimary, fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
+                Interactive Pakistan Map
+              </h4>
+              <p style={{ color: colors.textMuted, fontSize: '14px', textAlign: 'center', maxWidth: '400px' }}>
+                SOS Locations + Flood Zones + Shelters + Rescue Teams
+              </p>
+    
+              {/* Map Legend */}
+              <div style={{ marginTop: '24px', display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <div className="flex items-center gap-2">
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>
+                  <span style={{ color: colors.textSecondary, fontSize: '12px' }}>Critical SOS</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#3b82f6' }}></div>
+                  <span style={{ color: colors.textSecondary, fontSize: '12px' }}>Flood Zones</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10b981' }}></div>
+                  <span style={{ color: colors.textSecondary, fontSize: '12px' }}>Shelters</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Sidebar */}
+        <div className="flex flex-col gap-6">
+          {/* 24h Weather */}
+          <div style={{ backgroundColor: isLight ? colors.cardBg : '#1e293b', borderRadius: '12px', border: `1px solid ${isLight ? colors.cardBorder : '#334155'}`, padding: '20px', marginTop: '24px' }}>
+            <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>
+              24h Weather
+            </h3>
+            <div className="flex flex-col gap-3">
+              {weatherData.map((item, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <span style={{ color: colors.textMuted, fontSize: '14px' }}>{item.label}</span>
+                  <span style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Resource Status */}
+          <div className="transition-all duration-300" style={{ background: colors.cardBg, borderRadius: '12px', border: `1px solid ${colors.cardBorder}`, padding: '20px', boxShadow: isLight ? colors.cardShadow : 'none' }}>
+            <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>
+              Resource Status
+            </h3>
+            <div className="flex flex-col gap-4">
+              {resources.map((resource, index) => (
+                <div key={index}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span style={{ color: colors.textSecondary, fontSize: '13px', fontWeight: '500' }}>
+                      {resource.name}
+                    </span>
+                    <span style={{ color: resource.color, fontSize: '13px', fontWeight: '600' }}>
+                      {resource.percentage}%
+                    </span>
                   </div>
-                </div>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                  {stats.map((stat, index) => (
+                  <div style={{ width: '100%', height: '8px', backgroundColor: isLight ? '#e2e8f0' : '#0f172a', borderRadius: '4px', overflow: 'hidden' }}>
                     <div 
-                      key={index}
                       style={{ 
-                        backgroundColor: '#1e293b', 
-                        borderRadius: '12px', 
-                        padding: '20px',
-                        border: '1px solid #334155',
-                        position: 'relative'
+                        width: `${resource.percentage}%`, 
+                        height: '100%', 
+                        backgroundColor: resource.color,
+                        transition: 'width 0.3s ease'
                       }}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div style={{ flex: 1 }}>
-                          <div style={{ color: '#94a3b8', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
-                            {stat.title}
-                          </div>
-                          <div style={{ color: '#f8fafc', fontSize: '32px', fontWeight: '700', marginBottom: '8px' }}>
-                            {stat.value}
-                          </div>
-                          {stat.change !== 0 && (
-                            <div 
-                              style={{ 
-                                color: stat.trend === 'up' ? '#10b981' : '#ef4444', 
-                                fontSize: '13px',
-                                fontWeight: '500'
-                              }}
-                            >
-                              {stat.trend === 'up' ? '+' : ''}{stat.change}% vs yesterday
-                            </div>
-                          )}
-                        </div>
-                        <div 
-                          style={{ 
-                            width: '48px', 
-                            height: '48px', 
-                            borderRadius: '12px', 
-                            backgroundColor: `${stat.color}15`,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                          }}
-                        >
-                          <stat.icon className="w-6 h-6" style={{ color: stat.color }} />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Main Content Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Map Section - Takes 2 columns */}
-                  <div className="lg:col-span-2" style={{ marginTop: '24px' }}>
-                    <div style={{ backgroundColor: '#1e293b', borderRadius: '12px', border: '1px solid #334155', padding: '24px' }}>
-                      <h3 style={{ color: '#f8fafc', fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>
-                        Pakistan - Live Situation Map
-                      </h3>
-            
-                      {/* Map Placeholder */}
-                      <div style={{ 
-                        background: isLight ? '#f1f5f9' : '#0f172a', 
-                        borderRadius: '8px', 
-                        minHeight: '400px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '40px',
-                        border: `1px solid ${colors.cardBorder}`
-                      }}>
-                        <MapPin className="w-16 h-16 mb-4" style={{ color: colors.primary }} />
-                        <h4 style={{ color: colors.textPrimary, fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
-                          Interactive Pakistan Map
-                        </h4>
-                        <p style={{ color: colors.textMuted, fontSize: '14px', textAlign: 'center', maxWidth: '400px' }}>
-                          SOS Locations + Flood Zones + Shelters + Rescue Teams
-                        </p>
-              
-                        {/* Map Legend */}
-                        <div style={{ marginTop: '24px', display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                          <div className="flex items-center gap-2">
-                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>
-                            <span style={{ color: colors.textSecondary, fontSize: '12px' }}>Critical SOS</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#3b82f6' }}></div>
-                            <span style={{ color: colors.textSecondary, fontSize: '12px' }}>Flood Zones</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10b981' }}></div>
-                            <span style={{ color: colors.textSecondary, fontSize: '12px' }}>Shelters</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Sidebar */}
-                  <div className="flex flex-col gap-6">
-                    {/* 24h Weather */}
-                    <div style={{ backgroundColor: '#1e293b', borderRadius: '12px', border: '1px solid #334155', padding: '20px', marginTop: '24px' }}>
-                      <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>
-                        24h Weather
-                      </h3>
-                      <div className="flex flex-col gap-3">
-                        {weatherData.map((item, index) => (
-                          <div key={index} className="flex items-center justify-between">
-                            <span style={{ color: colors.textMuted, fontSize: '14px' }}>{item.label}</span>
-                            <span style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>{item.value}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Resource Status */}
-                    <div className="transition-all duration-300" style={{ background: colors.cardBg, borderRadius: '12px', border: `1px solid ${colors.cardBorder}`, padding: '20px', boxShadow: isLight ? colors.cardShadow : 'none' }}>
-                      <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>
-                        Resource Status
-                      </h3>
-                      <div className="flex flex-col gap-4">
-                        {resources.map((resource, index) => (
-                          <div key={index}>
-                            <div className="flex items-center justify-between mb-2">
-                              <span style={{ color: colors.textSecondary, fontSize: '13px', fontWeight: '500' }}>
-                                {resource.name}
-                              </span>
-                              <span style={{ color: resource.color, fontSize: '13px', fontWeight: '600' }}>
-                                {resource.percentage}%
-                              </span>
-                            </div>
-                            <div style={{ width: '100%', height: '8px', backgroundColor: isLight ? '#e2e8f0' : '#0f172a', borderRadius: '4px', overflow: 'hidden' }}>
-                              <div 
-                                style={{ 
-                                  width: `${resource.percentage}%`, 
-                                  height: '100%', 
-                                  backgroundColor: resource.color,
-                                  transition: 'width 0.3s ease'
-                                }}
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    />
                   </div>
                 </div>
-              </DashboardLayout>
-            );
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+};
+
+export default NDMADashboard;
