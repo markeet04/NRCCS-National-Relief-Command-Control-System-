@@ -1,4 +1,3 @@
-// Civilian Feature - Civilian Portal
-export * from './pages';
+export { default as CivilianPortalRoutes } from './pages/CivilianPortalRoutes';
+export { default as CivilianHome } from './pages/CivilianHome';
 export * from './components';
-export * from './services';
