@@ -90,7 +90,7 @@ const SystemSettings = () => {
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    background: colors.inputBg,
+                    background: '#3a4256',
                     border: `1px solid ${colors.border}`,
                     borderRadius: '8px',
                     color: colors.textPrimary,
