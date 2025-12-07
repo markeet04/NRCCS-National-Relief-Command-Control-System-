@@ -1,30 +1,53 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { 
-  CivilianDashboard, 
-  EmergencySOS,
-  FindShelters,
-  MissingPersons,
-  AlertsNotices,
-  SOSForm, 
-  MySOSRequests, 
-  PublicAlerts, 
-  ShelterMap 
-} from '.';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import CivilianLayout from '@shared/components/layout/CivilianLayout';
+import CivilianHome from './CivilianHome';
+import EmergencySOS from './EmergencySOS';
+import FindShelters from './FindShelters';
+import MissingPersons from './MissingPersons';
+import AlertsNotices from './AlertsNotices';
+import TrackStatus from './TrackStatus';
+import Help from './Help';
 
-const CivilianPortalRoutes = () => (
-  <Routes>
-    <Route path="" element={<CivilianDashboard />} />
-    <Route path="home" element={<CivilianDashboard />} />
-    <Route path="sos" element={<EmergencySOS />} />
-    <Route path="shelters" element={<FindShelters />} />
-    <Route path="missing" element={<MissingPersons />} />
-    <Route path="alerts" element={<AlertsNotices />} />
-    <Route path="sos-form" element={<SOSForm />} />
-    <Route path="my-sos" element={<MySOSRequests />} />
-    <Route path="public-alerts" element={<PublicAlerts />} />
-    <Route path="shelter-map" element={<ShelterMap />} />
-  </Routes>
-);
+// Placeholder components for pages we'll create
+const Profile = () => <div>Profile (Coming Soon)</div>;
+
+/**
+ * CivilianPortalRoutes - All civilian portal routes
+ * Wrapped in CivilianLayout for consistent UI
+ */
+const CivilianPortalRoutes = () => {
+  return (
+    <CivilianLayout>
+      <Routes>
+        {/* Home */}
+        <Route index element={<CivilianHome />} />
+        
+        {/* Emergency SOS */}
+        <Route path="sos" element={<EmergencySOS />} />
+        
+        {/* Find Shelters */}
+        <Route path="shelters" element={<FindShelters />} />
+        
+        {/* Alerts & Notices */}
+        <Route path="alerts" element={<AlertsNotices />} />
+        
+        {/* Missing Persons */}
+        <Route path="missing" element={<MissingPersons />} />
+        
+        {/* Track Status */}
+        <Route path="track" element={<TrackStatus />} />
+        
+        {/* Profile */}
+        <Route path="profile" element={<Profile />} />
+        
+        {/* Help */}
+        <Route path="help" element={<Help />} />
+        
+        {/* Redirect unknown civilian routes to home */}
+        <Route path="*" element={<Navigate to="/civilian" replace />} />
+      </Routes>
+    </CivilianLayout>
+  );
+};
 
 export default CivilianPortalRoutes;

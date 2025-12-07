@@ -1,215 +1,605 @@
-import { useState } from 'react';
-import { DashboardLayout } from '@shared/components/layout';
-import { MapPin, Phone, Plus } from 'lucide-react';
-import { useSettings } from '@app/providers/ThemeProvider';
-import { getThemeColors } from '@shared/utils/themeColors';
+import { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import './FindShelters.css';
 
-const FindShelters = () => {
-  const [activeRoute, setActiveRoute] = useState('shelters');
-  const { theme } = useSettings();
-  const isLight = theme === 'light';
-  const colors = getThemeColors(isLight);
+// Fix Leaflet default icon issue
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
+
+// Custom marker icons based on shelter status
+const createCustomIcon = (status) => {
+  const colors = {
+    available: '#10b981',
+    limited: '#f59e0b',
+    full: '#ef4444'
+  };
   
-  const menuItems = [
-    { route: 'home', label: 'Home', icon: 'dashboard' },
-    { route: 'sos', label: 'Emergency SOS', icon: 'alerts' },
-    { route: 'shelters', label: 'Find Shelters', icon: 'map' },
-    { route: 'missing', label: 'Missing Persons', icon: 'users' },
-    { route: 'alerts', label: 'Alerts & Notices', icon: 'alerts' }
-  ];
+  return L.divIcon({
+    className: 'custom-marker-icon',
+    html: `
+      <div class="marker-pin" style="
+        background-color: ${colors[status]}; 
+        width: 35px; 
+        height: 35px; 
+        border-radius: 50%; 
+        border: 3px solid white; 
+        box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      ">🏠</div>
+    `,
+    iconSize: [35, 35],
+    iconAnchor: [17.5, 17.5],
+    popupAnchor: [0, -17.5],
+  });
+};
 
-  const [shelters] = useState([
-    {
-      id: 1,
-      name: 'Government School Shelter',
-      location: 'Main Road, Sukkur',
-      phone: '+92-300-111111',
-      capacity: 320,
-      maxCapacity: 500,
-      status: 'operational',
-      amenities: ['Food', 'Water', 'Medical', 'Sanitation']
-    },
-    {
-      id: 2,
-      name: 'Community Center Shelter',
-      location: 'Civil Lines, Hyderabad',
-      phone: '+92-300-2222222',
-      capacity: 280,
-      maxCapacity: 300,
-      status: 'operational',
-      amenities: ['Food', 'Water', 'Medical']
+const userIcon = L.divIcon({
+  className: 'user-marker-icon',
+  html: `
+    <div style="
+      font-size: 35px; 
+      filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));
+      cursor: pointer;
+    ">📍</div>
+  `,
+  iconSize: [35, 35],
+  iconAnchor: [17.5, 35],
+  popupAnchor: [0, -35],
+});
+
+// Component to handle map view updates
+function MapViewController({ center, zoom, selectedShelter }) {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (selectedShelter) {
+      map.flyTo([selectedShelter.latitude, selectedShelter.longitude], 14, {
+        duration: 1
+      });
     }
-  ]);
+  }, [selectedShelter, map]);
+  
+  return null;
+}
 
-  const handleRegisterShelter = () => {
-    alert('Register new shelter functionality - to be implemented');
+// Mock shelter data
+const MOCK_SHELTERS = [
+  {
+    id: 1,
+    name: 'Central Community Shelter',
+    address: 'Block 5, Gulshan-e-Iqbal, Karachi',
+    latitude: 24.9141,
+    longitude: 67.0960,
+    distance: 2.3,
+    capacity: { total: 500, current: 347, available: 153 },
+    facilities: ['Medical', 'Food', 'Water', 'Electricity', 'Security'],
+    contact: '+92-300-1234567',
+    status: 'available',
+    rating: 4.5,
+    lastUpdated: '5 mins ago'
+  },
+  {
+    id: 2,
+    name: 'Northern Relief Camp',
+    address: 'University Road, Karachi',
+    latitude: 24.9456,
+    longitude: 67.1100,
+    distance: 4.8,
+    capacity: { total: 300, current: 280, available: 20 },
+    facilities: ['Medical', 'Food', 'Water', 'Blankets'],
+    contact: '+92-300-2345678',
+    status: 'limited',
+    rating: 4.2,
+    lastUpdated: '8 mins ago'
+  },
+  {
+    id: 3,
+    name: 'City District Shelter',
+    address: 'Saddar Town, Karachi',
+    latitude: 24.8607,
+    longitude: 67.0011,
+    distance: 5.2,
+    capacity: { total: 400, current: 398, available: 2 },
+    facilities: ['Medical', 'Food', 'Water', 'Electricity', 'Security', 'Blankets'],
+    contact: '+92-300-3456789',
+    status: 'full',
+    rating: 4.7,
+    lastUpdated: '3 mins ago'
+  },
+  {
+    id: 4,
+    name: 'Green Valley Emergency Center',
+    address: 'Defence Phase 8, Karachi',
+    latitude: 24.8138,
+    longitude: 67.0294,
+    distance: 6.5,
+    capacity: { total: 250, current: 120, available: 130 },
+    facilities: ['Medical', 'Food', 'Water', 'Electricity', 'Internet', 'Security'],
+    contact: '+92-300-4567890',
+    status: 'available',
+    rating: 4.8,
+    lastUpdated: '2 mins ago'
+  },
+  {
+    id: 5,
+    name: 'East District Relief Point',
+    address: 'Malir Cantonment, Karachi',
+    latitude: 24.9436,
+    longitude: 67.2097,
+    distance: 8.1,
+    capacity: { total: 350, current: 210, available: 140 },
+    facilities: ['Medical', 'Food', 'Water', 'Blankets', 'Security'],
+    contact: '+92-300-5678901',
+    status: 'available',
+    rating: 4.3,
+    lastUpdated: '10 mins ago'
+  },
+  {
+    id: 6,
+    name: 'Clifton Safe Haven',
+    address: 'Clifton Block 2, Karachi',
+    latitude: 24.8141,
+    longitude: 67.0278,
+    distance: 9.3,
+    capacity: { total: 180, current: 95, available: 85 },
+    facilities: ['Medical', 'Food', 'Water', 'Electricity', 'Internet'],
+    contact: '+92-300-6789012',
+    status: 'available',
+    rating: 4.6,
+    lastUpdated: '7 mins ago'
+  },
+  {
+    id: 7,
+    name: 'Korangi Emergency Hub',
+    address: 'Korangi Industrial Area, Karachi',
+    latitude: 24.8406,
+    longitude: 67.1208,
+    distance: 12.4,
+    capacity: { total: 450, current: 445, available: 5 },
+    facilities: ['Medical', 'Food', 'Water', 'Security'],
+    contact: '+92-300-7890123',
+    status: 'limited',
+    rating: 4.0,
+    lastUpdated: '15 mins ago'
+  },
+  {
+    id: 8,
+    name: 'North Nazimabad Relief Center',
+    address: 'Block B, North Nazimabad, Karachi',
+    latitude: 24.9300,
+    longitude: 67.0389,
+    distance: 3.7,
+    capacity: { total: 320, current: 180, available: 140 },
+    facilities: ['Medical', 'Food', 'Water', 'Electricity', 'Blankets', 'Security'],
+    contact: '+92-300-8901234',
+    status: 'available',
+    rating: 4.4,
+    lastUpdated: '4 mins ago'
+  }
+];
+
+const FACILITY_ICONS = {
+  'Medical': '🏥',
+  'Food': '🍽️',
+  'Water': '💧',
+  'Electricity': '⚡',
+  'Internet': '📶',
+  'Security': '🛡️',
+  'Blankets': '🛏️'
+};
+
+function FindShelters() {
+  const [shelters, setShelters] = useState([]);
+  const [filteredShelters, setFilteredShelters] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedShelter, setSelectedShelter] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+  const [filters, setFilters] = useState({
+    maxDistance: 50,
+    minCapacity: 0,
+    status: 'all',
+    facilities: []
+  });
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Simulate fetching shelters
+  useEffect(() => {
+    setLoading(true);
+    setTimeout(() => {
+      setShelters(MOCK_SHELTERS);
+      setFilteredShelters(MOCK_SHELTERS);
+      setLoading(false);
+    }, 500);
+
+    // Get user location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+        },
+        () => {
+          // Fallback location (Karachi center)
+          setUserLocation({ latitude: 24.8607, longitude: 67.0011 });
+        }
+      );
+    } else {
+      setUserLocation({ latitude: 24.8607, longitude: 67.0011 });
+    }
+  }, []);
+
+  // Apply filters
+  useEffect(() => {
+    let filtered = [...shelters];
+
+    // Search filter
+    if (searchQuery) {
+      filtered = filtered.filter(shelter =>
+        shelter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        shelter.address.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Distance filter
+    filtered = filtered.filter(shelter => shelter.distance <= filters.maxDistance);
+
+    // Capacity filter
+    filtered = filtered.filter(shelter => shelter.capacity.available >= filters.minCapacity);
+
+    // Status filter
+    if (filters.status !== 'all') {
+      filtered = filtered.filter(shelter => shelter.status === filters.status);
+    }
+
+    // Facilities filter
+    if (filters.facilities.length > 0) {
+      filtered = filtered.filter(shelter =>
+        filters.facilities.every(f => shelter.facilities.includes(f))
+      );
+    }
+
+    setFilteredShelters(filtered);
+  }, [searchQuery, filters, shelters]);
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
   };
 
-  return (
-    <DashboardLayout
-      menuItems={menuItems}
-      activeRoute={activeRoute}
-      onNavigate={setActiveRoute}
-      pageTitle="Shelter Registry"
-      pageSubtitle="Find and register emergency shelters"
-      userRole="Civilian Portal"
-      userName="sgb"
-    >
-      <div style={{ padding: '24px' }}>
-        {/* Header with Register Button */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          marginBottom: '24px'
-        }}>
-          <h2 style={{ fontSize: '24px', fontWeight: '600', color: colors.textPrimary }}>
-            Shelter Registry
-          </h2>
-          <button
-            onClick={handleRegisterShelter}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '10px 20px',
-              background: '#10b981',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500'
-            }}
-          >
-            <Plus size={18} />
-            Register Shelter
-          </button>
-        </div>
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
 
-        {/* Shelters Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(450px, 1fr))',
-          gap: '20px'
-        }}>
-          {shelters.map((shelter) => {
-            const percentage = (shelter.capacity / shelter.maxCapacity) * 100;
-            return (
-              <div
-                key={shelter.id}
-                style={{
-                  background: colors.cardBg,
-                  borderRadius: '12px',
-                  padding: '24px',
-                  border: `1px solid ${colors.border}`
-                }}
-              >
-                {/* Header */}
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'flex-start',
-                  marginBottom: '16px'
-                }}>
-                  <div>
-                    <h3 style={{ 
-                      fontSize: '18px', 
-                      fontWeight: '600', 
-                      color: colors.textPrimary,
-                      marginBottom: '8px'
-                    }}>
-                      {shelter.name}
-                    </h3>
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '6px',
-                      color: colors.textMuted,
-                      fontSize: '13px',
-                      marginBottom: '4px'
-                    }}>
-                      <MapPin size={14} />
-                      {shelter.location}
-                    </div>
-                  </div>
-                  <span style={{
-                    padding: '4px 12px',
-                    borderRadius: '12px',
-                    fontSize: '12px',
-                    background: isLight ? '#d1fae5' : 'rgba(16, 185, 129, 0.2)',
-                    color: '#10b981'
-                  }}>
-                    {shelter.status}
-                  </span>
-                </div>
+  const toggleFacilityFilter = (facility) => {
+    setFilters(prev => ({
+      ...prev,
+      facilities: prev.facilities.includes(facility)
+        ? prev.facilities.filter(f => f !== facility)
+        : [...prev.facilities, facility]
+    }));
+  };
 
-                {/* Capacity */}
-                <div style={{ marginBottom: '16px' }}>
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between',
-                    marginBottom: '8px'
-                  }}>
-                    <span style={{ fontSize: '13px', color: colors.textSecondary }}>
-                      Capacity
-                    </span>
-                    <span style={{ fontSize: '14px', color: colors.textPrimary, fontWeight: '500' }}>
-                      {shelter.capacity} / {shelter.maxCapacity}
-                    </span>
-                  </div>
-                  <div style={{
-                    height: '6px',
-                    background: isLight ? '#e2e8f0' : 'rgba(255, 255, 255, 0.1)',
-                    borderRadius: '3px',
-                    overflow: 'hidden'
-                  }}>
-                    <div style={{
-                      height: '100%',
-                      width: `${percentage}%`,
-                      background: percentage > 90 ? '#ef4444' : '#10b981',
-                      transition: 'width 0.3s ease'
-                    }} />
-                  </div>
-                </div>
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'available': return '#10b981';
+      case 'limited': return '#f59e0b';
+      case 'full': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
 
-                {/* Phone */}
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '8px',
-                  marginBottom: '16px'
-                }}>
-                  <Phone size={16} style={{ color: colors.textMuted }} />
-                  <span style={{ color: colors.textPrimary, fontSize: '14px' }}>
-                    {shelter.phone}
-                  </span>
-                </div>
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'available': return 'Available';
+      case 'limited': return 'Limited Space';
+      case 'full': return 'Full';
+      default: return 'Unknown';
+    }
+  };
 
-                {/* Amenities */}
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {shelter.amenities.map((amenity, index) => (
-                    <span
-                      key={index}
-                      style={{
-                        padding: '6px 12px',
-                        borderRadius: '6px',
-                        fontSize: '12px',
-                        background: isLight ? '#dbeafe' : 'rgba(59, 130, 246, 0.2)',
-                        color: '#3b82f6'
-                      }}
-                    >
-                      {amenity}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+  const getCapacityPercentage = (shelter) => {
+    return (shelter.capacity.current / shelter.capacity.total) * 100;
+  };
+
+  const handleGetDirections = (shelter) => {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${shelter.latitude},${shelter.longitude}`;
+    window.open(url, '_blank');
+  };
+
+  const handleShelterClick = (shelter) => {
+    setSelectedShelter(selectedShelter?.id === shelter.id ? null : shelter);
+  };
+
+  if (loading) {
+    return (
+      <div className="shelters-page">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading shelters...</p>
         </div>
       </div>
-    </DashboardLayout>
+    );
+  }
+
+  return (
+    <div className="shelters-page">
+      {/* Header */}
+      <div className="shelters-header">
+        <h1>Find Nearest Shelters</h1>
+        <p>Locate safe shelters with available capacity near you</p>
+      </div>
+
+      {/* Search and Filters */}
+      <div className="search-section">
+        <div className="search-bar">
+          <span className="search-icon">🔍</span>
+          <input
+            type="text"
+            placeholder="Search by name or address..."
+            value={searchQuery}
+            onChange={handleSearch}
+          />
+        </div>
+        <button
+          className={`filter-toggle ${showFilters ? 'active' : ''}`}
+          onClick={() => setShowFilters(!showFilters)}
+        >
+          <span>🎚️</span>
+          Filters
+          {(filters.status !== 'all' || filters.facilities.length > 0) && (
+            <span className="filter-badge">{filters.status !== 'all' ? 1 : 0 + filters.facilities.length}</span>
+          )}
+        </button>
+      </div>
+
+      {/* Filters Panel */}
+      {showFilters && (
+        <div className="filters-panel">
+          <div className="filter-group">
+            <label>Max Distance (km)</label>
+            <input
+              type="range"
+              min="1"
+              max="50"
+              value={filters.maxDistance}
+              onChange={(e) => handleFilterChange('maxDistance', Number(e.target.value))}
+            />
+            <span className="filter-value">{filters.maxDistance} km</span>
+          </div>
+
+          <div className="filter-group">
+            <label>Min Available Capacity</label>
+            <input
+              type="number"
+              min="0"
+              max="200"
+              value={filters.minCapacity}
+              onChange={(e) => handleFilterChange('minCapacity', Number(e.target.value))}
+            />
+          </div>
+
+          <div className="filter-group">
+            <label>Status</label>
+            <select
+              value={filters.status}
+              onChange={(e) => handleFilterChange('status', e.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="available">Available</option>
+              <option value="limited">Limited</option>
+              <option value="full">Full</option>
+            </select>
+          </div>
+
+          <div className="filter-group">
+            <label>Required Facilities</label>
+            <div className="facility-chips">
+              {Object.keys(FACILITY_ICONS).map(facility => (
+                <button
+                  key={facility}
+                  className={`facility-chip ${filters.facilities.includes(facility) ? 'active' : ''}`}
+                  onClick={() => toggleFacilityFilter(facility)}
+                >
+                  <span>{FACILITY_ICONS[facility]}</span>
+                  {facility}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Results Count */}
+      <div className="results-info">
+        <span className="results-count">
+          {filteredShelters.length} shelter{filteredShelters.length !== 1 ? 's' : ''} found
+        </span>
+        {searchQuery && (
+          <span className="search-query">for "{searchQuery}"</span>
+        )}
+      </div>
+
+      {/* Main Content */}
+      <div className="shelters-content">
+        {/* Map Section */}
+        <div className="map-section">
+          <div className="map-container">
+            {userLocation && (
+              <MapContainer
+                center={[userLocation.latitude, userLocation.longitude]}
+                zoom={12}
+                style={{ height: '100%', width: '100%' }}
+                zoomControl={true}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                
+                <MapViewController 
+                  center={[userLocation.latitude, userLocation.longitude]} 
+                  zoom={12}
+                  selectedShelter={selectedShelter}
+                />
+                
+                {/* User location marker */}
+                <Marker 
+                  position={[userLocation.latitude, userLocation.longitude]}
+                  icon={userIcon}
+                >
+                  <Popup>
+                    <div style={{ textAlign: 'center' }}>
+                      <strong>Your Location</strong>
+                    </div>
+                  </Popup>
+                </Marker>
+                
+                {/* Shelter markers */}
+                {filteredShelters.map((shelter) => (
+                  <Marker
+                    key={shelter.id}
+                    position={[shelter.latitude, shelter.longitude]}
+                    icon={createCustomIcon(shelter.status)}
+                    eventHandlers={{
+                      click: () => handleShelterClick(shelter),
+                    }}
+                  >
+                    <Popup>
+                      <div className="map-popup">
+                        <h4>{shelter.name}</h4>
+                        <p className="popup-address">{shelter.address}</p>
+                        <div className="popup-info">
+                          <span className="popup-distance">📍 {shelter.distance} km away</span>
+                          <span 
+                            className="popup-status"
+                            style={{ color: getStatusColor(shelter.status) }}
+                          >
+                            {getStatusLabel(shelter.status)}
+                          </span>
+                        </div>
+                        <div className="popup-capacity">
+                          <strong>Capacity:</strong> {shelter.capacity.available} / {shelter.capacity.total} available
+                        </div>
+                        <button
+                          className="popup-button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleGetDirections(shelter);
+                          }}
+                        >
+                          Get Directions
+                        </button>
+                      </div>
+                    </Popup>
+                  </Marker>
+                ))}
+              </MapContainer>
+            )}
+          </div>
+        </div>
+
+        {/* Shelter List */}
+        <div className="shelter-list">
+          {filteredShelters.length === 0 ? (
+            <div className="no-results">
+              <span className="no-results-icon">🔍</span>
+              <h3>No shelters found</h3>
+              <p>Try adjusting your filters or search criteria</p>
+            </div>
+          ) : (
+            filteredShelters.map(shelter => (
+              <div
+                key={shelter.id}
+                className={`shelter-card ${selectedShelter?.id === shelter.id ? 'selected' : ''}`}
+                onClick={() => handleShelterClick(shelter)}
+              >
+                <div className="shelter-card-header">
+                  <div className="shelter-title">
+                    <h3>{shelter.name}</h3>
+                    <span className="shelter-rating">⭐ {shelter.rating}</span>
+                  </div>
+                  <span
+                    className="status-badge"
+                    style={{ backgroundColor: getStatusColor(shelter.status) }}
+                  >
+                    {getStatusLabel(shelter.status)}
+                  </span>
+                </div>
+
+                <div className="shelter-address">
+                  <span className="address-icon">📍</span>
+                  <span>{shelter.address}</span>
+                  <span className="distance">{shelter.distance} km away</span>
+                </div>
+
+                <div className="capacity-section">
+                  <div className="capacity-info">
+                    <span className="capacity-label">Capacity</span>
+                    <span className="capacity-numbers">
+                      {shelter.capacity.current} / {shelter.capacity.total}
+                      <span className="available-text">
+                        ({shelter.capacity.available} available)
+                      </span>
+                    </span>
+                  </div>
+                  <div className="capacity-bar">
+                    <div
+                      className="capacity-fill"
+                      style={{
+                        width: `${getCapacityPercentage(shelter)}%`,
+                        backgroundColor: getStatusColor(shelter.status)
+                      }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="facilities-section">
+                  <span className="facilities-label">Facilities:</span>
+                  <div className="facilities-list">
+                    {shelter.facilities.map(facility => (
+                      <span key={facility} className="facility-tag">
+                        {FACILITY_ICONS[facility]} {facility}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="shelter-footer">
+                  <div className="shelter-meta">
+                    <span className="contact-info">📞 {shelter.contact}</span>
+                    <span className="last-updated">Updated {shelter.lastUpdated}</span>
+                  </div>
+                  <button
+                    className="directions-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleGetDirections(shelter);
+                    }}
+                  >
+                    <span>🧭</span>
+                    Get Directions
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
   );
-};
+}
 
 export default FindShelters;

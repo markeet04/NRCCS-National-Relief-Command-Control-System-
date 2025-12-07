@@ -1,9 +1,2 @@
-export { default as CivilianDashboard } from './CivilianDashboard';
-export { default as EmergencySOS } from './EmergencySOS';
-export { default as FindShelters } from './FindShelters';
-export { default as MissingPersons } from './MissingPersons';
-export { default as AlertsNotices } from './AlertsNotices';
-export { default as SOSForm } from './SOSForm';
-export { default as MySOSRequests } from './MySOSRequests';
-export { default as PublicAlerts } from './PublicAlerts';
-export { default as ShelterMap } from './ShelterMap';
+export { default as CivilianHome } from './CivilianHome';
+export { default as CivilianPortalRoutes } from './CivilianPortalRoutes';

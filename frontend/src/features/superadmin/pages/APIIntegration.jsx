@@ -7,6 +7,13 @@ import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConf
 
 const APIIntegration = () => {
   const [activeRoute, setActiveRoute] = useState('api');
+  const [showModal, setShowModal] = useState(false);
+  const [newApi, setNewApi] = useState({ name: '', url: '', apiKey: '' });
+    const [deleteApiId, setDeleteApiId] = useState(null);
+    const handleDeleteApi = (id) => {
+      setIntegrations(prev => prev.filter(api => api.id !== id));
+      setDeleteApiId(null);
+    };
   const { theme } = useSettings();
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
@@ -15,7 +22,7 @@ const APIIntegration = () => {
   const roleConfig = ROLE_CONFIG.superadmin;
   const menuItems = useMemo(() => getMenuItemsByRole('superadmin'), []);
 
-  const [integrations] = useState([
+  const [integrations, setIntegrations] = useState([
     {
       id: 1,
       name: 'Weather API',
@@ -43,7 +50,29 @@ const APIIntegration = () => {
   ]);
 
   const handleAddIntegration = () => {
-    alert('Add Integration functionality - to be implemented');
+    setShowModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+    setNewApi({ name: '', url: '', apiKey: '' });
+  };
+
+  const handleModalSave = () => {
+    if (newApi.name && newApi.url && newApi.apiKey) {
+      setIntegrations(prev => [
+        ...prev,
+        {
+          id: prev.length + 1,
+          name: newApi.name,
+          url: newApi.url,
+          apiKey: newApi.apiKey,
+          status: 'active',
+          lastTested: 'never'
+        }
+      ]);
+      handleModalClose();
+    }
   };
 
   const handleTestConnection = (name) => {
@@ -65,6 +94,75 @@ const APIIntegration = () => {
       userName="Admin"
     >
       <div style={{ padding: '24px' }}>
+        {/* Add Integration Modal */}
+        {showModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(30, 41, 59, 0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              background: '#23293a',
+              borderRadius: '20px',
+              padding: '32px 32px 24px 32px',
+              minWidth: '400px',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+              border: `1px solid ${colors.border}`,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '18px',
+              position: 'relative',
+              alignItems: 'stretch',
+              maxWidth: '95vw'
+            }}>
+              <h2 style={{ fontSize: '22px', fontWeight: '600', color: colors.textPrimary, marginBottom: '18px', textAlign: 'center' }}>Add New API</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div>
+                  <label style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '6px', display: 'block' }}>Name</label>
+                  <input
+                    type="text"
+                    value={newApi.name}
+                    onChange={e => setNewApi({ ...newApi, name: e.target.value })}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.textPrimary, fontSize: '15px', marginBottom: '2px' }}
+                    placeholder="Enter name"
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '6px', display: 'block' }}>URL</label>
+                  <input
+                    type="text"
+                    value={newApi.url}
+                    onChange={e => setNewApi({ ...newApi, url: e.target.value })}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.textPrimary, fontSize: '15px', marginBottom: '2px' }}
+                    placeholder="Enter URL"
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '6px', display: 'block' }}>API Key</label>
+                  <input
+                    type="text"
+                    value={newApi.apiKey}
+                    onChange={e => setNewApi({ ...newApi, apiKey: e.target.value })}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${colors.border}`, background: colors.inputBg, color: colors.textPrimary, fontSize: '15px', marginBottom: '2px' }}
+                    placeholder="Enter API Key"
+                  />
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '16px', marginTop: '24px', justifyContent: 'center' }}>
+                <button onClick={handleModalClose} style={{ flex: 1, padding: '12px 0', background: '#3a4256', color: '#cfd8e3', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '500', fontSize: '16px' }}>Cancel</button>
+                <button onClick={handleModalSave} style={{ flex: 1, padding: '12px 0', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '500', fontSize: '16px' }}>Add</button>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Header with Add Button */}
         <div style={{ 
           display: 'flex', 
@@ -230,7 +328,48 @@ const APIIntegration = () => {
                 >
                   Regenerate Key
                 </button>
+                  <button
+                    onClick={() => setDeleteApiId(integration.id)}
+                    style={{ flex: 1, padding: '10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}
+                  >
+                    Delete
+                  </button>
               </div>
+                    {/* Delete Confirmation Modal */}
+                    {deleteApiId !== null && (
+                      <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100vw',
+                        height: '100vh',
+                        background: 'rgba(30, 41, 59, 0.6)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1000
+                      }}>
+                        <div style={{
+                          background: colors.cardBg,
+                          borderRadius: '16px',
+                          padding: '32px',
+                          minWidth: '350px',
+                          boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+                          border: `1px solid ${colors.border}`,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '18px',
+                          position: 'relative'
+                        }}>
+                          <h3 style={{ fontSize: '20px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>Confirm Deletion</h3>
+                          <p style={{ fontSize: '15px', color: colors.textSecondary }}>Are you sure you want to delete this API integration? This action cannot be undone.</p>
+                          <div style={{ display: 'flex', gap: '12px', marginTop: '12px', justifyContent: 'flex-end' }}>
+                            <button onClick={() => setDeleteApiId(null)} style={{ padding: '8px 18px', background: '#64748b', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '500' }}>Cancel</button>
+                            <button onClick={() => handleDeleteApi(deleteApiId)} style={{ padding: '8px 18px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '500' }}>Delete</button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
             </div>
           ))}
         </div>

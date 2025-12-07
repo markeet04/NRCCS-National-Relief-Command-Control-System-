@@ -262,13 +262,13 @@ const LandingPage = () => {
                 }}
               >
                 <motion.span
-                  animate={{ x: [0, 5, 0] }}
+                  animate={{ y: [0, 5, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '10px' }}
                 >
                   Get Started
                   <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                   </svg>
                 </motion.span>
               </motion.button>
@@ -288,10 +288,8 @@ const LandingPage = () => {
                   gap: '10px'
                 }}
               >
-                <span>Click to continue</span>
-                <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                </svg>
+              
+               
               </motion.div>
             </div>
           </motion.div>

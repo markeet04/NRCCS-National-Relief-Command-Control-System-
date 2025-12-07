@@ -128,7 +128,7 @@ const WelcomeScreen = ({ show, onGetStarted, title, subtitle, description }) => 
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2.5}
-                      d="M13 7l5 5m0 0l-5 5m5-5H6"
+                      d="M19 14l-7 7m0 0l-7-7m7 7V3"
                     />
                   </svg>
                 </span>
@@ -142,7 +142,7 @@ const WelcomeScreen = ({ show, onGetStarted, title, subtitle, description }) => 
               transition={{ duration: 2, delay: 1.5, repeat: Infinity, ease: 'easeInOut' }}
               className="mt-16 text-white/70 text-sm flex flex-col items-center gap-3"
             >
-              <span>Click to continue</span>
+             
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
