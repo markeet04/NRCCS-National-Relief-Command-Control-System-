@@ -1,0 +1,127 @@
+.feedback-section {
+  max-width: 800px;
+  margin: 2rem auto 1rem;
+  padding: 0 1rem;
+}
+
+.feedback-card {
+  background: linear-gradient(135deg, #638ECB 0%, #395886 100%);
+  color: white;
+  border-radius: 20px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(99, 142, 203, 0.2);
+}
+
+.feedback-card h3 {
+  font-size: 1.4rem;
+  margin: 0 0 0.5rem;
+  font-weight: 700;
+}
+
+.feedback-card p {
+  font-size: 0.95rem;
+  opacity: 0.9;
+  margin: 0 0 1.5rem;
+}
+
+.feedback-buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.feedback-btn {
+  background: white;
+  color: #395886;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  width: 100%;
+}
+
+.feedback-btn:active {
+  transform: scale(0.98);
+}
+
+.feedback-btn.positive:active {
+  background: #B1C9EF;
+}
+
+.feedback-btn.negative:active {
+  background: #fecaca;
+  color: #dc2626;
+}
+
+@media (min-width: 768px) {
+  .feedback-section {
+    margin: 3rem auto 1rem;
+    padding: 0 2rem;
+  }
+
+  .feedback-card {
+    padding: 2.5rem 2rem;
+  }
+
+  .feedback-card h3 {
+    font-size: 1.6rem;
+  }
+
+  .feedback-card p {
+    font-size: 1rem;
+  }
+
+  .feedback-buttons {
+    flex-direction: row;
+    gap: 1rem;
+  }
+
+  .feedback-btn {
+    width: auto;
+    padding: 0.75rem 2rem;
+  }
+
+  .feedback-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .feedback-btn.positive:hover {
+    background: #D5DEEF;
+    color: #638ECB;
+  }
+
+  .feedback-btn.negative:hover {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+}
+
+@media (min-width: 1024px) {
+  .feedback-section {
+    margin: 4rem auto 2rem;
+  }
+
+  .feedback-card {
+    padding: 3rem;
+  }
+
+  .feedback-card h3 {
+    font-size: 1.8rem;
+  }
+
+  .feedback-card p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+  }
+}

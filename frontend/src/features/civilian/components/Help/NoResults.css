@@ -1,0 +1,43 @@
+.no-results {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 16px;
+  border: 2px dashed #e0f2fe;
+}
+
+.no-results-icon {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.no-results h3 {
+  font-size: 1.5rem;
+  color: #1e293b;
+  margin: 0 0 0.5rem;
+}
+
+.no-results p {
+  color: #64748b;
+  margin: 0 0 1.5rem;
+}
+
+.reset-btn {
+  background: #638ECB;
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.reset-btn:hover {
+  background: #395886;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 142, 203, 0.2);
+}
