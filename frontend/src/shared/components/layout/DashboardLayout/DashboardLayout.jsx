@@ -2,6 +2,7 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import Sidebar from '../Sidebar';
 import Header from '../Header';
+import Footer from '../Footer/Footer';
 
 /**
  * DashboardLayout Component
@@ -16,6 +17,8 @@ import Header from '../Header';
  * @param {string} props.userName - User name
  * @param {string} props.pageTitle - Page title for header
  * @param {string} props.pageSubtitle - Page subtitle
+ * @param {React.ElementType} props.pageIcon - Icon to display with title
+ * @param {string} props.pageIconColor - Icon color
  * @param {number} props.notificationCount - Notification count
  */
 const DashboardLayout = ({
@@ -27,6 +30,8 @@ const DashboardLayout = ({
   userName,
   pageTitle,
   pageSubtitle,
+  pageIcon,
+  pageIconColor,
   notificationCount = 0,
 }) => {
   return (
@@ -46,6 +51,8 @@ const DashboardLayout = ({
         <Header
           title={pageTitle}
           subtitle={pageSubtitle}
+          icon={pageIcon}
+          iconColor={pageIconColor}
           notificationCount={notificationCount}
         />
 
@@ -53,6 +60,9 @@ const DashboardLayout = ({
         <main style={{ padding: '24px 32px' }}>
           {children}
         </main>
+
+        {/* Footer */}
+        <Footer />
       </div>
     </div>
   );
@@ -67,6 +77,8 @@ DashboardLayout.propTypes = {
   userName: PropTypes.string,
   pageTitle: PropTypes.string.isRequired,
   pageSubtitle: PropTypes.string,
+  pageIcon: PropTypes.elementType,
+  pageIconColor: PropTypes.string,
   notificationCount: PropTypes.number,
 };
 

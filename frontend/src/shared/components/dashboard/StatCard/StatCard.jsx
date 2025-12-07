@@ -83,7 +83,7 @@ const StatCard = ({
         background: gradient ? gradient.bg : colors.cardBg,
         border: gradient ? 'none' : `1px solid ${colors.cardBorder}`,
         borderTop: gradient ? `4px solid ${gradient.borderTop}` : `1px solid ${colors.cardBorder}`,
-        padding: '24px',
+        padding: '20px',
         boxShadow: gradient ? gradient.shadow : colors.cardShadow
       }}
     >

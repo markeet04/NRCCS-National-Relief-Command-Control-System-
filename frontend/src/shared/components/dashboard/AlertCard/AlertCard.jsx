@@ -36,39 +36,39 @@ const AlertCard = ({
   const { theme } = useSettings();
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
-  
+
   const severityColor = getSeverityColor(severity);
   const statusColor = getStatusColor(status);
 
   // Get severity-based styling for light mode
   const getSeverityStyle = () => {
     if (!isLight) return { bg: colors.cardBg, border: colors.cardBorder, accentLine: '#ef4444' };
-    
+
     const styles = {
-      critical: { 
-        bg: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)', 
+      critical: {
+        bg: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)',
         border: '#fecaca',
         accentLine: '#dc2626'
       },
-      high: { 
-        bg: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)', 
+      high: {
+        bg: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)',
         border: '#fed7aa',
         accentLine: '#ea580c'
       },
-      medium: { 
-        bg: 'linear-gradient(135deg, #fefce8 0%, #fef9c3 100%)', 
+      medium: {
+        bg: 'linear-gradient(135deg, #fefce8 0%, #fef9c3 100%)',
         border: '#fde047',
         accentLine: '#ca8a04'
       },
-      low: { 
-        bg: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', 
+      low: {
+        bg: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
         border: '#bbf7d0',
         accentLine: '#16a34a'
       }
     };
     return styles[severity] || styles.medium;
   };
-  
+
   const severityStyle = getSeverityStyle();
 
   const getStatusIcon = () => {
@@ -81,15 +81,15 @@ const AlertCard = ({
   };
 
   return (
-    <div 
-      className="rounded-xl transition-all duration-300 hover:scale-[1.01]" 
-      style={{ 
-        background: isLight ? severityStyle.bg : colors.cardBg, 
-        border: `1px solid ${isLight ? severityStyle.border : colors.cardBorder}`, 
+    <div
+      className="rounded-xl transition-all duration-300 hover:scale-[1.01]"
+      style={{
+        background: isLight ? severityStyle.bg : colors.cardBg,
+        border: `1px solid ${isLight ? severityStyle.border : colors.cardBorder}`,
         borderLeft: `4px solid ${severityStyle.accentLine}`,
-        padding: '20px', 
+        padding: '20px',
         boxShadow: isLight ? `0 4px 20px ${severityStyle.accentLine}15` : 'none',
-        margin: '0' 
+        margin: '0'
       }}
     >
       {/* Header with badges */}
@@ -137,7 +137,7 @@ const AlertCard = ({
 
       {/* Title */}
       <h3 className="font-semibold mb-4" style={{ color: colors.textPrimary, fontSize: '18px' }}>{title}</h3>
-      
+
       {/* Description */}
       <p className="mb-6" style={{ color: colors.textMuted, lineHeight: '1.7', fontSize: '15px' }}>{description}</p>
 
@@ -170,11 +170,11 @@ const AlertCard = ({
             <button
               onClick={onView}
               className="flex-1 font-medium rounded-lg transition-all duration-200 hover:scale-[1.02]"
-              style={{ 
-                color: '#0284c7', 
-                backgroundColor: isLight ? 'rgba(14, 165, 233, 0.15)' : 'rgba(14, 165, 233, 0.1)', 
-                fontSize: '0.875rem', 
-                padding: '10px 16px', 
+              style={{
+                color: '#0284c7',
+                backgroundColor: isLight ? 'rgba(14, 165, 233, 0.15)' : 'rgba(14, 165, 233, 0.1)',
+                fontSize: '0.875rem',
+                padding: '10px 16px',
                 minHeight: '40px',
                 boxShadow: isLight ? '0 2px 8px rgba(14, 165, 233, 0.2)' : 'none'
               }}
@@ -214,21 +214,7 @@ const AlertCard = ({
               Delete
             </button>
           )}
-          {status !== 'resolved' && onResolve && (
-            <button
-              onClick={onResolve}
-              className="flex-1 font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5"
-              style={{
-                color: '#ffffff',
-                backgroundColor: '#10b981',
-                fontSize: '0.875rem',
-                padding: '10px 16px',
-                minHeight: '40px'
-              }}
-            >
-              Delete
-            </button>
-          )}
+
           {status !== 'resolved' && onResolve && (
             <button
               onClick={onResolve}
