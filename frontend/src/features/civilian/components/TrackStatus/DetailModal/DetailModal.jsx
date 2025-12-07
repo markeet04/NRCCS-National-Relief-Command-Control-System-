@@ -2,12 +2,14 @@ import React from 'react';
 import {
   STATUS_CONFIG,
   PRIORITY_CONFIG,
-} from '../../constants/trackStatusConstants';
+} from '../../../constants/trackStatusConstants';
 import {
   X,
   MapPin,
   Calendar,
   Clock,
+  Check,
+  Zap,
   Users,
   Phone,
   AlertCircle,
@@ -47,7 +49,7 @@ export const DetailModal = ({ selectedRequest, onClose }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="detail-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <div>
+          <div className="modal-header-content">
             <h2>{selectedRequest.id}</h2>
             <div className="modal-badges">
               <span
@@ -78,7 +80,7 @@ export const DetailModal = ({ selectedRequest, onClose }) => {
               <div className="info-icon">
                 <Calendar size={18} />
               </div>
-              <div>
+              <div className="info-details">
                 <p className="info-label">Type</p>
                 <p className="info-value">{selectedRequest.type}</p>
               </div>
@@ -87,7 +89,7 @@ export const DetailModal = ({ selectedRequest, onClose }) => {
               <div className="info-icon">
                 <Clock size={18} />
               </div>
-              <div>
+              <div className="info-details">
                 <p className="info-label">Submitted</p>
                 <p className="info-value">
                   {formatDateTime(selectedRequest.submittedDate)}
@@ -98,7 +100,7 @@ export const DetailModal = ({ selectedRequest, onClose }) => {
               <div className="info-icon">
                 <MapPin size={18} />
               </div>
-              <div>
+              <div className="info-details">
                 <p className="info-label">Location</p>
                 <p className="info-value">{selectedRequest.location}</p>
               </div>
@@ -107,7 +109,7 @@ export const DetailModal = ({ selectedRequest, onClose }) => {
               <div className="info-icon">
                 <Users size={18} />
               </div>
-              <div>
+              <div className="info-details">
                 <p className="info-label">Assigned Team</p>
                 <p className="info-value">
                   {selectedRequest.assignedTeam || 'Not assigned'}
@@ -130,8 +132,8 @@ export const DetailModal = ({ selectedRequest, onClose }) => {
                   className={`timeline-item ${stage.status}`}
                 >
                   <div className="timeline-marker">
-                    {stage.status === 'completed' && <span>✓</span>}
-                    {stage.status === 'current' && <span>⚡</span>}
+                    {stage.status === 'completed' && <Check size={16} />}
+                    {stage.status === 'current' && <Zap size={16} />}
                     {stage.status === 'pending' && <span>○</span>}
                   </div>
                   <div className="timeline-content">
@@ -174,7 +176,7 @@ export const DetailModal = ({ selectedRequest, onClose }) => {
                 {selectedRequest.contact.phone && (
                   <div className="contact-item">
                     <Phone size={18} />
-                    <div>
+                    <div className="contact-details">
                       <p className="contact-label">Your Contact</p>
                       <p className="contact-value">
                         {selectedRequest.contact.phone}
@@ -185,7 +187,7 @@ export const DetailModal = ({ selectedRequest, onClose }) => {
                 {selectedRequest.contact.emergencyLine && (
                   <div className="contact-item">
                     <Phone size={18} />
-                    <div>
+                    <div className="contact-details">
                       <p className="contact-label">Emergency Line</p>
                       <p className="contact-value">
                         {selectedRequest.contact.emergencyLine}
@@ -196,7 +198,7 @@ export const DetailModal = ({ selectedRequest, onClose }) => {
                 {selectedRequest.contact.teamLeader && (
                   <div className="contact-item">
                     <Users size={18} />
-                    <div>
+                    <div className="contact-details">
                       <p className="contact-label">Team Leader</p>
                       <p className="contact-value">
                         {selectedRequest.contact.teamLeader}
@@ -207,7 +209,7 @@ export const DetailModal = ({ selectedRequest, onClose }) => {
                 {selectedRequest.contact.investigator && (
                   <div className="contact-item">
                     <Users size={18} />
-                    <div>
+                    <div className="contact-details">
                       <p className="contact-label">Investigator</p>
                       <p className="contact-value">
                         {selectedRequest.contact.investigator}
@@ -218,7 +220,7 @@ export const DetailModal = ({ selectedRequest, onClose }) => {
                 {selectedRequest.contact.shelterContact && (
                   <div className="contact-item">
                     <Phone size={18} />
-                    <div>
+                    <div className="contact-details">
                       <p className="contact-label">Shelter Contact</p>
                       <p className="contact-value">
                         {selectedRequest.contact.shelterContact}
@@ -229,7 +231,7 @@ export const DetailModal = ({ selectedRequest, onClose }) => {
                 {selectedRequest.contact.coordinator && (
                   <div className="contact-item">
                     <Users size={18} />
-                    <div>
+                    <div className="contact-details">
                       <p className="contact-label">Coordinator</p>
                       <p className="contact-value">
                         {selectedRequest.contact.coordinator}
@@ -240,7 +242,7 @@ export const DetailModal = ({ selectedRequest, onClose }) => {
                 {selectedRequest.contact.paramedic && (
                   <div className="contact-item">
                     <Users size={18} />
-                    <div>
+                    <div className="contact-details">
                       <p className="contact-label">Paramedic</p>
                       <p className="contact-value">
                         {selectedRequest.contact.paramedic}

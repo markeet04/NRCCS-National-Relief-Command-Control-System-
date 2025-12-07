@@ -1,3 +1,4 @@
+import { X, Eye, Share2 } from 'lucide-react';
 import { STATUS_COLORS } from '../../../constants';
 
 const DetailModal = ({ person, onClose, onSeenReport, onShare, getDaysAgo }) => {
@@ -7,11 +8,10 @@ const DetailModal = ({ person, onClose, onSeenReport, onShare, getDaysAgo }) => 
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content detail-modal" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>
-          ✕
+          <X size={20} />
         </button>
 
         <div className="detail-header">
-          <img src={person.photo} alt={person.name} className="detail-photo" />
           <div className="detail-title">
             <h2>{person.name}</h2>
             <span
@@ -44,17 +44,9 @@ const DetailModal = ({ person, onClose, onSeenReport, onShare, getDaysAgo }) => 
 
           <div className="detail-section">
             <h3>Last Seen</h3>
-            <div className="detail-grid">
-              <div className="detail-item full-width">
-                <span className="detail-label">Location:</span>
-                <span className="detail-value">{person.lastSeen}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Date:</span>
-                <span className="detail-value">
-                  {person.lastSeenDate} ({getDaysAgo(person.lastSeenDate)})
-                </span>
-              </div>
+            <div className="detail-info">
+              <p><strong>Location:</strong> {person.lastSeen}</p>
+              <p><strong>Date:</strong> {person.lastSeenDate} ({getDaysAgo(person.lastSeenDate)})</p>
             </div>
           </div>
 
@@ -65,26 +57,20 @@ const DetailModal = ({ person, onClose, onSeenReport, onShare, getDaysAgo }) => 
 
           <div className="detail-section">
             <h3>Contact Information</h3>
-            <div className="detail-grid">
-              <div className="detail-item">
-                <span className="detail-label">Reported By:</span>
-                <span className="detail-value">{person.reportedBy}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Contact:</span>
-                <span className="detail-value">{person.contact}</span>
-              </div>
+            <div className="detail-info">
+              <p><strong>Reported By:</strong> {person.reportedBy}</p>
+              <p><strong>Contact:</strong> {person.contact}</p>
             </div>
           </div>
         </div>
 
         <div className="detail-actions">
           <button className="action-button primary" onClick={() => onSeenReport(person)}>
-            <span>👁️</span>
+            <Eye size={18} />
             I've Seen This Person
           </button>
           <button className="action-button secondary" onClick={() => onShare(person)}>
-            <span>📤</span>
+            <Share2 size={18} />
             Share
           </button>
         </div>

@@ -1,3 +1,4 @@
+import { Search } from 'lucide-react';
 import ShelterCard from './ShelterCard';
 
 const ShelterList = ({ 
@@ -10,7 +11,9 @@ const ShelterList = ({
     return (
       <div className="shelter-list">
         <div className="no-results">
-          <span className="no-results-icon">🔍</span>
+          <span className="no-results-icon">
+            <Search size={48} />
+          </span>
           <h3>No shelters found</h3>
           <p>Try adjusting your filters or search criteria</p>
         </div>

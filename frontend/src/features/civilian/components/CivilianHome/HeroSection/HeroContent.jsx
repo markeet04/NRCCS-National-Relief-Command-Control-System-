@@ -1,7 +1,11 @@
+import { Shield, AlertCircle } from 'lucide-react';
+
 const HeroContent = ({ onEmergencyClick }) => {
   return (
     <div className="hero-content-left">
-      <div className="hero-badge">🛡️ Civilian Safety Portal</div>
+      <div className="hero-badge">
+        <Shield size={20} /> Civilian Safety Portal
+      </div>
       <h1 className="hero-title">
         Welcome To <span className="highlight">NRCCS</span>
         <br />
@@ -14,7 +18,9 @@ const HeroContent = ({ onEmergencyClick }) => {
       </p>
       <div className="hero-actions">
         <button onClick={onEmergencyClick} className="btn btn-emergency">
-          <span className="btn-icon pulse-icon">🚨</span>
+          <span className="btn-icon pulse-icon">
+            <AlertCircle size={20} />
+          </span>
           <span>EMERGENCY SOS</span>
         </button>
       </div>

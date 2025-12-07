@@ -11,7 +11,7 @@ const AlertDetails = ({ alert }) => {
         <div className="areas-list">
           {alert.affectedAreas.map((area, idx) => (
             <span key={idx} className="area-tag">
-              📍 {area}
+              {area}
             </span>
           ))}
         </div>

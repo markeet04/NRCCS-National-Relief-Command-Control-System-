@@ -1,47 +1,146 @@
 .help-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  padding-bottom: 2rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8edf3 100%);
 }
 
 .faq-section {
   max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  margin: 0 auto;
+  padding: 3rem 1rem;
 }
 
 .faq-section h2 {
-  font-size: 1.5rem;
+  font-size: 2rem;
   color: #1e293b;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   font-weight: 700;
+  text-align: center;
+}
+
+.tips-section {
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+}
+
+.tips-section h2 {
+  font-size: 1.75rem;
+  color: #1e293b;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.tips-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.tip-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.tip-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #638ECB, #8AAEE0);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tip-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 35px rgba(99, 142, 203, 0.2);
+  border-color: rgba(99, 142, 203, 0.3);
+}
+
+.tip-card:hover::before {
+  opacity: 1;
+}
+
+.tip-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.tip-card h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 1rem;
+}
+
+.tip-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tip-card li {
+  padding: 0.75rem 0;
+  color: #475569;
+  line-height: 1.6;
+  border-bottom: 1px solid #e2e8f0;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.tip-card li:last-child {
+  border-bottom: none;
+}
+
+.tip-card li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #638ECB;
+  font-weight: bold;
 }
 
 @media (min-width: 768px) {
-  .help-page {
-    padding-bottom: 3rem;
-  }
-
-  .faq-section {
-    padding: 0 2rem;
-    margin: 3rem auto;
-  }
-
-  .faq-section h2 {
-    font-size: 1.75rem;
+  .tips-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (min-width: 1024px) {
-  .help-page {
-    padding-bottom: 4rem;
+  .tips-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
+}
 
+@media (max-width: 768px) {
   .faq-section {
-    margin: 4rem auto;
+    padding: 2rem 1rem;
   }
 
   .faq-section h2 {
-    font-size: 2rem;
+    font-size: 1.5rem;
+  }
+
+  .tips-section {
+    margin: 2rem auto;
+  }
+
+  .tips-section h2 {
+    font-size: 1.4rem;
   }
 }

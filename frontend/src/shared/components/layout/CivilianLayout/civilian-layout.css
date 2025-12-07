@@ -137,6 +137,10 @@
 .civilian-scope .civilian-nav-cta .sos-icon {
   font-size: 1.1rem;
   animation: pulse 2s infinite;
+  font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 @keyframes pulse {

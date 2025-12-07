@@ -1,12 +1,12 @@
 // Category filters for FAQ
 export const CATEGORIES = [
-  { id: 'All', label: 'All Topics', icon: '📚' },
-  { id: 'SOS', label: 'Emergency SOS', icon: '🚨' },
-  { id: 'Shelters', label: 'Shelters', icon: '🏠' },
-  { id: 'Missing', label: 'Missing Persons', icon: '👤' },
-  { id: 'Alerts', label: 'Alerts', icon: '⚠️' },
-  { id: 'Tracking', label: 'Track Status', icon: '🔍' },
-  { id: 'Account', label: 'Account', icon: '👤' },
+  { id: 'All', label: 'All Topics', icon: 'BookOpen' },
+  { id: 'SOS', label: 'Emergency SOS', icon: 'AlertCircle' },
+  { id: 'Shelters', label: 'Shelters', icon: 'Home' },
+  { id: 'Missing', label: 'Missing Persons', icon: 'User' },
+  { id: 'Alerts', label: 'Alerts', icon: 'AlertTriangle' },
+  { id: 'Tracking', label: 'Track Status', icon: 'Search' },
+  { id: 'Account', label: 'Account', icon: 'UserCircle' },
 ];
 
 // FAQ data
@@ -14,7 +14,7 @@ export const FAQS = [
   {
     id: 1,
     category: 'SOS',
-    question: 'How do I send an emergency SOS?',
+    question: 'How do I send an emergency SOS?',  
     answer:
       'Go to the SOS page, fill in your location details, describe your emergency, and click "Send SOS Request". Your location will be automatically detected if you allow location access. Our rescue teams will be notified immediately and will respond based on the severity of your situation.',
     tags: ['emergency', 'sos', 'help'],
@@ -160,28 +160,28 @@ export const FAQS = [
 // Contact methods
 export const CONTACT_METHODS = [
   {
-    icon: '📞',
+    icon: 'Phone',
     title: 'Emergency Helpline',
     value: '115',
     description: '24/7 Emergency Support',
     link: 'tel:115',
   },
   {
-    icon: '📧',
+    icon: 'Mail',
     title: 'Email Support',
     value: 'help@nrccs.gov.pk',
     description: 'Response within 24 hours',
     link: 'mailto:help@nrccs.gov.pk',
   },
   {
-    icon: '💬',
+    icon: 'MessageSquare',
     title: 'SMS Service',
     value: '8000',
     description: 'Text us for assistance',
     link: 'sms:8000',
   },
   {
-    icon: '🌐',
+    icon: 'MessageCircle',
     title: 'WhatsApp',
     value: '+92-300-1234567',
     description: 'Chat support available',

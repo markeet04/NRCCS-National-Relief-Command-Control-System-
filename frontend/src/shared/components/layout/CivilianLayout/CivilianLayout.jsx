@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { X, AlertCircle } from 'lucide-react';
 import './civilian-layout.css';
 
 const CivilianLayout = ({ children }) => {
@@ -56,7 +57,7 @@ const CivilianLayout = ({ children }) => {
                 onClick={() => setIsMobileMenuOpen(false)}
                 aria-label="Close menu"
               >
-                ✕
+                <X size={24} />
               </button>
             </div>
             <ul className="mobile-nav-list">
@@ -75,7 +76,9 @@ const CivilianLayout = ({ children }) => {
               ))}
               <li>
                 <Link to="/civilian/sos" className="civilian-nav-cta" onClick={handleLinkClick}>
-                  <span className="sos-icon">🚨</span>
+                  <span className="sos-icon">
+                    <AlertCircle size={20} />
+                  </span>
                   <span>SOS</span>
                 </Link>
               </li>

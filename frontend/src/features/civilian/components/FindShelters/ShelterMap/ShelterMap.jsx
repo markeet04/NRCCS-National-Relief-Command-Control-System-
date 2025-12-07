@@ -62,7 +62,7 @@ const ShelterMap = ({
                   <h4>{shelter.name}</h4>
                   <p className="popup-address">{shelter.address}</p>
                   <div className="popup-info">
-                    <span className="popup-distance">📍 {shelter.distance} km away</span>
+                    <span className="popup-distance">{shelter.distance} km away</span>
                     <span 
                       className="popup-status"
                       style={{ color: getStatusColor(shelter.status) }}

@@ -624,6 +624,12 @@
   gap: 12px;
 }
 
+.alerts-header h2 span {
+  display: flex;
+  align-items: center;
+  color: #1e293b;
+}
+
 .view-all-btn {
   background: none;
   border: none;
@@ -692,12 +698,14 @@
 
 .priority-badge {
   background: #dc2626;
-  color: white;
-  padding: 4px 12px;
+  color: white !important;
+  padding: 6px 14px;
   border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 700;
   white-space: nowrap;
+  align-self: flex-start;
+  flex-shrink: 0;
 }
 
 /* Section Title */

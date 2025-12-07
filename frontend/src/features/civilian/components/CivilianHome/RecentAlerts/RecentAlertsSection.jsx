@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Megaphone } from 'lucide-react';
 import { RECENT_ALERTS } from '../../../constants';
 import AlertItem from './AlertItem';
 
@@ -9,7 +10,7 @@ const RecentAlertsSection = () => {
     <div className="alerts-section">
       <div className="alerts-header">
         <h2>
-          <span>📢</span>
+          <span><Megaphone size={24} /></span>
           <span>Recent Alerts</span>
         </h2>
         <button onClick={() => navigate('/civilian/alerts')} className="view-all-btn">

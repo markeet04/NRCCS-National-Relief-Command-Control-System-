@@ -1,3 +1,4 @@
+import { MapPin, Phone, Navigation, Star } from 'lucide-react';
 import { STATUS_CONFIG, FACILITY_ICONS } from '../../../constants';
 
 const ShelterCard = ({ shelter, isSelected, onClick, onGetDirections }) => {
@@ -16,7 +17,9 @@ const ShelterCard = ({ shelter, isSelected, onClick, onGetDirections }) => {
       <div className="shelter-card-header">
         <div className="shelter-title">
           <h3>{shelter.name}</h3>
-          <span className="shelter-rating">⭐ {shelter.rating}</span>
+          <span className="shelter-rating">
+            <Star size={16} fill="currentColor" /> {shelter.rating}
+          </span>
         </div>
         <span
           className="status-badge"
@@ -27,7 +30,9 @@ const ShelterCard = ({ shelter, isSelected, onClick, onGetDirections }) => {
       </div>
 
       <div className="shelter-address">
-        <span className="address-icon">📍</span>
+        <span className="address-icon">
+          <MapPin size={16} />
+        </span>
         <span>{shelter.address}</span>
         <span className="distance">{shelter.distance} km away</span>
       </div>
@@ -66,7 +71,9 @@ const ShelterCard = ({ shelter, isSelected, onClick, onGetDirections }) => {
 
       <div className="shelter-footer">
         <div className="shelter-meta">
-          <span className="contact-info">📞 {shelter.contact}</span>
+          <span className="contact-info">
+            <Phone size={14} /> {shelter.contact}
+          </span>
           <span className="last-updated">Updated {shelter.lastUpdated}</span>
         </div>
         <button
@@ -76,7 +83,7 @@ const ShelterCard = ({ shelter, isSelected, onClick, onGetDirections }) => {
             onGetDirections(shelter);
           }}
         >
-          <span>🧭</span>
+          <Navigation size={18} />
           Get Directions
         </button>
       </div>

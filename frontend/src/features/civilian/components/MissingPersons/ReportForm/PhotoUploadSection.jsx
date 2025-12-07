@@ -1,3 +1,5 @@
+import { Camera, X } from 'lucide-react';
+
 const PhotoUploadSection = ({ photoPreview, onPhotoUpload, onRemovePhoto, error }) => {
   return (
     <div className="photo-upload-section">
@@ -11,7 +13,9 @@ const PhotoUploadSection = ({ photoPreview, onPhotoUpload, onRemovePhoto, error 
             style={{ display: 'none' }}
           />
           <div className="upload-placeholder">
-            <span className="upload-icon">📷</span>
+            <span className="upload-icon">
+              <Camera size={32} />
+            </span>
             <span className="upload-text">Click to upload photo</span>
             <span className="upload-hint">Max size: 5MB</span>
           </div>
@@ -20,7 +24,7 @@ const PhotoUploadSection = ({ photoPreview, onPhotoUpload, onRemovePhoto, error 
         <div className="photo-preview">
           <img src={photoPreview} alt="Preview" />
           <button type="button" className="remove-photo" onClick={onRemovePhoto}>
-            ✕
+            <X size={20} />
           </button>
         </div>
       )}

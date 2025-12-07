@@ -5,8 +5,11 @@ import {
   VALIDATION_PATTERNS,
 } from '../constants';
 
-const useSOSForm = () => {
-  const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+const useSOSForm = (initialCoordinates = '') => {
+  const [formData, setFormData] = useState({
+    ...INITIAL_FORM_DATA,
+    coordinates: initialCoordinates,
+  });
   const [errors, setErrors] = useState({});
 
   const validateFullName = (name) => {
@@ -90,12 +93,17 @@ const useSOSForm = () => {
     setErrors({});
   };
 
+  const setCoordinates = (coords) => {
+    setFormData((prev) => ({ ...prev, coordinates: coords }));
+  };
+
   return {
     formData,
     errors,
     handleInputChange,
     validateForm,
     resetForm,
+    setCoordinates,
   };
 };
 

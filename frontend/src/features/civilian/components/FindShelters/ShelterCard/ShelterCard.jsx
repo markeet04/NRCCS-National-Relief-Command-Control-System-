@@ -1,3 +1,5 @@
+import { MapPin } from 'lucide-react';
+
 const ShelterCard = ({ shelter }) => {
   const {
     name,
@@ -33,11 +35,10 @@ const ShelterCard = ({ shelter }) => {
 
       <div className="space-y-2 mb-4">
         <p className="text-sm text-gray-600 flex items-center gap-2">
-          <span>📍</span>
+          <MapPin size={16} />
           <span>{address}</span>
         </p>
         <p className="text-sm text-gray-600 flex items-center gap-2">
-          <span>📏</span>
           <span>{distance} km away</span>
         </p>
       </div>

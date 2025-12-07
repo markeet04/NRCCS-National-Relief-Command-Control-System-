@@ -1,3 +1,5 @@
+import { User } from 'lucide-react';
+
 const MissingPersonCard = ({ person }) => {
   const {
     name,
@@ -24,8 +26,8 @@ const MissingPersonCard = ({ person }) => {
               className="w-full h-48 object-cover rounded"
             />
           ) : (
-            <div className="w-full h-48 bg-gray-300 rounded flex items-center justify-center text-gray-500 text-4xl">
-              👤
+            <div className="w-full h-48 bg-gray-300 rounded flex items-center justify-center text-gray-500">
+              <User size={64} />
             </div>
           )}
         </div>

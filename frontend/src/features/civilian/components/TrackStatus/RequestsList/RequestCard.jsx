@@ -2,7 +2,7 @@ import React from 'react';
 import {
   STATUS_CONFIG,
   PRIORITY_CONFIG,
-} from '../../constants/trackStatusConstants';
+} from '../../../constants/trackStatusConstants';
 import { Clock, MapPin, Users, ChevronRight } from 'lucide-react';
 import './RequestCard.css';
 
@@ -84,7 +84,6 @@ export const RequestCard = ({ request, onViewDetails }) => {
             />
           </div>
           <div className="current-stage">
-            <span className="stage-indicator">📍</span>
             <span>
               {request.timeline[request.currentStage]?.stage || 'Processing'}
             </span>
@@ -102,10 +101,10 @@ export const RequestCard = ({ request, onViewDetails }) => {
         </div>
       )}
 
-      <button className="view-details-button" onClick={onViewDetails}>
+      {/* <button className="view-details-button" onClick={onViewDetails}>
         <span>View Full Details</span>
         <ChevronRight size={18} />
-      </button>
+      </button> */}
     </div>
   );
 };

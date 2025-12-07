@@ -50,7 +50,7 @@ export const RECENT_ALERTS = [
 // Safety Tips Data
 export const SAFETY_TIPS = [
   {
-    icon: '⚡',
+    icon: 'Zap',
     title: 'During Emergencies',
     tips: [
       'Stay calm and assess the situation',
@@ -60,7 +60,7 @@ export const SAFETY_TIPS = [
     ],
   },
   {
-    icon: '🛡️',
+    icon: 'Shield',
     title: 'Preparation',
     tips: [
       'Keep emergency contacts saved',
@@ -70,7 +70,7 @@ export const SAFETY_TIPS = [
     ],
   },
   {
-    icon: '📱',
+    icon: 'Smartphone',
     title: 'Using NRCCS',
     tips: [
       'Enable location services for accurate help',

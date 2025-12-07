@@ -8,6 +8,7 @@ import {
   ContactSection,
   FeedbackSection,
 } from "../components/Help";
+import { SAFETY_TIPS } from "../constants";
 import "./Help.css";
 
 const Help = () => {
@@ -50,6 +51,8 @@ const Help = () => {
           />
         )}
       </section>
+
+      
 
       <ContactSection contactMethods={contactMethods} />
 

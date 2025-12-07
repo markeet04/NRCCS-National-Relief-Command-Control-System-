@@ -1,5 +1,6 @@
 import React from 'react';
-import { STATUS_CONFIG } from '../../constants/trackStatusConstants';
+import { ClipboardList, Zap, Check } from 'lucide-react';
+import { STATUS_CONFIG } from '../../../constants/trackStatusConstants';
 import './PageHeader.css';
 
 export const PageHeader = ({ requests, isAuthenticated, handleLogout }) => {
@@ -28,7 +29,7 @@ export const PageHeader = ({ requests, isAuthenticated, handleLogout }) => {
         <div className="stats-grid">
           <div className="stat-card">
             <div className="stat-icon" style={{ background: '#e0f2fe' }}>
-              <span style={{ color: '#0284c7' }}>📋</span>
+              <ClipboardList size={24} style={{ color: '#0284c7' }} />
             </div>
             <div className="stat-info">
               <p className="stat-label">Total Requests</p>
@@ -37,7 +38,7 @@ export const PageHeader = ({ requests, isAuthenticated, handleLogout }) => {
           </div>
           <div className="stat-card">
             <div className="stat-icon" style={{ background: '#fef3c7' }}>
-              <span style={{ color: '#f59e0b' }}>⚡</span>
+              <Zap size={24} style={{ color: '#f59e0b' }} />
             </div>
             <div className="stat-info">
               <p className="stat-label">Active</p>
@@ -46,7 +47,7 @@ export const PageHeader = ({ requests, isAuthenticated, handleLogout }) => {
           </div>
           <div className="stat-card">
             <div className="stat-icon" style={{ background: '#dcfce7' }}>
-              <span style={{ color: '#16a34a' }}>✓</span>
+              <Check size={24} style={{ color: '#16a34a' }} />
             </div>
             <div className="stat-info">
               <p className="stat-label">Completed</p>

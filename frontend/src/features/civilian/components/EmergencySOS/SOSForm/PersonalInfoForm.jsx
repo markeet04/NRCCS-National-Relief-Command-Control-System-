@@ -52,6 +52,21 @@ const PersonalInfoForm = ({ formData, errors, onInputChange }) => {
         />
         {errors.phoneNumber && <span className="error-message">{errors.phoneNumber}</span>}
       </div>
+
+      <div className="form-group">
+        <label htmlFor="coordinates">
+          GPS Coordinates <span className="auto-filled-badge">Auto-filled</span>
+        </label>
+        <input
+          type="text"
+          id="coordinates"
+          name="coordinates"
+          value={formData.coordinates}
+          readOnly
+          placeholder="Fetching location..."
+          className="form-input coordinates-input"
+        />
+      </div>
     </div>
   );
 };

@@ -18,10 +18,10 @@ const PersonCard = ({ person, onPersonClick, getDaysAgo }) => {
         <h3>{person.name}</h3>
         <div className="person-details">
           <span>
-            👤 {person.gender}, {person.age} years
+            {person.gender}, {person.age} years
           </span>
-          <span>📍 {person.lastSeen}</span>
-          <span>📅 {getDaysAgo(person.lastSeenDate)}</span>
+          <span>{person.lastSeen}</span>
+          <span>{getDaysAgo(person.lastSeenDate)}</span>
         </div>
         <div className="person-case">
           <span className="case-number">{person.caseNumber}</span>

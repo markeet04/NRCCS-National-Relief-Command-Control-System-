@@ -1,3 +1,5 @@
+import { AlertTriangle, Info, CheckCircle, AlertCircle } from 'lucide-react';
+
 const AlertBanner = ({ alert, onDismiss }) => {
   const { type, title, message, timestamp, priority } = alert;
 
@@ -8,12 +10,12 @@ const AlertBanner = ({ alert, onDismiss }) => {
     success: 'bg-green-50 border-green-500 text-green-900',
   };
 
-  const icons = {
-    emergency: '🚨',
-    warning: '⚠️',
-    info: 'ℹ️',
-    success: '✅',
-  };
+  const IconComponent = {
+    emergency: AlertCircle,
+    warning: AlertTriangle,
+    info: Info,
+    success: CheckCircle,
+  }[type] || Info;
 
   return (
     <div
@@ -23,7 +25,7 @@ const AlertBanner = ({ alert, onDismiss }) => {
     >
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3 flex-1">
-          <span className="text-2xl">{icons[type] || icons.info}</span>
+          <IconComponent size={24} />
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <h4 className="font-bold text-base">{title}</h4>

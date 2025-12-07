@@ -36,4 +36,5 @@ export const INITIAL_FORM_DATA = {
   phoneNumber: '',
   emergencyType: '',
   details: '',
+  coordinates: '',
 };

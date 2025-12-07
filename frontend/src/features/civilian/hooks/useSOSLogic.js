@@ -1,14 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGPSLocation, useSOSForm } from './';
 
 const useSOSLogic = () => {
   const { gpsStatus, location } = useGPSLocation();
-  const { formData, errors, handleInputChange, validateForm, resetForm } = useSOSForm();
+  const { formData, errors, handleInputChange, validateForm, resetForm, setCoordinates } = useSOSForm();
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [requestData, setRequestData] = useState(null);
+
+  // Auto-populate coordinates when GPS location is available
+  useEffect(() => {
+    if (location && location.latitude && location.longitude) {
+      const coordsString = `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`;
+      setCoordinates(coordsString);
+    }
+  }, [location]);
 
   const handleSOSClick = () => {
     if (gpsStatus === 'ready') {

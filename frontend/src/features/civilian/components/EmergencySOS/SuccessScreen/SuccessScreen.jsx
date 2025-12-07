@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Check, Radio, Phone, MapPin, ClipboardList } from 'lucide-react';
 
 const SuccessScreen = ({ requestData, onReset }) => {
   const navigate = useNavigate();
@@ -8,7 +9,9 @@ const SuccessScreen = ({ requestData, onReset }) => {
       <div className="sos-container">
         <div className="success-screen">
           <div className="success-icon-wrapper">
-            <div className="success-checkmark">✓</div>
+            <div className="success-checkmark">
+              <Check size={48} />
+            </div>
           </div>
           <h1 className="success-title">Emergency Request Sent!</h1>
           <p className="success-subtitle">Help is on the way</p>
@@ -29,19 +32,19 @@ const SuccessScreen = ({ requestData, onReset }) => {
           </div>
 
           <div className="team-info-card">
-            <h3>📡 Response Team Assigned</h3>
+            <h3><Radio size={20} /> Response Team Assigned</h3>
             <div className="team-details">
               <p>
                 <strong>{requestData.teamInfo.name}</strong>
               </p>
-              <p>📞 {requestData.teamInfo.contact}</p>
-              <p>📍 {requestData.teamInfo.distance}</p>
+              <p><Phone size={16} /> {requestData.teamInfo.contact}</p>
+              <p><MapPin size={16} /> {requestData.teamInfo.distance}</p>
             </div>
           </div>
 
           <div className="success-actions">
             <button onClick={() => navigate('/civilian/reports')} className="btn-track-status">
-              <span>📋</span>
+              <ClipboardList size={18} />
               <span>Track Status</span>
             </button>
             <button onClick={onReset} className="btn-send-another">

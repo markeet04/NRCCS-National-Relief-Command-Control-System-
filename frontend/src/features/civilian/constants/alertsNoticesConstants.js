@@ -14,25 +14,25 @@ export const SORT_OPTIONS = [
 // Severity configurations
 export const SEVERITY_CONFIG = {
   Critical: {
-    icon: '🚨',
+    icon: 'AlertTriangle',
     color: '#dc2626',
     bgColor: '#fee2e2',
     borderColor: '#fca5a5',
   },
   Warning: {
-    icon: '⚠️',
+    icon: 'AlertCircle',
     color: '#ea580c',
     bgColor: '#ffedd5',
     borderColor: '#fdba74',
   },
   Info: {
-    icon: 'ℹ️',
+    icon: 'Info',
     color: '#0284c7',
     bgColor: '#e0f2fe',
     borderColor: '#7dd3fc',
   },
   default: {
-    icon: '📢',
+    icon: 'Megaphone',
     color: '#64748b',
     bgColor: '#f1f5f9',
     borderColor: '#cbd5e1',

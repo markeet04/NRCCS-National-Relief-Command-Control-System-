@@ -26,7 +26,7 @@ const SOSForm = ({
 
       <div className="safety-notice">
         <p>
-          <strong>⚠️ Emergency Use Only:</strong> This will alert emergency response teams.
+          <strong>Emergency Use Only:</strong> This will alert emergency response teams.
           False alarms may result in penalties.
         </p>
       </div>

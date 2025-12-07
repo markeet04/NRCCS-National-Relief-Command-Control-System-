@@ -1,3 +1,4 @@
+import { AlertTriangle, AlertCircle, Info, Megaphone } from 'lucide-react';
 import AlertDetails from './AlertDetails';
 
 const AlertCard = ({
@@ -9,6 +10,15 @@ const AlertCard = ({
   config,
   formatTimestamp,
 }) => {
+  const iconMap = {
+    AlertTriangle,
+    AlertCircle,
+    Info,
+    Megaphone,
+  };
+  
+  const IconComponent = iconMap[config.icon];
+  
   return (
     <div
       className={`alert-card ${alert.isRead ? 'read' : 'unread'} ${isExpanded ? 'expanded' : ''}`}
@@ -27,7 +37,7 @@ const AlertCard = ({
             borderColor: config.borderColor,
           }}
         >
-          <span className="severity-icon">{config.icon}</span>
+          <span className="severity-icon">{IconComponent ? <IconComponent size={20} /> : null}</span>
           <span className="severity-label" style={{ color: config.color }}>
             {alert.severity}
           </span>
@@ -55,7 +65,7 @@ const AlertCard = ({
                 className="action-btn mark-read-btn"
                 onClick={() => onMarkAsRead(alert.id)}
               >
-                ✓ Mark as Read
+                Mark as Read
               </button>
             )}
           </div>

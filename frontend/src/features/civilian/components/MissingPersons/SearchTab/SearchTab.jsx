@@ -16,26 +16,30 @@ const SearchTab = ({
 }) => {
   return (
     <div className="search-tab">
-      <SearchControls
-        searchQuery={searchQuery}
-        onSearchChange={onSearchChange}
-        filters={filters}
-        onFilterChange={onFilterChange}
-      />
+      <div className="search-content-wrapper">
+        <ResultsInfo count={filteredPersons.length} />
+        
+        <div className="search-layout">
+          <SearchControls
+            searchQuery={searchQuery}
+            onSearchChange={onSearchChange}
+            filters={filters}
+            onFilterChange={onFilterChange}
+          />
 
-      <ResultsInfo count={filteredPersons.length} />
-
-      {loading ? (
-        <LoadingState />
-      ) : filteredPersons.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <PersonsGrid
-          persons={filteredPersons}
-          onPersonClick={onPersonClick}
-          getDaysAgo={getDaysAgo}
-        />
-      )}
+          {loading ? (
+            <LoadingState />
+          ) : filteredPersons.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <PersonsGrid
+              persons={filteredPersons}
+              onPersonClick={onPersonClick}
+              getDaysAgo={getDaysAgo}
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FILTER_TABS } from '../../constants/trackStatusConstants';
+import { FILTER_TABS } from '../../../constants/trackStatusConstants';
 import './FilterTabs.css';
 
 export const FilterTabs = ({ activeFilter, setActiveFilter, requests }) => {
