@@ -71,6 +71,21 @@ export const useSOSRequests = () => {
     [requests]
   );
 
+  const assignedCount = useMemo(() => 
+    requests.filter(req => req.status === 'Assigned').length, 
+    [requests]
+  );
+
+  const enrouteCount = useMemo(() => 
+    requests.filter(req => req.status === 'En-route').length, 
+    [requests]
+  );
+
+  const rescuedCount = useMemo(() => 
+    requests.filter(req => req.status === 'Rescued').length, 
+    [requests]
+  );
+
   const filteredRequests = useMemo(() => {
     return requests.filter(request => {
       const matchesSearch = 
@@ -146,9 +161,13 @@ export const useSOSRequests = () => {
 
   return {
     // Data
-    requests: filteredRequests,
+    requests,
+    filteredRequests,
     allRequests: requests,
     pendingCount,
+    assignedCount,
+    enrouteCount,
+    rescuedCount,
     loading,
     error,
     

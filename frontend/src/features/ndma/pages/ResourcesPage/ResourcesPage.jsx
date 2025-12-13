@@ -111,16 +111,16 @@ const ResourcesPage = () => {
           type="button"
           className="flex items-center rounded-lg transition-colors text-sm font-medium"
           style={{ 
-            backgroundColor: '#0ea5e9', 
-            color: '#ffffff', 
+            backgroundColor: colors.primary, 
+            color: colors.btnPrimaryColor, 
             cursor: 'pointer',
             padding: '10px 20px',
             gap: '8px',
             minHeight: '40px'
           }}
           onClick={() => setIsAllocateModalOpen(true)}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0ea5e9'}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.primaryHover}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.primary}
         >
           <Plus className="w-4 h-4" />
           Allocate Resources
@@ -133,8 +133,8 @@ const ResourcesPage = () => {
         <div style={{ backgroundColor: colors.cardBg, borderRadius: '12px', padding: '20px', border: `1px solid ${colors.border}` }}>
           <div className="flex items-center justify-between mb-3">
             <span style={{ color: colors.textSecondary, fontSize: '14px' }}>Total Stock</span>
-            <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Package className="w-4 h-4" style={{ color: '#3b82f6' }} />
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: colors.lowLight || 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Package className="w-4 h-4" style={{ color: colors.low }} />
             </div>
           </div>
           <div style={{ color: colors.textPrimary, fontSize: '28px', fontWeight: '600', marginBottom: '4px' }}>
@@ -147,8 +147,8 @@ const ResourcesPage = () => {
         <div style={{ backgroundColor: colors.cardBg, borderRadius: '12px', padding: '20px', border: `1px solid ${colors.border}` }}>
           <div className="flex items-center justify-between mb-3">
             <span style={{ color: colors.textSecondary, fontSize: '14px' }}>Allocated</span>
-            <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <TrendingUp className="w-4 h-4" style={{ color: '#10b981' }} />
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: colors.successLight || 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <TrendingUp className="w-4 h-4" style={{ color: colors.success }} />
             </div>
           </div>
           <div style={{ color: colors.textPrimary, fontSize: '28px', fontWeight: '600', marginBottom: '4px' }}>
@@ -161,8 +161,8 @@ const ResourcesPage = () => {
         <div style={{ backgroundColor: colors.cardBg, borderRadius: '12px', padding: '20px', border: `1px solid ${colors.border}` }}>
           <div className="flex items-center justify-between mb-3">
             <span style={{ color: colors.textSecondary, fontSize: '14px' }}>Categories</span>
-            <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Layers className="w-4 h-4" style={{ color: '#f59e0b' }} />
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: colors.warningLight || 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Layers className="w-4 h-4" style={{ color: colors.warning }} />
             </div>
           </div>
           <div style={{ color: colors.textPrimary, fontSize: '28px', fontWeight: '600', marginBottom: '4px' }}>
@@ -175,8 +175,8 @@ const ResourcesPage = () => {
         <div style={{ backgroundColor: colors.cardBg, borderRadius: '12px', padding: '20px', border: `1px solid ${colors.border}` }}>
           <div className="flex items-center justify-between mb-3">
             <span style={{ color: colors.textSecondary, fontSize: '14px' }}>Low Stock</span>
-            <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <AlertCircle className="w-4 h-4" style={{ color: '#ef4444' }} />
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: colors.criticalBg || 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <AlertCircle className="w-4 h-4" style={{ color: colors.critical }} />
             </div>
           </div>
           <div style={{ color: colors.textPrimary, fontSize: '28px', fontWeight: '600', marginBottom: '4px' }}>
@@ -237,7 +237,7 @@ const ResourcesPage = () => {
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ backgroundColor: isLight ? colors.background : '#0f172a', borderBottom: `1px solid ${colors.border}` }}>
+                <tr style={{ backgroundColor: isLight ? colors.background : colors.elevatedBg, borderBottom: `1px solid ${colors.border}` }}>
                   <th style={{ padding: '16px', textAlign: 'left', color: colors.textMuted, fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Resource</th>
                   <th style={{ padding: '16px', textAlign: 'left', color: colors.textMuted, fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Category</th>
                   <th style={{ padding: '16px', textAlign: 'left', color: colors.textMuted, fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>Quantity</th>
@@ -335,7 +335,7 @@ const ResourcesPage = () => {
                         <div
                           key={idx}
                           style={{
-                            backgroundColor: isLight ? colors.background : '#0f172a',
+                            backgroundColor: isLight ? colors.background : colors.elevatedBg,
                             borderRadius: '8px',
                             padding: '16px',
                             border: `1px solid ${colors.border}`,
@@ -376,7 +376,7 @@ const ResourcesPage = () => {
       {/* Allocate Resources Modal */}
       {isAllocateModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: isLight ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.85)', zIndex: 9999, padding: '1rem' }}>
-          <div style={{ backgroundColor: isLight ? '#ffffff' : '#1e293b', borderRadius: '12px', width: '100%', maxWidth: '480px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
+          <div style={{ backgroundColor: isLight ? '#ffffff' : colors.modalBg, borderRadius: '12px', width: '100%', maxWidth: '480px', boxShadow: colors.modalShadow }}>
             <div style={{ padding: '20px', borderBottom: `1px solid ${colors.border}` }}>
               <h3 style={{ color: colors.textPrimary, fontSize: '18px', fontWeight: '600', margin: 0 }}>
                 Allocate Resources to Province
@@ -396,7 +396,7 @@ const ResourcesPage = () => {
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    backgroundColor: isLight ? '#f8fafc' : '#0f172a',
+                    backgroundColor: colors.inputBg,
                     color: colors.textPrimary,
                     border: `1px solid ${colors.border}`,
                     borderRadius: '8px',
@@ -405,7 +405,7 @@ const ResourcesPage = () => {
                     cursor: 'pointer'
                   }}
                   onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                  onBlur={(e) => e.target.style.borderColor = isLight ? '#e2e8f0' : '#334155'}
+                  onBlur={(e) => e.target.style.borderColor = colors.border}
                 >
                   {provinces.map(province => (
                     <option key={province} value={province}>{province}</option>
@@ -425,7 +425,7 @@ const ResourcesPage = () => {
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    backgroundColor: isLight ? '#f8fafc' : '#0f172a',
+                    backgroundColor: isLight ? '#f8fafc' : colors.inputBg,
                     color: colors.textPrimary,
                     border: `1px solid ${colors.border}`,
                     borderRadius: '8px',
@@ -433,8 +433,8 @@ const ResourcesPage = () => {
                     outline: 'none',
                     cursor: 'pointer'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                  onBlur={(e) => e.target.style.borderColor = isLight ? '#e2e8f0' : '#334155'}
+                  onFocus={(e) => e.target.style.borderColor = colors.inputFocusBorder}
+                  onBlur={(e) => e.target.style.borderColor = isLight ? '#e2e8f0' : colors.borderMedium}
                 >
                   <option value="">Select a resource</option>
                   {nationalStock.map(item => (
@@ -460,15 +460,15 @@ const ResourcesPage = () => {
                   style={{
                     width: '100%',
                     padding: '10px 12px',
-                    backgroundColor: isLight ? '#f8fafc' : '#0f172a',
+                    backgroundColor: isLight ? '#f8fafc' : colors.inputBg,
                     color: colors.textPrimary,
                     border: `1px solid ${colors.border}`,
                     borderRadius: '8px',
                     fontSize: '14px',
                     outline: 'none'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                  onBlur={(e) => e.target.style.borderColor = isLight ? '#e2e8f0' : '#334155'}
+                  onFocus={(e) => e.target.style.borderColor = colors.inputFocusBorder}
+                  onBlur={(e) => e.target.style.borderColor = isLight ? '#e2e8f0' : colors.borderMedium}
                 />
               </div>
 
@@ -478,9 +478,9 @@ const ResourcesPage = () => {
                   type="button"
                   onClick={() => setIsAllocateModalOpen(false)}
                   className="flex-1 py-2.5 rounded-lg font-medium transition-colors"
-                  style={{ backgroundColor: isLight ? '#e2e8f0' : '#334155', color: colors.textPrimary }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isLight ? '#cbd5e1' : '#475569'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = isLight ? '#e2e8f0' : '#334155'}
+                  style={{ backgroundColor: isLight ? '#e2e8f0' : colors.borderMedium, color: colors.textPrimary }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isLight ? '#cbd5e1' : colors.elevatedBg2}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = isLight ? '#e2e8f0' : colors.borderMedium}
                 >
                   Cancel
                 </button>

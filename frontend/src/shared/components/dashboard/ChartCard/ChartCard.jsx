@@ -42,15 +42,15 @@ const ChartCard = ({ title = 'Disaster Metrics', data = [] }) => {
   };
 
   return (
-    <div className="rounded-xl" style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', padding: '24px', boxShadow: 'var(--card-shadow)' }}>
+    <div className="rounded-xl" style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderLeft: '4px solid #3b82f6', padding: '24px', boxShadow: 'var(--card-shadow)' }}>
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{title}</h3>
-          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Live overview of critical indicators</p>
+          <h3 className="font-semibold" style={{ color: 'var(--text-primary)', fontSize: '20px' }}>{title}</h3>
+          <p className="mt-1" style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Live overview of critical indicators</p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{chartData[0].value.toLocaleString()}</p>
-          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{chartData[0].label}</p>
+          <p className="font-bold" style={{ color: 'var(--text-primary)', fontSize: '28px' }}>{chartData[0].value.toLocaleString()}</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>{chartData[0].label}</p>
         </div>
       </div>
 
@@ -119,10 +119,10 @@ const ChartCard = ({ title = 'Disaster Metrics', data = [] }) => {
                 style={{ backgroundColor: 'var(--bg-secondary)' }}
               >
                 <div>
-                  <p className="text-xs font-medium" style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <p className="font-medium" style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '13px' }}>
                     {item.label}
                   </p>
-                  <p className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+                  <p className="font-semibold" style={{ color: 'var(--text-primary)', fontSize: '18px' }}>
                     {item.value.toLocaleString()}
                   </p>
                 </div>

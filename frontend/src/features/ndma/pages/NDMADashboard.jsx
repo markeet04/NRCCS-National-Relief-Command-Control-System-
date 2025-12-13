@@ -81,9 +81,9 @@ const NDMADashboard = () => {
       {/* Critical Alert Banner */}
       <div 
         style={{ 
-          backgroundColor: isLight ? '#fef2f2' : '#7f1d1d', 
-          border: `1px solid ${isLight ? '#fecaca' : '#991b1b'}`, 
-          borderLeft: '4px solid #ef4444',
+          backgroundColor: isLight ? '#fef2f2' : colors.criticalHover, 
+          border: `1px solid ${isLight ? '#fecaca' : colors.critical}`, 
+          borderLeft: `4px solid ${colors.critical}`,
           borderRadius: '8px', 
           padding: '16px 20px', 
           marginBottom: '24px' 
@@ -92,10 +92,10 @@ const NDMADashboard = () => {
         <div className="flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#ef4444' }} />
           <div>
-            <div style={{ color: isLight ? '#991b1b' : '#fecaca', fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
+            <div style={{ color: isLight ? colors.danger : colors.criticalText, fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
               Flash Flood Warning
             </div>
-            <div style={{ color: isLight ? '#b91c1c' : '#fca5a5', fontSize: '13px', lineHeight: '1.5' }}>
+            <div style={{ color: isLight ? colors.criticalHover : colors.criticalText, fontSize: '13px', lineHeight: '1.5' }}>
               Heavy rainfall expected in next 24 hours. Evacuate low-lying areas immediately.
             </div>
           </div>
@@ -113,14 +113,14 @@ const NDMADashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Map Section - Takes 2 columns */}
         <div className="lg:col-span-2" style={{ marginTop: '24px' }}>
-          <div style={{ backgroundColor: isLight ? colors.cardBg : '#1e293b', borderRadius: '12px', border: `1px solid ${isLight ? colors.cardBorder : '#334155'}`, padding: '24px' }}>
+          <div style={{ backgroundColor: colors.cardBg, borderRadius: '12px', border: `1px solid ${colors.cardBorder}`, borderLeft: !isLight ? '4px solid #3b82f6' : `1px solid ${colors.cardBorder}`, padding: '24px' }}>
             <h3 style={{ color: colors.textPrimary, fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>
               Pakistan - Live Situation Map
             </h3>
   
             {/* Map Placeholder */}
             <div style={{ 
-              background: isLight ? '#f1f5f9' : '#0f172a', 
+              background: colors.background, 
               borderRadius: '8px', 
               minHeight: '400px',
               display: 'flex',
@@ -141,15 +141,15 @@ const NDMADashboard = () => {
               {/* Map Legend */}
               <div style={{ marginTop: '24px', display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
                 <div className="flex items-center gap-2">
-                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: colors.critical }}></div>
                   <span style={{ color: colors.textSecondary, fontSize: '12px' }}>Critical SOS</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#3b82f6' }}></div>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: colors.low }}></div>
                   <span style={{ color: colors.textSecondary, fontSize: '12px' }}>Flood Zones</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10b981' }}></div>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: colors.success }}></div>
                   <span style={{ color: colors.textSecondary, fontSize: '12px' }}>Shelters</span>
                 </div>
               </div>
@@ -160,7 +160,7 @@ const NDMADashboard = () => {
         {/* Right Sidebar */}
         <div className="flex flex-col gap-6">
           {/* 24h Weather */}
-          <div style={{ backgroundColor: isLight ? colors.cardBg : '#1e293b', borderRadius: '12px', border: `1px solid ${isLight ? colors.cardBorder : '#334155'}`, padding: '20px', marginTop: '24px' }}>
+          <div style={{ backgroundColor: colors.cardBg, borderRadius: '12px', border: `1px solid ${colors.cardBorder}`, borderLeft: !isLight ? '4px solid #06b6d4' : `1px solid ${colors.cardBorder}`, padding: '20px', marginTop: '24px' }}>
             <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>
               24h Weather
             </h3>
@@ -175,7 +175,7 @@ const NDMADashboard = () => {
           </div>
 
           {/* Resource Status */}
-          <div className="transition-all duration-300" style={{ background: colors.cardBg, borderRadius: '12px', border: `1px solid ${colors.cardBorder}`, padding: '20px', boxShadow: isLight ? colors.cardShadow : 'none' }}>
+          <div className="transition-all duration-300" style={{ background: colors.cardBg, borderRadius: '12px', border: `1px solid ${colors.cardBorder}`, borderLeft: !isLight ? '4px solid #10b981' : `1px solid ${colors.cardBorder}`, padding: '20px', boxShadow: isLight ? colors.cardShadow : 'none' }}>
             <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>
               Resource Status
             </h3>
@@ -190,7 +190,7 @@ const NDMADashboard = () => {
                       {resource.percentage}%
                     </span>
                   </div>
-                  <div style={{ width: '100%', height: '8px', backgroundColor: isLight ? '#e2e8f0' : '#0f172a', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div style={{ width: '100%', height: '8px', backgroundColor: isLight ? '#e2e8f0' : colors.elevatedBg, borderRadius: '4px', overflow: 'hidden' }}>
                     <div 
                       style={{ 
                         width: `${resource.percentage}%`, 

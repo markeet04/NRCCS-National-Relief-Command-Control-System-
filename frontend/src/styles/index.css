@@ -7,18 +7,39 @@
   box-sizing: border-box;
 }
 
+/* ==================== DARK MODE - NASA MISSION CONTROL DESIGN ==================== */
 :root {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1a1f2e;
-  --bg-tertiary: #252d3d;
+  /* Base backgrounds - Near-black canvas */
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: rgba(255, 255, 255, 0.05);
+  
+  /* Text hierarchy */
   --text-primary: #ffffff;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  --border-color: rgba(148, 163, 184, 0.08);
-  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  --card-accent: #2d3748;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  
+  /* Borders & surfaces */
+  --border-color: rgba(255, 255, 255, 0.1);
+  --card-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.45);
+  --card-accent: #1a1a1a;
+  
+  /* Elevated surfaces */
+  --elevated-bg: #1a1a1a;
+  --elevated-bg-2: #2a2a2a;
+  
+  /* Font scale */
   --font-scale: 1;
-  --sidebar-bg: #0a3d0a;
+  
+  /* Sidebar */
+  --sidebar-bg: #047857;
+  
+  /* Status colors */
+  --critical: #ef4444;
+  --high: #f59e0b;
+  --medium: #eab308;
+  --low: #3b82f6;
+  --success: #10b981;
 }
 
 [data-theme="light"] {
@@ -31,6 +52,8 @@
   --border-color: #e2e8f0;
   --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
   --card-accent: #e0e7ff;
+  --elevated-bg: #ffffff;
+  --elevated-bg-2: #f8fafc;
   --sidebar-bg: #059669;
 }
 
@@ -45,6 +68,7 @@ body {
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
+  font-size: calc(16px * var(--font-scale, 1));
 }
 
 #root {
@@ -55,7 +79,6 @@ body {
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
-  font-size: calc(16px * var(--font-scale));
 }
 
 /* Custom scrollbar for webkit browsers */
@@ -76,6 +99,29 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-secondary);
 }
+
+/* Font scaling - applies to all text elements */
+[data-fontsize="small"] {
+  --font-scale: 0.9;
+}
+
+[data-fontsize="medium"] {
+  --font-scale: 1;
+}
+
+[data-fontsize="large"] {
+  --font-scale: 1.1;
+}
+
+/* Apply font scale to common text elements */
+h1, h2, h3, h4, h5, h6, p, span, div, label, button, input, textarea, select, td, th, li, a {
+  font-size: inherit;
+}
+
+/* Scale specific sizes when font-scale changes */
+[data-fontsize="small"] body { font-size: 14.4px; }
+[data-fontsize="medium"] body { font-size: 16px; }
+[data-fontsize="large"] body { font-size: 17.6px; }
 
 /* Focus styles for accessibility */
 button:focus-visible,

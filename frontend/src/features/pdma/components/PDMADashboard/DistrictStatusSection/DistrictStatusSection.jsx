@@ -1,12 +1,13 @@
 import { Building } from 'lucide-react';
 
-const DistrictStatusSection = ({ districts, colors }) => {
+const DistrictStatusSection = ({ districts, colors, isLight }) => {
   return (
     <div
       className="lg:col-span-2"
       style={{
         background: colors.cardBg,
         border: `1px solid ${colors.border}`,
+        borderLeft: !isLight ? '4px solid #3b82f6' : `1px solid ${colors.border}`,
         borderRadius: '12px',
         overflow: 'hidden',
         display: 'flex',

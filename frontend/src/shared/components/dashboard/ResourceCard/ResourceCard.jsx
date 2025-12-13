@@ -103,12 +103,25 @@ const ResourceCard = ({
     return bgStyles[status] || bgStyles.available;
   };
 
+  // Get left border color for dark mode based on status - bright colors
+  const getLeftBorderColor = () => {
+    if (isLight) return statusStyle.border;
+    const borderColors = {
+      available: '#10b981',   // Bright emerald
+      allocated: '#6b7280',   // Medium gray
+      critical: '#ef4444',    // Bright red
+      low: '#f59e0b',         // Bright amber
+    };
+    return borderColors[status] || borderColors.available;
+  };
+
   return (
     <div 
       className="rounded-xl transition-all duration-300 hover:scale-[1.02]" 
       style={{ 
         background: getCardBg(), 
         border: `1px solid ${isLight ? statusStyle.border : colors.cardBorder}`, 
+        borderLeft: `4px solid ${getLeftBorderColor()}`,
         padding: '24px', 
         margin: '0', 
         boxShadow: isLight ? `0 4px 20px rgba(0,0,0,0.06)` : 'none'
@@ -127,7 +140,7 @@ const ResourceCard = ({
             {getIconEmoji()}
           </div>
           <div>
-            <h3 className="font-semibold capitalize mb-2" style={{ color: colors.textPrimary, fontSize: '16px' }}>{name}</h3>
+            <h3 className="font-semibold capitalize mb-2" style={{ color: colors.textPrimary, fontSize: '18px' }}>{name}</h3>
             <span 
               className="inline-block px-3 py-1.5 rounded-full text-xs font-semibold"
               style={{
@@ -147,23 +160,23 @@ const ResourceCard = ({
       <div className="space-y-4 mb-5">
         {quantity && (
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium" style={{ color: colors.textMuted }}>Quantity:</span>
-            <span className="text-sm font-semibold" style={{ color: colors.textPrimary }}>{quantity}</span>
+            <span className="text-sm font-medium" style={{ color: colors.textMuted, fontSize: '14px' }}>Quantity:</span>
+            <span className="text-sm font-semibold" style={{ color: colors.textPrimary, fontSize: '15px' }}>{quantity}</span>
           </div>
         )}
         {location && (
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium flex items-center gap-1" style={{ color: colors.textMuted }}>
+            <span className="text-sm font-medium flex items-center gap-1" style={{ color: colors.textMuted, fontSize: '14px' }}>
               <MapPin className="w-3.5 h-3.5" />
               Location:
             </span>
-            <span className="text-sm font-semibold" style={{ color: colors.textPrimary }}>{location}</span>
+            <span className="text-sm font-semibold" style={{ color: colors.textPrimary, fontSize: '15px' }}>{location}</span>
           </div>
         )}
         {province && (
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium" style={{ color: colors.textMuted }}>Province:</span>
-            <span className="text-sm font-semibold" style={{ color: colors.textPrimary }}>{province}</span>
+            <span className="text-sm font-medium" style={{ color: colors.textMuted, fontSize: '14px' }}>Province:</span>
+            <span className="text-sm font-semibold" style={{ color: colors.textPrimary, fontSize: '15px' }}>{province}</span>
           </div>
         )}
       </div>

@@ -1,13 +1,14 @@
 import { AlertTriangle, Plus } from 'lucide-react';
 import { SEVERITY_BORDER_COLORS } from '../../../constants';
 
-const AlertsSection = ({ alerts, colors, onCreateAlert }) => {
+const AlertsSection = ({ alerts, colors, onCreateAlert, isLight }) => {
   return (
     <div 
       className="lg:col-span-3"
       style={{
         background: colors.cardBg,
         border: `1px solid ${colors.border}`,
+        borderLeft: !isLight ? '4px solid #ef4444' : `1px solid ${colors.border}`,
         borderRadius: '12px',
         overflow: 'hidden'
       }}

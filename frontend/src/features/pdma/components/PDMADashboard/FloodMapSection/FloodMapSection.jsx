@@ -1,7 +1,7 @@
 import { Activity } from 'lucide-react';
 import { MapContainer } from '@shared/components/dashboard';
 
-const FloodMapSection = ({ provinceName, colors }) => {
+const FloodMapSection = ({ provinceName, colors, isLight }) => {
   return (
     <div className="pdma-section">
       <div className="pdma-section-title">
@@ -17,7 +17,8 @@ const FloodMapSection = ({ provinceName, colors }) => {
         className="pdma-map-container"
         style={{
           background: colors.cardBg,
-          borderColor: colors.border
+          borderColor: colors.border,
+          borderLeft: !isLight ? '4px solid #10b981' : `1px solid ${colors.border}`
         }}
       >
         <MapContainer

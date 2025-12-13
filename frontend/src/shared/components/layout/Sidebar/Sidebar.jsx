@@ -68,17 +68,18 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
 
   return (
     <div 
-      className="fixed left-0 top-0 h-screen shadow-lg flex flex-col z-50 transition-all duration-300"
+      className="fixed left-0 top-0 h-screen flex flex-col z-50 transition-all duration-300"
       style={{ 
         width: '260px', 
         minWidth: '260px', 
         maxWidth: '260px',
-        backgroundColor: 'var(--sidebar-bg)'
+        backgroundColor: '#0a0a0a',
+        borderRight: '1px solid rgba(255, 255, 255, 0.1)'
       }}
     >
 
       {/* Logo Section */}
-      <div style={{ padding: '24px 18px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+      <div style={{ padding: '24px 18px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
         <div className="flex items-center" style={{ gap: '14px', justifyContent: 'flex-start' }}>
           <div className="rounded-lg flex items-center justify-center" style={{ width: '40px', height: '40px', backgroundColor: 'transparent', border: '2px solid rgba(255, 255, 255, 0.3)' }}>
             <Shield className="text-white" style={{ width: '22px', height: '22px' }} />
@@ -140,7 +141,7 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
       </nav>
 
       {/* User Section */}
-      <div style={{ padding: '14px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+      <div style={{ padding: '14px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
         <div className="flex items-center" style={{ padding: '10px', gap: '14px', justifyContent: 'flex-start' }}>
           <div className="rounded-full flex items-center justify-center text-white font-semibold" style={{ width: '40px', height: '40px', fontSize: '16px', backgroundColor: 'rgba(255, 255, 255, 0.15)' }}>
             {userName.charAt(0).toUpperCase()}

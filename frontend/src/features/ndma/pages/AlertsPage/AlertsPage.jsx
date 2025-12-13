@@ -423,7 +423,7 @@ const AlertsPage = () => {
       {/* Create Alert Modal */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: isLight ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.85)', zIndex: 9999, padding: '1rem' }}>
-          <div className="w-full" style={{ maxWidth: '500px', backgroundColor: isLight ? '#ffffff' : '#1e293b', borderRadius: '12px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+          <div className="w-full" style={{ maxWidth: '500px', backgroundColor: colors.modalBg, borderRadius: '12px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
             <div className="flex items-center justify-between" style={{ padding: '16px 20px', borderBottom: `1px solid ${colors.border}`, flexShrink: 0 }}>
               <h3 className="text-lg font-semibold" style={{ color: colors.textPrimary, margin: 0 }}>Create New Alert</h3>
               <button
@@ -432,7 +432,7 @@ const AlertsPage = () => {
                 onClick={() => setIsCreateModalOpen(false)}
                 aria-label="Close create alert modal"
                 disabled={loading}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isLight ? '#f1f5f9' : 'rgba(148, 163, 184, 0.1)'}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isLight ? '#f1f5f9' : colors.elevatedBg}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <X className="w-5 h-5" />
@@ -455,7 +455,7 @@ const AlertsPage = () => {
                       required
                       className="w-full rounded-md"
                       style={{ 
-                        backgroundColor: isLight ? '#f8fafc' : '#0f172a', 
+                        backgroundColor: colors.inputBg, 
                         color: colors.textPrimary, 
                         border: `1px solid ${colors.border}`,
                         padding: '8px 12px',
@@ -465,7 +465,7 @@ const AlertsPage = () => {
                       placeholder="e.g., Flash Flood Warning"
                       disabled={loading}
                       onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                      onBlur={(e) => e.target.style.borderColor = isLight ? '#e2e8f0' : '#334155'}
+                      onBlur={(e) => e.target.style.borderColor = colors.border}
                     />
                   </div>
 
@@ -481,7 +481,7 @@ const AlertsPage = () => {
                       required
                       className="w-full rounded-md"
                       style={{ 
-                        backgroundColor: isLight ? '#f8fafc' : '#0f172a', 
+                        backgroundColor: colors.inputBg, 
                         color: colors.textPrimary, 
                         border: `1px solid ${colors.border}`,
                         padding: '8px 12px',
@@ -491,7 +491,7 @@ const AlertsPage = () => {
                       }}
                       disabled={loading}
                       onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                      onBlur={(e) => e.target.style.borderColor = isLight ? '#e2e8f0' : '#334155'}
+                      onBlur={(e) => e.target.style.borderColor = colors.border}
                     >
                       <option value="critical">Critical</option>
                       <option value="high">High</option>
@@ -512,14 +512,14 @@ const AlertsPage = () => {
                           className="flex items-center" 
                           style={{ 
                             padding: '8px 10px',
-                            backgroundColor: isLight ? '#f8fafc' : '#0f172a',
+                            backgroundColor: colors.inputBg,
                             border: `1px solid ${colors.border}`,
                             borderRadius: '6px',
                             cursor: 'pointer',
                             transition: 'all 0.2s'
                           }}
-                          onMouseEnter={(e) => e.currentTarget.style.borderColor = isLight ? '#94a3b8' : '#475569'}
-                          onMouseLeave={(e) => e.currentTarget.style.borderColor = isLight ? '#e2e8f0' : '#334155'}
+                          onMouseEnter={(e) => e.currentTarget.style.borderColor = colors.borderMedium}
+                          onMouseLeave={(e) => e.currentTarget.style.borderColor = colors.border}
                         >
                           <input
                             type="checkbox"
@@ -558,7 +558,7 @@ const AlertsPage = () => {
                         onChange={handleChangeNewAlert}
                         className="w-full rounded-md"
                         style={{ 
-                          backgroundColor: isLight ? '#f8fafc' : '#0f172a', 
+                          backgroundColor: colors.inputBg, 
                           color: colors.textPrimary, 
                           border: `1px solid ${colors.border}`,
                           padding: '8px 12px',
@@ -568,7 +568,7 @@ const AlertsPage = () => {
                         }}
                         disabled={loading}
                         onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                        onBlur={(e) => e.target.style.borderColor = isLight ? '#e2e8f0' : '#334155'}
+                        onBlur={(e) => e.target.style.borderColor = colors.border}
                       >
                         <option value="">Select District</option>
                         {availableDistricts.map(district => (
@@ -591,7 +591,7 @@ const AlertsPage = () => {
                       rows="3"
                       className="w-full rounded-md"
                       style={{ 
-                        backgroundColor: isLight ? '#f8fafc' : '#0f172a', 
+                        backgroundColor: colors.inputBg, 
                         color: colors.textPrimary, 
                         border: `1px solid ${colors.border}`,
                         padding: '8px 12px',
@@ -603,7 +603,7 @@ const AlertsPage = () => {
                       placeholder="Detailed alert message..."
                       disabled={loading}
                       onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                      onBlur={(e) => e.target.style.borderColor = isLight ? '#e2e8f0' : '#334155'}
+                      onBlur={(e) => e.target.style.borderColor = colors.border}
                     />
                   </div>
                 </div>
@@ -616,7 +616,7 @@ const AlertsPage = () => {
                     type="button"
                     className="flex-1 rounded-md font-medium transition-colors focus:outline-none"
                     style={{ 
-                      backgroundColor: isLight ? '#e2e8f0' : '#334155', 
+                      backgroundColor: colors.buttonSecondary, 
                       color: colors.textPrimary,
                       padding: '10px 16px',
                       border: 'none',
@@ -629,8 +629,8 @@ const AlertsPage = () => {
                     disabled={loading}
                     onFocus={e => e.currentTarget.style.boxShadow = '0 0 0 2px #3b82f6'}
                     onBlur={e => e.currentTarget.style.boxShadow = '0 0 0 0px #3b82f6'}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = isLight ? '#cbd5e1' : '#475569'}
-                    onMouseLeave={e => e.currentTarget.style.backgroundColor = isLight ? '#e2e8f0' : '#334155'}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = colors.buttonSecondaryHover}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = colors.buttonSecondary}
                     onMouseDown={e => e.currentTarget.style.boxShadow = '0 0 0 2px #3b82f6'}
                     onMouseUp={e => e.currentTarget.style.boxShadow = '0 0 0 0px #3b82f6'}
                   >

@@ -76,6 +76,31 @@ const StatCard = ({
 
   const formattedValue = formatNumber(safeValue);
 
+  // Get left border color based on gradientKey or color - bright colors for dark mode
+  const getLeftBorderColor = () => {
+    if (isLight) return 'transparent';
+    const borderColors = {
+      rose: '#ef4444',      // Bright red for critical/danger
+      red: '#ef4444',
+      danger: '#ef4444',
+      amber: '#f59e0b',     // Bright amber for warnings
+      orange: '#f97316',
+      warning: '#f59e0b',
+      blue: '#3b82f6',      // Bright blue for info
+      info: '#3b82f6',
+      violet: '#8b5cf6',
+      emerald: '#10b981',   // Bright emerald for success
+      green: '#22c55e',
+      success: '#10b981',
+      cyan: '#06b6d4',      // Bright cyan
+      teal: '#14b8a6',      // Bright teal
+      indigo: '#6366f1',    // Bright indigo
+      purple: '#a855f7',    // Bright purple
+      default: '#6b7280',   // Medium gray
+    };
+    return borderColors[gradientKey] || borderColors[color] || borderColors.default;
+  };
+
   return (
     <div
       className="rounded-xl transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 overflow-hidden"
@@ -83,6 +108,7 @@ const StatCard = ({
         background: gradient ? gradient.bg : colors.cardBg,
         border: gradient ? 'none' : `1px solid ${colors.cardBorder}`,
         borderTop: gradient ? `4px solid ${gradient.borderTop}` : `1px solid ${colors.cardBorder}`,
+        borderLeft: !isLight ? `4px solid ${getLeftBorderColor()}` : (gradient ? 'none' : `1px solid ${colors.cardBorder}`),
         padding: '20px',
         boxShadow: gradient ? gradient.shadow : colors.cardShadow
       }}
@@ -109,7 +135,7 @@ const StatCard = ({
             className="font-semibold mb-2 uppercase tracking-wider" 
             style={{ 
               color: gradient ? gradient.textColor : colors.textMuted, 
-              fontSize: '11px',
+              fontSize: '13px',
               opacity: isWhiteText ? 0.9 : 1,
               textAlign: gradient ? 'right' : 'left'
             }}
@@ -120,7 +146,7 @@ const StatCard = ({
             className="font-bold mb-1" 
             style={{ 
               color: gradient ? gradient.textColor : colors.textPrimary,
-              fontSize: '36px',
+              fontSize: '38px',
               lineHeight: '1'
             }}
           >

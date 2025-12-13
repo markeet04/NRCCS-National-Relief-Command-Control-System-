@@ -1,10 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '../../../shared/components/layout';
-import { Plus, X, Edit, Eye, Search, ChevronDown, Phone, User, AlertCircle } from 'lucide-react';
+import { Plus, X, Edit, Eye, Search, ChevronDown, MapPin, Users, Home, Package } from 'lucide-react';
 import { useSettings } from '../../../app/providers/ThemeProvider';
 import { getThemeColors } from '../../../shared/utils/themeColors';
 import { DISTRICT_MENU_ITEMS } from '../constants';
+import { useShelterData, SHELTER_STATUS_OPTIONS } from '../hooks';
+import { 
+  RadialBarChart, 
+  RadialBar, 
+  PieChart, 
+  Pie, 
+  Cell, 
+  Tooltip, 
+  ResponsiveContainer
+} from 'recharts';
+
+// Custom tooltip for resource gauge
+const ResourceTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div style={{
+        background: 'rgba(0,0,0,0.85)',
+        padding: '8px 12px',
+        borderRadius: '8px',
+        border: '1px solid rgba(255,255,255,0.1)'
+      }}>
+        <p style={{ color: '#fff', fontSize: '13px', fontWeight: '600', margin: 0 }}>
+          {data.name}
+        </p>
+        <p style={{ color: data.fill, fontSize: '12px', margin: '4px 0 0' }}>
+          {data.value}% remaining
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
 
 const ShelterManagement = () => {
   const [activeRoute, setActiveRoute] = useState('shelters');
@@ -12,12 +45,32 @@ const ShelterManagement = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewingShelter, setViewingShelter] = useState(null);
   const [editingShelter, setEditingShelter] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [animatedShelters, setAnimatedShelters] = useState({});
   const { theme } = useSettings();
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
+  
+  // Use the shelter data hook
+  const {
+    shelters,
+    filteredShelters,
+    searchQuery,
+    setSearchQuery,
+    statusFilter,
+    setStatusFilter,
+    stats,
+    statusPieData,
+    capacityRingData,
+    addShelter,
+    updateShelter,
+    getStatus,
+    getStatusInfo,
+    getResourceColor,
+    getResourceGaugeData,
+    getAverageResources
+  } = useShelterData();
+  
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -25,126 +78,25 @@ const ShelterManagement = () => {
     occupancy: 0,
     contactPerson: '',
     contactPhone: '+92-300-0000000',
-    latitude: '27.7056',
-    longitude: '68.8575'
+    resources: { food: 80, water: 60, medical: 90, tents: 40 }
   });
   
   const navigate = useNavigate();
 
-  const statusOptions = [
-    { value: 'all', label: 'All Status' },
-    { value: 'available', label: 'Available' },
-    { value: 'near-full', label: 'Near Full' },
-    { value: 'full', label: 'Full' }
-  ];
+  const statusOptions = SHELTER_STATUS_OPTIONS;
 
-  const [shelters, setShelters] = useState([
-    {
-      id: 'SH-001',
-      name: 'Government High School Shelter',
-      address: 'Civil Lines, Sukkur',
-      capacity: 500,
-      occupancy: 342,
-      contactPerson: 'Mr. Rashid Ahmed',
-      contactPhone: '+92-300-1112233',
-      latitude: '27.7056',
-      longitude: '68.8575',
-      supplies: {
-        food: { amount: 1200, unit: 'meals', updated: '2 hours ago' },
-        water: { amount: 800, unit: 'liters', updated: '1 hour ago' },
-        medical: { amount: 45, unit: 'kits', updated: '3 hours ago', lowStock: true },
-        blankets: { amount: 380, unit: 'pieces', updated: '5 hours ago' },
-        clothing: { amount: 250, unit: 'sets', updated: '1 day ago' },
-        hygiene: { amount: 150, unit: 'kits', updated: '4 hours ago' }
-      },
-      amenities: ['Electricity', 'Clean Water', 'Toilets', 'Medical Room', 'Kitchen'],
-      notes: 'Well-equipped facility with backup generator. Medical staff available 24/7.'
-    },
-    {
-      id: 'SH-002',
-      name: 'Community Center Rohri',
-      address: 'Rohri, Sukkur',
-      capacity: 300,
-      occupancy: 298,
-      contactPerson: 'Ms. Sara Khan',
-      contactPhone: '+92-301-2222222',
-      latitude: '27.6922',
-      longitude: '68.8947',
-      supplies: {
-        food: { amount: 500, unit: 'meals', updated: '4 hours ago' },
-        water: { amount: 300, unit: 'liters', updated: '2 hours ago' },
-        medical: { amount: 20, unit: 'kits', updated: '6 hours ago', lowStock: true },
-        blankets: { amount: 150, unit: 'pieces', updated: '1 day ago' },
-        clothing: { amount: 100, unit: 'sets', updated: '2 days ago' },
-        hygiene: { amount: 80, unit: 'kits', updated: '5 hours ago' }
-      },
-      amenities: ['Electricity', 'Clean Water', 'Toilets'],
-      notes: 'Near full capacity. Need additional resources urgently.'
-    },
-    {
-      id: 'SH-003',
-      name: 'Sports Complex Shelter',
-      address: 'Airport Road, Sukkur',
-      capacity: 800,
-      occupancy: 156,
-      contactPerson: 'Mr. Hassan Ali',
-      contactPhone: '+92-302-3333333',
-      latitude: '27.7220',
-      longitude: '68.7924',
-      supplies: {
-        food: { amount: 2000, unit: 'meals', updated: '1 hour ago' },
-        water: { amount: 1500, unit: 'liters', updated: '30 mins ago' },
-        medical: { amount: 100, unit: 'kits', updated: '2 hours ago' },
-        blankets: { amount: 600, unit: 'pieces', updated: '3 hours ago' },
-        clothing: { amount: 400, unit: 'sets', updated: '6 hours ago' },
-        hygiene: { amount: 300, unit: 'kits', updated: '4 hours ago' }
-      },
-      amenities: ['Electricity', 'Clean Water', 'Toilets', 'Medical Room', 'Kitchen', 'Playground'],
-      notes: 'Large facility with plenty of space. Good for families with children.'
-    }
-  ]);
+  // Animate shelter resources on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const animated = {};
+      shelters.forEach(s => { animated[s.id] = true; });
+      setAnimatedShelters(animated);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [shelters]);
 
-  // Calculate totals
-  const totalShelters = shelters.length;
-  const totalCapacity = shelters.reduce((sum, s) => sum + s.capacity, 0);
-  const currentOccupancy = shelters.reduce((sum, s) => sum + s.occupancy, 0);
-
-  const getOccupancyPercentage = (occupancy, capacity) => {
-    return Math.round((occupancy / capacity) * 100);
-  };
-
-  const getStatus = (occupancy, capacity) => {
-    const percentage = (occupancy / capacity) * 100;
-    if (percentage >= 100) return 'full';
-    if (percentage >= 90) return 'near-full';
-    return 'available';
-  };
-
-  const getStatusInfo = (occupancy, capacity) => {
-    const status = getStatus(occupancy, capacity);
-    if (status === 'full') return { label: 'Full', color: '#ef4444', bgColor: 'rgba(239, 68, 68, 0.2)' };
-    if (status === 'near-full') return { label: 'Near Full', color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.2)' };
-    return { label: 'Available', color: '#10b981', bgColor: 'rgba(16, 185, 129, 0.2)' };
-  };
-
-  const getProgressBarColor = (occupancy, capacity) => {
-    const percentage = (occupancy / capacity) * 100;
-    if (percentage >= 100) return '#ef4444';
-    if (percentage >= 90) return '#f59e0b';
-    return '#10b981';
-  };
-
-  // Filter shelters based on search and status
-  const filteredShelters = shelters.filter(shelter => {
-    const matchesSearch = shelter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          shelter.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          shelter.id.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    if (statusFilter === 'all') return matchesSearch;
-    
-    const shelterStatus = getStatus(shelter.occupancy, shelter.capacity);
-    return matchesSearch && shelterStatus === statusFilter;
-  });
+  // Destructure stats for use in UI
+  const { totalShelters, totalCapacity, currentOccupancy, occupancyPercent, availableShelters, nearFullShelters, fullShelters } = stats;
 
   const handleNavigate = (route) => {
     setActiveRoute(route);
@@ -156,6 +108,7 @@ const ShelterManagement = () => {
   };
 
   const handleOpenAddModal = () => {
+    console.log('Opening Add New Shelter modal...');
     setEditingShelter(null);
     setFormData({
       name: '',
@@ -164,8 +117,7 @@ const ShelterManagement = () => {
       occupancy: 0,
       contactPerson: '',
       contactPhone: '+92-300-0000000',
-      latitude: '27.7056',
-      longitude: '68.8575'
+      resources: { food: 80, water: 60, medical: 90, tents: 40 }
     });
     setIsModalOpen(true);
   };
@@ -179,8 +131,7 @@ const ShelterManagement = () => {
       occupancy: shelter.occupancy,
       contactPerson: shelter.contactPerson,
       contactPhone: shelter.contactPhone,
-      latitude: shelter.latitude,
-      longitude: shelter.longitude
+      resources: shelter.resources
     });
     setIsModalOpen(true);
   };
@@ -193,16 +144,6 @@ const ShelterManagement = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingShelter(null);
-    setFormData({
-      name: '',
-      address: '',
-      capacity: 500,
-      occupancy: 0,
-      contactPerson: '',
-      contactPhone: '+92-300-0000000',
-      latitude: '27.7056',
-      longitude: '68.8575'
-    });
   };
 
   const handleCloseViewModal = () => {
@@ -225,40 +166,29 @@ const ShelterManagement = () => {
     }
 
     if (editingShelter) {
-      // Update existing shelter
-      setShelters(prev => 
-        prev.map(s => 
-          s.id === editingShelter.id 
-            ? { ...s, ...formData }
-            : s
-        )
-      );
+      updateShelter(editingShelter.id, formData);
     } else {
-      // Add new shelter
-      const newShelter = {
-        id: `SH-${String(shelters.length + 1).padStart(3, '0')}`,
+      addShelter({
         ...formData,
-        supplies: {
-          food: { amount: 0, unit: 'meals', updated: 'Just now' },
-          water: { amount: 0, unit: 'liters', updated: 'Just now' },
-          medical: { amount: 0, unit: 'kits', updated: 'Just now' },
-          blankets: { amount: 0, unit: 'pieces', updated: 'Just now' },
-          clothing: { amount: 0, unit: 'sets', updated: 'Just now' },
-          hygiene: { amount: 0, unit: 'kits', updated: 'Just now' }
-        },
-        amenities: [],
-        notes: ''
-      };
-      setShelters(prev => [...prev, newShelter]);
+        amenities: []
+      });
     }
     handleCloseModal();
   };
 
-  const handleEditFromView = () => {
-    if (viewingShelter) {
-      handleCloseViewModal();
-      handleOpenEditModal(viewingShelter);
-    }
+  // Card styles
+  const cardBaseStyle = {
+    background: colors.cardBg,
+    border: `1px solid ${colors.border}`,
+    borderRadius: '16px',
+    overflow: 'hidden',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+  };
+
+  const shelterCardStyle = {
+    ...cardBaseStyle,
+    cursor: 'pointer',
+    position: 'relative'
   };
 
   return (
@@ -272,18 +202,190 @@ const ShelterManagement = () => {
       userName="District Officer"
       notificationCount={15}
     >
-      {/* Header with Search, Filter and Add Button */}
+      {/* KPI Summary Cards Row */}
+      <div 
+        style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+          gap: '20px',
+          marginBottom: '24px'
+        }}
+      >
+        {/* Total Shelters Card */}
+        <div 
+          className="hover:scale-[1.02] hover:-translate-y-1"
+          style={{ 
+            ...cardBaseStyle,
+            padding: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '20px',
+            borderLeft: `4px solid #3b82f6`
+          }}
+        >
+          <div style={{
+            width: '64px',
+            height: '64px',
+            borderRadius: '16px',
+            background: 'rgba(59, 130, 246, 0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <Home style={{ width: '32px', height: '32px', color: '#3b82f6' }} />
+          </div>
+          <div>
+            <p style={{ color: colors.textSecondary, fontSize: '13px', fontWeight: '500', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Total Shelters
+            </p>
+            <p style={{ color: colors.textPrimary, fontSize: '42px', fontWeight: '700', lineHeight: '1' }}>
+              {totalShelters}
+            </p>
+          </div>
+        </div>
+
+        {/* Total Capacity Ring Gauge */}
+        <div 
+          className="hover:scale-[1.02] hover:-translate-y-1"
+          style={{ 
+            ...cardBaseStyle,
+            padding: '20px 24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            borderLeft: `4px solid #8b5cf6`
+          }}
+        >
+          <div style={{ width: '100px', height: '100px', position: 'relative' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={capacityRingData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={32}
+                  outerRadius={45}
+                  paddingAngle={2}
+                  dataKey="value"
+                  startAngle={90}
+                  endAngle={-270}
+                  animationDuration={1000}
+                >
+                  {capacityRingData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              textAlign: 'center'
+            }}>
+              <span style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '700' }}>
+                {occupancyPercent}%
+              </span>
+            </div>
+          </div>
+          <div>
+            <p style={{ color: colors.textSecondary, fontSize: '13px', fontWeight: '500', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Total Capacity
+            </p>
+            <p style={{ color: colors.textPrimary, fontSize: '32px', fontWeight: '700', lineHeight: '1' }}>
+              {totalCapacity.toLocaleString()}
+            </p>
+            <p style={{ color: colors.textMuted, fontSize: '12px', marginTop: '4px' }}>
+              {currentOccupancy.toLocaleString()} occupied
+            </p>
+          </div>
+        </div>
+
+        {/* Status Breakdown Pie Chart */}
+        <div 
+          className="hover:scale-[1.02] hover:-translate-y-1"
+          style={{ 
+            ...cardBaseStyle,
+            padding: '20px 24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            borderLeft: `4px solid #10b981`
+          }}
+        >
+          <div style={{ width: '100px', height: '100px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={statusPieData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={25}
+                  outerRadius={45}
+                  paddingAngle={3}
+                  dataKey="value"
+                  animationDuration={1000}
+                >
+                  {statusPieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div style={{
+                          background: 'rgba(0,0,0,0.85)',
+                          padding: '6px 10px',
+                          borderRadius: '6px',
+                          border: '1px solid rgba(255,255,255,0.1)'
+                        }}>
+                          <span style={{ color: payload[0].payload.color, fontSize: '12px', fontWeight: '600' }}>
+                            {payload[0].name}: {payload[0].value}
+                          </span>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div>
+            <p style={{ color: colors.textSecondary, fontSize: '13px', fontWeight: '500', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Status Breakdown
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10b981' }} />
+                <span style={{ color: colors.textPrimary, fontSize: '13px' }}>Available: {availableShelters}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f59e0b' }} />
+                <span style={{ color: colors.textPrimary, fontSize: '13px' }}>Near Full: {nearFullShelters}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#ef4444' }} />
+                <span style={{ color: colors.textPrimary, fontSize: '13px' }}>Full: {fullShelters}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Search, Filter and Add Button Row */}
       <div 
         style={{ 
           display: 'flex', 
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '20px',
+          marginBottom: '24px',
           gap: '16px',
           flexWrap: 'wrap'
         }}
       >
-        {/* Search and Filter */}
         <div style={{ display: 'flex', gap: '12px', flex: 1 }}>
           {/* Search Input */}
           <div style={{ position: 'relative', flex: 1, maxWidth: '350px' }}>
@@ -308,11 +410,12 @@ const ShelterManagement = () => {
                 padding: '12px 16px 12px 44px',
                 background: colors.inputBg,
                 border: `1px solid ${colors.border}`,
-                borderRadius: '8px',
+                borderRadius: '10px',
                 color: colors.textPrimary,
                 fontSize: '14px',
                 outline: 'none',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                transition: 'border-color 0.2s, box-shadow 0.2s'
               }}
             />
           </div>
@@ -328,16 +431,17 @@ const ShelterManagement = () => {
                 padding: '12px 16px',
                 background: colors.inputBg,
                 border: `1px solid ${colors.border}`,
-                borderRadius: '8px',
+                borderRadius: '10px',
                 color: colors.textPrimary,
                 fontSize: '14px',
                 cursor: 'pointer',
                 minWidth: '150px',
-                justifyContent: 'space-between'
+                justifyContent: 'space-between',
+                transition: 'border-color 0.2s'
               }}
             >
               <span>{statusOptions.find(opt => opt.value === statusFilter)?.label}</span>
-              <ChevronDown style={{ width: '16px', height: '16px', opacity: 0.6 }} />
+              <ChevronDown style={{ width: '16px', height: '16px', opacity: 0.6, transition: 'transform 0.2s', transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0)' }} />
             </button>
             
             {isDropdownOpen && (
@@ -350,9 +454,10 @@ const ShelterManagement = () => {
                   marginTop: '4px',
                   background: colors.cardBg,
                   border: `1px solid ${colors.border}`,
-                  borderRadius: '8px',
+                  borderRadius: '10px',
                   overflow: 'hidden',
-                  zIndex: 100
+                  zIndex: 100,
+                  boxShadow: '0 10px 40px rgba(0,0,0,0.2)'
                 }}
               >
                 {statusOptions.map(option => (
@@ -370,7 +475,8 @@ const ShelterManagement = () => {
                       color: colors.textPrimary,
                       fontSize: '14px',
                       textAlign: 'left',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      transition: 'background 0.2s'
                     }}
                   >
                     {option.label}
@@ -381,21 +487,24 @@ const ShelterManagement = () => {
           </div>
         </div>
 
-        {/* Add Button */}
+        {/* Add New Shelter Button */}
         <button
           onClick={handleOpenAddModal}
+          className="hover:scale-105"
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            padding: '12px 20px',
-            background: '#10b981',
+            padding: '12px 24px',
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
             color: '#ffffff',
             border: 'none',
-            borderRadius: '8px',
+            borderRadius: '10px',
             fontSize: '14px',
-            fontWeight: '500',
-            cursor: 'pointer'
+            fontWeight: '600',
+            cursor: 'pointer',
+            boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)',
+            transition: 'all 0.3s ease'
           }}
         >
           <Plus style={{ width: '18px', height: '18px' }} />
@@ -403,234 +512,293 @@ const ShelterManagement = () => {
         </button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Shelter Cards Grid */}
       <div 
         style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(3, 1fr)', 
-          gap: '20px',
-          marginBottom: '24px'
+          gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', 
+          gap: '24px'
         }}
       >
-        {/* Total Shelters */}
-        <div 
-          className="rounded-xl transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 overflow-hidden"
-          style={{ 
-            background: isLight ? colors.gradients.blue.bg : colors.cardBg,
-            border: isLight ? 'none' : `1px solid ${colors.border}`,
-            borderTop: isLight ? `4px solid ${colors.gradients.blue.borderTop}` : `1px solid ${colors.border}`,
-            padding: '24px',
-            boxShadow: isLight ? colors.gradients.blue.shadow : 'none'
-          }}
-        >
-          <p style={{ color: isLight ? colors.gradients.blue.textColor : colors.textSecondary, fontSize: '11px', fontWeight: '600', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9 }}>
-            Total Shelters
-          </p>
-          <p style={{ color: isLight ? colors.gradients.blue.textColor : colors.textPrimary, fontSize: '36px', fontWeight: '700', lineHeight: '1' }}>
-            {totalShelters}
-          </p>
-        </div>
+        {filteredShelters.map((shelter) => {
+          const statusInfo = getStatusInfo(shelter.occupancy, shelter.capacity);
+          const occupancyPercent = Math.round((shelter.occupancy / shelter.capacity) * 100);
+          const avgResources = getAverageResources(shelter.resources);
+          const resourceData = getResourceGaugeData(shelter.resources);
+          const isAnimated = animatedShelters[shelter.id];
 
-        {/* Total Capacity */}
-        <div 
-          className="rounded-xl transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 overflow-hidden"
-          style={{ 
-            background: isLight ? colors.gradients.violet.bg : colors.cardBg,
-            border: isLight ? 'none' : `1px solid ${colors.border}`,
-            borderTop: isLight ? `4px solid ${colors.gradients.violet.borderTop}` : `1px solid ${colors.border}`,
-            padding: '24px',
-            boxShadow: isLight ? colors.gradients.violet.shadow : 'none'
-          }}
-        >
-          <p style={{ color: isLight ? colors.gradients.violet.textColor : colors.textSecondary, fontSize: '11px', fontWeight: '600', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9 }}>
-            Total Capacity
-          </p>
-          <p style={{ color: isLight ? colors.gradients.violet.textColor : colors.textPrimary, fontSize: '36px', fontWeight: '700', lineHeight: '1' }}>
-            {totalCapacity.toLocaleString()}
-          </p>
-        </div>
-
-        {/* Current Occupancy */}
-        <div 
-          className="rounded-xl transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 overflow-hidden"
-          style={{ 
-            background: isLight ? colors.gradients.emerald.bg : colors.cardBg,
-            border: isLight ? 'none' : `1px solid ${colors.border}`,
-            borderTop: isLight ? `4px solid ${colors.gradients.emerald.borderTop}` : `1px solid ${colors.border}`,
-            padding: '24px',
-            boxShadow: isLight ? colors.gradients.emerald.shadow : 'none'
-          }}
-        >
-          <p style={{ color: isLight ? colors.gradients.emerald.textColor : colors.textSecondary, fontSize: '11px', fontWeight: '600', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9 }}>
-            Current Occupancy
-          </p>
-          <p style={{ color: isLight ? colors.gradients.emerald.textColor : colors.textPrimary, fontSize: '36px', fontWeight: '700', lineHeight: '1' }}>
-            {currentOccupancy.toLocaleString()}
-          </p>
-        </div>
-      </div>
-
-      {/* Shelters Table */}
-      <div 
-        className="rounded-xl"
-        style={{ 
-          background: colors.cardBg,
-          border: `1px solid ${colors.border}`,
-          padding: '24px'
-        }}
-      >
-        <h2 style={{ fontSize: '20px', fontWeight: '600', color: colors.textPrimary, marginBottom: '24px' }}>
-          All Shelters
-        </h2>
-
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
-                <th 
-                  className="text-left font-medium"
-                  style={{ color: colors.textSecondary, fontSize: '14px', padding: '16px 16px' }}
-                >
-                  Name
-                </th>
-                <th 
-                  className="text-left font-medium"
-                  style={{ color: colors.textSecondary, fontSize: '14px', padding: '16px 16px' }}
-                >
-                  Address
-                </th>
-                <th 
-                  className="text-left font-medium"
-                  style={{ color: colors.textSecondary, fontSize: '14px', padding: '16px 16px' }}
-                >
-                  Capacity
-                </th>
-                <th 
-                  className="text-left font-medium"
-                  style={{ color: colors.textSecondary, fontSize: '14px', padding: '16px 16px' }}
-                >
-                  Occupancy
-                </th>
-                <th 
-                  className="text-left font-medium"
-                  style={{ color: colors.textSecondary, fontSize: '14px', padding: '16px 16px' }}
-                >
-                  Status
-                </th>
-                <th 
-                  className="text-left font-medium"
-                  style={{ color: colors.textSecondary, fontSize: '14px', padding: '16px 16px' }}
-                >
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredShelters.map((shelter) => {
-                const statusInfo = getStatusInfo(shelter.occupancy, shelter.capacity);
-                const percentage = getOccupancyPercentage(shelter.occupancy, shelter.capacity);
-                const progressColor = getProgressBarColor(shelter.occupancy, shelter.capacity);
-                
-                return (
-                  <tr key={shelter.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
-                    <td style={{ color: colors.textPrimary, fontSize: '14px', padding: '20px 16px', fontWeight: '500' }}>
+          return (
+            <div
+              key={shelter.id}
+              className="hover:scale-[1.02] hover:-translate-y-1"
+              style={{
+                ...shelterCardStyle,
+                boxShadow: isLight ? '0 4px 20px rgba(0,0,0,0.08)' : '0 4px 20px rgba(0,0,0,0.3)'
+              }}
+            >
+              {/* Card Header */}
+              <div style={{ 
+                padding: '20px 24px 16px',
+                borderBottom: `1px solid ${colors.border}`
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ 
+                      color: colors.textPrimary, 
+                      fontSize: '18px', 
+                      fontWeight: '700',
+                      marginBottom: '4px',
+                      lineHeight: '1.3'
+                    }}>
                       {shelter.name}
-                    </td>
-                    <td style={{ color: colors.textSecondary, fontSize: '14px', padding: '20px 16px' }}>
-                      {shelter.address}
-                    </td>
-                    <td style={{ color: colors.textPrimary, fontSize: '14px', padding: '20px 16px' }}>
-                      {shelter.capacity}
-                    </td>
-                    <td style={{ padding: '20px 16px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ color: colors.textPrimary, fontSize: '14px', minWidth: '40px' }}>
-                          {shelter.occupancy}
-                        </span>
-                        <div style={{ flex: 1, maxWidth: '80px' }}>
-                          <div 
-                            style={{ 
-                              width: '100%', 
-                              height: '6px', 
-                              background: colors.inputBg, 
-                              borderRadius: '3px',
-                              overflow: 'hidden'
-                            }}
-                          >
-                            <div 
-                              style={{ 
-                                width: `${percentage}%`, 
-                                height: '100%', 
-                                background: progressColor,
-                                borderRadius: '3px',
-                                transition: 'width 0.3s ease'
-                              }} 
-                            />
-                          </div>
-                        </div>
-                        <span style={{ color: colors.textSecondary, fontSize: '13px' }}>
-                          {percentage}%
-                        </span>
-                      </div>
-                    </td>
-                    <td style={{ padding: '20px 16px' }}>
-                      <span 
-                        style={{ 
-                          backgroundColor: statusInfo.bgColor,
-                          color: statusInfo.color,
-                          fontSize: '12px',
-                          padding: '6px 12px',
-                          borderRadius: '20px',
-                          display: 'inline-block',
-                          fontWeight: '500'
-                        }}
-                      >
-                        {statusInfo.label}
+                    </h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <MapPin style={{ width: '14px', height: '14px', color: colors.textMuted }} />
+                      <span style={{ color: colors.textMuted, fontSize: '13px' }}>
+                        {shelter.address}
                       </span>
-                    </td>
-                    <td style={{ padding: '20px 16px' }}>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button
-                          onClick={() => handleOpenViewModal(shelter)}
-                          style={{
-                            background: colors.inputBg,
-                            border: `1px solid ${colors.border}`,
-                            borderRadius: '8px',
-                            padding: '8px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                          }}
-                        >
-                          <Eye style={{ color: colors.textPrimary, width: '18px', height: '18px' }} />
-                        </button>
-                        <button
-                          onClick={() => handleOpenEditModal(shelter)}
-                          style={{
-                            background: colors.inputBg,
-                            border: `1px solid ${colors.border}`,
-                            borderRadius: '8px',
-                            padding: '8px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                          }}
-                        >
-                          <Edit style={{ color: colors.textPrimary, width: '18px', height: '18px' }} />
-                        </button>
+                    </div>
+                  </div>
+                  
+                  {/* Status Badge with pulse animation */}
+                  <div 
+                    style={{ 
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '6px 12px',
+                      borderRadius: '20px',
+                      background: statusInfo.bgColor,
+                      border: `1px solid ${statusInfo.color}30`
+                    }}
+                  >
+                    {(statusInfo.label === 'Near Full' || statusInfo.label === 'Full') && (
+                      <span 
+                        style={{
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          background: statusInfo.color,
+                          animation: 'pulse 2s infinite'
+                        }}
+                      />
+                    )}
+                    <span style={{ 
+                      color: statusInfo.color, 
+                      fontSize: '12px', 
+                      fontWeight: '600',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.03em'
+                    }}>
+                      {statusInfo.label}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Resource Speedometer Gauge */}
+              <div style={{ padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                <div style={{ width: '140px', height: '140px', position: 'relative' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadialBarChart 
+                      cx="50%" 
+                      cy="50%" 
+                      innerRadius="30%" 
+                      outerRadius="100%" 
+                      barSize={10}
+                      data={isAnimated ? resourceData : resourceData.map(d => ({ ...d, value: 0 }))}
+                      startAngle={180} 
+                      endAngle={0}
+                    >
+                      <RadialBar
+                        background={{ fill: isLight ? '#f3f4f6' : '#1f2937' }}
+                        dataKey="value"
+                        cornerRadius={5}
+                        animationDuration={1200}
+                        animationEasing="ease-out"
+                      />
+                      <Tooltip content={<ResourceTooltip />} />
+                    </RadialBarChart>
+                  </ResponsiveContainer>
+                  {/* Center label */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '10px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    textAlign: 'center'
+                  }}>
+                    <span style={{ 
+                      color: getResourceColor(avgResources), 
+                      fontSize: '24px', 
+                      fontWeight: '700' 
+                    }}>
+                      {avgResources}%
+                    </span>
+                    <p style={{ color: colors.textMuted, fontSize: '10px', marginTop: '2px' }}>
+                      AVG RESOURCES
+                    </p>
+                  </div>
+                </div>
+
+                {/* Resource Legend */}
+                <div style={{ flex: 1 }}>
+                  <p style={{ color: colors.textSecondary, fontSize: '11px', fontWeight: '600', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Resource Levels
+                  </p>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    {resourceData.map((resource, idx) => (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ 
+                          width: '10px', 
+                          height: '10px', 
+                          borderRadius: '3px', 
+                          background: resource.fill 
+                        }} />
+                        <span style={{ color: colors.textMuted, fontSize: '12px' }}>
+                          {resource.name}: <span style={{ color: resource.fill, fontWeight: '600' }}>{resource.value}%</span>
+                        </span>
                       </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Capacity & Occupancy Section */}
+              <div style={{ 
+                padding: '16px 24px',
+                background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)',
+                borderTop: `1px solid ${colors.border}`
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Users style={{ width: '16px', height: '16px', color: colors.textMuted }} />
+                    <span style={{ color: colors.textSecondary, fontSize: '13px', fontWeight: '500' }}>Capacity</span>
+                  </div>
+                  <span style={{ color: colors.textPrimary, fontSize: '24px', fontWeight: '700' }}>
+                    {shelter.capacity.toLocaleString()}
+                  </span>
+                </div>
+
+                {/* Occupancy Progress Bar */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <span style={{ color: colors.textMuted, fontSize: '12px' }}>Occupancy</span>
+                    <span style={{ 
+                      color: occupancyPercent >= 90 ? '#ef4444' : occupancyPercent >= 70 ? '#f59e0b' : '#10b981', 
+                      fontSize: '13px', 
+                      fontWeight: '600' 
+                    }}>
+                      {shelter.occupancy.toLocaleString()} ({occupancyPercent}%)
+                    </span>
+                  </div>
+                  <div style={{ 
+                    width: '100%', 
+                    height: '8px', 
+                    background: isLight ? '#e5e7eb' : '#374151', 
+                    borderRadius: '4px',
+                    overflow: 'hidden'
+                  }}>
+                    <div 
+                      style={{ 
+                        width: isAnimated ? `${occupancyPercent}%` : '0%',
+                        height: '100%',
+                        background: occupancyPercent >= 90 ? 'linear-gradient(90deg, #ef4444, #dc2626)' : 
+                                   occupancyPercent >= 70 ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 
+                                   'linear-gradient(90deg, #10b981, #059669)',
+                        borderRadius: '4px',
+                        transition: 'width 1s ease-out'
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ 
+                padding: '16px 24px',
+                display: 'flex',
+                gap: '12px',
+                borderTop: `1px solid ${colors.border}`
+              }}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenViewModal(shelter);
+                  }}
+                  className="hover:scale-105"
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '10px 16px',
+                    background: isLight ? '#f3f4f6' : 'rgba(59, 130, 246, 0.15)',
+                    color: '#3b82f6',
+                    border: `1px solid ${isLight ? '#e5e7eb' : 'rgba(59, 130, 246, 0.3)'}`,
+                    borderRadius: '10px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <Eye style={{ width: '16px', height: '16px' }} />
+                  View
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenEditModal(shelter);
+                  }}
+                  className="hover:scale-105"
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '10px 16px',
+                    background: isLight ? '#f3f4f6' : 'rgba(139, 92, 246, 0.15)',
+                    color: '#8b5cf6',
+                    border: `1px solid ${isLight ? '#e5e7eb' : 'rgba(139, 92, 246, 0.3)'}`,
+                    borderRadius: '10px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <Edit style={{ width: '16px', height: '16px' }} />
+                  Edit
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Add/Edit Shelter Modal */}
+      {/* Empty State */}
+      {filteredShelters.length === 0 && (
+        <div style={{
+          textAlign: 'center',
+          padding: '60px 20px',
+          background: colors.cardBg,
+          borderRadius: '16px',
+          border: `1px solid ${colors.border}`
+        }}>
+          <Home style={{ width: '48px', height: '48px', color: colors.textMuted, margin: '0 auto 16px' }} />
+          <h3 style={{ color: colors.textPrimary, fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
+            No shelters found
+          </h3>
+          <p style={{ color: colors.textMuted, fontSize: '14px' }}>
+            Try adjusting your search or filter criteria
+          </p>
+        </div>
+      )}
+
+      {/* Add/Edit Modal */}
       {isModalOpen && (
         <div 
           style={{
@@ -639,7 +807,8 @@ const ShelterManagement = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: colors.modalOverlay,
+            backgroundColor: 'rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(4px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -650,16 +819,18 @@ const ShelterManagement = () => {
           <div 
             style={{
               background: colors.modalBg,
-              borderRadius: '16px',
-              padding: '28px 32px',
+              borderRadius: '20px',
+              padding: '32px',
               width: '100%',
-              maxWidth: '650px',
+              maxWidth: '500px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
               position: 'relative',
-              border: `1px solid ${colors.border}`
+              border: `1px solid ${colors.border}`,
+              boxShadow: '0 25px 50px rgba(0,0,0,0.3)'
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close Button */}
             <button
               onClick={handleCloseModal}
               style={{
@@ -669,27 +840,25 @@ const ShelterManagement = () => {
                 background: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
-                padding: '4px'
+                padding: '8px'
               }}
             >
               <X style={{ color: colors.textMuted, width: '24px', height: '24px' }} />
             </button>
 
-            {/* Modal Title */}
             <h2 style={{ 
               fontSize: '24px', 
-              fontWeight: '600', 
+              fontWeight: '700', 
               color: colors.textPrimary,
               marginBottom: '24px'
             }}>
               {editingShelter ? 'Edit Shelter' : 'Add New Shelter'}
             </h2>
 
-            {/* Form Fields - Row 1: Name and Address side by side */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-                  Shelter Name
+                  Shelter Name *
                 </label>
                 <input
                   type="text"
@@ -702,7 +871,7 @@ const ShelterManagement = () => {
                     padding: '12px 14px',
                     background: colors.inputBg,
                     border: `1px solid ${colors.inputBorder}`,
-                    borderRadius: '8px',
+                    borderRadius: '10px',
                     color: colors.textPrimary,
                     fontSize: '14px',
                     outline: 'none',
@@ -710,9 +879,10 @@ const ShelterManagement = () => {
                   }}
                 />
               </div>
+
               <div>
                 <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-                  Address
+                  Address *
                 </label>
                 <input
                   type="text"
@@ -725,7 +895,7 @@ const ShelterManagement = () => {
                     padding: '12px 14px',
                     background: colors.inputBg,
                     border: `1px solid ${colors.inputBorder}`,
-                    borderRadius: '8px',
+                    borderRadius: '10px',
                     color: colors.textPrimary,
                     fontSize: '14px',
                     outline: 'none',
@@ -733,59 +903,55 @@ const ShelterManagement = () => {
                   }}
                 />
               </div>
-            </div>
 
-            {/* Row 2: Capacity and Current Occupancy */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-              <div>
-                <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-                  Capacity
-                </label>
-                <input
-                  type="number"
-                  name="capacity"
-                  value={formData.capacity}
-                  onChange={handleInputChange}
-                  placeholder="500"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    background: colors.inputBg,
-                    border: `1px solid ${colors.inputBorder}`,
-                    borderRadius: '8px',
-                    color: colors.textPrimary,
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-              <div>
-                <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-                  Current Occupancy
-                </label>
-                <input
-                  type="number"
-                  name="occupancy"
-                  value={formData.occupancy}
-                  onChange={handleInputChange}
-                  placeholder="0"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    background: colors.inputBg,
-                    border: `1px solid ${colors.inputBorder}`,
-                    borderRadius: '8px',
-                    color: colors.textPrimary,
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-            </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div>
+                  <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                    Capacity
+                  </label>
+                  <input
+                    type="number"
+                    name="capacity"
+                    value={formData.capacity}
+                    onChange={handleInputChange}
+                    style={{
+                      width: '100%',
+                      padding: '12px 14px',
+                      background: colors.inputBg,
+                      border: `1px solid ${colors.inputBorder}`,
+                      borderRadius: '10px',
+                      color: colors.textPrimary,
+                      fontSize: '14px',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div>
+                  <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                    Current Occupancy
+                  </label>
+                  <input
+                    type="number"
+                    name="occupancy"
+                    value={formData.occupancy}
+                    onChange={handleInputChange}
+                    style={{
+                      width: '100%',
+                      padding: '12px 14px',
+                      background: colors.inputBg,
+                      border: `1px solid ${colors.inputBorder}`,
+                      borderRadius: '10px',
+                      color: colors.textPrimary,
+                      fontSize: '14px',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+              </div>
+
               <div>
                 <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                   Contact Person
@@ -795,13 +961,13 @@ const ShelterManagement = () => {
                   name="contactPerson"
                   value={formData.contactPerson}
                   onChange={handleInputChange}
-                  placeholder="Enter name"
+                  placeholder="Enter contact person name"
                   style={{
                     width: '100%',
                     padding: '12px 14px',
                     background: colors.inputBg,
                     border: `1px solid ${colors.inputBorder}`,
-                    borderRadius: '8px',
+                    borderRadius: '10px',
                     color: colors.textPrimary,
                     fontSize: '14px',
                     outline: 'none',
@@ -809,6 +975,7 @@ const ShelterManagement = () => {
                   }}
                 />
               </div>
+
               <div>
                 <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                   Contact Phone
@@ -824,7 +991,7 @@ const ShelterManagement = () => {
                     padding: '12px 14px',
                     background: colors.inputBg,
                     border: `1px solid ${colors.inputBorder}`,
-                    borderRadius: '8px',
+                    borderRadius: '10px',
                     color: colors.textPrimary,
                     fontSize: '14px',
                     outline: 'none',
@@ -834,68 +1001,20 @@ const ShelterManagement = () => {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-              <div>
-                <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-                  Latitude
-                </label>
-                <input
-                  type="text"
-                  name="latitude"
-                  value={formData.latitude}
-                  onChange={handleInputChange}
-                  placeholder="27.7056"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    background: colors.inputBg,
-                    border: `1px solid ${colors.inputBorder}`,
-                    borderRadius: '8px',
-                    color: colors.textPrimary,
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-              <div>
-                <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-                  Longitude
-                </label>
-                <input
-                  type="text"
-                  name="longitude"
-                  value={formData.longitude}
-                  onChange={handleInputChange}
-                  placeholder="68.8575"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    background: colors.inputBg,
-                    border: `1px solid ${colors.inputBorder}`,
-                    borderRadius: '8px',
-                    color: colors.textPrimary,
-                    fontSize: '14px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '28px' }}>
               <button
                 onClick={handleSubmit}
                 style={{
-                  padding: '12px 24px',
-                  background: '#10b981',
+                  flex: 1,
+                  padding: '14px 24px',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                   color: '#ffffff',
                   border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '14px',
+                  borderRadius: '10px',
+                  fontSize: '15px',
                   fontWeight: '600',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
                 }}
               >
                 {editingShelter ? 'Update Shelter' : 'Add Shelter'}
@@ -903,12 +1022,13 @@ const ShelterManagement = () => {
               <button
                 onClick={handleCloseModal}
                 style={{
-                  padding: '12px 24px',
+                  flex: 1,
+                  padding: '14px 24px',
                   background: colors.inputBg,
                   color: colors.textPrimary,
                   border: `1px solid ${colors.border}`,
-                  borderRadius: '8px',
-                  fontSize: '14px',
+                  borderRadius: '10px',
+                  fontSize: '15px',
                   fontWeight: '600',
                   cursor: 'pointer'
                 }}
@@ -920,7 +1040,7 @@ const ShelterManagement = () => {
         </div>
       )}
 
-      {/* View Shelter Details Modal */}
+      {/* View Modal */}
       {isViewModalOpen && viewingShelter && (
         <div 
           style={{
@@ -929,7 +1049,8 @@ const ShelterManagement = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: colors.modalOverlay,
+            backgroundColor: 'rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(4px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -940,18 +1061,18 @@ const ShelterManagement = () => {
           <div 
             style={{
               background: colors.modalBg,
-              borderRadius: '16px',
+              borderRadius: '20px',
               padding: '32px',
               width: '100%',
-              maxWidth: '700px',
+              maxWidth: '600px',
               maxHeight: '90vh',
               overflowY: 'auto',
               position: 'relative',
-              border: `1px solid ${colors.border}`
+              border: `1px solid ${colors.border}`,
+              boxShadow: '0 25px 50px rgba(0,0,0,0.3)'
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close Button */}
             <button
               onClick={handleCloseViewModal}
               style={{
@@ -961,174 +1082,174 @@ const ShelterManagement = () => {
                 background: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
-                padding: '4px'
+                padding: '8px'
               }}
             >
               <X style={{ color: colors.textMuted, width: '24px', height: '24px' }} />
             </button>
 
-            {/* Header */}
             <div style={{ marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>
-                {viewingShelter.name}
-              </h2>
-              <p style={{ color: colors.textSecondary, fontSize: '14px' }}>
-                {viewingShelter.address}
-              </p>
-            </div>
-
-            {/* Status Row */}
-            <div 
-              style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(4, 1fr)', 
-                gap: '16px',
-                marginBottom: '24px',
-                padding: '16px',
-                background: colors.inputBg,
-                borderRadius: '12px'
-              }}
-            >
-              <div>
-                <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Shelter ID</p>
-                <p style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>{viewingShelter.id}</p>
-              </div>
-              <div>
-                <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Status</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary }}>
+                  {viewingShelter.name}
+                </h2>
                 <span 
                   style={{ 
-                    backgroundColor: getStatusInfo(viewingShelter.occupancy, viewingShelter.capacity).bgColor,
+                    padding: '4px 12px',
+                    borderRadius: '20px',
+                    background: getStatusInfo(viewingShelter.occupancy, viewingShelter.capacity).bgColor,
                     color: getStatusInfo(viewingShelter.occupancy, viewingShelter.capacity).color,
                     fontSize: '12px',
-                    padding: '4px 10px',
-                    borderRadius: '20px',
-                    fontWeight: '500'
+                    fontWeight: '600'
                   }}
                 >
                   {getStatusInfo(viewingShelter.occupancy, viewingShelter.capacity).label}
                 </span>
               </div>
-              <div>
-                <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Capacity</p>
-                <p style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>{viewingShelter.capacity} people</p>
-              </div>
-              <div>
-                <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Current Occupancy</p>
-                <p style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>{viewingShelter.occupancy} people</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <MapPin style={{ width: '14px', height: '14px', color: colors.textMuted }} />
+                <span style={{ color: colors.textMuted, fontSize: '14px' }}>{viewingShelter.address}</span>
               </div>
             </div>
 
-            {/* Contact Information */}
-            <div style={{ marginBottom: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                <User style={{ color: colors.textSecondary, width: '18px', height: '18px' }} />
-                <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600' }}>Contact Information</h3>
-              </div>
-              <div 
-                style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: '1fr 1fr', 
-                  gap: '24px',
-                  padding: '16px',
-                  background: colors.inputBg,
-                  borderRadius: '12px'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <User style={{ color: colors.textMuted, width: '16px', height: '16px' }} />
-                  <div>
-                    <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '2px' }}>Contact Person</p>
-                    <p style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500' }}>{viewingShelter.contactPerson}</p>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <Phone style={{ color: colors.textMuted, width: '16px', height: '16px' }} />
-                  <div>
-                    <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '2px' }}>Phone Number</p>
-                    <p style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500' }}>{viewingShelter.contactPhone}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Available Supplies & Quantities */}
-            {viewingShelter.supplies && (
-              <div style={{ marginBottom: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                  <AlertCircle style={{ color: colors.textSecondary, width: '18px', height: '18px' }} />
-                  <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600' }}>Available Supplies & Quantities</h3>
-                </div>
-                <div 
-                  style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: 'repeat(3, 1fr)', 
-                    gap: '16px'
-                  }}
-                >
-                  {Object.entries(viewingShelter.supplies).map(([key, supply]) => (
-                    <div 
-                      key={key}
-                      style={{ 
-                        padding: '16px',
-                        background: supply.lowStock ? 'rgba(239, 68, 68, 0.1)' : colors.inputBg,
-                        borderRadius: '12px',
-                        border: supply.lowStock ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid transparent',
-                        position: 'relative'
-                      }}
+            {/* Resource Gauge in Modal */}
+            <div style={{ 
+              background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)', 
+              borderRadius: '12px', 
+              padding: '20px',
+              marginBottom: '20px'
+            }}>
+              <h4 style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600', marginBottom: '16px' }}>
+                Resource Levels
+              </h4>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                <div style={{ width: '120px', height: '120px', position: 'relative' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadialBarChart 
+                      cx="50%" 
+                      cy="50%" 
+                      innerRadius="30%" 
+                      outerRadius="100%" 
+                      barSize={8}
+                      data={getResourceGaugeData(viewingShelter.resources)}
+                      startAngle={180} 
+                      endAngle={0}
                     >
-                      {supply.lowStock && (
-                        <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
-                          <AlertCircle style={{ color: '#ef4444', width: '16px', height: '16px' }} />
-                        </div>
-                      )}
-                      <p style={{ color: colors.textSecondary, fontSize: '12px', marginBottom: '8px', textTransform: 'capitalize' }}>
-                        {key}
-                      </p>
-                      <p style={{ color: colors.textPrimary, fontSize: '24px', fontWeight: '700', marginBottom: '4px' }}>
-                        {supply.amount} <span style={{ fontSize: '14px', fontWeight: '400', color: colors.textSecondary }}>{supply.unit}</span>
-                      </p>
-                      <p style={{ color: colors.textMuted, fontSize: '11px' }}>
-                        Updated {supply.updated}
-                      </p>
-                      {supply.lowStock && (
-                        <span 
-                          style={{ 
-                            display: 'inline-block',
-                            marginTop: '8px',
-                            backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                            color: '#ef4444',
-                            fontSize: '11px',
-                            padding: '3px 8px',
-                            borderRadius: '4px',
-                            fontWeight: '500'
-                          }}
-                        >
-                          Low Stock
-                        </span>
-                      )}
+                      <RadialBar
+                        background={{ fill: isLight ? '#f3f4f6' : '#1f2937' }}
+                        dataKey="value"
+                        cornerRadius={5}
+                      />
+                      <Tooltip content={<ResourceTooltip />} />
+                    </RadialBarChart>
+                  </ResponsiveContainer>
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '8px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    textAlign: 'center'
+                  }}>
+                    <span style={{ 
+                      color: getResourceColor(getAverageResources(viewingShelter.resources)), 
+                      fontSize: '20px', 
+                      fontWeight: '700' 
+                    }}>
+                      {getAverageResources(viewingShelter.resources)}%
+                    </span>
+                  </div>
+                </div>
+                <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  {getResourceGaugeData(viewingShelter.resources).map((resource, idx) => (
+                    <div key={idx} style={{ 
+                      background: colors.cardBg, 
+                      borderRadius: '8px', 
+                      padding: '12px',
+                      border: `1px solid ${colors.border}`
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: resource.fill }} />
+                        <span style={{ color: colors.textMuted, fontSize: '12px' }}>{resource.name}</span>
+                      </div>
+                      <span style={{ color: resource.fill, fontSize: '18px', fontWeight: '700' }}>{resource.value}%</span>
                     </div>
                   ))}
                 </div>
               </div>
-            )}
+            </div>
 
-            {/* Available Amenities */}
+            {/* Capacity Info */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: '1fr 1fr', 
+              gap: '16px',
+              marginBottom: '20px'
+            }}>
+              <div style={{ 
+                background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)', 
+                borderRadius: '12px', 
+                padding: '16px'
+              }}>
+                <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Capacity</p>
+                <p style={{ color: colors.textPrimary, fontSize: '28px', fontWeight: '700' }}>
+                  {viewingShelter.capacity.toLocaleString()}
+                </p>
+              </div>
+              <div style={{ 
+                background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)', 
+                borderRadius: '12px', 
+                padding: '16px'
+              }}>
+                <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Current Occupancy</p>
+                <p style={{ color: colors.textPrimary, fontSize: '28px', fontWeight: '700' }}>
+                  {viewingShelter.occupancy.toLocaleString()}
+                  <span style={{ 
+                    fontSize: '14px', 
+                    fontWeight: '500', 
+                    color: colors.textMuted,
+                    marginLeft: '8px'
+                  }}>
+                    ({Math.round((viewingShelter.occupancy / viewingShelter.capacity) * 100)}%)
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            {/* Contact Info */}
+            <div style={{ 
+              background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)', 
+              borderRadius: '12px', 
+              padding: '16px',
+              marginBottom: '20px'
+            }}>
+              <h4 style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>
+                Contact Information
+              </h4>
+              <p style={{ color: colors.textPrimary, fontSize: '14px', marginBottom: '4px' }}>
+                {viewingShelter.contactPerson}
+              </p>
+              <p style={{ color: colors.textMuted, fontSize: '13px' }}>
+                {viewingShelter.contactPhone}
+              </p>
+            </div>
+
+            {/* Amenities */}
             {viewingShelter.amenities && viewingShelter.amenities.length > 0 && (
               <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
-                  Available Amenities
-                </h3>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <h4 style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>
+                  Amenities
+                </h4>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {viewingShelter.amenities.map((amenity, idx) => (
-                    <span
+                    <span 
                       key={idx}
                       style={{
-                        padding: '8px 14px',
-                        background: colors.inputBg,
-                        color: colors.textSecondary,
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '400'
+                        padding: '6px 12px',
+                        background: isLight ? '#e0f2fe' : 'rgba(59, 130, 246, 0.15)',
+                        color: '#3b82f6',
+                        borderRadius: '20px',
+                        fontSize: '12px',
+                        fontWeight: '500'
                       }}
                     >
                       {amenity}
@@ -1138,63 +1259,42 @@ const ShelterManagement = () => {
               </div>
             )}
 
-            {/* Additional Notes */}
-            {viewingShelter.notes && (
-              <div style={{ marginBottom: '28px' }}>
-                <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
-                  Additional Notes
-                </h3>
-                <p style={{ color: colors.textSecondary, fontSize: '14px', lineHeight: '1.6' }}>
-                  {viewingShelter.notes}
-                </p>
-              </div>
-            )}
-
-            {/* Action Buttons */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <button
-                onClick={handleEditFromView}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  padding: '14px 24px',
-                  background: '#10b981',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-              >
-                <Edit style={{ width: '16px', height: '16px' }} />
-                Edit Shelter Details
-              </button>
-              <button
-                onClick={handleCloseViewModal}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  padding: '14px 24px',
-                  background: 'rgba(59, 130, 246, 0.2)',
-                  color: '#3b82f6',
-                  border: '1px solid rgba(59, 130, 246, 0.3)',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-              >
-                Assign Resources
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                handleCloseViewModal();
+                handleOpenEditModal(viewingShelter);
+              }}
+              style={{
+                width: '100%',
+                padding: '14px 24px',
+                background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '10px',
+                fontSize: '15px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                boxShadow: '0 4px 15px rgba(139, 92, 246, 0.3)'
+              }}
+            >
+              <Edit style={{ width: '18px', height: '18px' }} />
+              Edit Shelter
+            </button>
           </div>
         </div>
       )}
+
+      {/* Pulse animation CSS */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.2); }
+        }
+      `}</style>
     </DashboardLayout>
   );
 };

@@ -94,6 +94,7 @@ const PDMADashboard = () => {
             <AlertsSection 
               alerts={alerts} 
               colors={colors}
+              isLight={isLight}
               onCreateAlert={() => setIsAlertFormOpen(true)}
               onResolveAlert={handleResolveAlert}
             />
@@ -102,12 +103,13 @@ const PDMADashboard = () => {
             <DistrictStatusSection 
               districts={districts} 
               colors={colors}
+              isLight={isLight}
             />
           </div>
         </div>
 
         {/* Flood Map Section */}
-        <FloodMapSection provinceName={provinceName} colors={colors} />
+        <FloodMapSection provinceName={provinceName} colors={colors} isLight={isLight} />
       </div>
 
       {/* Demo Modal */}

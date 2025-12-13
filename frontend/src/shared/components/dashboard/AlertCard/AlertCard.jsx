@@ -40,9 +40,24 @@ const AlertCard = ({
   const severityColor = getSeverityColor(severity);
   const statusColor = getStatusColor(status);
 
+  // Get dark mode left border colors - bright, visible colors
+  const getDarkModeBorderColor = () => {
+    const darkBorderColors = {
+      critical: '#ef4444',  // Bright red
+      high: '#f97316',      // Bright orange
+      medium: '#eab308',    // Bright yellow
+      low: '#22c55e',       // Bright green
+    };
+    return darkBorderColors[severity] || darkBorderColors.medium;
+  };
+
   // Get severity-based styling for light mode
   const getSeverityStyle = () => {
-    if (!isLight) return { bg: colors.cardBg, border: colors.cardBorder, accentLine: '#ef4444' };
+    if (!isLight) return { 
+      bg: colors.cardBg, 
+      border: colors.cardBorder, 
+      accentLine: getDarkModeBorderColor() 
+    };
 
     const styles = {
       critical: {
@@ -136,13 +151,13 @@ const AlertCard = ({
       </div>
 
       {/* Title */}
-      <h3 className="font-semibold mb-4" style={{ color: colors.textPrimary, fontSize: '18px' }}>{title}</h3>
+      <h3 className="font-semibold mb-4" style={{ color: colors.textPrimary, fontSize: '20px' }}>{title}</h3>
 
       {/* Description */}
-      <p className="mb-6" style={{ color: colors.textMuted, lineHeight: '1.7', fontSize: '15px' }}>{description}</p>
+      <p className="mb-6" style={{ color: colors.textMuted, lineHeight: '1.7', fontSize: '16px' }}>{description}</p>
 
       {/* Metadata */}
-      <div className="flex flex-wrap gap-5 mb-6" style={{ color: colors.textSecondary, fontSize: '14px' }}>
+      <div className="flex flex-wrap gap-5 mb-6" style={{ color: colors.textSecondary, fontSize: '15px' }}>
         {type && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span>Type:</span>

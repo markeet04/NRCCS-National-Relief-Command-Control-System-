@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Sun, Moon, Type } from 'lucide-react';
 import PropTypes from 'prop-types';
 import { useSettings } from '@hooks';
+import { getThemeColors } from '@shared/utils/themeColors';
 
 const SettingsModal = ({ isOpen, onClose }) => {
   const { theme, fontSize, toggleTheme, increaseFontSize, decreaseFontSize } = useSettings();
@@ -47,12 +48,13 @@ const SettingsModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   const isDark = pendingTheme === 'dark';
-  const modalBg = isDark ? '#0f172a' : '#ffffff';
-  const cardBg = isDark ? '#1e293b' : '#f8fafc';
-  const cardBorder = isDark ? '#334155' : '#e2e8f0';
-  const textPrimary = isDark ? '#f1f5f9' : '#0f172a';
-  const textSecondary = isDark ? '#94a3b8' : '#64748b';
-  const sliderTrack = isDark ? '#334155' : '#e2e8f0';
+  const colors = getThemeColors(!isDark);
+  const modalBg = isDark ? colors.elevatedBg : '#ffffff';
+  const cardBg = isDark ? colors.elevatedBg2 : '#f8fafc';
+  const cardBorder = isDark ? colors.borderMedium : '#e2e8f0';
+  const textPrimary = isDark ? colors.textPrimary : '#0f172a';
+  const textSecondary = isDark ? colors.textSecondary : '#64748b';
+  const sliderTrack = isDark ? colors.borderMedium : '#e2e8f0';
 
   return (
     <div 
@@ -127,17 +129,17 @@ const SettingsModal = ({ isOpen, onClose }) => {
                   padding: '16px 12px',
                   borderRadius: '12px',
                   backgroundColor: cardBg,
-                  border: pendingTheme === 'light' ? '2px solid #10b981' : `1.5px solid ${cardBorder}`,
+                  border: pendingTheme === 'light' ? `2px solid ${colors.brandAccent}` : `1.5px solid ${cardBorder}`,
                   cursor: 'pointer',
                   transition: 'all 0.15s ease'
                 }}
               >
                 <div style={{ 
                   width: '44px', height: '44px', borderRadius: '10px',
-                  backgroundColor: isDark ? '#334155' : '#f1f5f9',
+                  backgroundColor: isDark ? colors.borderMedium : '#f1f5f9',
                   display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}>
-                  <Sun style={{ width: '22px', height: '22px', color: '#f59e0b' }} />
+                  <Sun style={{ width: '22px', height: '22px', color: colors.high }} />
                 </div>
                 <span style={{ fontSize: '13px', fontWeight: 500, color: textPrimary }}>Light</span>
               </button>
@@ -153,17 +155,17 @@ const SettingsModal = ({ isOpen, onClose }) => {
                   padding: '16px 12px',
                   borderRadius: '12px',
                   backgroundColor: cardBg,
-                  border: pendingTheme === 'dark' ? '2px solid #10b981' : `1.5px solid ${cardBorder}`,
+                  border: pendingTheme === 'dark' ? `2px solid ${colors.brandAccent}` : `1.5px solid ${cardBorder}`,
                   cursor: 'pointer',
                   transition: 'all 0.15s ease'
                 }}
               >
                 <div style={{ 
                   width: '44px', height: '44px', borderRadius: '10px',
-                  backgroundColor: isDark ? '#0f172a' : '#1e293b',
+                  backgroundColor: isDark ? colors.pageBg : colors.elevatedBg,
                   display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}>
-                  <Moon style={{ width: '22px', height: '22px', color: '#60a5fa' }} />
+                  <Moon style={{ width: '22px', height: '22px', color: colors.lowText }} />
                 </div>
                 <span style={{ fontSize: '13px', fontWeight: 500, color: textPrimary }}>Dark</span>
               </button>
