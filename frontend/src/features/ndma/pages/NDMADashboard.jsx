@@ -3,15 +3,17 @@ import { DashboardLayout } from '@shared/components/layout';
 import { StatCard } from '@shared/components/dashboard';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
-import { AlertTriangle, Truck, Users, Package, MapPin } from 'lucide-react';
+import { AlertTriangle, Truck, Users, Package } from 'lucide-react';
 import { useBadge } from '@shared/contexts/BadgeContext';
 import { 
   getMenuItemsByRole, 
   ROLE_CONFIG, 
   STAT_GRADIENT_KEYS,
-  DEFAULT_WEATHER_DATA,
   getCardStyle 
 } from '@shared/constants/dashboardConfig';
+
+// Import NationalMap component for weather visualization
+import NationalMap from '../components/NationalMap';
 
 /**
  * NDMADashboard Component
@@ -46,9 +48,6 @@ const NDMADashboard = () => {
     { title: 'People Evacuated', value: '15,432', trend: 15, trendLabel: 'vs yesterday', trendDirection: 'up', icon: Users, gradientKey: STAT_GRADIENT_KEYS.success },
     { title: 'Resources Available', value: '182,000', trend: 0, trendLabel: 'units', trendDirection: null, icon: Package, gradientKey: STAT_GRADIENT_KEYS.resources }
   ];
-
-  // Weather data - using shared default
-  const weatherData = DEFAULT_WEATHER_DATA;
 
   // Resource status
   const resources = [
@@ -115,67 +114,18 @@ const NDMADashboard = () => {
         <div className="lg:col-span-2" style={{ marginTop: '24px' }}>
           <div style={{ backgroundColor: colors.cardBg, borderRadius: '12px', border: `1px solid ${colors.cardBorder}`, borderLeft: !isLight ? '4px solid #3b82f6' : `1px solid ${colors.cardBorder}`, padding: '24px' }}>
             <h3 style={{ color: colors.textPrimary, fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>
-              Pakistan - Live Situation Map
+              Pakistan - Live Weather & Situation Map
             </h3>
   
-            {/* Map Placeholder */}
-            <div style={{ 
-              background: colors.background, 
-              borderRadius: '8px', 
-              minHeight: '400px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '40px',
-              border: `1px solid ${colors.cardBorder}`
-            }}>
-              <MapPin className="w-16 h-16 mb-4" style={{ color: colors.primary }} />
-              <h4 style={{ color: colors.textPrimary, fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
-                Interactive Pakistan Map
-              </h4>
-              <p style={{ color: colors.textMuted, fontSize: '14px', textAlign: 'center', maxWidth: '400px' }}>
-                SOS Locations + Flood Zones + Shelters + Rescue Teams
-              </p>
-    
-              {/* Map Legend */}
-              <div style={{ marginTop: '24px', display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                <div className="flex items-center gap-2">
-                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: colors.critical }}></div>
-                  <span style={{ color: colors.textSecondary, fontSize: '12px' }}>Critical SOS</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: colors.low }}></div>
-                  <span style={{ color: colors.textSecondary, fontSize: '12px' }}>Flood Zones</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: colors.success }}></div>
-                  <span style={{ color: colors.textSecondary, fontSize: '12px' }}>Shelters</span>
-                </div>
-              </div>
-            </div>
+            {/* National Map Component with Real Weather */}
+            <NationalMap height="450px" />
           </div>
         </div>
 
         {/* Right Sidebar */}
         <div className="flex flex-col gap-6">
-          {/* 24h Weather */}
-          <div style={{ backgroundColor: colors.cardBg, borderRadius: '12px', border: `1px solid ${colors.cardBorder}`, borderLeft: !isLight ? '4px solid #06b6d4' : `1px solid ${colors.cardBorder}`, padding: '20px', marginTop: '24px' }}>
-            <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>
-              24h Weather
-            </h3>
-            <div className="flex flex-col gap-3">
-              {weatherData.map((item, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span style={{ color: colors.textMuted, fontSize: '14px' }}>{item.label}</span>
-                  <span style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>{item.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Resource Status */}
-          <div className="transition-all duration-300" style={{ background: colors.cardBg, borderRadius: '12px', border: `1px solid ${colors.cardBorder}`, borderLeft: !isLight ? '4px solid #10b981' : `1px solid ${colors.cardBorder}`, padding: '20px', boxShadow: isLight ? colors.cardShadow : 'none' }}>
+          <div className="transition-all duration-300" style={{ background: colors.cardBg, borderRadius: '12px', border: `1px solid ${colors.cardBorder}`, borderLeft: !isLight ? '4px solid #10b981' : `1px solid ${colors.cardBorder}`, padding: '20px', marginTop: '24px', boxShadow: isLight ? colors.cardShadow : 'none' }}>
             <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>
               Resource Status
             </h3>

@@ -1,5 +1,5 @@
 import { Activity } from 'lucide-react';
-import { MapContainer } from '@shared/components/dashboard';
+import ProvincialWeatherMap from '../../ProvincialMap/ProvincialWeatherMap';
 
 const FloodMapSection = ({ provinceName, colors, isLight }) => {
   return (
@@ -11,20 +11,18 @@ const FloodMapSection = ({ provinceName, colors, isLight }) => {
         >
           <Activity size={18} color="#10b981" />
         </div>
-        <h2 className="pdma-section-title-text">Flood Risk Map</h2>
+        <h2 className="pdma-section-title-text">Punjab - Live Weather & Situation Map</h2>
       </div>
       <div
         className="pdma-map-container"
         style={{
           background: colors.cardBg,
           borderColor: colors.border,
-          borderLeft: !isLight ? '4px solid #10b981' : `1px solid ${colors.border}`
+          borderLeft: !isLight ? '4px solid #10b981' : `1px solid ${colors.border}`,
+          padding: '20px'
         }}
       >
-        <MapContainer
-          title={`${provinceName} Flood Risk`}
-          onExpand={() => console.log('Expand map')}
-        />
+        <ProvincialWeatherMap province="Punjab" height="500px" />
       </div>
     </div>
   );

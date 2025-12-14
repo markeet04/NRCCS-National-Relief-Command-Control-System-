@@ -9,10 +9,10 @@ import { getThemeColors } from '../../../shared/utils/themeColors';
 // District-specific imports - hooks, constants, components
 import { useDistrictData, useRescueTeams } from '../hooks';
 import { DISTRICT_MENU_ITEMS, DEFAULT_DISTRICT_INFO, STAT_GRADIENT_KEYS } from '../constants';
-import { StatCard, WeatherCard, AlertsList, LiveMapCard, SOSTable } from '../components';
+import { StatCard, WeatherCard, AlertsList, LiveMapCard, SOSTable, DistrictMap } from '../components';
 
 // Icons
-import { Users, CheckCircle, Clock, MapPin, AlertTriangle, Radio, Home, Package } from 'lucide-react';
+import { Users, CheckCircle, Clock, AlertTriangle, Radio, Home, Package } from 'lucide-react';
 
 /**
  * DistrictDashboard Component
@@ -254,25 +254,11 @@ const DistrictDashboard = () => {
             <h3 style={{ color: colors.textPrimary, fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>
               {districtInfo.name} District - Live Situation Map
             </h3>
-            <div style={{ 
-              background: colors.cardBgHover, 
-              borderRadius: '8px', 
-              minHeight: '400px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '40px',
-              border: `1px solid ${colors.cardBorder || colors.border}`
-            }}>
-              <MapPin className="w-16 h-16 mb-4" style={{ color: colors.primary }} />
-              <h4 style={{ color: colors.textPrimary, fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
-                Interactive District Map
-              </h4>
-              <p style={{ color: colors.textMuted, fontSize: '14px', textAlign: 'center' }}>
-                Click to view detailed regions
-              </p>
-            </div>
+            {/* ArcGIS District Map with Weather Layers */}
+            <DistrictMap 
+              districtName={districtInfo.name}
+              height="450px"
+            />
           </div>
         </div>
 
