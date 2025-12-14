@@ -697,7 +697,7 @@
 }
 
 .priority-badge {
-  background: #dc2626;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
   color: white !important;
   padding: 6px 14px;
   border-radius: 20px;
@@ -706,8 +706,9 @@
   white-space: nowrap;
   align-self: flex-start;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+  border: 1px solid #991b1b;
 }
-
 /* Section Title */
 .section-title {
   font-size: 1.8rem;

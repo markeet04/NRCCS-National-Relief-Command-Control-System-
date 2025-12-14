@@ -56,7 +56,6 @@ const Help = () => {
 
       <ContactSection contactMethods={contactMethods} />
 
-      <FeedbackSection />
     </div>
   );
 };
