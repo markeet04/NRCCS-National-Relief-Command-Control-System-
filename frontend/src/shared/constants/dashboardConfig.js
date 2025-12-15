@@ -156,6 +156,7 @@ export const ROLE_CONFIG = {
     userRole: 'Super Admin',
     userName: 'Admin',
     basePath: '/admin',
+    menuItems: SUPERADMIN_MENU_ITEMS,
   },
 };
 

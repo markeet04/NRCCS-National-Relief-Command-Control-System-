@@ -1,0 +1,35 @@
+.user-management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.user-management-header__title {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.user-management-header__add-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #10b981;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.user-management-header__add-btn:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.user-management-header__add-btn:active {
+  transform: translateY(0);
+}

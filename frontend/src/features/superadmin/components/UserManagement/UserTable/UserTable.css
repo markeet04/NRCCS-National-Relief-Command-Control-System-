@@ -1,0 +1,83 @@
+.user-table-container {
+  border-radius: 12px;
+  border: 1px solid;
+  overflow: hidden;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.user-table thead tr {
+  border-bottom: 1px solid;
+}
+
+.user-table th {
+  padding: 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.user-table tbody tr {
+  border-bottom: 1px solid;
+  transition: background-color 0.2s ease;
+}
+
+.user-table tbody tr:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.user-table td {
+  padding: 16px;
+  font-size: 14px;
+}
+
+.user-table__role-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  font-weight: 500;
+}
+
+.user-table__status {
+  font-weight: 500;
+}
+
+.user-table__status--active {
+  color: #10b981;
+}
+
+.user-table__status--inactive {
+  color: #ef4444;
+}
+
+.user-table__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.user-table__action-btn {
+  padding: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.user-table__action-btn:hover {
+  transform: scale(1.1);
+}
+
+.user-table__action-btn--edit {
+  color: #60a5fa;
+}
+
+.user-table__action-btn--delete {
+  color: #ef4444;
+}

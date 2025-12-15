@@ -1,0 +1,50 @@
+.general-settings {
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid;
+}
+
+.general-settings__title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.general-settings__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.general-settings__field {
+  display: flex;
+  flex-direction: column;
+}
+
+.general-settings__label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.general-settings__input,
+.general-settings__select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.general-settings__input:focus,
+.general-settings__select:focus {
+  border-color: #3b82f6;
+}
+
+.general-settings__select option {
+  background: #3a4256;
+  color: #fff;
+}
