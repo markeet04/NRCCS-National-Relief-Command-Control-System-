@@ -14,26 +14,73 @@ const LandingPage = () => {
     setShowWelcome(false);
   };
 
-  const [showAdminLogin, setShowAdminLogin] = useState(false);
-  const [adminUser, setAdminUser] = useState('');
-  const [adminPass, setAdminPass] = useState('');
-  const [adminError, setAdminError] = useState('');
+  // Login Modal State
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [selectedRole, setSelectedRole] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const handleCitizenPortal = () => {
     navigate('/civilian');
   };
 
-  const handleSuperAdminLogin = (e) => {
-    e.preventDefault();
-    // Simple demo: username: admin, password: admin123
-    if (adminUser === 'admin' && adminPass === 'admin123') {
-      setShowAdminLogin(false);
-      setAdminError('');
-      navigate('/superadmin');
-    } else {
-      setAdminError('Invalid credentials');
-    }
+  const handleInternalLogin = () => {
+    setShowLoginModal(true);
+    setLoginError('');
   };
+
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    setLoginError('');
+    
+    if (!selectedRole) {
+      setLoginError('Please select a role');
+      return;
+    }
+    
+    if (!username || !password) {
+      setLoginError('Please enter username and password');
+      return;
+    }
+
+    setIsLoggingIn(true);
+    
+    // Simulate API call with timeout
+    setTimeout(() => {
+      // Demo credentials - in production, this would be an API call
+      const validCredentials = {
+        ndma: { username: 'ndma', password: 'ndma123' },
+        pdma: { username: 'pdma', password: 'pdma123' },
+        district: { username: 'district', password: 'district123' },
+        superadmin: { username: 'admin', password: 'admin123' }
+      };
+
+      const roleCredentials = validCredentials[selectedRole];
+      
+      if (roleCredentials && username === roleCredentials.username && password === roleCredentials.password) {
+        // Success - navigate to the appropriate dashboard
+        setShowLoginModal(false);
+        setIsLoggingIn(false);
+        navigate(`/${selectedRole}`);
+      } else {
+        setLoginError('Invalid credentials. Please try again.');
+        setIsLoggingIn(false);
+      }
+    }, 800);
+  };
+
+  const handleCloseModal = () => {
+    setShowLoginModal(false);
+    setSelectedRole('');
+    setUsername('');
+    setPassword('');
+    setLoginError('');
+    setIsLoggingIn(false);
+  };
+
+
 
   return (
     <div style={{ 
@@ -347,43 +394,20 @@ const LandingPage = () => {
                   </motion.svg>
                 </motion.div>
                 <motion.h3 animate={{ color: hoveredCard === 'internal' ? '#006600' : '#1e293b' }} style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '15px', transition: 'color 0.3s' }}>Internal System Login</motion.h3>
-                <p style={{ fontSize: '1rem', color: '#64748b', lineHeight: '1.6', marginBottom: '30px' }}>Authorized access for NDMA, PDMA, and district authorities. Command center for disaster coordination.</p>
+                <p style={{ fontSize: '1rem', color: '#64748b', lineHeight: '1.6', marginBottom: '30px' }}>Authorized access for NDMA, PDMA, District, and Super Admin authorities. Command center for disaster coordination.</p>
                 
-                {/* Login Buttons */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
-                  <motion.button 
-                    whileHover={{ scale: 1.05 }} 
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => navigate('/ndma')}
-                    style={{ width: '100%', padding: '14px 24px', background: '#006600', color: 'white', border: 'none', borderRadius: '10px', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0, 102, 0, 0.3)' }} 
-                    onMouseOver={(e) => e.target.style.background = '#005200'} 
-                    onMouseOut={(e) => e.target.style.background = '#006600'}
-                  >
-                    Login as NDMA
-                  </motion.button>
-                  
-                  <motion.button 
-                    whileHover={{ scale: 1.05 }} 
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => navigate('/pdma')}
-                    style={{ width: '100%', padding: '14px 24px', background: '#006600', color: 'white', border: 'none', borderRadius: '10px', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0, 102, 0, 0.3)' }} 
-                    onMouseOver={(e) => e.target.style.background = '#005200'} 
-                    onMouseOut={(e) => e.target.style.background = '#006600'}
-                  >
-                    Login as PDMA
-                  </motion.button>
-                  
-                  <motion.button 
-                    whileHover={{ scale: 1.05 }} 
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => navigate('/district')}
-                    style={{ width: '100%', padding: '14px 24px', background: '#006600', color: 'white', border: 'none', borderRadius: '10px', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0, 102, 0, 0.3)' }} 
-                    onMouseOver={(e) => e.target.style.background = '#005200'} 
-                    onMouseOut={(e) => e.target.style.background = '#006600'}
-                  >
-                    Login as District
-                  </motion.button>
-                </div>
+                <motion.button 
+                  whileHover={{ scale: 1.05 }} 
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleInternalLogin}
+                  style={{ width: '100%', padding: '16px 32px', background: '#006600', color: 'white', border: 'none', borderRadius: '12px', fontSize: '1.1rem', fontWeight: '600', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0, 102, 0, 0.3)', transition: 'all 0.3s' }} 
+                  onMouseOver={(e) => e.target.style.background = '#005200'} 
+                  onMouseOut={(e) => e.target.style.background = '#006600'}
+                >
+                  <motion.span animate={{ x: hoveredCard === 'internal' ? [0, 3, 0] : 0 }} transition={{ duration: 0.5 }} style={{ display: 'inline-block' }}>
+                    Internal Login →
+                  </motion.span>
+                </motion.button>
                 
                 <motion.div animate={{ opacity: hoveredCard === 'internal' ? 1 : 0.6 }} style={{ marginTop: '20px', fontSize: '0.875rem', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                   <svg style={{ width: '16px', height: '16px' }} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" /></svg>
@@ -417,32 +441,6 @@ const LandingPage = () => {
                 </motion.div>
               </div>
             </motion.div>
-
-            {/* Card 3: Super Admin Portal */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 1.5 }}
-              whileHover={{ y: -12, boxShadow: '0 30px 60px -15px rgba(0, 0, 0, 0.2)' }}
-              onHoverStart={() => setHoveredCard('superadmin')} onHoverEnd={() => setHoveredCard(null)}
-              style={{ background: 'linear-gradient(135deg, #fff0f6 0%, #f8fafc 100%)', borderRadius: '24px', padding: '50px 40px', textAlign: 'center', boxShadow: '0 10px 40px rgba(0, 0, 0, 0.08)', border: '2px solid #e2e8f0', cursor: 'pointer', position: 'relative', overflow: 'hidden', marginTop: '32px' }}
-            >
-              <motion.div animate={{ opacity: hoveredCard === 'superadmin' ? 0.02 : 0 }} transition={{ duration: 0.3 }} style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #b80000 0%, #ff4d4f 100%)', zIndex: 0 }} />
-              <div style={{ position: 'relative', zIndex: 1 }}>
-                <motion.div animate={{ scale: hoveredCard === 'superadmin' ? 1.1 : 1, rotate: hoveredCard === 'superadmin' ? -5 : 0 }} transition={{ duration: 0.3 }} style={{ width: '80px', height: '80px', background: '#fff1f0', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 30px', boxShadow: '0 5px 20px rgba(0, 0, 0, 0.08)' }}>
-                  <motion.svg animate={{ scale: hoveredCard === 'superadmin' ? [1, 1.2, 1] : 1 }} transition={{ duration: 0.5 }} style={{ width: '40px', height: '40px', color: '#b80000' }} fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 2a2 2 0 012 2v2h2a2 2 0 012 2v2h-2v2h2v2a2 2 0 01-2 2h-2v2a2 2 0 01-2 2H8a2 2 0 01-2-2v-2H4a2 2 0 01-2-2v-2h2v-2H2V8a2 2 0 012-2h2V4a2 2 0 012-2h2zm0 2H8v2H6v2H4v2h2v2H4v2h2v2h2v2h2v-2h2v-2h2v-2h-2v-2h2V8h-2V6h-2V4z" />
-                  </motion.svg>
-                </motion.div>
-                <motion.h3 animate={{ color: hoveredCard === 'superadmin' ? '#b80000' : '#1e293b' }} style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '15px', transition: 'color 0.3s' }}>Super Admin Portal</motion.h3>
-                <p style={{ fontSize: '1rem', color: '#64748b', lineHeight: '1.6', marginBottom: '30px' }}>System-wide management, user control, and audit logs.</p>
-                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%', padding: '16px 32px', background: 'white', color: '#b80000', border: '2px solid #b80000', borderRadius: '12px', fontSize: '1.1rem', fontWeight: '600', cursor: 'pointer', transition: 'all 0.3s' }} onClick={() => setShowAdminLogin(true)} onMouseOver={(e) => { e.target.style.background = '#b80000'; e.target.style.color = 'white'; }} onMouseOut={(e) => { e.target.style.background = 'white'; e.target.style.color = '#b80000'; }}>
-                  <motion.span animate={{ x: hoveredCard === 'superadmin' ? [0, 3, 0] : 0 }} transition={{ duration: 0.5 }} style={{ display: 'inline-block' }}>Super Admin Login →</motion.span>
-                </motion.button>
-                <motion.div animate={{ opacity: hoveredCard === 'superadmin' ? 1 : 0.6 }} style={{ marginTop: '20px', fontSize: '0.875rem', color: '#b80000', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                  <svg style={{ width: '16px', height: '16px' }} fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a2 2 0 012 2v2h2a2 2 0 012 2v2h-2v2h2v2a2 2 0 01-2 2h-2v2a2 2 0 01-2 2H8a2 2 0 01-2-2v-2H4a2 2 0 01-2-2v-2h2v-2H2V8a2 2 0 012-2h2V4a2 2 0 012-2h2z" /></svg>
-                  Super Admin Only
-                </motion.div>
-              </div>
-            </motion.div>
           </div>
         </div>
 
@@ -454,25 +452,301 @@ const LandingPage = () => {
           </motion.div>
         </motion.footer>
       </div>
-    {/* Super Admin Login Modal */}
-    <AnimatePresence>
-      {showAdminLogin && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} exit={{ scale: 0.8 }} style={{ background: 'white', borderRadius: '16px', padding: '32px 24px', minWidth: '320px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
-            <h2 style={{ marginBottom: '18px', color: '#b80000', fontWeight: 700 }}>Super Admin Login</h2>
-            <form onSubmit={handleSuperAdminLogin}>
-              <input type="text" placeholder="Username" value={adminUser} onChange={e => setAdminUser(e.target.value)} style={{ width: '100%', marginBottom: '12px', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }} autoFocus />
-              <input type="password" placeholder="Password" value={adminPass} onChange={e => setAdminPass(e.target.value)} style={{ width: '100%', marginBottom: '12px', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
-              {adminError && <div style={{ color: '#b80000', marginBottom: '10px', fontSize: '0.95em' }}>{adminError}</div>}
-              <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
-                <button type="submit" style={{ flex: 1, background: '#b80000', color: 'white', border: 'none', borderRadius: '8px', padding: '10px', fontWeight: 600, cursor: 'pointer' }}>Login</button>
-                <button type="button" style={{ flex: 1, background: '#f1f5f9', color: '#b80000', border: 'none', borderRadius: '8px', padding: '10px', fontWeight: 600, cursor: 'pointer' }} onClick={() => setShowAdminLogin(false)}>Cancel</button>
-              </div>
-            </form>
+
+      {/* Internal Login Modal */}
+      <AnimatePresence>
+        {showLoginModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={handleCloseModal}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.6)',
+              backdropFilter: 'blur(8px)',
+              zIndex: 1000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px'
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: 'white',
+                borderRadius: '24px',
+                padding: '40px',
+                maxWidth: '480px',
+                width: '100%',
+                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+                position: 'relative'
+              }}
+            >
+              {/* Close Button */}
+              <motion.button
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={handleCloseModal}
+                style={{
+                  position: 'absolute',
+                  top: '20px',
+                  right: '20px',
+                  background: '#f1f5f9',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: '#64748b',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </motion.button>
+
+              {/* Header */}
+              <motion.div
+                initial={{ y: -10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                style={{ textAlign: 'center', marginBottom: '32px' }}
+              >
+                <div style={{
+                  width: '80px',
+                  height: '80px',
+                  background: 'linear-gradient(135deg, #006600 0%, #004400 100%)',
+                  borderRadius: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 20px',
+                  boxShadow: '0 10px 30px rgba(0, 102, 0, 0.3)'
+                }}>
+                  <svg style={{ width: '40px', height: '40px', color: 'white' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <h2 style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1e293b', marginBottom: '8px' }}>
+                  Internal System Login
+                </h2>
+                <p style={{ fontSize: '0.95rem', color: '#64748b' }}>
+                  Authorized personnel only
+                </p>
+              </motion.div>
+
+              {/* Login Form */}
+              <motion.form
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                onSubmit={handleLoginSubmit}
+                style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+              >
+                {/* Role Selection */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
+                    Select Role
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    {[
+                      { value: 'ndma', label: 'NDMA', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+                      { value: 'pdma', label: 'PDMA', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
+                      { value: 'district', label: 'District', icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z' },
+                      { value: 'superadmin', label: 'Super Admin', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' }
+                    ].map((role) => (
+                      <motion.button
+                        key={role.value}
+                        type="button"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setSelectedRole(role.value)}
+                        style={{
+                          padding: '14px',
+                          borderRadius: '12px',
+                          border: selectedRole === role.value ? '2px solid #006600' : '2px solid #e2e8f0',
+                          background: selectedRole === role.value ? '#f0fdf4' : 'white',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          gap: '8px',
+                          transition: 'all 0.2s',
+                          color: selectedRole === role.value ? '#006600' : '#64748b',
+                          fontWeight: selectedRole === role.value ? '600' : '500'
+                        }}
+                      >
+                        <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={role.icon} />
+                        </svg>
+                        <span style={{ fontSize: '0.85rem' }}>{role.label}</span>
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Username */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
+                    Username
+                  </label>
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Enter your username"
+                    style={{
+                      width: '100%',
+                      padding: '14px 16px',
+                      borderRadius: '12px',
+                      border: '2px solid #e2e8f0',
+                      fontSize: '1rem',
+                      outline: 'none',
+                      transition: 'all 0.2s',
+                      color: '#111', // black text
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#006600'}
+                    onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+                  />
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    style={{
+                      width: '100%',
+                      padding: '14px 16px',
+                      borderRadius: '12px',
+                      border: '2px solid #e2e8f0',
+                      fontSize: '1rem',
+                      outline: 'none',
+                      transition: 'all 0.2s',
+                      color: '#111', // black text
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#006600'}
+                    onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+                  />
+                </div>
+
+                {/* Error Message */}
+                <AnimatePresence>
+                  {loginError && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      style={{
+                        padding: '12px 16px',
+                        background: '#fef2f2',
+                        border: '1px solid #fecaca',
+                        borderRadius: '10px',
+                        color: '#dc2626',
+                        fontSize: '0.9rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}
+                    >
+                      <svg style={{ width: '18px', height: '18px', flexShrink: 0 }} fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      </svg>
+                      {loginError}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Submit Button */}
+                <motion.button
+                  type="submit"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  disabled={isLoggingIn}
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    background: isLoggingIn ? '#94a3b8' : '#006600',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '1.1rem',
+                    fontWeight: '600',
+                    cursor: isLoggingIn ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 4px 12px rgba(0, 102, 0, 0.3)',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '10px'
+                  }}
+                >
+                  {isLoggingIn ? (
+                    <>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                        style={{
+                          width: '20px',
+                          height: '20px',
+                          border: '2px solid white',
+                          borderTopColor: 'transparent',
+                          borderRadius: '50%'
+                        }}
+                      />
+                      Logging in...
+                    </>
+                  ) : (
+                    <>
+                      Login
+                      <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </>
+                  )}
+                </motion.button>
+
+                {/* Demo Credentials */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  style={{
+                    marginTop: '10px',
+                    padding: '14px',
+                    background: '#f8fafc',
+                    borderRadius: '10px',
+                    fontSize: '0.8rem',
+                    color: '#64748b',
+                    lineHeight: '1.5'
+                  }}
+                >
+                  <strong style={{ color: '#1e293b', display: 'block', marginBottom: '6px' }}>Demo Credentials:</strong>
+                  NDMA: ndma/ndma123 | PDMA: pdma/pdma123<br />
+                  District: district/district123 | Admin: admin/admin123
+                </motion.div>
+              </motion.form>
+            </motion.div>
           </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
