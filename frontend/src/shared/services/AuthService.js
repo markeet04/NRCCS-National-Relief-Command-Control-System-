@@ -1,50 +1,42 @@
 /**
  * Authentication Service Module
- * Handles user authentication and authorization
- * Ready for backend API integration
+ * Handles user authentication and authorization using session-based auth
+ * Integrated with NestJS backend API
  */
+
+import apiClient from './api/apiClient';
 
 class AuthService {
   constructor() {
-    this.tokenKey = 'ndma_auth_token';
-    this.userKey = 'ndma_user_data';
+    // No need to store tokens in localStorage anymore
   }
 
   /**
    * User login
-   * @param {Object} credentials - Login credentials
+   * @param {Object} credentials - Login credentials (email, password)
    * @returns {Object} Authentication result
    */
   async login(credentials) {
     try {
-      const { username, password, role } = credentials;
+      const { email, password } = credentials;
       
-      // Simulate API call - replace with actual authentication later
-      if (this.validateCredentials(username, password, role)) {
-        const userData = this.getUserData(username, role);
-        const token = this.generateToken(userData);
-        
-        // Store authentication data
-        localStorage.setItem(this.tokenKey, token);
-        localStorage.setItem(this.userKey, JSON.stringify(userData));
-        
-        return {
-          success: true,
-          user: userData,
-          token: token,
-          message: 'Login successful'
-        };
-      } else {
-        return {
-          success: false,
-          message: 'Invalid credentials'
-        };
-      }
+      const response = await apiClient.post('/auth/login', {
+        email,
+        password,
+      });
+
+      const { user } = response.data;
+
+      return {
+        success: true,
+        user: user,
+        message: 'Login successful'
+      };
     } catch (error) {
       console.error('Login error:', error);
       return {
         success: false,
-        message: 'Login failed. Please try again.'
+        message: error.response?.data?.message || 'Invalid credentials'
       };
     }
   }
@@ -53,10 +45,9 @@ class AuthService {
    * User logout
    * @returns {boolean} Logout success status
    */
-  logout() {
+  async logout() {
     try {
-      localStorage.removeItem(this.tokenKey);
-      localStorage.removeItem(this.userKey);
+      await apiClient.post('/auth/logout');
       return true;
     } catch (error) {
       console.error('Logout error:', error);
@@ -65,28 +56,26 @@ class AuthService {
   }
 
   /**
-   * Get current user data
-   * @returns {Object|null} Current user data or null if not authenticated
+   * Validate current session
+   * @returns {Object} Validation result
    */
-  getCurrentUser() {
+  async validateSession() {
     try {
-      const userData = localStorage.getItem(this.userKey);
-      return userData ? JSON.parse(userData) : null;
+      const response = await apiClient.get('/auth/me');
+      return { valid: true, user: response.data.user };
     } catch (error) {
-      console.error('Error getting current user:', error);
-      return null;
+      return { valid: false };
     }
   }
 
   /**
-   * Check if user is authenticated
+   * Check if user is authenticated by validating session
    * @returns {boolean} Authentication status
    */
-  isAuthenticated() {
+  async isAuthenticated() {
     try {
-      const token = localStorage.getItem(this.tokenKey);
-      const userData = localStorage.getItem(this.userKey);
-      return !!(token && userData);
+      const { valid } = await this.validateSession();
+      return valid;
     } catch (error) {
       console.error('Error checking authentication:', error);
       return false;
@@ -112,79 +101,24 @@ class AuthService {
   }
 
   /**
-   * Get authentication token
-   * @returns {string|null} Authentication token
+   * Check user permissions for specific actions
+   * @param {string} permission - Required permission
+   * @param {Object} user - User object
+   * @returns {boolean} Permission status
    */
-  getToken() {
-    try {
-      return localStorage.getItem(this.tokenKey);
-    } catch (error) {
-      console.error('Error getting token:', error);
-      return null;
-    }
-  }
-
-  // Private helper methods
-  validateCredentials(username, password, role) {
-    // Simulate credential validation - replace with actual validation
-    const validCredentials = {
-      'admin@ndma.gov.pk': { password: 'admin123', role: 'ndma' },
-      'admin@pdma.gov.pk': { password: 'pdma123', role: 'pdma' },
-      'admin@district.gov.pk': { password: 'district123', role: 'district' }
-    };
-
-    const user = validCredentials[username];
-    return user && user.password === password && user.role === role;
-  }
-
-  getUserData(username, role) {
-    const roleData = {
-      'ndma': {
-        id: 1,
-        username: username,
-        role: 'ndma',
-        name: 'NDMA Administrator',
-        level: 'National',
-        permissions: ['view_all', 'create_alert', 'manage_resources', 'coordinate_provinces'],
-        location: 'Islamabad',
-        avatar: null
-      },
-      'pdma': {
-        id: 2,
-        username: username,
-        role: 'pdma',
-        name: 'PDMA Administrator',
-        level: 'Provincial',
-        permissions: ['view_province', 'create_alert', 'manage_local_resources'],
-        location: 'Provincial Capital',
-        avatar: null
-      },
-      'district': {
-        id: 3,
-        username: username,
-        role: 'district',
-        name: 'District Administrator',
-        level: 'District',
-        permissions: ['view_district', 'manage_shelters', 'handle_sos'],
-        location: 'District HQ',
-        avatar: null
-      }
-    };
-
-    return roleData[role] || null;
-  }
-
-  generateToken(userData) {
-    // Simple token generation - replace with proper JWT in backend
-    return btoa(JSON.stringify({
-      userId: userData.id,
-      role: userData.role,
-      timestamp: Date.now()
-    }));
+  hasPermission(permission, user) {
+    if (!user || !user.role) return false;
+    
+    // Superadmin has all permissions
+    if (user.role === 'superadmin') return true;
+    
+    const rolePermissions = this.getRolePermissions(user.role);
+    return rolePermissions.includes(permission);
   }
 
   getRolePermissions(role) {
     const permissions = {
+      'superadmin': ['*'], // All permissions
       'ndma': [
         'view_all', 'create_alert', 'manage_resources', 'coordinate_provinces',
         'access_analytics', 'manage_users', 'system_settings'

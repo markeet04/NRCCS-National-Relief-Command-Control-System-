@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import React from 'react';
+import ProtectedRoute from './guards/ProtectedRoute';
 
 // Landing
 import LandingPage from '@features/landing/pages';
@@ -27,7 +28,7 @@ const SuperAdminPortalRoutes = React.lazy(() => import('@features/superadmin/pag
 
 /**
  * AppRoutes - All route definitions
- * Central place for all application routes
+ * Central place for all application routes with role-based protection
  */
 const AppRoutes = () => {
   return (
@@ -35,32 +36,32 @@ const AppRoutes = () => {
       {/* Landing Page */}
       <Route path="/" element={<LandingPage />} />
       
-      {/* NDMA Dashboard Routes */}
-      <Route path="/ndma" element={<NDMADashboard />} />
-      <Route path="/ndma/alerts" element={<AlertsPage />} />
-      <Route path="/ndma/resources" element={<ResourcesPage />} />
-      <Route path="/ndma/map" element={<FloodMapPage />} />
+      {/* NDMA Dashboard Routes - Protected */}
+      <Route path="/ndma" element={<ProtectedRoute allowedRoles={['ndma']}><NDMADashboard /></ProtectedRoute>} />
+      <Route path="/ndma/alerts" element={<ProtectedRoute allowedRoles={['ndma']}><AlertsPage /></ProtectedRoute>} />
+      <Route path="/ndma/resources" element={<ProtectedRoute allowedRoles={['ndma']}><ResourcesPage /></ProtectedRoute>} />
+      <Route path="/ndma/map" element={<ProtectedRoute allowedRoles={['ndma']}><FloodMapPage /></ProtectedRoute>} />
       
-      {/* PDMA Dashboard Routes */}
-      <Route path="/pdma" element={<PDMADashboard />} />
-      <Route path="/pdma/resources" element={<React.Suspense fallback={<>Loading...</>}><ResourceDistribution /></React.Suspense>} />
-      <Route path="/pdma/shelters" element={<React.Suspense fallback={<>Loading...</>}><ShelterManagement /></React.Suspense>} />
-      <Route path="/pdma/districts" element={<React.Suspense fallback={<>Loading...</>}><DistrictCoordination /></React.Suspense>} />
-      <Route path="/pdma/map" element={<React.Suspense fallback={<>Loading...</>}><ProvincialMap /></React.Suspense>} />
+      {/* PDMA Dashboard Routes - Protected */}
+      <Route path="/pdma" element={<ProtectedRoute allowedRoles={['pdma']}><PDMADashboard /></ProtectedRoute>} />
+      <Route path="/pdma/resources" element={<ProtectedRoute allowedRoles={['pdma']}><React.Suspense fallback={<>Loading...</>}><ResourceDistribution /></React.Suspense></ProtectedRoute>} />
+      <Route path="/pdma/shelters" element={<ProtectedRoute allowedRoles={['pdma']}><React.Suspense fallback={<>Loading...</>}><ShelterManagement /></React.Suspense></ProtectedRoute>} />
+      <Route path="/pdma/districts" element={<ProtectedRoute allowedRoles={['pdma']}><React.Suspense fallback={<>Loading...</>}><DistrictCoordination /></React.Suspense></ProtectedRoute>} />
+      <Route path="/pdma/map" element={<ProtectedRoute allowedRoles={['pdma']}><React.Suspense fallback={<>Loading...</>}><ProvincialMap /></React.Suspense></ProtectedRoute>} />
       
-      {/* District Dashboard Routes */}
-      <Route path="/district" element={<DistrictDashboard />} />
-      <Route path="/district/sos" element={<React.Suspense fallback={<>Loading...</>}><SOSRequests /></React.Suspense>} />
-      <Route path="/district/shelters" element={<React.Suspense fallback={<>Loading...</>}><DistrictShelterManagement /></React.Suspense>} />
-      <Route path="/district/rescue" element={<React.Suspense fallback={<>Loading...</>}><RescueTeams /></React.Suspense>} />
-      <Route path="/district/reports" element={<React.Suspense fallback={<>Loading...</>}><DamageReports /></React.Suspense>} />
-      <Route path="/district/map" element={<FloodMapPage />} />
+      {/* District Dashboard Routes - Protected */}
+      <Route path="/district" element={<ProtectedRoute allowedRoles={['district']}><DistrictDashboard /></ProtectedRoute>} />
+      <Route path="/district/sos" element={<ProtectedRoute allowedRoles={['district']}><React.Suspense fallback={<>Loading...</>}><SOSRequests /></React.Suspense></ProtectedRoute>} />
+      <Route path="/district/shelters" element={<ProtectedRoute allowedRoles={['district']}><React.Suspense fallback={<>Loading...</>}><DistrictShelterManagement /></React.Suspense></ProtectedRoute>} />
+      <Route path="/district/rescue" element={<ProtectedRoute allowedRoles={['district']}><React.Suspense fallback={<>Loading...</>}><RescueTeams /></React.Suspense></ProtectedRoute>} />
+      <Route path="/district/reports" element={<ProtectedRoute allowedRoles={['district']}><React.Suspense fallback={<>Loading...</>}><DamageReports /></React.Suspense></ProtectedRoute>} />
+      <Route path="/district/map" element={<ProtectedRoute allowedRoles={['district']}><FloodMapPage /></ProtectedRoute>} />
 
-      {/* Civilian Portal */}
-      <Route path="/civilian/*" element={<React.Suspense fallback={<>Loading...</>}><CivilianPortalRoutes /></React.Suspense>} />
+      {/* Civilian Portal - Protected */}
+      <Route path="/civilian/*" element={<ProtectedRoute allowedRoles={['civilian']}><React.Suspense fallback={<>Loading...</>}><CivilianPortalRoutes /></React.Suspense></ProtectedRoute>} />
 
-      {/* Super Admin Portal */}
-      <Route path="/superadmin/*" element={<React.Suspense fallback={<>Loading...</>}><SuperAdminPortalRoutes /></React.Suspense>} />
+      {/* Super Admin Portal - Protected (SuperAdmin only) */}
+      <Route path="/superadmin/*" element={<ProtectedRoute allowedRoles={['superadmin']}><React.Suspense fallback={<>Loading...</>}><SuperAdminPortalRoutes /></React.Suspense></ProtectedRoute>} />
       
       {/* Redirect unknown routes to landing */}
       <Route path="*" element={<Navigate to="/" replace />} />

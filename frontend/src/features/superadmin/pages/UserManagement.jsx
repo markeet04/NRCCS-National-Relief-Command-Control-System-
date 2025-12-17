@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { ROLE_CONFIG } from '@shared/constants/dashboardConfig';
 import {
@@ -7,7 +7,9 @@ import {
   UserTable,
   UserModal
 } from '../components/UserManagement';
-import { INITIAL_USERS, PROVINCES_DATA } from '../constants/userManagementConstants';
+import { PROVINCES_DATA } from '../constants/userManagementConstants';
+import SuperAdminService from '../services';
+import { useNotification } from '@shared/hooks';
 
 const UserManagement = () => {
   const [activeRoute, setActiveRoute] = useState('/superadmin');
@@ -17,13 +19,49 @@ const UserManagement = () => {
     name: '',
     username: '',
     email: '',
+    password: '',
     role: '',
+    level: '',
+    phone: '',
+    cnic: '',
     province: '',
     district: '',
-    status: 'Active',
+    permissions: '',
   });
   const [editUserId, setEditUserId] = useState(null);
-  const [users, setUsers] = useState(INITIAL_USERS);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [provinces, setProvinces] = useState([]);
+  const { success, error } = useNotification();
+
+  // Fetch users and provinces on mount
+  useEffect(() => {
+    fetchUsers();
+    fetchProvinces();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const data = await SuperAdminService.getAllUsers(false);
+      setUsers(data);
+    } catch (error) {
+      showError(error.message || 'Failed to fetch users');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchProvinces = async () => {
+    try {
+      const data = await SuperAdminService.getAllProvinces();
+      setProvinces(data);
+    } catch (error) {
+      console.error('Failed to fetch provinces:', error);
+      // Fallback to static data if API fails
+      setProvinces(PROVINCES_DATA);
+    }
+  };
 
   const handleAddUser = () => {
     setEditUserId(null);
@@ -31,10 +69,14 @@ const UserManagement = () => {
       name: '',
       username: '',
       email: '',
+      password: '',
       role: '',
+      level: '',
+      phone: '',
+      cnic: '',
       province: '',
       district: '',
-      status: 'Active',
+      permissions: '',
     });
     setShowModal(true);
   };
@@ -46,10 +88,14 @@ const UserManagement = () => {
       name: '',
       username: '',
       email: '',
+      password: '',
       role: '',
+      level: '',
+      phone: '',
+      cnic: '',
       province: '',
       district: '',
-      status: 'Active',
+      permissions: '',
     });
   };
 
@@ -62,41 +108,136 @@ const UserManagement = () => {
     }));
   };
 
-  const handleModalSubmit = (e) => {
+  const handleModalSubmit = async (e) => {
     e.preventDefault();
-    if (editUserId !== null) {
-      setUsers((prev) =>
-        prev.map((user) => (user.id === editUserId ? { ...user, ...newUser } : user))
-      );
-    } else {
-      setUsers((prev) => [
-        ...prev,
-        {
-          id: prev.length + 1,
-          ...newUser,
-        },
-      ]);
+    try {
+      setLoading(true);
+      
+      // Determine level based on role
+      const getRoleLevel = (role) => {
+        switch (role) {
+          case 'superadmin':
+          case 'ndma':
+            return 'National';
+          case 'pdma':
+            return 'Provincial';
+          case 'district':
+          case 'civilian':
+            return 'District';
+          default:
+            return null;
+        }
+      };
+
+      // Prepare user data according to backend DTO schema
+      const userData = {
+        email: newUser.email,
+        name: newUser.name,
+        role: newUser.role,
+        level: getRoleLevel(newUser.role),
+      };
+      if (newUser.username) userData.username = newUser.username;
+      if (!editUserId && newUser.password) userData.password = newUser.password; // Only on create
+      if (newUser.phone) userData.phone = newUser.phone;
+      if (newUser.cnic) userData.cnic = newUser.cnic;
+      
+      // Handle permissions - convert comma-separated string to array
+      if (newUser.permissions && newUser.permissions.trim()) {
+        userData.permissions = newUser.permissions
+          .split(',')
+          .map(p => p.trim())
+          .filter(p => p.length > 0);
+      }
+      
+      if (newUser.province && (newUser.role === 'pdma' || newUser.role === 'district' || newUser.role === 'civilian')) {
+        userData.provinceId = parseInt(newUser.province);
+      }
+      if (newUser.district && (newUser.role === 'district' || newUser.role === 'civilian')) {
+        userData.districtId = parseInt(newUser.district);
+      }
+
+      // Remove undefined or empty string fields for update
+      if (editUserId !== null) {
+        Object.keys(userData).forEach(key => {
+          if (userData[key] === undefined || userData[key] === '') {
+            delete userData[key];
+          }
+        });
+        console.log('Update payload:', userData); // DEBUG
+        await SuperAdminService.updateUser(editUserId, userData);
+        success('User updated successfully');
+      } else {
+        console.log('Create payload:', userData); // DEBUG
+        await SuperAdminService.createUser(userData);
+        success('User created successfully');
+      }
+      await fetchUsers();
+      handleModalClose();
+    } catch (err) {
+      console.error('User save error:', err);
+      if (err.response) {
+        console.error('Backend error response:', err.response.data);
+      }
+      let errorMessage = 'Failed to save user.';
+      
+      // Handle validation errors
+      if (err.response?.data?.message) {
+        if (Array.isArray(err.response.data.message)) {
+          // Multiple validation errors
+          errorMessage = err.response.data.message.join(', ');
+        } else {
+          errorMessage = err.response.data.message;
+        }
+      } else if (err.response?.status === 409) {
+        errorMessage = 'User with this email already exists. Please use a different email.';
+      } else if (err.response?.status === 400) {
+        errorMessage = 'Invalid data. Please check all fields and try again.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      error(errorMessage);
+    } finally {
+      setLoading(false);
     }
-    handleModalClose();
   };
 
   const handleEditUser = (user) => {
     setEditUserId(user.id);
     setNewUser({
-      name: user.name,
-      username: user.username,
-      email: user.email,
-      role: user.role,
-      province: user.province,
-      district: user.district,
-      status: user.status,
+      name: user.name || '',
+      username: user.username || '',
+      email: user.email || '',
+      password: '', // Don't pre-fill password for security
+      role: user.role || '',
+      level: user.level || '',
+      phone: user.phone || '',
+      cnic: user.cnic || '',
+      province: user.provinceId ? user.provinceId.toString() : '',
+      district: user.districtId ? user.districtId.toString() : '',
+      permissions: user.permissions ? user.permissions.join(', ') : '',
     });
     setShowModal(true);
   };
 
-  const handleDeleteUser = (userId) => {
+  const handleDeleteUser = async (userId) => {
     if (confirm('Are you sure you want to delete this user?')) {
-      setUsers((prev) => prev.filter((user) => user.id !== userId));
+      try {
+        setLoading(true);
+        await SuperAdminService.deleteUser(userId);
+        success('User deleted successfully');
+        await fetchUsers();
+      } catch (err) {
+        let errorMessage = 'Failed to delete user.';
+        if (err.response?.data?.message) {
+          errorMessage = err.response.data.message;
+        } else if (err.message) {
+          errorMessage = err.message;
+        }
+        error(errorMessage);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -138,7 +279,7 @@ const UserManagement = () => {
           editUserId={editUserId}
           onInputChange={handleInputChange}
           onSubmit={handleModalSubmit}
-          provincesData={PROVINCES_DATA}
+          provincesData={provinces}
         />
       </div>
     </DashboardLayout>

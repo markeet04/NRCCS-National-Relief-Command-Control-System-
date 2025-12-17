@@ -1,10 +1,12 @@
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
+import { useAuth } from '@app/providers/AuthProvider';
 
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [showWelcome, setShowWelcome] = useState(true);
   const [hoveredCard, setHoveredCard] = useState(null);
   const { scrollYProgress } = useScroll();
@@ -31,45 +33,57 @@ const LandingPage = () => {
     setLoginError('');
   };
 
-  const handleLoginSubmit = async (e) => {
-    e.preventDefault();
-    setLoginError('');
-    
-    if (!selectedRole) {
-      setLoginError('Please select a role');
-      return;
-    }
-    
-    if (!username || !password) {
-      setLoginError('Please enter username and password');
-      return;
-    }
+const handleLoginSubmit = async (e) => {
+  e.preventDefault();
+  setLoginError('');
+  
+  if (!selectedRole) {
+    setLoginError('Please select a role');
+    return;
+  }
+  
+  if (!username || !password) {
+    setLoginError('Please enter email and password');
+    return;
+  }
 
-    setIsLoggingIn(true);
-    
-    // Simulate API call with timeout
-    setTimeout(() => {
-      // Demo credentials - in production, this would be an API call
-      const validCredentials = {
-        ndma: { username: 'ndma', password: 'ndma123' },
-        pdma: { username: 'pdma', password: 'pdma123' },
-        district: { username: 'district', password: 'district123' },
-        superadmin: { username: 'admin', password: 'admin123' }
-      };
+  setIsLoggingIn(true);
+  
+  try {
+    console.log('[LandingPage] Attempting login...');
+    const result = await login({
+      email: username,
+      password: password,
+    });
+    console.log('[LandingPage] Login result:', result);
 
-      const roleCredentials = validCredentials[selectedRole];
-      
-      if (roleCredentials && username === roleCredentials.username && password === roleCredentials.password) {
-        // Success - navigate to the appropriate dashboard
-        setShowLoginModal(false);
+    if (result.success) {
+      // Verify role matches
+      if (result.user.role !== selectedRole) {
+        setLoginError(`You don't have ${selectedRole} access. Your role is: ${result.user.role}`);
         setIsLoggingIn(false);
-        navigate(`/${selectedRole}`);
-      } else {
-        setLoginError('Invalid credentials. Please try again.');
-        setIsLoggingIn(false);
+        return;
       }
-    }, 800);
-  };
+
+      console.log('[LandingPage] Login successful, navigating to:', `/${selectedRole}`);
+      
+      // Close modal
+      setShowLoginModal(false);
+      
+      // Add a small delay to ensure state propagation
+      setTimeout(() => {
+        navigate(`/${selectedRole}`, { replace: true });
+      }, 100);
+    } else {
+      setLoginError(result.message || 'Invalid credentials. Please try again.');
+      setIsLoggingIn(false);
+    }
+  } catch (error) {
+    console.error('[LandingPage] Login error:', error);
+    setLoginError('Login failed. Please try again.');
+    setIsLoggingIn(false);
+  }
+};
 
   const handleCloseModal = () => {
     setShowLoginModal(false);

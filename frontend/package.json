@@ -12,6 +12,7 @@
   "dependencies": {
     "@arcgis/core": "^4.34.8",
     "autoprefixer": "^10.4.22",
+    "axios": "^1.13.2",
     "framer-motion": "^12.23.24",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.555.0",

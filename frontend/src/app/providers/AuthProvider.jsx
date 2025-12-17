@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import AuthService from '@shared/services/AuthService';
 
 const AuthContext = createContext();
 
@@ -12,30 +13,61 @@ export const useAuth = () => {
 };
 
 /**
- * AuthProvider - Mock authentication context
- * TODO: Replace with real authentication in Deliverable 4
+ * AuthProvider - Authentication context with session-based backend integration
  */
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load user from localStorage on mount
+  // Validate session on mount
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setIsLoading(false);
+    const initAuth = async () => {
+      try {
+        const { valid, user: sessionUser } = await AuthService.validateSession();
+        if (valid && sessionUser) {
+          console.log('[AuthProvider] Session valid, user:', sessionUser);
+          setUser(sessionUser);
+        } else {
+          console.log('[AuthProvider] No valid session');
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initAuth();
+
+    // Listen for session expiration events
+    const handleSessionExpired = () => {
+      console.log('[AuthProvider] Session expired event');
+      setUser(null);
+    };
+
+    window.addEventListener('session-expired', handleSessionExpired);
+    
+    return () => {
+      window.removeEventListener('session-expired', handleSessionExpired);
+    };
   }, []);
 
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+  const login = async (credentials) => {
+    const result = await AuthService.login(credentials);
+    if (result.success) {
+      console.log('[AuthProvider] Login successful, user:', result.user);
+      setUser(result.user);
+    } else {
+      console.log('[AuthProvider] Login failed:', result.message);
+    }
+    return result;
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await AuthService.logout();
     setUser(null);
-    localStorage.removeItem('user');
   };
 
   const value = {

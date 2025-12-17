@@ -1,20 +1,21 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { Plus, Cloud } from 'lucide-react';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
+import SuperAdminService from '../services';
+import { useNotification } from '@shared/hooks';
 
 const APIIntegration = () => {
   const [activeRoute, setActiveRoute] = useState('api');
   const [showModal, setShowModal] = useState(false);
-  const [newApi, setNewApi] = useState({ name: '', url: '', apiKey: '' });
-    const [deleteApiId, setDeleteApiId] = useState(null);
-    const handleDeleteApi = (id) => {
-      setIntegrations(prev => prev.filter(api => api.id !== id));
-      setDeleteApiId(null);
-    };
+  const [newApi, setNewApi] = useState({ name: '', baseUrl: '', apiKey: '', description: '', isActive: true });
+  const [deleteApiId, setDeleteApiId] = useState(null);
+  const [integrations, setIntegrations] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { theme } = useSettings();
+  const { showSuccess, showError } = useNotification();
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
   
@@ -22,32 +23,36 @@ const APIIntegration = () => {
   const roleConfig = ROLE_CONFIG.superadmin;
   const menuItems = useMemo(() => getMenuItemsByRole('superadmin'), []);
 
-  const [integrations, setIntegrations] = useState([
-    {
-      id: 1,
-      name: 'Weather API',
-      url: 'https://api.weather.gov.pk',
-      apiKey: 'wea_***************',
-      status: 'active',
-      lastTested: '2 hours ago'
-    },
-    {
-      id: 2,
-      name: 'SMS Gateway',
-      url: 'https://sms.gateway.pk',
-      apiKey: 'sms_***************',
-      status: 'active',
-      lastTested: '2 hours ago'
-    },
-    {
-      id: 3,
-      name: 'Mapping Service',
-      url: 'https://maps.service.pk',
-      apiKey: 'map_***************',
-      status: 'inactive',
-      lastTested: '5 days ago'
+  useEffect(() => {
+    fetchApiIntegrations();
+  }, []);
+
+  const fetchApiIntegrations = async () => {
+    try {
+      setLoading(true);
+      const data = await SuperAdminService.getAllApiIntegrations();
+      setIntegrations(data);
+    } catch (error) {
+      showError(error.message || 'Failed to fetch API integrations');
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  const handleDeleteApi = async (id) => {
+    if (confirm('Are you sure you want to delete this API integration?')) {
+      try {
+        setLoading(true);
+        await SuperAdminService.deleteApiIntegration(id);
+        showSuccess('API integration deleted successfully');
+        await fetchApiIntegrations();
+      } catch (error) {
+        showError(error.response?.data?.message || error.message || 'Failed to delete API integration');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
   const handleAddIntegration = () => {
     setShowModal(true);
@@ -55,32 +60,41 @@ const APIIntegration = () => {
 
   const handleModalClose = () => {
     setShowModal(false);
-    setNewApi({ name: '', url: '', apiKey: '' });
+    setNewApi({ name: '', baseUrl: '', apiKey: '', description: '', isActive: true });
   };
 
-  const handleModalSave = () => {
-    if (newApi.name && newApi.url && newApi.apiKey) {
-      setIntegrations(prev => [
-        ...prev,
-        {
-          id: prev.length + 1,
-          name: newApi.name,
-          url: newApi.url,
-          apiKey: newApi.apiKey,
-          status: 'active',
-          lastTested: 'never'
-        }
-      ]);
-      handleModalClose();
+  const handleModalSave = async () => {
+    if (newApi.name && newApi.baseUrl && newApi.apiKey) {
+      try {
+        setLoading(true);
+        await SuperAdminService.createApiIntegration(newApi);
+        showSuccess('API integration added successfully');
+        await fetchApiIntegrations();
+        handleModalClose();
+      } catch (error) {
+        showError(error.response?.data?.message || error.message || 'Failed to add API integration');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  const handleTestConnection = (name) => {
-    alert(`Testing connection to ${name}...`);
+  const handleTestConnection = async (id, name) => {
+    try {
+      setLoading(true);
+      await SuperAdminService.testApiIntegration(id);
+      showSuccess(`Connection to ${name} is working!`);
+    } catch (error) {
+      showError(error.response?.data?.message || error.message || `Failed to connect to ${name}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRegenerateKey = (name) => {
-    alert(`Regenerating API key for ${name}...`);
+  const handleRegenerateKey = async (id, name) => {
+    if (confirm(`Are you sure you want to regenerate the API key for ${name}?`)) {
+      showError('This feature is not yet implemented in the backend');
+    }
   };
 
   return (

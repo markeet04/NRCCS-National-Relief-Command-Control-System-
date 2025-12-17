@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { 
   GeneralSettings, 
@@ -6,23 +6,51 @@ import {
   SecuritySettings,
   SaveButton 
 } from '../components/SystemSettings';
-import { INITIAL_SETTINGS } from '../constants/systemSettingsConstants';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
+import SuperAdminService from '../services';
+import { useNotification } from '@shared/hooks';
 
 const SystemSettings = () => {
   const [activeRoute, setActiveRoute] = useState('settings');
-  const [settings, setSettings] = useState(INITIAL_SETTINGS);
+  const [settings, setSettings] = useState({});
+  const [loading, setLoading] = useState(false);
+  const { showSuccess, showError } = useNotification();
   
   // Get role configuration and menu items from shared config
   const roleConfig = ROLE_CONFIG.superadmin;
   const menuItems = useMemo(() => getMenuItemsByRole('superadmin'), []);
 
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      setLoading(true);
+      const data = await SuperAdminService.getSystemSettings();
+      setSettings(data);
+    } catch (error) {
+      showError(error.message || 'Failed to fetch system settings');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleInputChange = (field, value) => {
     setSettings(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
-    alert('Settings saved successfully!');
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      await SuperAdminService.updateSystemSettings(settings);
+      showSuccess('Settings saved successfully!');
+      await fetchSettings();
+    } catch (error) {
+      showError(error.response?.data?.message || error.message || 'Failed to save settings');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,13 +68,15 @@ const SystemSettings = () => {
           System Settings
         </h2>
 
+        {loading && <div>Loading settings...</div>}
+        
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
           <GeneralSettings settings={settings} onInputChange={handleInputChange} />
           <SystemStatus settings={settings} />
         </div>
 
         <SecuritySettings />
-        <SaveButton onSave={handleSave} />
+        <SaveButton onSave={handleSave} disabled={loading} />
       </div>
     </DashboardLayout>
   );

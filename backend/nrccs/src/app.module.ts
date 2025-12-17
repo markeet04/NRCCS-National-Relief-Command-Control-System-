@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
+import { SuperadminModule } from './superadmin/superadmin.module';
 
 @Module({
   imports: [
@@ -12,7 +14,7 @@ import { AppService } from './app.service';
       type: 'postgres',
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
-      
+      synchronize: false, // NEVER use true in production
       ssl: true,
       extra: {
         ssl: {
@@ -20,6 +22,8 @@ import { AppService } from './app.service';
         },
       },
     }),
+    AuthModule,
+    SuperadminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

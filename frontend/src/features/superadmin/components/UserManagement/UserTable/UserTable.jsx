@@ -34,10 +34,12 @@ const UserTable = ({ users, onEditUser, onDeleteUser }) => {
               <td>
                 <span className="user-table__role-badge">{user.role}</span>
               </td>
-              <td style={{ color: colors.textPrimary }}>{user.location}</td>
+              <td style={{ color: colors.textPrimary }}>
+                {user.location || (user.provinceId ? `Province ${user.provinceId}` : '-')}
+              </td>
               <td>
-                <span className={`user-table__status user-table__status--${user.status}`}>
-                  {user.status}
+                <span className={`user-table__status user-table__status--${user.isActive ? 'active' : 'inactive'}`}>
+                  {user.isActive ? 'Active' : 'Inactive'}
                 </span>
               </td>
               <td>
