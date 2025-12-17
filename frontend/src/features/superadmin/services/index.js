@@ -57,58 +57,6 @@ class SuperAdminService {
     return response.data;
   }
 
-  // ==================== SYSTEM SETTINGS ====================
-
-  async getSystemSettings() {
-    const response = await apiClient.get('/superadmin/settings');
-    return response.data;
-  }
-
-  async updateSystemSettings(settings) {
-    const response = await apiClient.put('/superadmin/settings', settings);
-    return response.data;
-  }
-
-  async updateSetting(settingKey, settingValue) {
-    const response = await apiClient.put('/superadmin/settings/custom', {
-      settingKey,
-      settingValue,
-    });
-    return response.data;
-  }
-
-  // ==================== API INTEGRATIONS ====================
-
-  async getAllApiIntegrations() {
-    const response = await apiClient.get('/superadmin/api-integrations');
-    return response.data;
-  }
-
-  async getApiIntegrationById(id) {
-    const response = await apiClient.get(`/superadmin/api-integrations/${id}`);
-    return response.data;
-  }
-
-  async createApiIntegration(integrationData) {
-    const response = await apiClient.post('/superadmin/api-integrations', integrationData);
-    return response.data;
-  }
-
-  async updateApiIntegration(id, integrationData) {
-    const response = await apiClient.put(`/superadmin/api-integrations/${id}`, integrationData);
-    return response.data;
-  }
-
-  async deleteApiIntegration(id) {
-    const response = await apiClient.delete(`/superadmin/api-integrations/${id}`);
-    return response.data;
-  }
-
-  async testApiIntegration(id) {
-    const response = await apiClient.post(`/superadmin/api-integrations/${id}/test`);
-    return response.data;
-  }
-
   // ==================== AUDIT LOGS ====================
 
   async getAuditLogs(limit = 100, offset = 0) {

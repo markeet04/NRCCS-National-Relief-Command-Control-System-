@@ -19,8 +19,6 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserRole } from '../common/entities/user.entity';
 import { CreateUserDto, UpdateUserDto, ChangePasswordDto } from './dtos/user.dto';
-import { UpdateSystemSettingsDto, UpdateSettingDto } from './dtos/system-settings.dto';
-import { CreateApiIntegrationDto, UpdateApiIntegrationDto } from './dtos/api-integration.dto';
 
 @Controller('superadmin')
 @UseGuards(SessionAuthGuard, RolesGuard)
@@ -85,11 +83,11 @@ export class SuperadminController {
   }
 
   @Delete('users/:id')
-  async softDeleteUser(
+  async hardDeleteUser(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: any,
   ) {
-    return await this.superadminService.softDeleteUser(id, user.id);
+    return await this.superadminService.hardDeleteUser(id, user.id);
   }
 
   @Put('users/:id/restore')
@@ -98,75 +96,6 @@ export class SuperadminController {
     @CurrentUser() user: any,
   ) {
     return await this.superadminService.restoreUser(id, user.id);
-  }
-
-  // ==================== SYSTEM SETTINGS ====================
-
-  @Get('settings')
-  async getSystemSettings() {
-    return await this.superadminService.getSystemSettings();
-  }
-
-  @Put('settings')
-  async updateSystemSettings(
-    @Body() updateDto: UpdateSystemSettingsDto,
-    @CurrentUser() user: any,
-  ) {
-    return await this.superadminService.updateSystemSettings(updateDto, user.id);
-  }
-
-  @Put('settings/custom')
-  async updateSetting(
-    @Body() updateDto: UpdateSettingDto,
-    @CurrentUser() user: any,
-  ) {
-    return await this.superadminService.updateSetting(updateDto, user.id);
-  }
-
-  // ==================== API INTEGRATIONS ====================
-
-  @Get('api-integrations')
-  async getAllApiIntegrations() {
-    return await this.superadminService.getAllApiIntegrations();
-  }
-
-  @Get('api-integrations/:id')
-  async getApiIntegrationById(@Param('id', ParseIntPipe) id: number) {
-    return await this.superadminService.getApiIntegrationById(id);
-  }
-
-  @Post('api-integrations')
-  @HttpCode(HttpStatus.CREATED)
-  async createApiIntegration(
-    @Body() createDto: CreateApiIntegrationDto,
-    @CurrentUser() user: any,
-  ) {
-    return await this.superadminService.createApiIntegration(createDto, user.id);
-  }
-
-  @Put('api-integrations/:id')
-  async updateApiIntegration(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateDto: UpdateApiIntegrationDto,
-    @CurrentUser() user: any,
-  ) {
-    return await this.superadminService.updateApiIntegration(id, updateDto, user.id);
-  }
-
-  @Delete('api-integrations/:id')
-  async deleteApiIntegration(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: any,
-  ) {
-    return await this.superadminService.deleteApiIntegration(id, user.id);
-  }
-
-  @Post('api-integrations/:id/test')
-  async testApiIntegration(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: any,
-  ) {
-    return await this.superadminService.testApiIntegration(id, user.id);
   }
 
   // ==================== AUDIT LOGS ====================

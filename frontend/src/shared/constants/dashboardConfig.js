@@ -35,8 +35,6 @@ export const SUPERADMIN_MENU_ITEMS = [
   { route: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
   { route: 'users', label: 'User Management', icon: 'users' },
   { route: 'provinces', label: 'Provinces & Districts', icon: 'provinces' },
-  { route: 'settings', label: 'System Settings', icon: 'settings' },
-  { route: 'api', label: 'API Integration', icon: 'api' },
 ];
 
 // Get menu items by role

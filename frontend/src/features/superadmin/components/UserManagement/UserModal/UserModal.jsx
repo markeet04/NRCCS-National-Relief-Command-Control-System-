@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './UserModal.css';
 
-const UserModal = ({ show, onClose, user, editUserId, onInputChange, onSubmit, provincesData }) => {
+const UserModal = ({ show, onClose, user, editUserId, onInputChange, onSubmit, provincesData, fieldErrors = {} }) => {
   const [districts, setDistricts] = useState([]);
 
   // Role configuration - determines what fields are required for each role
@@ -113,8 +113,11 @@ const UserModal = ({ show, onClose, user, editUserId, onInputChange, onSubmit, p
                 placeholder="Enter username (optional)"
                 value={user.username || ''}
                 onChange={onInputChange}
-                className="user-modal__input"
+                className={`user-modal__input ${fieldErrors.username ? 'user-modal__input--error' : ''}`}
               />
+              {fieldErrors.username && (
+                <small className="user-modal__error">{fieldErrors.username}</small>
+              )}
             </div>
 
             <div className="user-modal__field">
@@ -127,10 +130,12 @@ const UserModal = ({ show, onClose, user, editUserId, onInputChange, onSubmit, p
                 placeholder="user@example.com"
                 value={user.email || ''}
                 onChange={onInputChange}
-                className="user-modal__input"
+                className={`user-modal__input ${fieldErrors.email ? 'user-modal__input--error' : ''}`}
                 required
-                disabled={editUserId !== null}
               />
+              {fieldErrors.email && (
+                <small className="user-modal__error">{fieldErrors.email}</small>
+              )}
             </div>
 
             {!editUserId && (
@@ -172,9 +177,12 @@ const UserModal = ({ show, onClose, user, editUserId, onInputChange, onSubmit, p
                 placeholder="XXXXX-XXXXXXX-X"
                 value={user.cnic || ''}
                 onChange={onInputChange}
-                className="user-modal__input"
+                className={`user-modal__input${fieldErrors.cnic ? ' user-modal__input--error' : ''}`}
                 maxLength={15}
               />
+              {fieldErrors.cnic && (
+                <small className="user-modal__error">{fieldErrors.cnic}</small>
+              )}
             </div>
           </div>
 

@@ -3,25 +3,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from '../common/entities/user.entity';
-import { SystemSettings } from '../common/entities/system-settings.entity';
-import { ApiIntegration } from '../common/entities/api-integration.entity';
 import { AuditLog } from '../common/entities/audit-log.entity';
 import { ActivityLog } from '../common/entities/activity-log.entity';
 import { Province } from '../common/entities/province.entity';
 import { District } from '../common/entities/district.entity';
 import { CreateUserDto, UpdateUserDto, ChangePasswordDto } from './dtos/user.dto';
-import { UpdateSystemSettingsDto, UpdateSettingDto } from './dtos/system-settings.dto';
-import { CreateApiIntegrationDto, UpdateApiIntegrationDto, TestApiIntegrationDto } from './dtos/api-integration.dto';
+
 
 @Injectable()
 export class SuperadminService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(SystemSettings)
-    private systemSettingsRepository: Repository<SystemSettings>,
-    @InjectRepository(ApiIntegration)
-    private apiIntegrationRepository: Repository<ApiIntegration>,
     @InjectRepository(AuditLog)
     private auditLogRepository: Repository<AuditLog>,
     @InjectRepository(ActivityLog)
@@ -93,65 +86,167 @@ export class SuperadminService {
   }
 
   async createUser(createUserDto: CreateUserDto, createdBy: number) {
-    // Check if email already exists
-    const existingUser = await this.userRepository.findOne({
+    // Check for existing email, username, and cnic
+    const conflicts: { field: string; message: string }[] = [];
+
+    // Check email uniqueness
+    const existingEmail = await this.userRepository.findOne({
       where: { email: createUserDto.email },
     });
-
-    if (existingUser) {
-      throw new ConflictException('Email already exists');
+    if (existingEmail) {
+      conflicts.push({ field: 'email', message: 'Email already exists' });
     }
 
-    // Hash password
-    const passwordHash = await bcrypt.hash(createUserDto.password, 10);
+    // Check username uniqueness (if provided)
+    if (createUserDto.username) {
+      const existingUsername = await this.userRepository.findOne({
+        where: { username: createUserDto.username },
+      });
+      if (existingUsername) {
+        conflicts.push({ field: 'username', message: 'Username already exists' });
+      }
+    }
 
-    const user = this.userRepository.create({
-      ...createUserDto,
-      passwordHash,
-      isActive: createUserDto.isActive ?? true,
-    });
+    // Check CNIC uniqueness (if provided)
+    if (createUserDto.cnic) {
+      const existingCnic = await this.userRepository.findOne({
+        where: { cnic: createUserDto.cnic },
+      });
+      if (existingCnic) {
+        conflicts.push({ field: 'cnic', message: 'CNIC already exists' });
+      }
+    }
 
-    const savedUser = await this.userRepository.save(user);
+    // If any conflicts found, return structured error
+    if (conflicts.length > 0) {
+      throw new ConflictException({
+        statusCode: 409,
+        error: 'Conflict',
+        message: conflicts.length === 1 ? conflicts[0].message : 'Multiple fields have conflicts',
+        errors: conflicts,
+      });
+    }
 
-    // Create audit log
-    await this.createAuditLog({
-      userId: createdBy,
-      action: 'CREATE_USER',
-      entityType: 'user',
-      entityId: savedUser.id.toString(),
-      newValues: {
-        email: savedUser.email,
-        role: savedUser.role,
-        name: savedUser.name,
-      },
-    });
+    try {
+      // Hash password
+      const passwordHash = await bcrypt.hash(createUserDto.password, 10);
 
-    return this.getUserById(savedUser.id);
+      const user = this.userRepository.create({
+        ...createUserDto,
+        passwordHash,
+        isActive: createUserDto.isActive ?? true,
+      });
+
+      const savedUser = await this.userRepository.save(user);
+
+      // Create audit log
+      await this.createAuditLog({
+        userId: createdBy,
+        action: 'CREATE_USER',
+        entityType: 'user',
+        entityId: savedUser.id.toString(),
+        newValues: {
+          email: savedUser.email,
+          role: savedUser.role,
+          name: savedUser.name,
+        },
+      });
+
+      return this.getUserById(savedUser.id);
+    } catch (error) {
+      // Catch any database errors and convert to meaningful messages
+      if (error.code === '23505') { // PostgreSQL unique violation
+        const field = error.detail?.match(/\((.+?)\)/)?.[1] || 'field';
+        throw new ConflictException({
+          statusCode: 409,
+          error: 'Conflict',
+          message: `${field} already exists`,
+          errors: [{ field, message: `${field} already exists` }],
+        });
+      }
+      throw error;
+    }
   }
 
   async updateUser(id: number, updateUserDto: UpdateUserDto, updatedBy: number) {
     const user = await this.getUserById(id);
+    const conflicts: { field: string; message: string }[] = [];
 
-    // Store old values for audit
-    const oldValues = {
-      name: user.name,
-      role: user.role,
-      isActive: user.isActive,
-    };
+    // Check email uniqueness (excluding current user)
+    if (updateUserDto.email && updateUserDto.email !== user.email) {
+      const existingEmail = await this.userRepository.findOne({
+        where: { email: updateUserDto.email, id: Not(id) },
+      });
+      if (existingEmail) {
+        conflicts.push({ field: 'email', message: 'Email already exists' });
+      }
+    }
 
-    await this.userRepository.update(id, updateUserDto);
+    // Check username uniqueness (excluding current user)
+    if (updateUserDto.username && updateUserDto.username !== user.username) {
+      const existingUsername = await this.userRepository.findOne({
+        where: { username: updateUserDto.username, id: Not(id) },
+      });
+      if (existingUsername) {
+        conflicts.push({ field: 'username', message: 'Username already exists' });
+      }
+    }
 
-    // Create audit log
-    await this.createAuditLog({
-      userId: updatedBy,
-      action: 'UPDATE_USER',
-      entityType: 'user',
-      entityId: id.toString(),
-      oldValues,
-      newValues: updateUserDto,
-    });
+    // Check CNIC uniqueness (excluding current user)
+    if (updateUserDto.cnic && updateUserDto.cnic !== user.cnic) {
+      const existingCnic = await this.userRepository.findOne({
+        where: { cnic: updateUserDto.cnic, id: Not(id) },
+      });
+      if (existingCnic) {
+        conflicts.push({ field: 'cnic', message: 'CNIC already exists' });
+      }
+    }
 
-    return this.getUserById(id);
+    // If any conflicts found, return structured error
+    if (conflicts.length > 0) {
+      throw new ConflictException({
+        statusCode: 409,
+        error: 'Conflict',
+        message: conflicts.length === 1 ? conflicts[0].message : 'Multiple fields have conflicts',
+        errors: conflicts,
+      });
+    }
+
+    try {
+      // Store old values for audit
+      const oldValues = {
+        name: user.name,
+        role: user.role,
+        isActive: user.isActive,
+        email: user.email,
+      };
+
+      await this.userRepository.update(id, updateUserDto);
+
+      // Create audit log
+      await this.createAuditLog({
+        userId: updatedBy,
+        action: 'UPDATE_USER',
+        entityType: 'user',
+        entityId: id.toString(),
+        oldValues,
+        newValues: updateUserDto,
+      });
+
+      return this.getUserById(id);
+    } catch (error) {
+      // Catch any database errors and convert to meaningful messages
+      if (error.code === '23505') { // PostgreSQL unique violation
+        const field = error.detail?.match(/\((.+?)\)/)?.[1] || 'field';
+        throw new ConflictException({
+          statusCode: 409,
+          error: 'Conflict',
+          message: `${field} already exists`,
+          errors: [{ field, message: `${field} already exists` }],
+        });
+      }
+      throw error;
+    }
   }
 
   async changeUserPassword(id: number, changePasswordDto: ChangePasswordDto, changedBy: number) {
@@ -211,24 +306,36 @@ export class SuperadminService {
     return { message: 'User activated successfully' };
   }
 
-  async softDeleteUser(id: number, deletedBy: number) {
-    const user = await this.getUserById(id);
-
-    await this.userRepository.update(id, {
-      isDeleted: true,
-      deletedAt: new Date(),
+  async hardDeleteUser(id: number, deletedBy: number) {
+    // Find user without the isDeleted filter
+    const user = await this.userRepository.findOne({
+      where: { id },
     });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    // Save user data for audit log before deletion
+    const userData = { ...user };
+
+    // Permanently delete the user from the database
+    await this.userRepository.delete(id);
 
     await this.createAuditLog({
       userId: deletedBy,
       action: 'DELETE_USER',
       entityType: 'user',
       entityId: id.toString(),
-      oldValues: { isDeleted: false },
-      newValues: { isDeleted: true },
+      oldValues: {
+        email: userData.email,
+        name: userData.name,
+        role: userData.role,
+      },
+      newValues: null,
     });
 
-    return { message: 'User deleted successfully' };
+    return { message: 'User permanently deleted' };
   }
 
   async restoreUser(id: number, restoredBy: number) {
@@ -253,185 +360,6 @@ export class SuperadminService {
     });
 
     return { message: 'User restored successfully' };
-  }
-
-  // ==================== SYSTEM SETTINGS ====================
-
-  async getSystemSettings() {
-    const settings = await this.systemSettingsRepository.find();
-    
-    // Convert to key-value object
-    const settingsObj: any = {
-      systemName: 'NRCCS',
-      alertLevel: 'normal',
-      sessionTimeout: '30',
-      autoBackup: true,
-      maintenanceMode: false,
-      dbStatus: 'Connected',
-    };
-
-    settings.forEach(setting => {
-      if (setting.settingKey === 'app_name') {
-        settingsObj.systemName = setting.systemName;
-        settingsObj.alertLevel = setting.alertLevel;
-        settingsObj.sessionTimeout = setting.sessionTimeout;
-        settingsObj.autoBackup = setting.autoBackup;
-        settingsObj.maintenanceMode = setting.maintenanceMode;
-        settingsObj.dbStatus = setting.dbStatus;
-      }
-    });
-
-    return settingsObj;
-  }
-
-  async updateSystemSettings(updateDto: UpdateSystemSettingsDto, updatedBy: number) {
-    let setting = await this.systemSettingsRepository.findOne({
-      where: { settingKey: 'app_name' },
-    });
-
-    if (!setting) {
-      setting = this.systemSettingsRepository.create({
-        settingKey: 'app_name',
-        settingValue: 'NRCCS',
-      });
-    }
-
-    const oldValues = { ...setting };
-
-    Object.assign(setting, updateDto);
-    await this.systemSettingsRepository.save(setting);
-
-    await this.createAuditLog({
-      userId: updatedBy,
-      action: 'UPDATE_SYSTEM_SETTINGS',
-      entityType: 'system_settings',
-      entityId: setting.id.toString(),
-      oldValues,
-      newValues: updateDto,
-    });
-
-    return this.getSystemSettings();
-  }
-
-  async updateSetting(updateDto: UpdateSettingDto, updatedBy: number) {
-    let setting = await this.systemSettingsRepository.findOne({
-      where: { settingKey: updateDto.settingKey },
-    });
-
-    if (!setting) {
-      setting = this.systemSettingsRepository.create(updateDto);
-    } else {
-      setting.settingValue = updateDto.settingValue;
-    }
-
-    await this.systemSettingsRepository.save(setting);
-
-    await this.createAuditLog({
-      userId: updatedBy,
-      action: 'UPDATE_SETTING',
-      entityType: 'system_settings',
-      entityId: setting.id.toString(),
-      newValues: updateDto,
-    });
-
-    return setting;
-  }
-
-  // ==================== API INTEGRATIONS ====================
-
-  async getAllApiIntegrations() {
-    return await this.apiIntegrationRepository.find({
-      order: { createdAt: 'DESC' },
-    });
-  }
-
-  async getApiIntegrationById(id: number) {
-    const integration = await this.apiIntegrationRepository.findOne({
-      where: { id },
-    });
-
-    if (!integration) {
-      throw new NotFoundException(`API Integration with ID ${id} not found`);
-    }
-
-    return integration;
-  }
-
-  async createApiIntegration(createDto: CreateApiIntegrationDto, createdBy: number) {
-    const integration = this.apiIntegrationRepository.create({
-      ...createDto,
-      status: createDto.status || 'active',
-    });
-
-    const saved = await this.apiIntegrationRepository.save(integration);
-
-    await this.createAuditLog({
-      userId: createdBy,
-      action: 'CREATE_API_INTEGRATION',
-      entityType: 'api_integration',
-      entityId: saved.id.toString(),
-      newValues: createDto,
-    });
-
-    return saved;
-  }
-
-  async updateApiIntegration(id: number, updateDto: UpdateApiIntegrationDto, updatedBy: number) {
-    const integration = await this.getApiIntegrationById(id);
-
-    const oldValues = { ...integration };
-
-    await this.apiIntegrationRepository.update(id, updateDto);
-
-    await this.createAuditLog({
-      userId: updatedBy,
-      action: 'UPDATE_API_INTEGRATION',
-      entityType: 'api_integration',
-      entityId: id.toString(),
-      oldValues,
-      newValues: updateDto,
-    });
-
-    return this.getApiIntegrationById(id);
-  }
-
-  async deleteApiIntegration(id: number, deletedBy: number) {
-    const integration = await this.getApiIntegrationById(id);
-
-    await this.apiIntegrationRepository.delete(id);
-
-    await this.createAuditLog({
-      userId: deletedBy,
-      action: 'DELETE_API_INTEGRATION',
-      entityType: 'api_integration',
-      entityId: id.toString(),
-      oldValues: integration,
-    });
-
-    return { message: 'API Integration deleted successfully' };
-  }
-
-  async testApiIntegration(id: number, testedBy: number) {
-    const integration = await this.getApiIntegrationById(id);
-
-    // Update last tested timestamp
-    await this.apiIntegrationRepository.update(id, {
-      lastTested: new Date(),
-    });
-
-    await this.createAuditLog({
-      userId: testedBy,
-      action: 'TEST_API_INTEGRATION',
-      entityType: 'api_integration',
-      entityId: id.toString(),
-    });
-
-    // In production, you would actually test the API here
-    return {
-      success: true,
-      message: 'API Integration test successful',
-      testedAt: new Date(),
-    };
   }
 
   // ==================== AUDIT LOGS ====================

@@ -10,6 +10,7 @@ import {
 import { PROVINCES_DATA } from '../constants/userManagementConstants';
 import SuperAdminService from '../services';
 import { useNotification } from '@shared/hooks';
+import ToastContainer from '@shared/components/ui/ToastContainer/ToastContainer';
 
 const UserManagement = () => {
   const [activeRoute, setActiveRoute] = useState('/superadmin');
@@ -32,7 +33,8 @@ const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [provinces, setProvinces] = useState([]);
-  const { success, error } = useNotification();
+  const [fieldErrors, setFieldErrors] = useState({});
+  const { success, error, notifications, removeNotification } = useNotification();
 
   // Fetch users and provinces on mount
   useEffect(() => {
@@ -45,8 +47,8 @@ const UserManagement = () => {
       setLoading(true);
       const data = await SuperAdminService.getAllUsers(false);
       setUsers(data);
-    } catch (error) {
-      showError(error.message || 'Failed to fetch users');
+    } catch (err) {
+      error(err.message || 'Failed to fetch users');
     } finally {
       setLoading(false);
     }
@@ -84,6 +86,7 @@ const UserManagement = () => {
   const handleModalClose = () => {
     setShowModal(false);
     setEditUserId(null);
+    setFieldErrors({});
     setNewUser({
       name: '',
       username: '',
@@ -101,6 +104,16 @@ const UserManagement = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    // Clear field error when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => {
+        const updated = { ...prev };
+        delete updated[name];
+        return updated;
+      });
+    }
+    
     setNewUser((prev) => ({
       ...prev,
       [name]: value,
@@ -110,6 +123,10 @@ const UserManagement = () => {
 
   const handleModalSubmit = async (e) => {
     e.preventDefault();
+    
+    // Clear previous errors
+    setFieldErrors({});
+    
     try {
       setLoading(true);
       
@@ -163,40 +180,72 @@ const UserManagement = () => {
             delete userData[key];
           }
         });
-        console.log('Update payload:', userData); // DEBUG
+      }
+
+      // Perform the API call
+      if (editUserId !== null) {
         await SuperAdminService.updateUser(editUserId, userData);
         success('User updated successfully');
       } else {
-        console.log('Create payload:', userData); // DEBUG
         await SuperAdminService.createUser(userData);
         success('User created successfully');
       }
+      
+      // Refresh user list
       await fetchUsers();
+      
+      // Close modal and reset state
       handleModalClose();
+      
     } catch (err) {
       console.error('User save error:', err);
-      if (err.response) {
-        console.error('Backend error response:', err.response.data);
-      }
-      let errorMessage = 'Failed to save user.';
-      
-      // Handle validation errors
-      if (err.response?.data?.message) {
-        if (Array.isArray(err.response.data.message)) {
-          // Multiple validation errors
-          errorMessage = err.response.data.message.join(', ');
+      // Parse and handle backend errors
+      const errorResponse = err.response?.data;
+      if (errorResponse) {
+        // Handle structured error response from backend
+        if (errorResponse.errors && Array.isArray(errorResponse.errors)) {
+          // Multiple field errors
+          const errors = {};
+          errorResponse.errors.forEach(fieldError => {
+            if (fieldError.field && fieldError.message) {
+              errors[fieldError.field] = fieldError.message;
+            }
+          });
+          setFieldErrors(errors);
+          // Show all error messages in toast
+          const errorMessages = errorResponse.errors.map(e => e.message).join(', ');
+          error(errorMessages);
+        } else if (errorResponse.message) {
+          // Single error message (string or array)
+          if (Array.isArray(errorResponse.message)) {
+            // NestJS validation errors array
+            const validationErrors = {};
+            errorResponse.message.forEach(msg => {
+              // Try to parse field name from message
+              const fieldMatch = msg.match(/^(\w+)\s/);
+              if (fieldMatch) {
+                const field = fieldMatch[1];
+                validationErrors[field] = msg;
+              }
+            });
+            if (Object.keys(validationErrors).length > 0) {
+              setFieldErrors(validationErrors);
+            }
+            error(errorResponse.message.join(', '));
+          } else {
+            // Single string message
+            error(errorResponse.message);
+          }
+        } else if (errorResponse.statusCode === 400) {
+          error('Invalid data. Please check all fields and try again.');
         } else {
-          errorMessage = err.response.data.message;
+          error('Failed to save user. Please try again.');
         }
-      } else if (err.response?.status === 409) {
-        errorMessage = 'User with this email already exists. Please use a different email.';
-      } else if (err.response?.status === 400) {
-        errorMessage = 'Invalid data. Please check all fields and try again.';
       } else if (err.message) {
-        errorMessage = err.message;
+        error(err.message);
+      } else {
+        error('Failed to save user. Please try again.');
       }
-      
-      error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -280,8 +329,13 @@ const UserManagement = () => {
           onInputChange={handleInputChange}
           onSubmit={handleModalSubmit}
           provincesData={provinces}
+          fieldErrors={fieldErrors}
         />
       </div>
+      <ToastContainer 
+        notifications={notifications} 
+        onClose={removeNotification} 
+      />
     </DashboardLayout>
   );
 };

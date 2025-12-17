@@ -161,6 +161,34 @@
   margin-top: -2px;
 }
 
+/* Error styling for fields */
+.user-modal__input--error,
+.user-modal__select--error {
+  border-color: #ff6b6b !important;
+  background: rgba(255, 107, 107, 0.05) !important;
+}
+
+.user-modal__input--error:focus,
+.user-modal__select--error:focus {
+  border-color: #ff6b6b !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15) !important;
+}
+
+.user-modal__error {
+  color: #ff6b6b;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: -2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.user-modal__error::before {
+  content: '⚠';
+  font-size: 14px;
+}
+
 .user-modal__actions {
   display: flex;
   gap: 12px;
