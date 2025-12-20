@@ -1,12 +1,53 @@
 // usePDMADashboardState Hook
 // Manages state for PDMADashboard component
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { pdmaApi } from '../services';
+import { useNotification } from '@shared/hooks';
 
 const usePDMADashboardState = () => {
   const [activeRoute, setActiveRoute] = useState('dashboard');
   const [demoModal, setDemoModal] = useState({ isOpen: false, title: '', message: '', type: 'info' });
   const [isAlertFormOpen, setIsAlertFormOpen] = useState(false);
   const [isResourceFormOpen, setIsResourceFormOpen] = useState(false);
+  
+  // Data states
+  const [stats, setStats] = useState(null);
+  const [alerts, setAlerts] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [resources, setResources] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const notification = useNotification();
+
+  // Fetch all dashboard data
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [statsData, alertsData, districtsData, resourcesData] = await Promise.all([
+        pdmaApi.getDashboardStats(),
+        pdmaApi.getAllAlerts({ status: 'active' }),
+        pdmaApi.getAllDistricts(),
+        pdmaApi.getAllResources(),
+      ]);
+
+      setStats(statsData);
+      setAlerts(alertsData);
+      setDistricts(districtsData);
+      setResources(resourcesData);
+    } catch (err) {
+      setError(err.message);
+      notification.error(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
   const showDemo = (title, message, type = 'info') => {
     setDemoModal({ isOpen: true, title, message, type });
@@ -16,40 +57,58 @@ const usePDMADashboardState = () => {
     setActiveRoute(route);
   };
 
-  const handleResolveAlert = (alertId) => {
-    showDemo(
-      'Alert Resolved',
-      `Alert #${alertId} has been marked as resolved. In a real app, this would update the database and notify relevant personnel.`,
-      'success'
-    );
+  const handleResolveAlert = async (alertId) => {
+    try {
+      await pdmaApi.resolveAlert(alertId);
+      notification.success('Alert resolved successfully');
+      
+      // Refresh alerts
+      const updatedAlerts = await pdmaApi.getAllAlerts({ status: 'active' });
+      setAlerts(updatedAlerts);
+    } catch (err) {
+      notification.error(err.message);
+    }
   };
 
-  const handleAllocateResource = (resourceId) => {
-    showDemo(
-      'Resource Allocated',
-      `Resource #${resourceId} has been allocated to the requested district. Distribution details would be logged in the system.`,
-      'success'
-    );
+  const handleAllocateResource = async (resourceId, districtId, quantity) => {
+    try {
+      await pdmaApi.allocateResource(resourceId, { districtId, quantity });
+      notification.success('Resource allocated successfully');
+      
+      // Refresh resources
+      const updatedResources = await pdmaApi.getAllResources();
+      setResources(updatedResources);
+    } catch (err) {
+      notification.error(err.message);
+    }
   };
 
-  const handleAlertFormSubmit = (formData) => {
-    setDemoModal({
-      isOpen: true,
-      title: 'Alert Created Successfully',
-      message: `Alert "${formData.title}" has been created with ${formData.severity} severity level. It will be broadcast to all district authorities and stakeholders.`,
-      type: 'success'
-    });
-    setIsAlertFormOpen(false);
+  const handleAlertFormSubmit = async (formData) => {
+    try {
+      await pdmaApi.createAlert(formData);
+      notification.success(`Alert "${formData.title}" created successfully`);
+      setIsAlertFormOpen(false);
+      
+      // Refresh alerts
+      const updatedAlerts = await pdmaApi.getAllAlerts({ status: 'active' });
+      setAlerts(updatedAlerts);
+    } catch (err) {
+      notification.error(err.message);
+    }
   };
 
-  const handleResourceFormSubmit = (formData) => {
-    setDemoModal({
-      isOpen: true,
-      title: 'Resource Added Successfully',
-      message: `${formData.name} (${formData.quantity} ${formData.unit}) has been added to inventory at ${formData.location}.`,
-      type: 'success'
-    });
-    setIsResourceFormOpen(false);
+  const handleResourceFormSubmit = async (formData) => {
+    try {
+      await pdmaApi.createResource(formData);
+      notification.success(`Resource "${formData.name}" added successfully`);
+      setIsResourceFormOpen(false);
+      
+      // Refresh resources
+      const updatedResources = await pdmaApi.getAllResources();
+      setResources(updatedResources);
+    } catch (err) {
+      notification.error(err.message);
+    }
   };
 
   return {
@@ -66,7 +125,14 @@ const usePDMADashboardState = () => {
     handleResolveAlert,
     handleAllocateResource,
     handleAlertFormSubmit,
-    handleResourceFormSubmit
+    handleResourceFormSubmit,
+    // Data
+    stats,
+    alerts,
+    districts,
+    resources,
+    loading,
+    error,
   };
 };
 

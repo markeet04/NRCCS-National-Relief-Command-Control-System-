@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { SuperadminModule } from './superadmin/superadmin.module';
+import { PdmaModule } from './pdma/pdma.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { SuperadminModule } from './superadmin/superadmin.module';
     }),
     AuthModule,
     SuperadminModule,
+    PdmaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

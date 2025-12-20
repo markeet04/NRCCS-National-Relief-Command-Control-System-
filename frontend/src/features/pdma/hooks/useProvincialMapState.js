@@ -1,6 +1,8 @@
 // useProvincialMapState Hook
 // Manages state for ProvincialMap component
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { pdmaApi } from '../services';
+import useNotification from '@shared/hooks/useNotification';
 
 const useProvincialMapState = () => {
   const [activeRoute, setActiveRoute] = useState('map');
@@ -8,6 +10,32 @@ const useProvincialMapState = () => {
   const [mapZoom, setMapZoom] = useState(6);
   const [demoModal, setDemoModal] = useState({ isOpen: false, title: '', message: '', type: 'info' });
   const [isMapExpanded, setIsMapExpanded] = useState(false);
+  
+  // Data states
+  const [mapData, setMapData] = useState({ zones: [], shelters: [], sosMarkers: [] });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const notification = useNotification();
+
+  // Fetch map data from backend
+  const fetchMapData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await pdmaApi.getMapData();
+      setMapData(data);
+    } catch (err) {
+      setError(err.message);
+      notification.error(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMapData();
+  }, []);
 
   const showDemo = (title, message, type = 'info') => {
     setDemoModal({ isOpen: true, title, message, type });
@@ -15,16 +43,16 @@ const useProvincialMapState = () => {
 
   const handleExpandMap = () => {
     setIsMapExpanded(true);
-    showDemo('Map Expanded', 'The flood risk map is now in full-screen view. Press Escape or click the minimize button to return to normal view.', 'success');
+    notification.success('Map expanded to full-screen view');
   };
 
   const handleResetZoom = () => {
     setMapZoom(6);
-    showDemo('Zoom Reset', 'Map zoom level has been reset to default view (Level 6) showing all monitored flood zones across the province.', 'info');
+    notification.info('Map zoom reset to default');
   };
 
   const handleExportMap = () => {
-    showDemo('Map Exported', 'Flood risk map has been exported as a PNG file. The file has been downloaded to your default downloads folder.', 'success');
+    notification.success('Map exported successfully');
   };
 
   return {
@@ -41,7 +69,12 @@ const useProvincialMapState = () => {
     showDemo,
     handleExpandMap,
     handleResetZoom,
-    handleExportMap
+    handleExportMap,
+    // Data
+    mapData,
+    loading,
+    error,
+    refreshMapData: fetchMapData,
   };
 };
 

@@ -4,16 +4,14 @@ import DemoModal from '@shared/components/DemoModal/DemoModal';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
-import { MapPin } from 'lucide-react';
+import { MapPin, Loader2 } from 'lucide-react';
 import {
   DistrictSearchBar,
   DistrictsList,
   DetailPanel
 } from '../components';
-import {
-  DISTRICT_COORDINATION_DISTRICTS
-} from '../constants';
 import { useDistrictCoordinationState } from '../hooks';
+import { transformDistrictsForCoordination } from '../utils';
 import '../styles/pdma.css';
 
 const DistrictCoordination = () => {
@@ -28,7 +26,9 @@ const DistrictCoordination = () => {
     demoModal,
     setDemoModal,
     showDemo,
-    filteredDistricts
+    districts: apiDistricts,
+    loading,
+    error,
   } = useDistrictCoordinationState();
 
   const { theme } = useSettings();
@@ -38,6 +38,12 @@ const DistrictCoordination = () => {
   // Get role configuration and menu items from shared config
   const roleConfig = ROLE_CONFIG.pdma;
   const menuItems = useMemo(() => getMenuItemsByRole('pdma'), []);
+
+  // Transform backend data to UI format
+  const districts = transformDistrictsForCoordination(apiDistricts);
+  const filteredDistricts = districts.filter(district =>
+    district.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <DashboardLayout
@@ -52,11 +58,42 @@ const DistrictCoordination = () => {
       userName="fz"
     >
       <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary }}>
-        {/* Search Bar Component */}
-        <DistrictSearchBar 
-          searchTerm={searchQuery}
-          onSearchChange={setSearchQuery}
-        />
+        {/* Loading State */}
+        {loading && (
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            minHeight: '400px',
+            color: colors.textSecondary 
+          }}>
+            <Loader2 size={40} className="animate-spin" style={{ marginRight: '12px' }} />
+            <span>Loading districts...</span>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <div style={{ 
+            padding: '20px', 
+            background: 'rgba(239, 68, 68, 0.1)', 
+            border: '1px solid #ef4444',
+            borderRadius: '8px',
+            color: '#ef4444',
+            marginBottom: '20px'
+          }}>
+            <strong>Error:</strong> {error}
+          </div>
+        )}
+
+        {/* Main Content */}
+        {!loading && !error && (
+          <>
+            {/* Search Bar Component */}
+            <DistrictSearchBar 
+              searchTerm={searchQuery}
+              onSearchChange={setSearchQuery}
+            />
 
         {/* Districts List Component */}
         <DistrictsList 
@@ -80,6 +117,8 @@ const DistrictCoordination = () => {
             showDemo('Update Status', `Update coordination status for the selected district. You can change operational status and update priorities.`, 'success');
           }}
         />
+          </>
+        )}
         
         {/* Demo Modal */}
         <DemoModal

@@ -100,7 +100,7 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter, onEd
                 margin: 0,
                 color: '#1F2937'
               }}>
-                {shelter.currentOccupancy}/{shelter.capacity}
+                {shelter.currentOccupancy || 0}/{shelter.capacity || 0}
               </p>
             </div>
 
@@ -120,7 +120,7 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter, onEd
                 margin: 0,
                 color: '#1F2937'
               }}>
-                {Math.round((shelter.currentOccupancy / shelter.capacity) * 100)}%
+                {shelter.capacity > 0 ? Math.round((shelter.currentOccupancy / shelter.capacity) * 100) : 0}%
               </p>
             </div>
           </div>
@@ -132,9 +132,9 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter, onEd
             marginBottom: '12px',
             fontSize: '13px'
           }}>
-            <AlertTriangle size={16} color={Math.round((shelter.currentOccupancy / shelter.capacity) * 100) > 80 ? colors.danger : colors.warning} />
+            <AlertTriangle size={16} color={shelter.capacity > 0 && Math.round((shelter.currentOccupancy / shelter.capacity) * 100) >= 100 ? colors.danger : shelter.capacity > 0 && Math.round((shelter.currentOccupancy / shelter.capacity) * 100) > 80 ? colors.warning : colors.success} />
             <span style={{ color: '#6B7280' }}>
-              {Math.round((shelter.currentOccupancy / shelter.capacity) * 100) > 80 ? 'Near capacity' : 'Space available'}
+              {shelter.capacity > 0 && Math.round((shelter.currentOccupancy / shelter.capacity) * 100) >= 100 ? 'Fully occupied' : shelter.capacity > 0 && Math.round((shelter.currentOccupancy / shelter.capacity) * 100) > 80 ? 'Near capacity' : 'Space available'}
             </span>
           </div>
 

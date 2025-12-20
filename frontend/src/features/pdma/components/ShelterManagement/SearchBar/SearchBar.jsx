@@ -3,8 +3,7 @@ import { Search, X } from 'lucide-react';
 const SearchBar = ({ searchTerm, onSearchChange, placeholder = 'Search shelters by name or location...' }) => {
   return (
     <div style={{
-      position: 'relative',
-      marginBottom: '20px'
+      position: 'relative'
     }}>
       <div style={{
         position: 'relative',

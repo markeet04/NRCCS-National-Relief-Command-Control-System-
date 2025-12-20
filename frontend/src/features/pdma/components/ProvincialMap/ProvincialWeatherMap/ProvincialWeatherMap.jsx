@@ -694,7 +694,7 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
         locationMarkerRef.current = locationLayer;
 
         const map = new Map({
-          basemap: apiKey ? 'hybrid' : 'satellite',
+          basemap: apiKey ? 'hybrid' : 'topo-vector',
           layers: [precipLayer, windLayer, locationLayer]
         });
         mapInstanceRef.current = map;

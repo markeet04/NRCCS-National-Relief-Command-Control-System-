@@ -1,6 +1,12 @@
 import { Building, Users, AlertTriangle, TrendingUp } from 'lucide-react';
 
-const ShelterStats = ({ totalShelters, totalCapacity, currentOccupancy, avgOccupancyPercent, colors }) => {
+const ShelterStats = ({ totalShelters = 0, totalCapacity = 0, currentOccupancy = 0, avgOccupancyPercent = 0, colors }) => {
+  // Ensure values are numbers and not NaN
+  const safeTotal = Number(totalShelters) || 0;
+  const safeCapacity = Number(totalCapacity) || 0;
+  const safeOccupancy = Number(currentOccupancy) || 0;
+  const safePercent = Number(avgOccupancyPercent) || 0;
+
   return (
     <div style={{
       display: 'grid',
@@ -37,7 +43,7 @@ const ShelterStats = ({ totalShelters, totalCapacity, currentOccupancy, avgOccup
           margin: 0,
           color: '#1F2937'
         }}>
-          {totalShelters}
+          {safeTotal}
         </p>
       </div>
 
@@ -70,7 +76,7 @@ const ShelterStats = ({ totalShelters, totalCapacity, currentOccupancy, avgOccup
           margin: 0,
           color: '#1F2937'
         }}>
-          {totalCapacity.toLocaleString()}
+          {safeCapacity.toLocaleString()}
         </p>
       </div>
 
@@ -103,7 +109,7 @@ const ShelterStats = ({ totalShelters, totalCapacity, currentOccupancy, avgOccup
           margin: 0,
           color: '#1F2937'
         }}>
-          {currentOccupancy.toLocaleString()}
+          {safeOccupancy.toLocaleString()}
         </p>
       </div>
 
@@ -136,7 +142,7 @@ const ShelterStats = ({ totalShelters, totalCapacity, currentOccupancy, avgOccup
           margin: 0,
           color: '#1F2937'
         }}>
-          {avgOccupancyPercent}%
+          {safePercent}%
         </p>
       </div>
     </div>

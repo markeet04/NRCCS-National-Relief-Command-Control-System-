@@ -36,8 +36,11 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
-      forbidNonWhitelisted: true,
+      forbidNonWhitelisted: false, // Allow extra fields (they'll be stripped)
       transform: true,
+      transformOptions: {
+        enableImplicitConversion: true, // Auto-convert string to number, etc.
+      },
     }),
   );
 

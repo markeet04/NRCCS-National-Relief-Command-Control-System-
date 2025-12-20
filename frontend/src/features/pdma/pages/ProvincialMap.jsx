@@ -4,7 +4,7 @@ import DemoModal from '@shared/components/DemoModal/DemoModal';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
-import { Map, Home } from 'lucide-react';
+import { Map, Loader2 } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
@@ -12,7 +12,7 @@ import {
   LayerControls
 } from '../components';
 import {
-  FLOOD_ZONES,
+  FLOOD_ZONE_COLORS,
   MAP_CENTER,
   DEFAULT_MAP_ZOOM
 } from '../constants';
@@ -35,7 +35,10 @@ const ProvincialMap = () => {
     setIsMapExpanded,
     handleExpandMap,
     handleResetZoom,
-    handleExportMap
+    handleExportMap,
+    mapData,
+    loading,
+    error,
   } = useProvincialMapState();
 
   const { theme } = useSettings();
@@ -46,8 +49,8 @@ const ProvincialMap = () => {
   const roleConfig = ROLE_CONFIG.pdma;
   const menuItems = useMemo(() => getMenuItemsByRole('pdma'), []);
 
-  // Use modular constants
-  const floodZones = FLOOD_ZONES;
+  // Use backend data instead of hardcoded FLOOD_ZONES
+  const floodZones = mapData.zones || [];
   const layers = [
     { id: 'all', name: 'All Zones', visible: selectedLayer === 'all' },
     { id: 'critical', name: 'Critical', visible: selectedLayer === 'critical' },
@@ -60,15 +63,62 @@ const ProvincialMap = () => {
     ? floodZones
     : floodZones.filter(zone => zone.risk === selectedLayer);
 
-  const totalAffected = floodZones.reduce((sum, zone) => sum + zone.affectedPopulation, 0);
+  const totalAffected = floodZones.reduce((sum, zone) => sum + (zone.affectedPopulation || 0), 0);
   const criticalZones = floodZones.filter(zone => zone.risk === 'critical').length;
 
   const mapMarkers = filteredZones.map(zone => ({
     lat: zone.lat,
     lng: zone.lon,
     title: zone.name,
-    description: `Risk: ${zone.risk} | Affected: ${zone.affectedPopulation.toLocaleString()}`
+    description: `Risk: ${zone.risk} | Affected: ${zone.affectedPopulation?.toLocaleString() || 0}`
   }));
+
+  // Render loading state
+  if (loading) {
+    return (
+      <DashboardLayout
+        menuItems={menuItems}
+        activeRoute={activeRoute}
+        onNavigate={setActiveRoute}
+        pageTitle="Flood Risk Map - Pakistan"
+        pageSubtitle="Real-time flood risk monitoring and visualization"
+        pageIcon={Map}
+        pageIconColor="#3b82f6"
+        userRole="PDMA"
+        userName="fz"
+      >
+        <div className="h-96 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: colors.primary }} />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Render error state
+  if (error) {
+    return (
+      <DashboardLayout
+        menuItems={menuItems}
+        activeRoute={activeRoute}
+        onNavigate={setActiveRoute}
+        pageTitle="Flood Risk Map - Pakistan"
+        pageSubtitle="Real-time flood risk monitoring and visualization"
+        pageIcon={Map}
+        pageIconColor="#3b82f6"
+        userRole="PDMA"
+        userName="fz"
+      >
+        <div className="h-96 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-xl font-semibold mb-2" style={{ color: colors.danger }}>
+              Failed to load map data
+            </div>
+            <div style={{ color: colors.mutedText }}>{error}</div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout

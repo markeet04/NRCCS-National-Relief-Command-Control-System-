@@ -1,32 +1,120 @@
 import { useState } from 'react';
-import { X, AlertTriangle } from 'lucide-react';
+import { X, AlertTriangle, AlertCircle } from 'lucide-react';
 import PropTypes from 'prop-types';
+
+// Valid alert types matching backend AlertType enum
+const VALID_ALERT_TYPES = ['flood_warning', 'evacuation', 'all_clear', 'flood', 'shelter', 'earthquake', 'storm', 'health', 'fire', 'security', 'weather', 'other'];
+
+// Valid severity levels matching backend AlertSeverity enum
+const VALID_SEVERITIES = ['critical', 'high', 'medium', 'low', 'info'];
+
+// Validation rules matching CreateAlertDto from backend
+const validateAlertForm = (formData) => {
+  const errors = {};
+
+  // title is required (string)
+  if (!formData.title || formData.title.trim() === '') {
+    errors.title = 'Alert title is required';
+  } else if (formData.title.trim().length < 3) {
+    errors.title = 'Alert title must be at least 3 characters';
+  } else if (formData.title.trim().length > 255) {
+    errors.title = 'Alert title must be less than 255 characters';
+  }
+
+  // severity is optional but must be valid if provided
+  if (formData.severity && !VALID_SEVERITIES.includes(formData.severity)) {
+    errors.severity = 'Invalid severity level';
+  }
+
+  return errors;
+};
 
 const AlertForm = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     severity: 'medium',
+    type: 'other',
     affectedArea: '',
     estimatedTime: ''
   });
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    // Validate on blur
+    const validationErrors = validateAlertForm(formData);
+    if (validationErrors[name]) {
+      setErrors(prev => ({ ...prev, [name]: validationErrors[name] }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    
+    // Validate all fields
+    const validationErrors = validateAlertForm(formData);
+    setErrors(validationErrors);
+    setTouched({ title: true, severity: true });
+
+    // If there are errors, don't submit
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+
+    // Submit with trimmed values
+    onSubmit({
+      title: formData.title.trim(),
+      description: formData.description?.trim() || undefined,
+      severity: formData.severity,
+      type: formData.type,
+      affectedAreas: formData.affectedArea ? [formData.affectedArea.trim()] : undefined,
+      location: formData.affectedArea?.trim() || undefined
+    });
+    
     setFormData({
       title: '',
       description: '',
       severity: 'medium',
+      type: 'other',
       affectedArea: '',
       estimatedTime: ''
     });
+    setErrors({});
+    setTouched({});
   };
+
+  // Error display style
+  const errorStyle = {
+    color: '#ef4444',
+    fontSize: '12px',
+    marginTop: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px'
+  };
+
+  const getInputStyle = (fieldName) => ({
+    width: '100%',
+    padding: '10px 12px',
+    borderRadius: '6px',
+    border: `1px solid ${touched[fieldName] && errors[fieldName] ? '#ef4444' : '#e5e7eb'}`,
+    background: '#f9fafb',
+    color: '#1f2937',
+    fontSize: '14px',
+    boxSizing: 'border-box'
+  });
 
   if (!isOpen) return null;
 
@@ -93,42 +181,57 @@ const AlertForm = ({ isOpen, onClose, onSubmit }) => {
               name="title"
               value={formData.title}
               onChange={handleChange}
-              required
+              onBlur={handleBlur}
               placeholder="e.g., Flash Flood Warning"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                color: '#1f2937',
-                fontSize: '14px',
-                boxSizing: 'border-box'
-              }}
+              style={getInputStyle('title')}
             />
+            {touched.title && errors.title && (
+              <div style={errorStyle}>
+                <AlertCircle size={12} />
+                {errors.title}
+              </div>
+            )}
+          </div>
+
+          {/* Alert Type */}
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px', color: '#374151' }}>
+              Alert Type
+            </label>
+            <select
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              style={getInputStyle('type')}
+            >
+              <option value="flood_warning">Flood Warning</option>
+              <option value="flood">Flood</option>
+              <option value="evacuation">Evacuation</option>
+              <option value="earthquake">Earthquake</option>
+              <option value="storm">Storm</option>
+              <option value="fire">Fire</option>
+              <option value="health">Health Emergency</option>
+              <option value="security">Security Alert</option>
+              <option value="weather">Weather Alert</option>
+              <option value="shelter">Shelter Alert</option>
+              <option value="all_clear">All Clear</option>
+              <option value="other">Other</option>
+            </select>
           </div>
 
           {/* Description */}
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px', color: '#374151' }}>
-              Description *
+              Description
             </label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              required
               placeholder="Describe the alert and affected areas..."
               rows="4"
               style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                color: '#1f2937',
-                fontSize: '14px',
-                boxSizing: 'border-box',
+                ...getInputStyle('description'),
                 fontFamily: 'inherit'
               }}
             />
@@ -137,23 +240,15 @@ const AlertForm = ({ isOpen, onClose, onSubmit }) => {
           {/* Severity */}
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px', color: '#374151' }}>
-              Severity Level *
+              Severity Level
             </label>
             <select
               name="severity"
               value={formData.severity}
               onChange={handleChange}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                color: '#1f2937',
-                fontSize: '14px',
-                cursor: 'pointer'
-              }}
+              style={getInputStyle('severity')}
             >
+              <option value="info">Info</option>
               <option value="low">Low</option>
               <option value="medium">Medium</option>
               <option value="high">High</option>
@@ -164,25 +259,15 @@ const AlertForm = ({ isOpen, onClose, onSubmit }) => {
           {/* Affected Area */}
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px', color: '#374151' }}>
-              Affected Area *
+              Affected Area
             </label>
             <input
               type="text"
               name="affectedArea"
               value={formData.affectedArea}
               onChange={handleChange}
-              required
               placeholder="e.g., Karachi Coastal, Sukkur Valley"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                color: '#1f2937',
-                fontSize: '14px',
-                boxSizing: 'border-box'
-              }}
+              style={getInputStyle('affectedArea')}
             />
           </div>
 
@@ -199,16 +284,7 @@ const AlertForm = ({ isOpen, onClose, onSubmit }) => {
               placeholder="e.g., 24"
               min="1"
               max="720"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                color: '#1f2937',
-                fontSize: '14px',
-                boxSizing: 'border-box'
-              }}
+              style={getInputStyle('estimatedTime')}
             />
           </div>
 

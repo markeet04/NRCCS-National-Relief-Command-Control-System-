@@ -6,7 +6,7 @@ import AlertForm from '@shared/components/DemoModal/AlertForm';
 import ResourceForm from '@shared/components/DemoModal/ResourceForm';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
-import { Shield, Plus } from 'lucide-react';
+import { Shield, Loader2 } from 'lucide-react';
 import {
   getMenuItemsByRole,
   ROLE_CONFIG
@@ -17,13 +17,12 @@ import {
   DistrictStatusSection,
   FloodMapSection
 } from '../components';
-import {
-  PDMA_DASHBOARD_STATS,
-  PDMA_DASHBOARD_ALERTS,
-  PDMA_DASHBOARD_DISTRICTS,
-  PDMA_DASHBOARD_RESOURCES
-} from '../constants';
 import { usePDMADashboardState } from '../hooks';
+import { 
+  transformStatsForUI, 
+  transformAlertsForUI, 
+  transformDistrictsForDashboard 
+} from '../utils';
 import '../styles/pdma.css';
 
 /**
@@ -46,7 +45,14 @@ const PDMADashboard = () => {
     handleResolveAlert,
     handleAllocateResource,
     handleAlertFormSubmit,
-    handleResourceFormSubmit
+    handleResourceFormSubmit,
+    // Real data from backend
+    stats: apiStats,
+    alerts: apiAlerts,
+    districts: apiDistricts,
+    resources: apiResources,
+    loading,
+    error,
   } = usePDMADashboardState();
 
   const provinceName = 'Sindh'; // This would come from auth context
@@ -62,11 +68,11 @@ const PDMADashboard = () => {
   // Get menu items from shared config
   const menuItems = useMemo(() => getMenuItemsByRole('pdma'), []);
 
-  // Use modular constants
-  const stats = PDMA_DASHBOARD_STATS;
-  const alerts = PDMA_DASHBOARD_ALERTS;
-  const districts = PDMA_DASHBOARD_DISTRICTS;
-  const resources = PDMA_DASHBOARD_RESOURCES(provinceName);
+  // Transform backend data to UI format
+  const stats = transformStatsForUI(apiStats);
+  const alerts = transformAlertsForUI(apiAlerts);
+  const districts = transformDistrictsForDashboard(apiDistricts);
+  const resources = apiResources || [];
 
   return (
     <DashboardLayout
@@ -79,11 +85,42 @@ const PDMADashboard = () => {
       pageSubtitle={`${provinceName} ${roleConfig.subtitle}`}
       pageIcon={Shield}
       pageIconColor="#6366f1"
-      notificationCount={8}
+      notificationCount={alerts?.length || 0}
     >
       <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary }}>
-        {/* Statistics Section */}
-        <StatisticsSection stats={stats} colors={colors} />
+        {/* Loading State */}
+        {loading && (
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            minHeight: '400px',
+            color: colors.textSecondary 
+          }}>
+            <Loader2 size={40} className="animate-spin" style={{ marginRight: '12px' }} />
+            <span>Loading dashboard data...</span>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <div style={{ 
+            padding: '20px', 
+            background: 'rgba(239, 68, 68, 0.1)', 
+            border: '1px solid #ef4444',
+            borderRadius: '8px',
+            color: '#ef4444',
+            marginBottom: '20px'
+          }}>
+            <strong>Error:</strong> {error}
+          </div>
+        )}
+
+        {/* Main Content */}
+        {!loading && !error && (
+          <>
+            {/* Statistics Section */}
+            <StatisticsSection stats={stats} colors={colors} />
 
         {/* Alerts and District Status Section */}
         <div 
@@ -110,6 +147,8 @@ const PDMADashboard = () => {
 
         {/* Flood Map Section */}
         <FloodMapSection provinceName={provinceName} colors={colors} isLight={isLight} />
+          </>
+        )}
       </div>
 
       {/* Demo Modal */}

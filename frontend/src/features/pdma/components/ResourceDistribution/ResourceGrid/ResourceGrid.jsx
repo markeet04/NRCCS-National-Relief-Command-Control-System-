@@ -1,13 +1,53 @@
 import { MapPin } from 'lucide-react';
 import { RESOURCE_STATUS_COLORS } from '../../../constants';
 
-const ResourceGrid = ({ resources, isLight, colors, onAllocate }) => {
+const ResourceGrid = ({ resources, isLight, colors, onAllocate, selectedFilter }) => {
+  // Determine display mode based on filter
+  const showAvailableView = selectedFilter === 'available';
+  const showAllocatedView = selectedFilter === 'allocated';
+
   return (
     <div className="pdma-section">
       <div className="pdma-resources-grid">
         {resources.map((resource) => {
-          const statusColor = RESOURCE_STATUS_COLORS[resource.status];
-          const usagePercentage = (resource.allocated / resource.quantity) * 100;
+          const statusColor = RESOURCE_STATUS_COLORS[resource.status] || RESOURCE_STATUS_COLORS.available;
+          const availableQty = resource.quantity - resource.allocated;
+          const isFullyAllocated = availableQty <= 0;
+          
+          // Calculate percentage and labels based on filter context
+          let progressPercentage, progressLabel, progressValues;
+          
+          if (showAvailableView) {
+            // Show available quantity (inverse of usage)
+            progressPercentage = resource.quantity > 0 ? (availableQty / resource.quantity) * 100 : 0;
+            progressLabel = 'Available';
+            progressValues = `${availableQty}/${resource.quantity}`;
+          } else if (showAllocatedView) {
+            // Show allocated quantity
+            progressPercentage = resource.quantity > 0 ? (resource.allocated / resource.quantity) * 100 : 100;
+            progressLabel = 'Allocated';
+            progressValues = `${resource.allocated}/${resource.quantity}`;
+          } else {
+            // Default: show usage (allocated/total)
+            progressPercentage = resource.quantity > 0 ? (resource.allocated / resource.quantity) * 100 : 100;
+            progressLabel = 'Usage';
+            progressValues = `${resource.allocated}/${resource.quantity}`;
+          }
+
+          // Determine bar color based on availability status
+          let barColor;
+          if (showAvailableView) {
+            // Color based on availability percentage
+            if (progressPercentage <= 10) {
+              barColor = '#ef4444'; // Red - critical
+            } else if (progressPercentage <= 30) {
+              barColor = '#f97316'; // Orange - low
+            } else {
+              barColor = '#22c55e'; // Green - good availability
+            }
+          } else {
+            barColor = statusColor.bg;
+          }
 
           return (
             <div
@@ -42,8 +82,8 @@ const ResourceGrid = ({ resources, isLight, colors, onAllocate }) => {
 
               <div style={{ marginBottom: '12px', marginTop: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '12px' }}>
-                  <span style={{ color: colors.textSecondary }}>Usage</span>
-                  <span style={{ color: colors.textPrimary }}>{resource.allocated}/{resource.quantity}</span>
+                  <span style={{ color: colors.textSecondary }}>{progressLabel}</span>
+                  <span style={{ color: colors.textPrimary }}>{progressValues}</span>
                 </div>
                 <div
                   style={{
@@ -55,9 +95,9 @@ const ResourceGrid = ({ resources, isLight, colors, onAllocate }) => {
                 >
                   <div
                     style={{
-                      width: `${usagePercentage}%`,
+                      width: `${progressPercentage}%`,
                       height: '100%',
-                      background: statusColor.bg,
+                      background: barColor,
                       transition: 'width 0.3s ease'
                     }}
                   />
@@ -90,17 +130,20 @@ const ResourceGrid = ({ resources, isLight, colors, onAllocate }) => {
               </div>
 
               <button
-                onClick={() => onAllocate(resource)}
+                onClick={() => !isFullyAllocated && onAllocate(resource)}
+                disabled={isFullyAllocated}
                 className="pdma-button pdma-button-small"
                 style={{
                   width: '100%',
                   marginTop: '12px',
-                  background: `${statusColor.bg}15`,
-                  color: statusColor.bg,
-                  border: `1px solid ${statusColor.light}`
+                  background: isFullyAllocated ? '#9ca3af' : `${statusColor.bg}15`,
+                  color: isFullyAllocated ? '#ffffff' : statusColor.bg,
+                  border: `1px solid ${isFullyAllocated ? '#9ca3af' : statusColor.light}`,
+                  cursor: isFullyAllocated ? 'not-allowed' : 'pointer',
+                  opacity: isFullyAllocated ? 0.7 : 1
                 }}
               >
-                Allocate
+                {isFullyAllocated ? 'Fully Allocated' : 'Allocate'}
               </button>
             </div>
           );

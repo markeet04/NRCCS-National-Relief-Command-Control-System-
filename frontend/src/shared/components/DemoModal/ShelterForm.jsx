@@ -1,6 +1,32 @@
 import { useState } from 'react';
-import { X, Home } from 'lucide-react';
+import { X, Home, AlertCircle } from 'lucide-react';
 import PropTypes from 'prop-types';
+
+// Validation rules matching CreateShelterDto from backend
+const validateShelterForm = (formData) => {
+  const errors = {};
+
+  // name is required (string)
+  if (!formData.name || formData.name.trim() === '') {
+    errors.name = 'Shelter name is required';
+  } else if (formData.name.trim().length < 2) {
+    errors.name = 'Shelter name must be at least 2 characters';
+  } else if (formData.name.trim().length > 255) {
+    errors.name = 'Shelter name must be less than 255 characters';
+  }
+
+  // capacity is optional but must be a valid integer >= 0 if provided
+  if (formData.capacity !== '' && formData.capacity !== null && formData.capacity !== undefined) {
+    const cap = parseInt(formData.capacity, 10);
+    if (isNaN(cap)) {
+      errors.capacity = 'Capacity must be a valid number';
+    } else if (cap < 0) {
+      errors.capacity = 'Capacity must be 0 or greater';
+    }
+  }
+
+  return errors;
+};
 
 const ShelterForm = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -12,10 +38,26 @@ const ShelterForm = ({ isOpen, onClose, onSubmit }) => {
     contactPerson: '',
     address: ''
   });
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    // Validate on blur
+    const validationErrors = validateShelterForm(formData);
+    if (validationErrors[name]) {
+      setErrors(prev => ({ ...prev, [name]: validationErrors[name] }));
+    }
   };
 
   const handleFacilitiesChange = (facility) => {
@@ -29,7 +71,28 @@ const ShelterForm = ({ isOpen, onClose, onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    
+    // Validate all fields
+    const validationErrors = validateShelterForm(formData);
+    setErrors(validationErrors);
+    setTouched({ name: true, capacity: true });
+
+    // If there are errors, don't submit
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+
+    // Submit with parsed values
+    onSubmit({
+      name: formData.name.trim(),
+      location: formData.location?.trim() || undefined,
+      address: formData.address?.trim() || undefined,
+      capacity: formData.capacity ? parseInt(formData.capacity, 10) : undefined,
+      contactPhone: formData.contact?.trim() || undefined,
+      managerName: formData.contactPerson?.trim() || undefined,
+      facilities: formData.facilities.length > 0 ? formData.facilities : undefined
+    });
+    
     setFormData({
       name: '',
       location: '',
@@ -39,7 +102,30 @@ const ShelterForm = ({ isOpen, onClose, onSubmit }) => {
       contactPerson: '',
       address: ''
     });
+    setErrors({});
+    setTouched({});
   };
+
+  // Error display style
+  const errorStyle = {
+    color: '#ef4444',
+    fontSize: '12px',
+    marginTop: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px'
+  };
+
+  const getInputStyle = (fieldName) => ({
+    width: '100%',
+    padding: '10px 12px',
+    borderRadius: '6px',
+    border: `1px solid ${touched[fieldName] && errors[fieldName] ? '#ef4444' : '#e5e7eb'}`,
+    background: '#f9fafb',
+    color: '#1f2937',
+    fontSize: '14px',
+    boxSizing: 'border-box'
+  });
 
   if (!isOpen) return null;
 
@@ -108,67 +194,46 @@ const ShelterForm = ({ isOpen, onClose, onSubmit }) => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              required
+              onBlur={handleBlur}
               placeholder="e.g., Community Center, School"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                color: '#1f2937',
-                fontSize: '14px',
-                boxSizing: 'border-box'
-              }}
+              style={getInputStyle('name')}
             />
+            {touched.name && errors.name && (
+              <div style={errorStyle}>
+                <AlertCircle size={12} />
+                {errors.name}
+              </div>
+            )}
           </div>
 
           {/* Location */}
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px', color: '#374151' }}>
-              District/Area *
+              District/Area
             </label>
             <input
               type="text"
               name="location"
               value={formData.location}
               onChange={handleChange}
-              required
               placeholder="e.g., Karachi, Hyderabad"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                color: '#1f2937',
-                fontSize: '14px',
-                boxSizing: 'border-box'
-              }}
+              style={getInputStyle('location')}
             />
           </div>
 
           {/* Address */}
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px', color: '#374151' }}>
-              Full Address *
+              Full Address
             </label>
             <textarea
               name="address"
               value={formData.address}
               onChange={handleChange}
-              required
               placeholder="Enter complete address..."
               rows="2"
               style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                color: '#1f2937',
-                fontSize: '14px',
-                boxSizing: 'border-box',
+                ...getInputStyle('address'),
                 fontFamily: 'inherit'
               }}
             />
@@ -177,76 +242,53 @@ const ShelterForm = ({ isOpen, onClose, onSubmit }) => {
           {/* Capacity */}
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px', color: '#374151' }}>
-              Shelter Capacity *
+              Shelter Capacity
             </label>
             <input
               type="number"
               name="capacity"
               value={formData.capacity}
               onChange={handleChange}
-              required
+              onBlur={handleBlur}
               placeholder="e.g., 500"
-              min="1"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                color: '#1f2937',
-                fontSize: '14px',
-                boxSizing: 'border-box'
-              }}
+              min="0"
+              style={getInputStyle('capacity')}
             />
+            {touched.capacity && errors.capacity && (
+              <div style={errorStyle}>
+                <AlertCircle size={12} />
+                {errors.capacity}
+              </div>
+            )}
           </div>
 
           {/* Contact Person */}
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px', color: '#374151' }}>
-              Contact Person *
+              Contact Person
             </label>
             <input
               type="text"
               name="contactPerson"
               value={formData.contactPerson}
               onChange={handleChange}
-              required
               placeholder="Name of manager/contact"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                color: '#1f2937',
-                fontSize: '14px',
-                boxSizing: 'border-box'
-              }}
+              style={getInputStyle('contactPerson')}
             />
           </div>
 
           {/* Contact Number */}
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px', color: '#374151' }}>
-              Contact Phone *
+              Contact Phone
             </label>
             <input
               type="tel"
               name="contact"
               value={formData.contact}
               onChange={handleChange}
-              required
               placeholder="+92-300-1234567"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                color: '#1f2937',
-                fontSize: '14px',
-                boxSizing: 'border-box'
-              }}
+              style={getInputStyle('contact')}
             />
           </div>
 

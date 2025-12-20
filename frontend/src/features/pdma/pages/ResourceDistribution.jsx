@@ -2,23 +2,23 @@ import { useMemo } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import DemoModal from '@shared/components/DemoModal/DemoModal';
 import ResourceForm from '@shared/components/DemoModal/ResourceForm';
-import ShelterForm from '@shared/components/DemoModal/ShelterForm';
-import { Package } from 'lucide-react';
+import AllocateResourceForm from '@shared/components/DemoModal/AllocateResourceForm';
+import { Package, Loader2 } from 'lucide-react';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
 import {
   ResourceFilters,
   ResourceStats,
-  ResourceGrid,
-  ShelterRegistry
+  ResourceGrid
 } from '../components';
-import {
-  RESOURCE_DISTRIBUTION_DATA,
-  RESOURCE_STATUS_COLORS
-} from '../constants';
 import { useResourceDistributionState } from '../hooks';
-import { filterByStatus, calculateTotalQuantity, calculateTotalAllocated } from '../utils';
+import { 
+  transformResourcesForUI, 
+  filterResourcesByStatus,
+  calculateTotalQuantity,
+  calculateTotalAllocated
+} from '../utils';
 import '../styles/pdma.css';
 
 const ResourceDistribution = () => {
@@ -32,11 +32,18 @@ const ResourceDistribution = () => {
     setDemoModal,
     isResourceFormOpen,
     setIsResourceFormOpen,
-    isShelterFormOpen,
-    setIsShelterFormOpen,
+    isAllocateFormOpen,
+    setIsAllocateFormOpen,
+    selectedResource,
+    handleOpenAllocateForm,
+    handleAllocateResource,
     showDemo,
     handleResourceFormSubmit,
-    handleShelterFormSubmit
+    resources: apiResources,
+    resourceStats,
+    districts,
+    loading,
+    error,
   } = useResourceDistributionState();
 
   const { theme } = useSettings();
@@ -47,12 +54,58 @@ const ResourceDistribution = () => {
   const roleConfig = ROLE_CONFIG.pdma;
   const menuItems = useMemo(() => getMenuItemsByRole('pdma'), []);
 
-  // Use modular constants instead of inline data
-  const resources = RESOURCE_DISTRIBUTION_DATA;
-  const filteredResources = filterByStatus(resources, selectedFilter, 'status');
-  const totalQuantity = calculateTotalQuantity(resources);
-  const totalAllocated = calculateTotalAllocated(resources);
+  // Transform backend data to UI format
+  const resources = transformResourcesForUI(apiResources);
+  const filteredResources = filterResourcesByStatus(resources, selectedFilter);
+  const totalQuantity = resourceStats?.totalQuantity || calculateTotalQuantity(resources);
+  const totalAllocated = resourceStats?.totalAllocated || calculateTotalAllocated(resources);
 
+  // Render loading state
+  if (loading) {
+    return (
+      <DashboardLayout
+        menuItems={menuItems}
+        activeRoute={activeRoute}
+        onNavigate={setActiveRoute}
+        pageTitle="Resource Inventory"
+        pageSubtitle="Manage and distribute provincial resources"
+        pageIcon={Package}
+        pageIconColor="#22c55e"
+        userRole="PDMA"
+        userName="fz"
+      >
+        <div className="h-96 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: colors.primary }} />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Render error state
+  if (error) {
+    return (
+      <DashboardLayout
+        menuItems={menuItems}
+        activeRoute={activeRoute}
+        onNavigate={setActiveRoute}
+        pageTitle="Resource Inventory"
+        pageSubtitle="Manage and distribute provincial resources"
+        pageIcon={Package}
+        pageIconColor="#22c55e"
+        userRole="PDMA"
+        userName="fz"
+      >
+        <div className="h-96 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-xl font-semibold mb-2" style={{ color: colors.danger }}>
+              Failed to load resource data
+            </div>
+            <div style={{ color: colors.mutedText }}>{error}</div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout
@@ -79,7 +132,7 @@ const ResourceDistribution = () => {
         <ResourceStats 
           totalResources={resources.length}
           totalQuantity={totalQuantity}
-          allocatedPercent={Math.round((totalAllocated / totalQuantity) * 100)}
+          allocatedPercent={totalQuantity > 0 ? Math.round((totalAllocated / totalQuantity) * 100) : 0}
           availableQuantity={totalQuantity - totalAllocated}
           colors={colors}
         />
@@ -89,18 +142,8 @@ const ResourceDistribution = () => {
           <ResourceGrid 
             resources={filteredResources}
             colors={colors}
-            onAllocate={(resourceId) => {
-              const resource = resources.find(r => r.id === resourceId);
-              showDemo('Allocate Resource', `${resource.name} would be allocated to the selected district. Current allocation: ${resource.allocated}/${resource.quantity} units.`, 'info');
-            }}
-          />
-        </div>
-
-        {/* Shelter Registry Component */}
-        <div className="pdma-section">
-          <ShelterRegistry 
-            colors={colors}
-            onRegister={() => setIsShelterFormOpen(true)}
+            onAllocate={handleOpenAllocateForm}
+            selectedFilter={selectedFilter}
           />
         </div>
       </div>
@@ -121,11 +164,15 @@ const ResourceDistribution = () => {
         onSubmit={handleResourceFormSubmit}
       />
 
-      {/* Shelter Form Modal */}
-      <ShelterForm
-        isOpen={isShelterFormOpen}
-        onClose={() => setIsShelterFormOpen(false)}
-        onSubmit={handleShelterFormSubmit}
+      {/* Allocate Resource Form Modal */}
+      <AllocateResourceForm
+        isOpen={isAllocateFormOpen}
+        onClose={() => {
+          setIsAllocateFormOpen(false);
+        }}
+        onSubmit={handleAllocateResource}
+        resource={selectedResource}
+        districts={districts}
       />
     </DashboardLayout>
   );

@@ -1,6 +1,49 @@
 import { useState } from 'react';
-import { X, Package } from 'lucide-react';
+import { X, Package, AlertCircle } from 'lucide-react';
 import PropTypes from 'prop-types';
+
+// Valid resource types matching backend ResourceType enum
+const VALID_RESOURCE_TYPES = ['food', 'water', 'medical', 'shelter', 'clothing', 'blanket', 'transport', 'communication', 'equipment', 'personnel', 'other'];
+
+// Validation rules matching CreateResourceDto from backend
+const validateResourceForm = (formData) => {
+  const errors = {};
+
+  // name is required (string)
+  if (!formData.name || formData.name.trim() === '') {
+    errors.name = 'Resource name is required';
+  } else if (formData.name.trim().length < 2) {
+    errors.name = 'Resource name must be at least 2 characters';
+  } else if (formData.name.trim().length > 200) {
+    errors.name = 'Resource name must be less than 200 characters';
+  }
+
+  // quantity is required (int, min 0)
+  if (formData.quantity === '' || formData.quantity === null || formData.quantity === undefined) {
+    errors.quantity = 'Quantity is required';
+  } else {
+    const qty = parseInt(formData.quantity, 10);
+    if (isNaN(qty)) {
+      errors.quantity = 'Quantity must be a valid number';
+    } else if (qty < 0) {
+      errors.quantity = 'Quantity must be 0 or greater';
+    } else if (!Number.isInteger(qty)) {
+      errors.quantity = 'Quantity must be a whole number';
+    }
+  }
+
+  // unit is required (string)
+  if (!formData.unit || formData.unit.trim() === '') {
+    errors.unit = 'Unit is required';
+  }
+
+  // type is optional but must be valid if provided
+  if (formData.type && !VALID_RESOURCE_TYPES.includes(formData.type)) {
+    errors.type = 'Invalid resource type';
+  }
+
+  return errors;
+};
 
 const ResourceForm = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -11,15 +54,48 @@ const ResourceForm = ({ isOpen, onClose, onSubmit }) => {
     location: '',
     description: ''
   });
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    // Validate on blur
+    const validationErrors = validateResourceForm(formData);
+    if (validationErrors[name]) {
+      setErrors(prev => ({ ...prev, [name]: validationErrors[name] }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    
+    // Validate all fields
+    const validationErrors = validateResourceForm(formData);
+    setErrors(validationErrors);
+    setTouched({ name: true, quantity: true, unit: true, type: true, location: true });
+
+    // If there are errors, don't submit
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+
+    // Submit with parsed values
+    onSubmit({
+      ...formData,
+      name: formData.name.trim(),
+      quantity: parseInt(formData.quantity, 10)
+    });
+    
     setFormData({
       name: '',
       type: 'food',
@@ -28,7 +104,30 @@ const ResourceForm = ({ isOpen, onClose, onSubmit }) => {
       location: '',
       description: ''
     });
+    setErrors({});
+    setTouched({});
   };
+
+  // Error display style
+  const errorStyle = {
+    color: '#ef4444',
+    fontSize: '12px',
+    marginTop: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px'
+  };
+
+  const getInputStyle = (fieldName) => ({
+    width: '100%',
+    padding: '10px 12px',
+    borderRadius: '6px',
+    border: `1px solid ${touched[fieldName] && errors[fieldName] ? '#ef4444' : '#e5e7eb'}`,
+    background: '#f9fafb',
+    color: '#1f2937',
+    fontSize: '14px',
+    boxSizing: 'border-box'
+  });
 
   if (!isOpen) return null;
 
@@ -95,46 +194,38 @@ const ResourceForm = ({ isOpen, onClose, onSubmit }) => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              required
+              onBlur={handleBlur}
               placeholder="e.g., Medical Supplies, Drinking Water"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                color: '#1f2937',
-                fontSize: '14px',
-                boxSizing: 'border-box'
-              }}
+              style={getInputStyle('name')}
             />
+            {touched.name && errors.name && (
+              <div style={errorStyle}>
+                <AlertCircle size={12} />
+                {errors.name}
+              </div>
+            )}
           </div>
 
           {/* Resource Type */}
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px', color: '#374151' }}>
-              Resource Type *
+              Resource Type
             </label>
             <select
               name="type"
               value={formData.type}
               onChange={handleChange}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                color: '#1f2937',
-                fontSize: '14px',
-                cursor: 'pointer'
-              }}
+              style={getInputStyle('type')}
             >
               <option value="food">Food Supplies</option>
               <option value="water">Drinking Water</option>
               <option value="medical">Medical Supplies</option>
               <option value="shelter">Shelter Materials</option>
-              <option value="vehicles">Vehicles</option>
+              <option value="blanket">Blankets & Clothing</option>
+              <option value="transport">Transport/Vehicles</option>
+              <option value="communication">Communication Equipment</option>
+              <option value="equipment">Equipment</option>
+              <option value="personnel">Personnel</option>
               <option value="other">Other</option>
             </select>
           </div>
@@ -149,20 +240,17 @@ const ResourceForm = ({ isOpen, onClose, onSubmit }) => {
               name="quantity"
               value={formData.quantity}
               onChange={handleChange}
-              required
+              onBlur={handleBlur}
               placeholder="e.g., 1000"
-              min="1"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                color: '#1f2937',
-                fontSize: '14px',
-                boxSizing: 'border-box'
-              }}
+              min="0"
+              style={getInputStyle('quantity')}
             />
+            {touched.quantity && errors.quantity && (
+              <div style={errorStyle}>
+                <AlertCircle size={12} />
+                {errors.quantity}
+              </div>
+            )}
           </div>
 
           {/* Unit */}
@@ -174,16 +262,7 @@ const ResourceForm = ({ isOpen, onClose, onSubmit }) => {
               name="unit"
               value={formData.unit}
               onChange={handleChange}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                color: '#1f2937',
-                fontSize: '14px',
-                cursor: 'pointer'
-              }}
+              style={getInputStyle('unit')}
             >
               <option value="units">Units</option>
               <option value="boxes">Boxes</option>
@@ -196,25 +275,15 @@ const ResourceForm = ({ isOpen, onClose, onSubmit }) => {
           {/* Location */}
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px', color: '#374151' }}>
-              Storage Location *
+              Storage Location
             </label>
             <input
               type="text"
               name="location"
               value={formData.location}
               onChange={handleChange}
-              required
               placeholder="e.g., Provincial Warehouse, Karachi Hub"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                color: '#1f2937',
-                fontSize: '14px',
-                boxSizing: 'border-box'
-              }}
+              style={getInputStyle('location')}
             />
           </div>
 
@@ -230,14 +299,7 @@ const ResourceForm = ({ isOpen, onClose, onSubmit }) => {
               placeholder="Additional details about the resource..."
               rows="3"
               style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                color: '#1f2937',
-                fontSize: '14px',
-                boxSizing: 'border-box',
+                ...getInputStyle('description'),
                 fontFamily: 'inherit'
               }}
             />

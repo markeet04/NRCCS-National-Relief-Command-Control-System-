@@ -1,2 +1,3 @@
 // Export PDMA services
-// API services and data fetching logic can be added here
+export { default as pdmaApi } from './pdmaApi';
+
