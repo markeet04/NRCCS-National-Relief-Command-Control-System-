@@ -1,235 +1,62 @@
-import { useState, useMemo, useEffect } from 'react';
+import { Plus, AlertTriangle } from 'lucide-react';
 import { DashboardLayout } from '@shared/components/layout';
-import { AlertCard } from '@shared/components/dashboard';
-import { Plus, X, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
-import { useBadge } from '@shared/contexts/BadgeContext';
-import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
 
-// Import service layers and utilities
-import { AlertService } from '@services/AlertService';
-import { NotificationService } from '@services/NotificationService';
-import { UI_CONSTANTS, APP_CONFIG } from '@config/constants';
-import { validateAlert } from '@utils/validationUtils';
-import { formatNumber } from '@utils/formatUtils';
-import { getCurrentTimestamp, isToday } from '@utils/dateUtils';
+// Import modular components
+import {
+  AlertStatistics,
+  AlertList,
+  CreateAlertModal,
+  AlertDetailsModal,
+} from '../../components/AlertsPage';
+
+// Import custom hook for alerts logic
+import { useAlertsLogic } from '../../hooks';
 
 /**
  * AlertsPage Component
  * Comprehensive alert management interface for viewing, creating, and managing alerts
+ * Refactored to use modular components and custom hooks
  */
 const AlertsPage = () => {
-  const { updateActiveStatusCount } = useBadge();
   const { theme } = useSettings();
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
-  
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [viewAlertId, setViewAlertId] = useState(null);
-  const [showResolved, setShowResolved] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
-  // Initialize alerts state from service layer
-  // Add sample alerts for initial feed if service is empty
-  // Initialize alerts state as empty array - will be loaded from service in useEffect
-  const [alerts, setAlerts] = useState([]);
-
-  // Load alerts on component mount
-  useEffect(() => {
-    loadAlerts(false);
-  }, []);
-
-  const loadAlerts = async (showSuccessMessage = false) => {
-    try {
-      setLoading(true);
-      setError(null);
-      console.log('📥 Loading alerts from AlertService...');
-      const alertsData = await AlertService.getAlerts();
-      console.log('📋 Loaded alerts:', alertsData);
-      setAlerts(Array.isArray(alertsData) ? alertsData : []);
-      console.log('✅ Alerts set in state, count:', alertsData?.length || 0);
-      // Update badge count with active alerts
-      const activeAlerts = alertsData.filter(alert => alert.status !== 'resolved');
-      updateActiveStatusCount(activeAlerts.length);
-      if (showSuccessMessage) {
-        NotificationService.showSuccess('Alerts loaded successfully');
-      }
-    } catch (error) {
-      console.error('❌ Error loading alerts:', error);
-      setError('Failed to load alerts');
-      NotificationService.showError('Failed to load alerts');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Get role configuration from shared config
-  const roleConfig = ROLE_CONFIG.ndma;
-
-  // Menu items for NDMA role from shared config (no badge on alerts page since we're on it)
-  const menuItems = useMemo(() => getMenuItemsByRole('ndma', 0), []);
-
-  // Province and district data from constants
-  const provinceDistrictsMap = UI_CONSTANTS.PROVINCE_DISTRICTS;
-
-  // Form state for new alert
-  const [newAlert, setNewAlert] = useState({
-    title: '',
-    description: '',
-    severity: 'high',
-    type: 'flood',
-    province: '',
-    district: '',
-    tehsil: '',
-    source: 'NDMA',
-  });
-
-  const availableDistricts = newAlert.province ? provinceDistrictsMap[newAlert.province] || [] : [];
-
-  // Event handlers using service layer
-  const handleViewAlert = (alertId) => {
-    setViewAlertId(alertId);
-  };
-
-  const handleResolveAlert = async (id) => {
-    try {
-      const updatedAlert = await AlertService.updateAlert(id, { status: 'resolved' });
-      setAlerts(prev => {
-        const newAlerts = prev.map(alert =>
-          alert.id === id ? updatedAlert : alert
-        );
-        // Update badge count with active alerts
-        const activeAlerts = newAlerts.filter(alert => alert.status !== 'resolved');
-        updateActiveStatusCount(activeAlerts.length);
-        return newAlerts;
-      });
-      NotificationService.showSuccess('Alert status updated');
-    } catch (error) {
-      console.error('Error updating alert:', error);
-      NotificationService.showError('Failed to update alert');
-    }
-  };
-
-  const handleReopenAlert = async (id) => {
-    try {
-      const updatedAlert = await AlertService.updateAlert(id, { status: 'active' });
-      setAlerts(prev => {
-        const newAlerts = prev.map(alert =>
-          alert.id === id ? updatedAlert : alert
-        );
-        // Update badge count with active alerts
-        const activeAlerts = newAlerts.filter(alert => alert.status !== 'resolved');
-        updateActiveStatusCount(activeAlerts.length);
-        return newAlerts;
-      });
-      NotificationService.showSuccess('Alert reopened successfully');
-    } catch (error) {
-      console.error('Error reopening alert:', error);
-      NotificationService.showError('Failed to reopen alert');
-    }
-  };
-
-  const handleDeleteAlert = async (id) => {
-    try {
-      await AlertService.deleteAlert(id);
-      setAlerts(prev => {
-        const newAlerts = prev.filter(alert => alert.id !== id);
-        // Update badge count with active alerts
-        const activeAlerts = newAlerts.filter(alert => alert.status !== 'resolved');
-        updateActiveStatusCount(activeAlerts.length);
-        return newAlerts;
-      });
-      NotificationService.showSuccess('Alert deleted successfully');
-    } catch (error) {
-      console.error('Error deleting alert:', error);
-      NotificationService.showError('Failed to delete alert');
-    }
-  };
-
-  const handleChangeNewAlert = (event) => {
-    const { name, value } = event.target;
-    if (name === 'province') {
-      setNewAlert(prev => ({ ...prev, [name]: value, district: '' }));
-    } else {
-      setNewAlert(prev => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handleSubmitNewAlert = async (event) => {
-    event.preventDefault();
-
-    // Validate using validation utilities
-    console.log('🔍 Validating alert data:', newAlert);
-    const validation = validateAlert(newAlert);
-    console.log('✅ Validation result:', validation);
-    if (!validation.isValid) {
-      console.error('❌ Validation errors:', validation.errors);
-      NotificationService.showError('Validation failed: ' + Object.values(validation.errors).join(', '));
-      return;
-    }
-
-    try {
-      setLoading(true);
-      console.log('⏳ Starting alert creation process...');
-      
-      const location = [newAlert.province, newAlert.district, newAlert.tehsil]
-        .filter(Boolean)
-        .join(', ');
-
-      const alertPayload = {
-        ...newAlert,
-        location,
-        timestamp: getCurrentTimestamp()
-      };
-
-      console.log('📦 Creating alert with payload:', alertPayload);
-      const createdAlert = await AlertService.createAlert(alertPayload);
-      console.log('✅ Alert created successfully:', createdAlert);
-      
-      // Reload all alerts from service to ensure UI is in sync
-      console.log('🔄 Reloading alerts from service...');
-      await loadAlerts(false);
-      console.log('✅ Alerts reloaded from service');
-      
-      // Reset form
-      setNewAlert({ 
-        title: '', 
-        description: '', 
-        severity: 'high', 
-        type: 'flood', 
-        province: '', 
-        district: '', 
-        tehsil: '', 
-        source: 'NDMA' 
-      });
-      
-      // Close modal
-      setIsCreateModalOpen(false);
-      console.log('✅ Modal closed and form reset');
-      
-      NotificationService.showSuccess('Alert published successfully');
-
-    } catch (error) {
-      console.error('❌ Error creating alert:', error);
-      console.error('Error stack:', error.stack);
-      NotificationService.showError('Failed to publish alert: ' + error.message);
-    } finally {
-      setLoading(false);
-      console.log('✅ Alert creation process completed');
-    }
-  };
-
-  // Computed values
-  const alertToView = viewAlertId ? alerts.find(a => a.id === viewAlertId) : null;
-  const activeAlertsCount = alerts.filter(a => a.status === 'active').length;
-  const displayedAlerts = alerts.filter(alert => 
-    showResolved ? alert.status === 'resolved' : alert.status !== 'resolved'
-  );
+  // Use custom hook for all alert logic
+  const {
+    // State
+    loading,
+    error,
+    isCreateModalOpen,
+    showResolved,
+    newAlert,
+    
+    // Computed
+    alertToView,
+    activeAlertsCount,
+    displayedAlerts,
+    alertStats,
+    menuItems,
+    
+    // Actions
+    loadAlerts,
+    handleViewAlert,
+    handleCloseViewAlert,
+    handleResolveAlert,
+    handleReopenAlert,
+    handleDeleteAlert,
+    handleChangeNewAlert,
+    handleProvinceChange,
+    handleSubmitNewAlert,
+    openCreateModal,
+    closeCreateModal,
+    toggleShowResolved,
+  } = useAlertsLogic();
 
   // Show loading state
-  if (loading && alerts.length === 0) {
+  if (loading && displayedAlerts.length === 0) {
     return (
       <DashboardLayout
         menuItems={menuItems}
@@ -272,7 +99,7 @@ const AlertsPage = () => {
             </p>
             <p className="mb-4" style={{ color: 'var(--text-muted)' }}>{error}</p>
             <button
-              onClick={loadAlerts}
+              onClick={() => loadAlerts()}
               className="px-4 py-2 rounded-lg font-medium"
               style={{ backgroundColor: '#0ea5e9', color: '#ffffff' }}
             >
@@ -296,11 +123,16 @@ const AlertsPage = () => {
         pageSubtitle="Alert Management System"
         notificationCount={activeAlertsCount}
       >
+        {/* Page Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Nationwide Alerts</h1>
+            <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+              Nationwide Alerts
+            </h1>
             <p className="text-sm mb-3" style={{ color: 'var(--text-muted)' }}>
-              {showResolved ? 'Viewing resolved alerts' : `Monitoring ${activeAlertsCount} active alerts across Pakistan`}
+              {showResolved 
+                ? 'Viewing resolved alerts' 
+                : `Monitoring ${activeAlertsCount} active alerts across Pakistan`}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -314,7 +146,7 @@ const AlertsPage = () => {
                 padding: '10px 20px',
                 minHeight: '40px'
               }}
-              onClick={() => setShowResolved(!showResolved)}
+              onClick={toggleShowResolved}
               disabled={loading}
             >
               {showResolved ? 'Show Active' : 'Show Resolved'}
@@ -330,7 +162,7 @@ const AlertsPage = () => {
                 gap: '8px',
                 minHeight: '40px'
               }}
-              onClick={() => setIsCreateModalOpen(true)}
+              onClick={openCreateModal}
               disabled={loading}
             >
               <Plus className="w-4 h-4" />
@@ -339,463 +171,39 @@ const AlertsPage = () => {
           </div>
         </div>
 
-        {/* Alert Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-6" style={{ marginTop: '24px' }}>
-          <div style={{ 
-            background: isLight ? 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)' : 'linear-gradient(to right, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1))',
-            borderRadius: '8px',
-            padding: '16px',
-            border: isLight ? '1px solid #fecaca' : '1px solid rgba(239, 68, 68, 0.2)'
-          }}>
-            <div className="text-center">
-              <p style={{ fontSize: '14px', fontWeight: '500', color: '#ef4444', marginBottom: '4px' }}>Critical</p>
-              <p style={{ fontSize: '24px', fontWeight: '700', color: '#dc2626' }}>
-                {formatNumber(alerts.filter(a => a.severity === 'critical' && a.status === 'active').length)}
-              </p>
-            </div>
-          </div>
-          <div style={{ 
-            background: isLight ? 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)' : 'linear-gradient(to right, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.1))',
-            borderRadius: '8px',
-            padding: '16px',
-            border: isLight ? '1px solid #fed7aa' : '1px solid rgba(249, 115, 22, 0.2)'
-          }}>
-            <div className="text-center">
-              <p style={{ fontSize: '14px', fontWeight: '500', color: '#f97316', marginBottom: '4px' }}>High</p>
-              <p style={{ fontSize: '24px', fontWeight: '700', color: '#ea580c' }}>
-                {formatNumber(alerts.filter(a => a.severity === 'high' && a.status === 'active').length)}
-              </p>
-            </div>
-          </div>
-          <div style={{ 
-            background: isLight ? 'linear-gradient(135deg, #fefce8 0%, #fef9c3 100%)' : 'linear-gradient(to right, rgba(234, 179, 8, 0.1), rgba(202, 138, 4, 0.1))',
-            borderRadius: '8px',
-            padding: '16px',
-            border: isLight ? '1px solid #fde047' : '1px solid rgba(234, 179, 8, 0.2)'
-          }}>
-            <div className="text-center">
-              <p style={{ fontSize: '14px', fontWeight: '500', color: '#eab308', marginBottom: '4px' }}>Medium</p>
-              <p style={{ fontSize: '24px', fontWeight: '700', color: '#ca8a04' }}>
-                {formatNumber(alerts.filter(a => a.severity === 'medium' && a.status === 'active').length)}
-              </p>
-            </div>
-          </div>
-          <div style={{ 
-            background: isLight ? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' : 'linear-gradient(to right, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1))',
-            borderRadius: '8px',
-            padding: '16px',
-            border: isLight ? '1px solid #bbf7d0' : '1px solid rgba(34, 197, 94, 0.2)'
-          }}>
-            <div className="text-center">
-              <p style={{ fontSize: '14px', fontWeight: '500', color: '#22c55e', marginBottom: '4px' }}>Resolved Today</p>
-              <p style={{ fontSize: '24px', fontWeight: '700', color: '#16a34a' }}>
-                {formatNumber(alerts.filter(a => a.status === 'resolved' && 
-                  isToday(a.resolvedAt || a.timestamp)).length)}
-              </p>
-            </div>
-          </div>
-        </div>
+        {/* Alert Statistics - Modular Component */}
+        <AlertStatistics stats={alertStats} isLight={isLight} />
 
-        {/* Alert List */}
-        <div>
-          {displayedAlerts.map((alert) => (
-            <div key={alert.id} style={{ margin: '16px 0' }}>
-              <AlertCard
-                {...alert}
-                showSeverityBadge={true}
-                onResolve={alert.status !== 'resolved' ? () => handleResolveAlert(alert.id) : undefined}
-                onReopen={alert.status === 'resolved' ? () => handleReopenAlert(alert.id) : undefined}
-                onDelete={alert.status === 'resolved' ? () => handleDeleteAlert(alert.id) : undefined}
-                onView={() => handleViewAlert(alert.id)}
-              />
-            </div>
-          ))}
-          {displayedAlerts.length === 0 && (
-            <div className="text-center py-12 rounded-xl" style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)' }}>
-              <p style={{ color: 'var(--text-muted)' }}>
-                {showResolved ? 'No resolved alerts found' : 'No active alerts at this time'}
-              </p>
-            </div>
-          )}
-        </div>
+        {/* Alert List - Modular Component */}
+        <AlertList
+          alerts={displayedAlerts}
+          onView={handleViewAlert}
+          onResolve={handleResolveAlert}
+          onReopen={handleReopenAlert}
+          onDelete={handleDeleteAlert}
+          emptyMessage={showResolved ? 'No resolved alerts found' : 'No active alerts at this time'}
+        />
       </DashboardLayout>
 
-      {/* Create Alert Modal */}
-      {isCreateModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: isLight ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.85)', zIndex: 9999, padding: '1rem' }}>
-          <div className="w-full" style={{ maxWidth: '500px', backgroundColor: colors.modalBg, borderRadius: '12px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
-            <div className="flex items-center justify-between" style={{ padding: '16px 20px', borderBottom: `1px solid ${colors.border}`, flexShrink: 0 }}>
-              <h3 className="text-lg font-semibold" style={{ color: colors.textPrimary, margin: 0 }}>Create New Alert</h3>
-              <button
-                className="p-1.5 rounded transition-colors"
-                style={{ color: colors.textSecondary, backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }}
-                onClick={() => setIsCreateModalOpen(false)}
-                aria-label="Close create alert modal"
-                disabled={loading}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isLight ? '#f1f5f9' : colors.elevatedBg}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      {/* Create Alert Modal - Modular Component */}
+      <CreateAlertModal
+        isOpen={isCreateModalOpen}
+        onClose={closeCreateModal}
+        formData={newAlert}
+        onChange={handleChangeNewAlert}
+        onProvinceChange={handleProvinceChange}
+        onSubmit={handleSubmitNewAlert}
+        loading={loading}
+        colors={colors}
+        isLight={isLight}
+      />
 
-            <form onSubmit={handleSubmitNewAlert} style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-              <div style={{ overflowY: 'auto', padding: '20px', flexGrow: 1 }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {/* Alert Title */}
-                  <div>
-                    <label className="block text-sm font-medium" style={{ color: colors.textSecondary, marginBottom: '6px' }}>
-                      Alert Title
-                    </label>
-                    <input
-                      type="text"
-                      name="title"
-                      value={newAlert.title}
-                      onChange={handleChangeNewAlert}
-                      required
-                      className="w-full rounded-md"
-                      style={{ 
-                        backgroundColor: colors.inputBg, 
-                        color: colors.textPrimary, 
-                        border: `1px solid ${colors.border}`,
-                        padding: '8px 12px',
-                        fontSize: '14px',
-                        outline: 'none'
-                      }}
-                      placeholder="e.g., Flash Flood Warning"
-                      disabled={loading}
-                      onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                      onBlur={(e) => e.target.style.borderColor = colors.border}
-                    />
-                  </div>
-
-                  {/* Severity Level */}
-                  <div>
-                    <label className="block text-sm font-medium" style={{ color: colors.textSecondary, marginBottom: '6px' }}>
-                      Severity Level
-                    </label>
-                    <select
-                      name="severity"
-                      value={newAlert.severity}
-                      onChange={handleChangeNewAlert}
-                      required
-                      className="w-full rounded-md"
-                      style={{ 
-                        backgroundColor: colors.inputBg, 
-                        color: colors.textPrimary, 
-                        border: `1px solid ${colors.border}`,
-                        padding: '8px 12px',
-                        fontSize: '14px',
-                        outline: 'none',
-                        cursor: 'pointer'
-                      }}
-                      disabled={loading}
-                      onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                      onBlur={(e) => e.target.style.borderColor = colors.border}
-                    >
-                      <option value="critical">Critical</option>
-                      <option value="high">High</option>
-                      <option value="medium">Medium</option>
-                      <option value="low">Low</option>
-                    </select>
-                  </div>
-
-                  {/* Affected Provinces */}
-                  <div>
-                    <label className="block text-sm font-medium" style={{ color: colors.textSecondary, marginBottom: '8px' }}>
-                      Affected Provinces
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {Object.keys(provinceDistrictsMap).map(province => (
-                        <label 
-                          key={province} 
-                          className="flex items-center" 
-                          style={{ 
-                            padding: '8px 10px',
-                            backgroundColor: colors.inputBg,
-                            border: `1px solid ${colors.border}`,
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.borderColor = colors.borderMedium}
-                          onMouseLeave={(e) => e.currentTarget.style.borderColor = colors.border}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={newAlert.province === province}
-                            onChange={(e) => {
-                              setNewAlert(prev => ({
-                                ...prev,
-                                province: e.target.checked ? province : '',
-                                district: ''
-                              }));
-                            }}
-                            style={{
-                              width: '16px',
-                              height: '16px',
-                              marginRight: '8px',
-                              accentColor: '#3b82f6',
-                              cursor: 'pointer'
-                            }}
-                            disabled={loading}
-                          />
-                          <span style={{ color: colors.textPrimary, fontSize: '13px' }}>{province}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* District */}
-                  {newAlert.province && (
-                    <div>
-                      <label className="block text-sm font-medium" style={{ color: colors.textSecondary, marginBottom: '6px' }}>
-                        District (Optional)
-                      </label>
-                      <select
-                        name="district"
-                        value={newAlert.district}
-                        onChange={handleChangeNewAlert}
-                        className="w-full rounded-md"
-                        style={{ 
-                          backgroundColor: colors.inputBg, 
-                          color: colors.textPrimary, 
-                          border: `1px solid ${colors.border}`,
-                          padding: '8px 12px',
-                          fontSize: '14px',
-                          outline: 'none',
-                          cursor: 'pointer'
-                        }}
-                        disabled={loading}
-                        onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                        onBlur={(e) => e.target.style.borderColor = colors.border}
-                      >
-                        <option value="">Select District</option>
-                        {availableDistricts.map(district => (
-                          <option key={district} value={district}>{district}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-
-                  {/* Alert Message */}
-                  <div>
-                    <label className="block text-sm font-medium" style={{ color: colors.textSecondary, marginBottom: '6px' }}>
-                      Alert Message
-                    </label>
-                    <textarea
-                      name="description"
-                      value={newAlert.description}
-                      onChange={handleChangeNewAlert}
-                      required
-                      rows="3"
-                      className="w-full rounded-md"
-                      style={{ 
-                        backgroundColor: colors.inputBg, 
-                        color: colors.textPrimary, 
-                        border: `1px solid ${colors.border}`,
-                        padding: '8px 12px',
-                        fontSize: '14px',
-                        resize: 'vertical',
-                        outline: 'none',
-                        fontFamily: 'inherit'
-                      }}
-                      placeholder="Detailed alert message..."
-                      disabled={loading}
-                      onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                      onBlur={(e) => e.target.style.borderColor = colors.border}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Footer Buttons */}
-              <div style={{ padding: '16px 20px', borderTop: `1px solid ${colors.border}`, flexShrink: 0 }}>
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    className="flex-1 rounded-md font-medium transition-colors focus:outline-none"
-                    style={{ 
-                      backgroundColor: colors.buttonSecondary, 
-                      color: colors.textPrimary,
-                      padding: '10px 16px',
-                      border: 'none',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      boxShadow: '0 0 0 0px #3b82f6',
-                      transition: 'background 0.2s, box-shadow 0.2s'
-                    }}
-                    onClick={() => setIsCreateModalOpen(false)}
-                    disabled={loading}
-                    onFocus={e => e.currentTarget.style.boxShadow = '0 0 0 2px #3b82f6'}
-                    onBlur={e => e.currentTarget.style.boxShadow = '0 0 0 0px #3b82f6'}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = colors.buttonSecondaryHover}
-                    onMouseLeave={e => e.currentTarget.style.backgroundColor = colors.buttonSecondary}
-                    onMouseDown={e => e.currentTarget.style.boxShadow = '0 0 0 2px #3b82f6'}
-                    onMouseUp={e => e.currentTarget.style.boxShadow = '0 0 0 0px #3b82f6'}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 rounded-md font-medium transition-colors focus:outline-none"
-                    style={{ 
-                      backgroundColor: loading ? '#dc2626' : '#ef4444', 
-                      color: '#ffffff',
-                      padding: '10px 16px',
-                      border: 'none',
-                      cursor: loading ? 'not-allowed' : 'pointer',
-                      fontSize: '14px',
-                      opacity: loading ? 0.7 : 1,
-                      boxShadow: '0 0 0 0px #3b82f6',
-                      transition: 'background 0.2s, box-shadow 0.2s'
-                    }}
-                    disabled={loading}
-                    onClick={e => {
-                      console.log('🖱️ Publish Alert button clicked');
-                      console.log('Form will be submitted...');
-                    }}
-                    onFocus={e => e.currentTarget.style.boxShadow = '0 0 0 2px #3b82f6'}
-                    onBlur={e => e.currentTarget.style.boxShadow = '0 0 0 0px #3b82f6'}
-                    onMouseEnter={e => !loading && (e.currentTarget.style.backgroundColor = '#dc2626')}
-                    onMouseLeave={e => !loading && (e.currentTarget.style.backgroundColor = '#ef4444')}
-                    onMouseDown={e => e.currentTarget.style.boxShadow = '0 0 0 2px #3b82f6'}
-                    onMouseUp={e => e.currentTarget.style.boxShadow = '0 0 0 0px #3b82f6'}
-                  >
-                    {loading ? 'Publishing...' : 'Publish Alert'}
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>    
-        </div>
-      )}
-
-      {/* Alert Details Modal */}
-      {alertToView && (
-        <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: 'rgba(2, 6, 23, 0.75)', zIndex: 9999 }}>
-          <div className="w-full max-w-3xl rounded-2xl" style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', maxHeight: '90vh', overflow: 'auto' }}>
-            <div className="flex items-center justify-between" style={{ borderBottom: '1px solid var(--border-color)', position: 'sticky', top: 0, backgroundColor: 'var(--bg-tertiary)', zIndex: 10, padding: '24px 32px' }}>
-              <div>
-                <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)', marginBottom: '4px' }}>Alert Details</h3>
-                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Full alert information</p>
-              </div>
-              <button
-                className="p-2 rounded-full hover:bg-opacity-80 transition-colors"
-                style={{ color: 'var(--text-secondary)', backgroundColor: 'rgba(148, 163, 184, 0.12)' }}
-                onClick={() => setViewAlertId(null)}
-                aria-label="Close alert details"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div style={{ padding: '32px' }}>
-              <div style={{ marginBottom: '32px' }}>
-                  <h4 className="text-2xl font-bold" style={{ color: 'var(--text-primary)', marginBottom: '20px', lineHeight: '1.3', fontSize: '2.2rem' }}>{alertToView.title}</h4>
-                  <div className="flex flex-wrap gap-3">
-                    <span className="px-4 py-2 rounded-lg text-xs font-semibold uppercase" style={{
-                      backgroundColor: alertToView.severity === 'critical' ? 'rgba(239, 68, 68, 0.15)' :
-                        alertToView.severity === 'high' ? 'rgba(249, 115, 22, 0.15)' :
-                        alertToView.severity === 'medium' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(59, 130, 246, 0.15)',
-                      color: alertToView.severity === 'critical' ? '#ef4444' :
-                        alertToView.severity === 'high' ? '#f97316' :
-                        alertToView.severity === 'medium' ? '#f59e0b' : '#3b82f6',
-                      border: `1px solid ${alertToView.severity === 'critical' ? 'rgba(239, 68, 68, 0.3)' :
-                        alertToView.severity === 'high' ? 'rgba(249, 115, 22, 0.3)' :
-                        alertToView.severity === 'medium' ? 'rgba(245, 158, 11, 0.3)' : 'rgba(59, 130, 246, 0.3)'}`,
-                      letterSpacing: '0.05em',
-                      fontSize: '1.1rem',
-                    }}>
-                      {alertToView.severity}
-                    </span>
-                    <span className="px-4 py-2 rounded-lg text-xs font-medium flex items-center gap-2" style={{
-                      backgroundColor: alertToView.status === 'active' ? 'rgba(59, 130, 246, 0.15)' :
-                        alertToView.status === 'resolved' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(148, 163, 184, 0.15)',
-                      color: alertToView.status === 'active' ? '#3b82f6' :
-                        alertToView.status === 'resolved' ? '#10b981' : '#94a3b8',
-                      border: `1px solid ${alertToView.status === 'active' ? 'rgba(59, 130, 246, 0.3)' :
-                        alertToView.status === 'resolved' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(148, 163, 184, 0.3)'}`,
-                      fontSize: '1.1rem',
-                    }}>
-                      {alertToView.status === 'active' && <AlertTriangle className="w-3.5 h-3.5" />}
-                      {alertToView.status}
-                    </span>
-                  </div>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <div className="rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)', padding: '20px 24px' }}>
-                  <h5 className="text-xs font-semibold" style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px' }}>Description</h5>
-                  <p style={{ color: 'var(--text-primary)', lineHeight: '1.8', fontSize: '15px' }}>{alertToView.description}</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '16px' }}>
-                  {alertToView.type && (
-                    <div className="rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)', padding: '16px 20px' }}>
-                      <h5 className="text-xs font-semibold" style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '10px' }}>Alert Type</h5>
-                      <p className="font-medium" style={{ color: 'var(--text-primary)', fontSize: '15px' }}>{alertToView.type}</p>
-                    </div>
-                  )}
-                  {alertToView.location && (
-                    <div className="rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)', padding: '16px 20px' }}>
-                      <h5 className="text-xs font-semibold" style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '10px' }}>Location</h5>
-                      <p className="font-medium" style={{ color: 'var(--text-primary)', fontSize: '15px' }}>{alertToView.location}</p>
-                    </div>
-                  )}
-                  {alertToView.source && (
-                    <div className="rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)', padding: '16px 20px' }}>
-                      <h5 className="text-xs font-semibold" style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '10px' }}>Source</h5>
-                      <p className="font-medium" style={{ color: 'var(--text-primary)', fontSize: '15px' }}>{alertToView.source}</p>
-                    </div>
-                  )}
-                  <div className="rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)', padding: '16px 20px' }}>
-                    <h5 className="text-xs font-semibold" style={{ color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '10px' }}>Alert ID</h5>
-                    <p className="font-medium font-mono" style={{ color: 'var(--text-primary)', fontSize: '15px' }}>#{alertToView.id}</p>
-                  </div>
-                </div>
-
-                {alertToView.status === 'active' && (
-                  <div className="rounded-lg" style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '20px 24px' }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-                      <AlertTriangle className="w-5 h-5" style={{ color: '#ef4444', marginTop: '2px', flexShrink: 0 }} />
-                      <div>
-                        <h5 className="text-sm font-semibold" style={{ color: '#ef4444', marginBottom: '8px' }}>Active Alert</h5>
-                        <p className="text-sm" style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                          This alert is currently active and requires attention.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex flex-col md:flex-row" style={{ gap: '12px', paddingTop: '24px', marginTop: '24px', borderTop: '1px solid var(--border-color)' }}>
-                <button
-                  className="w-full md:w-auto rounded-lg font-medium transition-colors hover:bg-opacity-80"
-                  style={{ backgroundColor: 'rgba(148, 163, 184, 0.12)', color: 'var(--text-primary)', fontSize: '15px', padding: '12px 24px' }}
-                  onClick={() => setViewAlertId(null)}
-                >
-                  Close
-                </button>
-                {alertToView.status === 'active' && (
-                  <button
-                    className="w-full md:flex-1 rounded-lg font-semibold flex items-center justify-center transition-colors hover:bg-opacity-90"
-                    style={{ backgroundColor: '#10b981', color: '#ffffff', gap: '8px', padding: '12px 24px' }}
-                    onClick={() => {
-                      handleResolveAlert(alertToView.id);
-                      setViewAlertId(null);
-                    }}
-                  >
-                    <CheckCircle className="w-4 h-4" />
-                    Mark as Resolved
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Alert Details Modal - Modular Component */}
+      <AlertDetailsModal
+        alert={alertToView}
+        onClose={handleCloseViewAlert}
+        onResolve={handleResolveAlert}
+      />
     </>
   );
 };

@@ -1,24 +1,29 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { StatCard } from '@shared/components/dashboard';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { AlertTriangle, Truck, Users, Package } from 'lucide-react';
 import { useBadge } from '@shared/contexts/BadgeContext';
-import { 
-  getMenuItemsByRole, 
-  ROLE_CONFIG, 
-  STAT_GRADIENT_KEYS,
-  getCardStyle 
-} from '@shared/constants/dashboardConfig';
+import { STAT_GRADIENT_KEYS } from '@shared/constants/dashboardConfig';
 
-// Import NationalMap component for weather visualization
-import NationalMap from '../components/NationalMap';
+// Import modular components
+import { 
+  CriticalAlertBanner, 
+  ResourceStatus, 
+  WeatherMap 
+} from '../components/NDMADashboard';
+
+// Import custom hook for dashboard logic
+import { useDashboardLogic } from '../hooks';
+
+// Import constants
+import { RESOURCE_STATUS } from '../constants';
 
 /**
  * NDMADashboard Component
  * National Dashboard for NDMA (National Disaster Management Authority)
- * Uses shared layout and configuration from dashboardConfig
+ * Uses modular components, hooks, and constants for maintainability
  */
 const NDMADashboard = () => {
   const { activeStatusCount } = useBadge();
@@ -27,14 +32,8 @@ const NDMADashboard = () => {
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
 
-  // Get role configuration from shared config
-  const roleConfig = ROLE_CONFIG.ndma;
-  
-  // Get menu items from shared config with dynamic badge
-  const menuItems = useMemo(() => 
-    getMenuItemsByRole('ndma', activeStatusCount), 
-    [activeStatusCount]
-  );
+  // Use custom hook for dashboard logic
+  const { roleConfig, menuItems } = useDashboardLogic(activeStatusCount);
 
   const handleNavigate = (route) => {
     setActiveRoute(route);
@@ -49,12 +48,12 @@ const NDMADashboard = () => {
     { title: 'Resources Available', value: '182,000', trend: 0, trendLabel: 'units', trendDirection: null, icon: Package, gradientKey: STAT_GRADIENT_KEYS.resources }
   ];
 
-  // Resource status
-  const resources = [
-    { name: 'Food Packets', percentage: 68, color: '#10b981' },
-    { name: 'Tents', percentage: 45, color: '#f59e0b' },
-    { name: 'Medical Kits', percentage: 82, color: '#10b981' }
-  ];
+  // Resource status from constants
+  const resources = RESOURCE_STATUS.map(r => ({
+    name: r.type,
+    percentage: r.allocated,
+    color: r.status === 'adequate' ? '#10b981' : r.status === 'low' ? '#f59e0b' : '#ef4444'
+  }));
 
   return (
     <DashboardLayout
@@ -77,29 +76,15 @@ const NDMADashboard = () => {
         </p>
       </div>
 
-      {/* Critical Alert Banner */}
-      <div 
-        style={{ 
-          backgroundColor: isLight ? '#fef2f2' : colors.criticalHover, 
-          border: `1px solid ${isLight ? '#fecaca' : colors.critical}`, 
-          borderLeft: `4px solid ${colors.critical}`,
-          borderRadius: '8px', 
-          padding: '16px 20px', 
-          marginBottom: '24px' 
+      {/* Critical Alert Banner - Using modular component */}
+      <CriticalAlertBanner
+        alertCount={activeStatusCount}
+        latestAlert={{
+          title: 'Flash Flood Warning',
+          location: 'Low-lying areas',
         }}
-      >
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#ef4444' }} />
-          <div>
-            <div style={{ color: isLight ? colors.danger : colors.criticalText, fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
-              Flash Flood Warning
-            </div>
-            <div style={{ color: isLight ? colors.criticalHover : colors.criticalText, fontSize: '13px', lineHeight: '1.5' }}>
-              Heavy rainfall expected in next 24 hours. Evacuate low-lying areas immediately.
-            </div>
-          </div>
-        </div>
-      </div>
+        isLight={isLight}
+      />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -112,48 +97,13 @@ const NDMADashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Map Section - Takes 2 columns */}
         <div className="lg:col-span-2" style={{ marginTop: '24px' }}>
-          <div style={{ backgroundColor: colors.cardBg, borderRadius: '12px', border: `1px solid ${colors.cardBorder}`, borderLeft: !isLight ? '4px solid #3b82f6' : `1px solid ${colors.cardBorder}`, padding: '24px' }}>
-            <h3 style={{ color: colors.textPrimary, fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>
-              Pakistan - Live Weather & Situation Map
-            </h3>
-  
-            {/* National Map Component with Real Weather */}
-            <NationalMap height="450px" />
-          </div>
+          <WeatherMap isLight={isLight} />
         </div>
 
         {/* Right Sidebar */}
-        <div className="flex flex-col gap-6">
-          {/* Resource Status */}
-          <div className="transition-all duration-300" style={{ background: colors.cardBg, borderRadius: '12px', border: `1px solid ${colors.cardBorder}`, borderLeft: !isLight ? '4px solid #10b981' : `1px solid ${colors.cardBorder}`, padding: '20px', marginTop: '24px', boxShadow: isLight ? colors.cardShadow : 'none' }}>
-            <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>
-              Resource Status
-            </h3>
-            <div className="flex flex-col gap-4">
-              {resources.map((resource, index) => (
-                <div key={index}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span style={{ color: colors.textSecondary, fontSize: '13px', fontWeight: '500' }}>
-                      {resource.name}
-                    </span>
-                    <span style={{ color: resource.color, fontSize: '13px', fontWeight: '600' }}>
-                      {resource.percentage}%
-                    </span>
-                  </div>
-                  <div style={{ width: '100%', height: '8px', backgroundColor: isLight ? '#e2e8f0' : colors.elevatedBg, borderRadius: '4px', overflow: 'hidden' }}>
-                    <div 
-                      style={{ 
-                        width: `${resource.percentage}%`, 
-                        height: '100%', 
-                        backgroundColor: resource.color,
-                        transition: 'width 0.3s ease'
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="flex flex-col gap-6" style={{ marginTop: '24px' }}>
+          {/* Resource Status - Using modular component */}
+          <ResourceStatus resources={RESOURCE_STATUS} isLight={isLight} />
         </div>
       </div>
     </DashboardLayout>
