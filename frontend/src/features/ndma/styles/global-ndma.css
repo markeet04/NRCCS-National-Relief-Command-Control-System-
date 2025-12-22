@@ -1,0 +1,562 @@
+/**
+ * NDMA Global Styles
+ * Reusable styles for all NDMA dashboard pages
+ * Dark theme with NASA mission control design
+ */
+
+/* ============================================================================
+   BASE & BACKGROUNDS
+   ============================================================================ */
+.ndma-page {
+  background-color: #0f1114;
+  min-height: 100vh;
+  color: #e2e8f0;
+}
+
+.ndma-bg-primary {
+  background-color: #0f1114;
+}
+
+.ndma-bg-card {
+  background-color: #1a1d21;
+}
+
+.ndma-bg-elevated {
+  background-color: #1f242a;
+}
+
+.ndma-bg-header {
+  background-color: #263038;
+}
+
+/* ============================================================================
+   CARDS & CONTAINERS
+   ============================================================================ */
+.ndma-card {
+  background-color: #1a1d21;
+  border: 1px solid #2d3238;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.ndma-card-inner {
+  background-color: #1f242a;
+  border-radius: 8px;
+}
+
+.ndma-card-hover:hover {
+  border-color: #3d4248;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================================================
+   TYPOGRAPHY
+   ============================================================================ */
+.ndma-text-primary {
+  color: #ffffff;
+}
+
+.ndma-text-secondary {
+  color: #cbd5e1;
+}
+
+.ndma-text-muted {
+  color: #64748b;
+}
+
+.ndma-text-label {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ndma-heading-lg {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.ndma-heading-md {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.ndma-heading-sm {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.ndma-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.ndma-stat-value-lg {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+}
+
+/* ============================================================================
+   BUTTONS
+   ============================================================================ */
+.ndma-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.ndma-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ndma-btn-primary {
+  background-color: #4caf50;
+  color: #ffffff;
+}
+
+.ndma-btn-primary:hover:not(:disabled) {
+  background-color: #43a047;
+}
+
+.ndma-btn-primary:active:not(:disabled) {
+  background-color: #388e3c;
+}
+
+.ndma-btn-secondary {
+  background-color: #2d3238;
+  color: #e2e8f0;
+}
+
+.ndma-btn-secondary:hover:not(:disabled) {
+  background-color: #3d4248;
+}
+
+.ndma-btn-outline {
+  background-color: transparent;
+  color: #4caf50;
+  border: 1px solid #4caf50;
+}
+
+.ndma-btn-outline:hover:not(:disabled) {
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.ndma-btn-ghost {
+  background-color: transparent;
+  color: #94a3b8;
+  padding: 0.5rem;
+}
+
+.ndma-btn-ghost:hover:not(:disabled) {
+  background-color: rgba(148, 163, 184, 0.1);
+  color: #e2e8f0;
+}
+
+.ndma-btn-icon {
+  padding: 0.5rem;
+  border-radius: 8px;
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+}
+
+.ndma-btn-icon:hover:not(:disabled) {
+  background-color: rgba(76, 175, 80, 0.2);
+}
+
+.ndma-btn-icon-blue {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.ndma-btn-icon-blue:hover:not(:disabled) {
+  background-color: rgba(59, 130, 246, 0.2);
+}
+
+/* ============================================================================
+   STATUS BADGES
+   ============================================================================ */
+.ndma-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-transform: capitalize;
+}
+
+.ndma-badge-adequate {
+  background-color: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+}
+
+.ndma-badge-moderate {
+  background-color: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.ndma-badge-low {
+  background-color: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.ndma-badge-critical {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* ============================================================================
+   TABLE STYLES
+   ============================================================================ */
+.ndma-table-container {
+  background-color: #1a1d21;
+  border: 1px solid #2d3238;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ndma-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ndma-table-header {
+  background-color: #263038;
+}
+
+.ndma-table-header th {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ndma-table-header th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.ndma-table-header th.sortable:hover {
+  color: #cbd5e1;
+}
+
+.ndma-table-body tr {
+  border-top: 1px solid #2d3238;
+  transition: background-color 0.15s ease;
+}
+
+.ndma-table-body tr:nth-child(even) {
+  background-color: rgba(38, 48, 56, 0.3);
+}
+
+.ndma-table-body tr:hover {
+  background-color: rgba(38, 48, 56, 0.6);
+}
+
+.ndma-table-body td {
+  padding: 1rem 1.5rem;
+  font-size: 0.875rem;
+}
+
+.ndma-table-cell-primary {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.ndma-table-cell-secondary {
+  color: #cbd5e1;
+}
+
+.ndma-table-empty {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+}
+
+/* ============================================================================
+   STAT CARDS
+   ============================================================================ */
+.ndma-stat-card {
+  background-color: #1a1d21;
+  border: 1px solid #2d3238;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ndma-stat-card-inner {
+  background-color: #1f242a;
+  border-radius: 8px;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.ndma-stat-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ndma-stat-icon-blue {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.ndma-stat-icon-green {
+  background-color: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+}
+
+.ndma-stat-icon-yellow {
+  background-color: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.ndma-stat-icon-purple {
+  background-color: rgba(139, 92, 246, 0.15);
+  color: #8b5cf6;
+}
+
+/* ============================================================================
+   FORMS & INPUTS
+   ============================================================================ */
+.ndma-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  color: #ffffff;
+  background-color: #1f242a;
+  border: 1px solid #2d3238;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.ndma-input:focus {
+  border-color: #4caf50;
+}
+
+.ndma-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ndma-input-number {
+  text-align: right;
+  width: 6rem;
+}
+
+.ndma-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+}
+
+.ndma-range {
+  flex: 1;
+  height: 8px;
+  accent-color: #4caf50;
+}
+
+/* ============================================================================
+   MODALS
+   ============================================================================ */
+.ndma-modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  padding: 1rem;
+}
+
+.ndma-modal {
+  width: 100%;
+  max-width: 480px;
+  background-color: #1a1d21;
+  border: 1px solid #2d3238;
+  border-radius: 12px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.ndma-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #2d3238;
+}
+
+.ndma-modal-body {
+  padding: 1.25rem;
+}
+
+.ndma-modal-footer {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid #2d3238;
+}
+
+/* ============================================================================
+   TABS
+   ============================================================================ */
+.ndma-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid #2d3238;
+  margin-bottom: 1.5rem;
+}
+
+.ndma-tab {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  text-transform: capitalize;
+  transition: all 0.2s ease;
+}
+
+.ndma-tab:hover {
+  color: #94a3b8;
+}
+
+.ndma-tab-active {
+  color: #4caf50;
+  border-bottom-color: #4caf50;
+}
+
+/* ============================================================================
+   PROGRESS BARS
+   ============================================================================ */
+.ndma-progress {
+  height: 8px;
+  background-color: #2d3238;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.ndma-progress-bar {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.5s ease;
+}
+
+.ndma-progress-green {
+  background-color: #4caf50;
+}
+
+.ndma-progress-yellow {
+  background-color: #eab308;
+}
+
+.ndma-progress-orange {
+  background-color: #f97316;
+}
+
+.ndma-progress-red {
+  background-color: #ef4444;
+}
+
+/* ============================================================================
+   UTILITIES
+   ============================================================================ */
+.ndma-border {
+  border: 1px solid #2d3238;
+}
+
+.ndma-border-top {
+  border-top: 1px solid #2d3238;
+}
+
+.ndma-border-bottom {
+  border-bottom: 1px solid #2d3238;
+}
+
+.ndma-rounded {
+  border-radius: 8px;
+}
+
+.ndma-rounded-lg {
+  border-radius: 12px;
+}
+
+.ndma-shadow {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.ndma-flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ndma-flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ndma-gap-sm {
+  gap: 0.5rem;
+}
+
+.ndma-gap-md {
+  gap: 1rem;
+}
+
+.ndma-gap-lg {
+  gap: 1.5rem;
+}
+
+/* Summary Box */
+.ndma-summary-box {
+  background-color: rgba(76, 175, 80, 0.08);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* Icons in table header for sorting */
+.ndma-sort-icon {
+  display: inline;
+  margin-left: 0.25rem;
+  vertical-align: middle;
+}

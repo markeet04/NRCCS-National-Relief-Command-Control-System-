@@ -337,13 +337,37 @@ const FloodMapPage = () => {
         {/* Right Column - Status Cards (Modular Components) */}
         <div className="flex flex-col gap-6">
           {/* Province Status - Modular Component */}
-          <ProvinceStatusCard provinces={provinces} colors={colors} />
+          <div 
+            className="rounded-xl p-4" 
+            style={{ 
+              backgroundColor: colors.cardBg, 
+              border: `1px solid ${colors.border}` 
+            }}
+          >
+            <h3 
+              className="text-lg font-semibold mb-4" 
+              style={{ color: colors.textPrimary }}
+            >
+              Province Status
+            </h3>
+            <div className="flex flex-col gap-3">
+              {provinces.map(province => (
+                <ProvinceStatusCard 
+                  key={province.id} 
+                  province={province} 
+                  onClick={setSelectedProvince}
+                  isSelected={selectedProvince?.id === province.id}
+                  isLight={isLight} 
+                />
+              ))}
+            </div>
+          </div>
 
           {/* Critical Areas - Modular Component */}
-          <CriticalAreasPanel areas={criticalAreas} colors={colors} />
+          <CriticalAreasPanel areas={criticalAreas} isLight={isLight} />
 
           {/* Shelter Capacity - Modular Component */}
-          <ShelterCapacityCard shelters={shelterCapacity} colors={colors} />
+          <ShelterCapacityCard shelters={shelterCapacity} isLight={isLight} />
         </div>
       </div>
     </DashboardLayout>

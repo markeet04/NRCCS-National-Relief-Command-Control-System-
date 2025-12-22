@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { RefreshCw, Maximize2, Layers } from 'lucide-react';
-import { NationalMap } from '../NationalMap';
+import NationalMap from '../NationalMap';
 
 /**
  * WeatherMap Component
