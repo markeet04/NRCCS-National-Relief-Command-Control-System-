@@ -1,31 +1,22 @@
-import { MapPin, Search } from 'lucide-react';
+import { MapPin, Search, Map, Droplets, Users, Building2, Layers, X } from 'lucide-react';
 import { DashboardLayout } from '@shared/components/layout';
-import { useSettings } from '@app/providers/ThemeProvider';
-import { getThemeColors } from '@shared/utils/themeColors';
-
-// Import modular components
-import {
-  ProvinceStatusCard,
-  CriticalAreasPanel,
-  ShelterCapacityCard,
-} from '../../components/FloodMapPage';
 
 // Import custom hook for flood map logic
 import { useFloodMapLogic } from '../../hooks';
 
 // Import constants
-import { MAP_TYPE_OPTIONS } from '../../constants';
+import { MAP_TYPE_OPTIONS, MAP_LAYERS } from '../../constants';
+
+// Import styles
+import '../../styles/flood-map.css';
+import '../../styles/global-ndma.css';
 
 /**
  * FloodMapPage Component
  * Interactive Pakistan flood map with province status monitoring
- * Refactored to use modular components and custom hooks
+ * Two-column layout: Large map (3fr) + Province status panel (1fr)
  */
 const FloodMapPage = () => {
-  const { theme } = useSettings();
-  const isLight = theme === 'light';
-  const colors = getThemeColors(isLight);
-
   // Use custom hook for all flood map logic
   const {
     // State
@@ -34,11 +25,10 @@ const FloodMapPage = () => {
     searchTerm,
     isModalOpen,
     extraMaps,
+    activeLayers,
     
     // Data
     provinces,
-    criticalAreas,
-    shelterCapacity,
     menuItems,
     defaultMaps,
     
@@ -49,7 +39,26 @@ const FloodMapPage = () => {
     openModal,
     closeModal,
     handleDeleteMapSection,
+    toggleLayer,
+    isLayerActive,
   } = useFloodMapLogic();
+
+  /**
+   * Get risk level class based on water level percentage
+   */
+  const getRiskLevel = (waterLevel) => {
+    if (waterLevel >= 90) return 'critical';
+    if (waterLevel >= 75) return 'high';
+    if (waterLevel >= 50) return 'medium';
+    return 'low';
+  };
+
+  /**
+   * Format number with commas
+   */
+  const formatNumber = (num) => {
+    return num?.toLocaleString() || '0';
+  };
 
   return (
     <DashboardLayout
@@ -62,312 +71,242 @@ const FloodMapPage = () => {
       pageSubtitle="Flood Risk Map"
       notificationCount={5}
     >
-      {/* Map Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Map */}
-        <div className="lg:col-span-2">
-          {/* Modal for managing map sections */}
-          {isModalOpen && (
-            <div 
-              className="fixed inset-0 flex items-center justify-center" 
-              style={{ backgroundColor: colors.overlayDark, zIndex: 9999 }}
-            >
-              <div 
-                className="w-full max-w-md rounded-2xl" 
-                style={{ 
-                  backgroundColor: colors.modalBg, 
-                  border: `1px solid ${colors.modalBorder}`, 
-                  maxHeight: '90vh', 
-                  overflow: 'auto', 
-                  padding: '32px' 
-                }}
+      {/* Modal for managing map sections */}
+      {isModalOpen && (
+        <div className="flood-modal-overlay">
+          <div className="flood-modal">
+            <div className="flood-modal-header">
+              <h3>Manage Map Sections</h3>
+              <button 
+                className="flood-modal-close"
+                onClick={closeModal}
+                aria-label="Close modal"
               >
-                <h3 className="text-xl font-bold mb-4" style={{ color: colors.textPrimary }}>
-                  Manage Map Sections
-                </h3>
-                
-                {/* List all maps */}
-                <div className="mb-6">
-                  <div style={{ color: colors.textMuted, fontWeight: 500, marginBottom: '8px' }}>
-                    All Map Sections
-                  </div>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                    {defaultMaps.map(map => (
-                      <li 
-                        key={map.name} 
-                        style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'space-between', 
-                          padding: '6px 0', 
-                          color: colors.textPrimary, 
-                          fontSize: '15px' 
-                        }}
-                      >
-                        <span>{map.label}</span>
-                        <span style={{ color: colors.textMuted, fontSize: '13px', fontStyle: 'italic' }}>
-                          Default
-                        </span>
-                      </li>
-                    ))}
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="flood-modal-body">
+              <div className="flood-modal-section">
+                <div className="flood-modal-section-title">Default Maps</div>
+                <ul className="flood-modal-list">
+                  {defaultMaps.map(map => (
+                    <li key={map.name} className="flood-modal-list-item">
+                      <span>{map.label}</span>
+                      <span className="default-tag">Default</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              {extraMaps.length > 0 && (
+                <div className="flood-modal-section">
+                  <div className="flood-modal-section-title">Custom Maps</div>
+                  <ul className="flood-modal-list">
                     {extraMaps.map(map => (
-                      <li 
-                        key={map.id} 
-                        style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'space-between', 
-                          padding: '6px 0', 
-                          color: colors.textPrimary, 
-                          fontSize: '15px' 
-                        }}
-                      >
+                      <li key={map.id} className="flood-modal-list-item">
                         <span>{map.name}</span>
                         <button
+                          className="delete-btn"
                           aria-label={`Delete ${map.name}`}
-                          style={{
-                            background: 'transparent',
-                            border: 'none',
-                            color: colors.critical,
-                            fontSize: '16px',
-                            cursor: 'pointer',
-                            padding: 0
-                          }}
                           onClick={() => handleDeleteMapSection(map.id)}
-                          tabIndex={0}
                         >
-                          &#10005;
+                          ✕
                         </button>
                       </li>
                     ))}
                   </ul>
                 </div>
+              )}
+            </div>
+            
+            <div className="flood-modal-footer">
+              <button
+                className="flood-modal-btn flood-modal-btn-secondary"
+                onClick={closeModal}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Two-Column Layout */}
+      <div className="flood-map-container">
+        {/* Left Column - Interactive Map */}
+        <div className="flood-map-section">
+          <div className="flood-map-card">
+            {/* Map Header */}
+            <div className="flood-map-header">
+              <div className="flood-map-title">
+                <div className="flood-map-title-icon">
+                  <Map className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2>Interactive Pakistan Map</h2>
+                  <p className="flood-map-title-subtitle">Real-time flood monitoring</p>
+                </div>
+              </div>
+              
+              <div className="flood-map-controls">
+                {/* Search */}
+                <div className="flood-map-search">
+                  <Search className="flood-map-search-icon" />
+                  <input
+                    type="text"
+                    className="flood-map-search-input"
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                    placeholder="Search location..."
+                  />
+                </div>
                 
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    className="flex-1 rounded-md font-medium transition-colors focus:outline-none"
-                    style={{ 
-                      backgroundColor: colors.cardBg, 
-                      color: colors.textPrimary, 
-                      padding: '10px 16px', 
-                      border: 'none', 
-                      cursor: 'pointer', 
-                      fontSize: '14px' 
-                    }}
-                    onClick={closeModal}
-                  >
-                    Close
-                  </button>
-                </div>
+                {/* Map Type Selector */}
+                <select
+                  className="flood-map-select"
+                  value={mapView}
+                  onChange={e => setMapView(e.target.value)}
+                >
+                  {MAP_TYPE_OPTIONS.map(option => (
+                    <option key={option.id} value={option.id}>
+                      {option.label}
+                    </option>
+                  ))}
+                  {extraMaps.map(map => (
+                    <option key={map.id} value={map.name}>
+                      {map.name}
+                    </option>
+                  ))}
+                </select>
+                
+                {/* Manage Maps Button */}
+                <button
+                  className="flood-action-btn-ghost"
+                  onClick={openModal}
+                  title="Manage map sections"
+                >
+                  <Layers className="w-5 h-5" />
+                </button>
               </div>
             </div>
-          )}
-
-          {/* Map Header Filters + Search Bar */}
-          <div 
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              minWidth: '340px', 
-              marginLeft: 'auto', 
-              gap: '8px', 
-              background: colors.cardBg, 
-              borderRadius: '8px', 
-              padding: '10px 18px', 
-              marginBottom: '16px' 
-            }}
-          >
-            <div style={{ position: 'relative', width: '140px', flex: '1 1 auto' }}>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                placeholder="Search by name or location..."
-                className="rounded-md px-3 py-2 border focus:outline-none"
-                style={{ 
-                  backgroundColor: 'transparent', 
-                  color: colors.textPrimary, 
-                  border: `1px solid ${colors.border}`, 
-                  width: '100%', 
-                  fontSize: '15px', 
-                  paddingLeft: '36px' 
-                }}
-              />
-              <Search 
-                style={{ 
-                  position: 'absolute', 
-                  left: '10px', 
-                  top: '50%', 
-                  transform: 'translateY(-50%)', 
-                  color: colors.textMuted, 
-                  width: '18px', 
-                  height: '18px', 
-                  pointerEvents: 'none' 
-                }} 
-              />
-            </div>
-            <div style={{ flex: '0 0 auto', marginLeft: 'auto' }}>
-              <select
-                value={mapView}
-                onChange={e => setMapView(e.target.value)}
-                className="rounded-md px-3 py-2 border focus:outline-none"
-                style={{ 
-                  backgroundColor: colors.cardBg, 
-                  color: colors.textPrimary, 
-                  border: `1px solid ${colors.border}`, 
-                  fontSize: '15px', 
-                  minWidth: '140px', 
-                  cursor: 'pointer' 
-                }}
-              >
-                {MAP_TYPE_OPTIONS.map(option => (
-                  <option 
-                    key={option.value} 
-                    value={option.value} 
-                    style={{ 
-                      color: colors.textPrimary, 
-                      backgroundColor: isLight ? colors.cardBg : colors.elevatedBg 
-                    }}
-                  >
-                    {option.label}
-                  </option>
-                ))}
-                {extraMaps.map(map => (
-                  <option 
-                    key={map.id} 
-                    value={map.name} 
-                    style={{ 
-                      color: colors.textPrimary, 
-                      backgroundColor: isLight ? colors.cardBg : colors.elevatedBg 
-                    }}
-                  >
-                    {map.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Interactive Map */}
-          <div 
-            style={{ 
-              backgroundColor: colors.cardBg, 
-              borderRadius: '12px', 
-              border: `1px solid ${colors.border}`, 
-              padding: '24px', 
-              minHeight: '500px', 
-              position: 'relative' 
-            }}
-          >
-            <div style={{ textAlign: 'center', paddingTop: '100px' }}>
-              <MapPin className="w-16 h-16 mx-auto mb-4" style={{ color: colors.low }} />
-              <h3 
-                style={{ 
-                  color: colors.textPrimary, 
-                  fontSize: '20px', 
-                  fontWeight: '600', 
-                  marginBottom: '8px' 
-                }}
-              >
-                Interactive Pakistan Map
-              </h3>
-              <p style={{ color: colors.textSecondary, fontSize: '14px', lineHeight: '1.6' }}>
-                All provinces, GDA locations, districts, flood areas and rescue teams
-              </p>
-            </div>
-
-            {/* Map Legend */}
-            <div 
-              style={{ 
-                position: 'absolute', 
-                bottom: '24px', 
-                left: '24px', 
-                backgroundColor: colors.cardBg, 
-                borderRadius: '8px', 
-                padding: '12px', 
-                border: `1px solid ${colors.border}` 
-              }}
-            >
-              <div 
-                style={{ 
-                  color: colors.textMuted, 
-                  fontSize: '11px', 
-                  fontWeight: '600', 
-                  textTransform: 'uppercase', 
-                  marginBottom: '8px' 
-                }}
-              >
-                Legend
+            
+            {/* Map Content */}
+            <div className="flood-map-content">
+              <div className="flood-map-placeholder">
+                <MapPin className="flood-map-placeholder-icon" />
+                <h3>Interactive Pakistan Map</h3>
+                <p>
+                  Real-time visualization of all provinces, districts, flood zones, 
+                  evacuation routes, and rescue team positions.
+                </p>
               </div>
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <div style={{ width: '12px', height: '12px', borderRadius: '2px', backgroundColor: colors.critical }}></div>
-                  <span style={{ color: colors.textSecondary, fontSize: '12px' }}>Critical Zone</span>
+              
+              {/* Map Legend */}
+              <div className="flood-map-legend">
+                <div className="flood-map-legend-title">Flood Risk Legend</div>
+                <div className="flood-map-legend-items">
+                  <div className="flood-map-legend-item">
+                    <div className="flood-map-legend-color critical"></div>
+                    <span className="flood-map-legend-label">Critical (90%+)</span>
+                  </div>
+                  <div className="flood-map-legend-item">
+                    <div className="flood-map-legend-color high"></div>
+                    <span className="flood-map-legend-label">High Risk (75-90%)</span>
+                  </div>
+                  <div className="flood-map-legend-item">
+                    <div className="flood-map-legend-color medium"></div>
+                    <span className="flood-map-legend-label">Medium (50-75%)</span>
+                  </div>
+                  <div className="flood-map-legend-item">
+                    <div className="flood-map-legend-color low"></div>
+                    <span className="flood-map-legend-label">Low/Safe (&lt;50%)</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div style={{ width: '12px', height: '12px', borderRadius: '2px', backgroundColor: colors.high }}></div>
-                  <span style={{ color: colors.textSecondary, fontSize: '12px' }}>High Risk</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div style={{ width: '12px', height: '12px', borderRadius: '2px', backgroundColor: colors.success }}></div>
-                  <span style={{ color: colors.textSecondary, fontSize: '12px' }}>Safe Zone</span>
-                </div>
+              </div>
+              
+              {/* Layer Controls */}
+              <div className="flood-map-layers">
+                <div className="flood-map-layers-title">Map Layers</div>
+                {MAP_LAYERS.slice(0, 4).map(layer => (
+                  <label key={layer.id} className="flood-map-layer-toggle">
+                    <input
+                      type="checkbox"
+                      checked={isLayerActive(layer.id)}
+                      onChange={() => toggleLayer(layer.id)}
+                    />
+                    <span>{layer.label}</span>
+                  </label>
+                ))}
               </div>
             </div>
           </div>
-
-          {/* Add Map Section button */}
-          <button
-            className="w-full mt-4 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
-            style={{ 
-              backgroundColor: colors.primary, 
-              color: colors.btnPrimaryColor, 
-              border: 'none', 
-              cursor: 'pointer' 
-            }}
-            onClick={openModal}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.primaryHover}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.primary}
-          >
-            Edit and Add Map Section
-          </button>
         </div>
 
-        {/* Right Column - Status Cards (Modular Components) */}
-        <div className="flex flex-col gap-6">
-          {/* Province Status - Modular Component */}
-          <div 
-            className="rounded-xl p-4" 
-            style={{ 
-              backgroundColor: colors.cardBg, 
-              border: `1px solid ${colors.border}` 
-            }}
-          >
-            <h3 
-              className="text-lg font-semibold mb-4" 
-              style={{ color: colors.textPrimary }}
-            >
-              Province Status
-            </h3>
-            <div className="flex flex-col gap-3">
-              {provinces.map(province => (
-                <ProvinceStatusCard 
-                  key={province.id} 
-                  province={province} 
-                  onClick={setSelectedProvince}
-                  isSelected={selectedProvince?.id === province.id}
-                  isLight={isLight} 
-                />
-              ))}
+        {/* Right Column - Province Status Panel */}
+        <div className="flood-province-panel">
+          <div className="flood-province-card">
+            <div className="flood-province-header">
+              <h3>Province Status</h3>
+              <span className="flood-province-count">{provinces.length} regions</span>
+            </div>
+            
+            <div className="flood-province-list">
+              {provinces.map(province => {
+                const riskLevel = getRiskLevel(province.waterLevel);
+                const isSelected = selectedProvince?.id === province.id;
+                
+                return (
+                  <div
+                    key={province.id}
+                    className={`flood-province-item ${isSelected ? 'selected' : ''}`}
+                    onClick={() => setSelectedProvince(province)}
+                  >
+                    {/* Header: Name + Risk Badge */}
+                    <div className="flood-province-item-header">
+                      <span className="flood-province-name">{province.name}</span>
+                      <span className={`flood-risk-badge ${province.floodRisk}`}>
+                        {province.floodRisk}
+                      </span>
+                    </div>
+                    
+                    {/* Water Level Progress Bar */}
+                    <div className="flood-water-level">
+                      <div className="flood-water-level-header">
+                        <span className="flood-water-level-label">
+                          <Droplets className="w-3 h-3" />
+                          Water Level
+                        </span>
+                        <span className={`flood-water-level-value ${riskLevel}`}>
+                          {province.waterLevel}%
+                        </span>
+                      </div>
+                      <div className="flood-progress-bar">
+                        <div 
+                          className={`flood-progress-fill ${riskLevel}`}
+                          style={{ width: `${province.waterLevel}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    
+                    {/* Stats Row */}
+                    <div className="flood-province-stats">
+                      <div className="flood-province-stat">
+                        <Building2 className="flood-province-stat-icon" />
+                        <span className="flood-province-stat-value">{province.affectedDistricts}</span>
+                        <span className="flood-province-stat-label">districts</span>
+                      </div>
+                      <div className="flood-province-stat">
+                        <Users className="flood-province-stat-icon" />
+                        <span className="flood-province-stat-value">{formatNumber(province.evacuated)}</span>
+                        <span className="flood-province-stat-label">evacuated</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
-
-          {/* Critical Areas - Modular Component */}
-          <CriticalAreasPanel areas={criticalAreas} isLight={isLight} />
-
-          {/* Shelter Capacity - Modular Component */}
-          <ShelterCapacityCard shelters={shelterCapacity} isLight={isLight} />
         </div>
       </div>
     </DashboardLayout>
