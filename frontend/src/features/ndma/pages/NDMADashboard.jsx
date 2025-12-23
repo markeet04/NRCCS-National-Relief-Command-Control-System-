@@ -11,6 +11,7 @@ import {
   Layers,
   RefreshCw,
   Maximize2,
+  Minimize2,
   Clock,
   CheckCircle,
   TrendingUp,
@@ -27,6 +28,9 @@ import { useDashboardLogic } from '../hooks';
 // Import constants
 import { RESOURCE_STATUS } from '../constants';
 
+// Import global NDMA styles (pitch black background, border accents)
+import '../styles/global-ndma.css';
+
 // Import page-specific styles
 import '../styles/national-dashboard.css';
 
@@ -39,8 +43,14 @@ const NDMADashboard = () => {
   const navigate = useNavigate();
   const { activeStatusCount } = useBadge();
   const [activeRoute, setActiveRoute] = useState('dashboard');
+  const [isMapFullscreen, setIsMapFullscreen] = useState(false);
   const { theme } = useSettings();
   const isLight = theme === 'light';
+
+  // Toggle map fullscreen mode
+  const toggleMapFullscreen = () => {
+    setIsMapFullscreen(!isMapFullscreen);
+  };
 
   // Use custom hook for dashboard logic
   const { roleConfig, menuItems } = useDashboardLogic(activeStatusCount);
@@ -160,8 +170,14 @@ const NDMADashboard = () => {
         <div className="national-stats-grid">
           {stats.map((stat, index) => {
             const IconComponent = stat.icon;
+            // Determine left border accent class based on stat type
+            const borderClass = 
+              stat.iconClass === 'emergencies' ? 'border-left-red' :
+              stat.iconClass === 'teams' ? 'border-left-blue' :
+              stat.iconClass === 'evacuated' ? 'border-left-green' :
+              stat.iconClass === 'resources' ? 'border-left-purple' : '';
             return (
-              <div key={index} className="national-stat-card">
+              <div key={index} className={`national-stat-card ${borderClass}`}>
                 <div className="national-stat-card-header">
                   <span className="national-stat-card-label">{stat.title}</span>
                   <div className={`national-stat-card-icon ${stat.iconClass}`}>
@@ -189,9 +205,9 @@ const NDMADashboard = () => {
         </div>
 
         {/* Main Content Grid - 2fr left, 1fr right */}
-        <div className="national-main-grid">
+        <div className={`national-main-grid ${isMapFullscreen ? 'map-fullscreen-active' : ''}`}>
           {/* Left Column - National Weather Map */}
-          <div className="national-map-card">
+          <div className={`national-map-card border-left-blue ${isMapFullscreen ? 'map-fullscreen' : ''}`}>
             <div className="national-map-header">
               <div>
                 <h3 className="national-map-title">National Weather Map</h3>
@@ -206,13 +222,21 @@ const NDMADashboard = () => {
                 <button className="national-map-btn" title="Refresh">
                   <RefreshCw className="w-4 h-4" />
                 </button>
-                <button className="national-map-btn" title="Fullscreen">
-                  <Maximize2 className="w-4 h-4" />
+                <button 
+                  className={`national-map-btn ${isMapFullscreen ? 'fullscreen-active' : ''}`}
+                  title={isMapFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+                  onClick={toggleMapFullscreen}
+                >
+                  {isMapFullscreen ? (
+                    <Minimize2 className="w-4 h-4" />
+                  ) : (
+                    <Maximize2 className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
-            <div className="national-map-container">
-              <NationalMap height="500px" />
+            <div className={`national-map-container ${isMapFullscreen ? 'map-container-fullscreen' : ''}`}>
+              <NationalMap height={isMapFullscreen ? 'calc(100vh - 180px)' : '500px'} />
             </div>
             <div className="national-map-legend">
               <div className="national-map-legend-item">
@@ -235,9 +259,9 @@ const NDMADashboard = () => {
           </div>
 
           {/* Right Sidebar - Stacked Cards */}
-          <div className="national-sidebar">
+          <div className={`national-sidebar ${isMapFullscreen ? 'sidebar-hidden' : ''}`}>
             {/* Resource Status Card */}
-            <div className="national-resource-card">
+            <div className="national-resource-card border-left-green">
               <div className="national-resource-header">
                 <h3 className="national-resource-title">Resource Status</h3>
                 <span className="national-resource-timestamp">
@@ -274,7 +298,7 @@ const NDMADashboard = () => {
             </div>
 
             {/* 24h Weather Card */}
-            <div className="national-weather-card">
+            <div className="national-weather-card border-left-cyan">
               <h3 className="national-weather-title">24h Weather</h3>
               <div className="national-weather-list">
                 <div className="national-weather-row">

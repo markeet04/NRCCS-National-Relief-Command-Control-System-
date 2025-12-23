@@ -7,45 +7,97 @@
 /* ============================================================================
    BASE & BACKGROUNDS
    ============================================================================ */
+   
+/* Pitch black background for entire page */
+body {
+  background-color: #000000 !important;
+}
+
 .ndma-page {
-  background-color: #0f1114;
+  background-color: #000000;
   min-height: 100vh;
   color: #e2e8f0;
 }
 
 .ndma-bg-primary {
-  background-color: #0f1114;
+  background-color: #000000;
 }
 
 .ndma-bg-card {
-  background-color: #1a1d21;
+  background-color: #0f1114;
 }
 
 .ndma-bg-elevated {
-  background-color: #1f242a;
+  background-color: #151719;
 }
 
 .ndma-bg-header {
-  background-color: #263038;
+  background-color: #1a1d21;
+}
+
+/* ============================================================================
+   COLORED LEFT BORDER ACCENTS
+   ============================================================================ */
+   
+/* Red border - Critical/Emergencies */
+.border-left-red {
+  border-left: 3px solid #ef4444 !important;
+  box-shadow: -2px 0 10px 0 #ef444466;
+}
+
+/* Green border - Positive/Success/Deployed */
+.border-left-green {
+  border-left: 3px solid #4caf50 !important;
+  box-shadow: -2px 0 10px 0 #4caf5066;
+}
+
+/* Blue border - Info/Neutral */
+.border-left-blue {
+  border-left: 3px solid #2196f3 !important;
+  box-shadow: -2px 0 10px 0 #2196f366;
+}
+
+/* Purple border - Resources */
+.border-left-purple {
+  border-left: 3px solid #8b5cf6 !important;
+  box-shadow: -2px 0 10px 0 #8b5cf666;
+}
+
+/* Cyan/Teal border - Weather/Data */
+.border-left-cyan {
+  border-left: 3px solid #06b6d4 !important;
+  box-shadow: -2px 0 10px 0 #06b6d466;
+}
+
+/* Orange border - Warning */
+.border-left-orange {
+  border-left: 3px solid #f97316 !important;
+  box-shadow: -2px 0 10px 0 #f9731666;
+}
+
+/* Yellow border - Pending/Moderate */
+.border-left-yellow {
+  border-left: 3px solid #eab308 !important;
+  box-shadow: -2px 0 10px 0 #eab30866;
 }
 
 /* ============================================================================
    CARDS & CONTAINERS
    ============================================================================ */
 .ndma-card {
-  background-color: #1a1d21;
-  border: 1px solid #2d3238;
+  background-color: #0f1114;
+  border: 1px solid #1e2227;
   border-radius: 12px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 .ndma-card-inner {
-  background-color: #1f242a;
+  background-color: #151719;
   border-radius: 8px;
 }
 
 .ndma-card-hover:hover {
-  border-color: #3d4248;
+  border-color: #2d3238;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 

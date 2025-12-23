@@ -9,9 +9,9 @@
 
 /* ==================== DARK MODE - NASA MISSION CONTROL DESIGN ==================== */
 :root {
-  /* Base backgrounds - Near-black canvas */
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #0a0a0a;
+  /* Base backgrounds - Pitch black canvas */
+  --bg-primary: #000000;
+  --bg-secondary: #000000;
   --bg-tertiary: rgba(255, 255, 255, 0.05);
   
   /* Text hierarchy */
@@ -32,7 +32,7 @@
   --font-scale: 1;
   
   /* Sidebar */
-  --sidebar-bg: #047857;
+  --sidebar-bg: #000000;
   
   /* Status colors */
   --critical: #ef4444;

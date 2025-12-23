@@ -21,7 +21,7 @@ const Header = ({ title, subtitle, icon: IconComponent, iconColor, notificationC
       <header
         className="sticky top-0 z-40"
         style={{
-          backgroundColor: 'var(--bg-secondary)',
+          backgroundColor: 'var(--bg-primary)',
           borderBottom: '1px solid var(--border-color)',
           paddingLeft: '24px',
           paddingRight: '24px',

@@ -881,85 +881,66 @@ const NationalMap = ({ height = '450px' }) => {
   // ============================================================================
 
   return (
-    <div style={{ width: '100%' }}>
+    <div className="national-map-wrapper">
       {/* Location & Weather Info Panel */}
-      <div
-        style={{
-          marginBottom: '12px',
-          padding: '14px 18px',
-          backgroundColor: isLight ? '#eff6ff' : '#1e3a5f',
-          borderRadius: '12px',
-          border: `1px solid ${isLight ? '#bfdbfe' : '#1e40af'}`,
-        }}
-      >
+      <div className="national-map-weather-bar">
         {/* Current Location */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-          <MapPin style={{ width: '18px', height: '18px', color: '#3b82f6' }} />
-          <span style={{ color: colors.textPrimary, fontWeight: '700', fontSize: '15px' }}>
+        <div className="national-map-location-row">
+          <MapPin className="national-map-location-icon" />
+          <span className="national-map-location-name">
             {currentLocation.name}
           </span>
-          <span style={{ color: colors.textMuted, fontSize: '12px' }}>
+          <span className="national-map-location-coords">
             ({currentLocation.lat.toFixed(2)}°N, {currentLocation.lon.toFixed(2)}°E)
           </span>
           {weatherLoading && (
-            <Loader2 className="animate-spin" style={{ width: '14px', height: '14px', color: '#3b82f6', marginLeft: 'auto' }} />
+            <Loader2 className="animate-spin national-map-weather-loading" />
           )}
         </div>
 
         {/* Weather Data */}
         {weatherData && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Thermometer style={{ width: '16px', height: '16px', color: '#f97316' }} />
-              <span style={{ color: colors.textPrimary, fontWeight: '600', fontSize: '14px' }}>
+          <div className="national-map-weather-data">
+            <div className="national-map-weather-item">
+              <Thermometer className="national-map-weather-icon temp" />
+              <span className="national-map-weather-value">
                 {weatherData.current.temperature}°C
               </span>
             </div>
             
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Wind style={{ width: '16px', height: '16px', color: '#3b82f6' }} />
-              <span style={{ color: colors.textPrimary, fontWeight: '600', fontSize: '14px' }}>
+            <div className="national-map-weather-item">
+              <Wind className="national-map-weather-icon wind" />
+              <span className="national-map-weather-value">
                 {weatherData.current.windSpeed} km/h {getWindDirectionText(weatherData.current.windDirection)}
               </span>
             </div>
             
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Droplets style={{ width: '16px', height: '16px', color: '#8b5cf6' }} />
-              <span style={{ color: colors.textPrimary, fontWeight: '600', fontSize: '14px' }}>
+            <div className="national-map-weather-item">
+              <Droplets className="national-map-weather-icon precip" />
+              <span className="national-map-weather-value">
                 {weatherData.current.precipitation} mm
               </span>
             </div>
             
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Gauge style={{ width: '16px', height: '16px', color: '#06b6d4' }} />
-              <span style={{ color: colors.textPrimary, fontWeight: '600', fontSize: '14px' }}>
+            <div className="national-map-weather-item">
+              <Gauge className="national-map-weather-icon humidity" />
+              <span className="national-map-weather-value">
                 {weatherData.current.humidity}%
               </span>
             </div>
 
-            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ color: colors.textMuted, fontSize: '11px' }}>
+            <div className="national-map-weather-status">
+              <span className="national-map-weather-desc">
                 {getWeatherDescription(weatherData.current.weatherCode)}
               </span>
               <button
                 onClick={() => loadWeatherData(currentLocation.lat, currentLocation.lon)}
                 disabled={weatherLoading}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '4px',
-                  opacity: weatherLoading ? 0.5 : 1
-                }}
+                className="national-map-refresh-btn"
                 title="Refresh weather data"
               >
                 <RefreshCw 
-                  style={{ 
-                    width: '14px', 
-                    height: '14px', 
-                    color: colors.textMuted,
-                    animation: weatherLoading ? 'spin 1s linear infinite' : 'none'
-                  }} 
+                  className={`national-map-refresh-icon ${weatherLoading ? 'spinning' : ''}`}
                 />
               </button>
             </div>
@@ -968,38 +949,22 @@ const NationalMap = ({ height = '450px' }) => {
       </div>
 
       {/* Quick City Navigation */}
-      <div style={{ marginBottom: '12px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-        <span style={{ color: colors.textMuted, fontSize: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', marginRight: '8px' }}>
-          <Navigation style={{ width: '12px', height: '12px', marginRight: '4px' }} />
+      <div className="national-map-quickjump">
+        <span className="national-map-quickjump-label">
+          <Navigation className="national-map-quickjump-icon" />
           Quick Jump:
         </span>
-        {MAJOR_CITIES.map(city => (
-          <button
-            key={city.name}
-            onClick={() => navigateToCity(city)}
-            style={{
-              padding: '4px 10px',
-              borderRadius: '6px',
-              border: `1px solid ${colors.cardBorder}`,
-              backgroundColor: colors.cardBg,
-              color: colors.textSecondary,
-              fontSize: '11px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-            onMouseOver={(e) => {
-              e.target.style.backgroundColor = colors.primary;
-              e.target.style.color = '#fff';
-            }}
-            onMouseOut={(e) => {
-              e.target.style.backgroundColor = colors.cardBg;
-              e.target.style.color = colors.textSecondary;
-            }}
-          >
-            {city.name}
-          </button>
-        ))}
+        <div className="national-map-quickjump-buttons">
+          {MAJOR_CITIES.map(city => (
+            <button
+              key={city.name}
+              onClick={() => navigateToCity(city)}
+              className="national-map-city-btn"
+            >
+              {city.name}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Map Container */}
