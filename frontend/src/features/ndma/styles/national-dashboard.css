@@ -1,0 +1,549 @@
+/**
+ * National Dashboard Page Styles
+ * Page-specific layout and grid styles for NDMA Dashboard
+ * Uses global-ndma.css for shared components (cards, buttons, progress bars, etc.)
+ */
+
+/* =============================================================================
+   CRITICAL ALERT BANNER - Top Red Alert
+   ============================================================================= */
+.national-alert-banner {
+  background-color: #dc2626;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.national-alert-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.national-alert-banner-icon {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.national-alert-banner-icon svg {
+  color: #ffffff;
+  width: 20px;
+  height: 20px;
+}
+
+.national-alert-banner-text {
+  color: #ffffff;
+}
+
+.national-alert-banner-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.national-alert-banner-desc {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.national-alert-banner-action {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.national-alert-banner-action:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* =============================================================================
+   PAGE HEADER
+   ============================================================================= */
+.national-page-header {
+  margin-bottom: 24px;
+}
+
+.national-page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.national-page-subtitle {
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+/* =============================================================================
+   STATS GRID - 4 Cards in a Row
+   ============================================================================= */
+.national-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 1024px) {
+  .national-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .national-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =============================================================================
+   STAT CARD - Individual Stat Card Styling
+   ============================================================================= */
+.national-stat-card {
+  background-color: #1a1d21;
+  border: 1px solid #2d3238;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s ease;
+}
+
+.national-stat-card:hover {
+  border-color: #3d4248;
+  transform: translateY(-2px);
+}
+
+.national-stat-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.national-stat-card-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.national-stat-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.national-stat-card-icon.emergencies {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.national-stat-card-icon.teams {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.national-stat-card-icon.evacuated {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.national-stat-card-icon.resources {
+  background-color: rgba(139, 92, 246, 0.15);
+  color: #8b5cf6;
+}
+
+.national-stat-card-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 4px;
+  line-height: 1;
+}
+
+.national-stat-card-trend {
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.national-stat-card-trend.up {
+  color: #22c55e;
+}
+
+.national-stat-card-trend.down {
+  color: #ef4444;
+}
+
+.national-stat-card-trend.neutral {
+  color: #94a3b8;
+}
+
+/* =============================================================================
+   MAIN CONTENT GRID - 2fr + 1fr Layout
+   ============================================================================= */
+.national-main-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .national-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =============================================================================
+   MAP CARD - Left Column (National Weather Map)
+   ============================================================================= */
+.national-map-card {
+  background-color: #1a1d21;
+  border: 1px solid #2d3238;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.national-map-header {
+  padding: 20px;
+  border-bottom: 1px solid #2d3238;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.national-map-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.national-map-subtitle {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.national-map-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.national-map-btn {
+  background-color: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+  border: none;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.national-map-btn:hover {
+  background-color: rgba(148, 163, 184, 0.2);
+  color: #e2e8f0;
+}
+
+.national-map-container {
+  height: 500px;
+  position: relative;
+}
+
+.national-map-legend {
+  padding: 16px 20px;
+  border-top: 1px solid #2d3238;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.national-map-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.national-map-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.national-map-legend-dot.severe {
+  background-color: #ef4444;
+}
+
+.national-map-legend-dot.warning {
+  background-color: #f97316;
+}
+
+.national-map-legend-dot.watch {
+  background-color: #eab308;
+}
+
+.national-map-legend-dot.normal {
+  background-color: #22c55e;
+}
+
+.national-map-legend-label {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* =============================================================================
+   RIGHT SIDEBAR - Stacked Cards
+   ============================================================================= */
+.national-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* =============================================================================
+   RESOURCE STATUS CARD
+   ============================================================================= */
+.national-resource-card {
+  background-color: #1a1d21;
+  border: 1px solid #2d3238;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.national-resource-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.national-resource-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.national-resource-timestamp {
+  font-size: 11px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.national-resource-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.national-resource-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.national-resource-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.national-resource-item-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.national-resource-item-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.national-resource-item-percent {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.national-resource-item-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+.national-resource-item-badge.adequate {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.national-resource-item-badge.moderate {
+  background-color: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.national-resource-item-badge.low {
+  background-color: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.national-resource-item-badge.critical {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* Progress Bar */
+.national-progress {
+  height: 8px;
+  background-color: rgba(148, 163, 184, 0.15);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.national-progress-bar {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.5s ease;
+}
+
+.national-progress-bar.adequate {
+  background-color: #22c55e;
+}
+
+.national-progress-bar.moderate {
+  background-color: #eab308;
+}
+
+.national-progress-bar.low {
+  background-color: #f97316;
+}
+
+.national-progress-bar.critical {
+  background-color: #ef4444;
+}
+
+/* =============================================================================
+   24H WEATHER CARD
+   ============================================================================= */
+.national-weather-card {
+  background-color: #1a1d21;
+  border: 1px solid #2d3238;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.national-weather-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 16px;
+}
+
+.national-weather-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.national-weather-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.national-weather-label {
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+.national-weather-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.national-weather-value.critical {
+  color: #ef4444;
+}
+
+.national-weather-value.warning {
+  color: #f97316;
+}
+
+/* =============================================================================
+   LIGHT THEME OVERRIDES
+   ============================================================================= */
+.ndma-page.light .national-page-title {
+  color: #1e293b;
+}
+
+.ndma-page.light .national-page-subtitle {
+  color: #64748b;
+}
+
+.ndma-page.light .national-stat-card {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.ndma-page.light .national-stat-card-value {
+  color: #1e293b;
+}
+
+.ndma-page.light .national-map-card,
+.ndma-page.light .national-resource-card,
+.ndma-page.light .national-weather-card {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.ndma-page.light .national-map-header,
+.ndma-page.light .national-map-legend {
+  border-color: #e2e8f0;
+}
+
+.ndma-page.light .national-map-title,
+.ndma-page.light .national-resource-title,
+.ndma-page.light .national-weather-title {
+  color: #1e293b;
+}
+
+.ndma-page.light .national-resource-item-name,
+.ndma-page.light .national-weather-value {
+  color: #1e293b;
+}
+
+.ndma-page.light .national-progress {
+  background-color: #e2e8f0;
+}

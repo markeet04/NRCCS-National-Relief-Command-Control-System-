@@ -1,18 +1,25 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@shared/components/layout';
-import { StatCard } from '@shared/components/dashboard';
 import { useSettings } from '@app/providers/ThemeProvider';
-import { getThemeColors } from '@shared/utils/themeColors';
-import { AlertTriangle, Truck, Users, Package } from 'lucide-react';
-import { useBadge } from '@shared/contexts/BadgeContext';
-import { STAT_GRADIENT_KEYS } from '@shared/constants/dashboardConfig';
-
-// Import modular components
 import { 
-  CriticalAlertBanner, 
-  ResourceStatus, 
-  WeatherMap 
-} from '../components/NDMADashboard';
+  AlertTriangle, 
+  Truck, 
+  Users, 
+  Package, 
+  ArrowRight,
+  Layers,
+  RefreshCw,
+  Maximize2,
+  Clock,
+  CheckCircle,
+  TrendingUp,
+  TrendingDown
+} from 'lucide-react';
+import { useBadge } from '@shared/contexts/BadgeContext';
+
+// Import NationalMap component
+import NationalMap from '../components/NationalMap';
 
 // Import custom hook for dashboard logic
 import { useDashboardLogic } from '../hooks';
@@ -20,40 +27,88 @@ import { useDashboardLogic } from '../hooks';
 // Import constants
 import { RESOURCE_STATUS } from '../constants';
 
+// Import page-specific styles
+import '../styles/national-dashboard.css';
+
 /**
  * NDMADashboard Component
  * National Dashboard for NDMA (National Disaster Management Authority)
- * Uses modular components, hooks, and constants for maintainability
+ * Clean dark theme matching District Dashboard style
  */
 const NDMADashboard = () => {
+  const navigate = useNavigate();
   const { activeStatusCount } = useBadge();
   const [activeRoute, setActiveRoute] = useState('dashboard');
   const { theme } = useSettings();
   const isLight = theme === 'light';
-  const colors = getThemeColors(isLight);
 
   // Use custom hook for dashboard logic
   const { roleConfig, menuItems } = useDashboardLogic(activeStatusCount);
 
   const handleNavigate = (route) => {
     setActiveRoute(route);
-    console.log('Navigate to:', route);
+    if (route === 'dashboard') {
+      navigate('/ndma');
+    } else {
+      navigate(`/ndma/${route}`);
+    }
   };
 
-  // Stats data - using shared gradient keys with StatCard format
+  // Stats data with trend arrows
   const stats = [
-    { title: 'Active Emergencies', value: 3, trend: -12, trendLabel: 'vs yesterday', trendDirection: 'down', icon: AlertTriangle, gradientKey: STAT_GRADIENT_KEYS.emergencies },
-    { title: 'Teams Deployed', value: 2, trend: 8, trendLabel: 'vs yesterday', trendDirection: 'up', icon: Truck, gradientKey: STAT_GRADIENT_KEYS.teams },
-    { title: 'People Evacuated', value: '15,432', trend: 15, trendLabel: 'vs yesterday', trendDirection: 'up', icon: Users, gradientKey: STAT_GRADIENT_KEYS.success },
-    { title: 'Resources Available', value: '182,000', trend: 0, trendLabel: 'units', trendDirection: null, icon: Package, gradientKey: STAT_GRADIENT_KEYS.resources }
+    { 
+      title: 'Active Emergencies', 
+      value: '3', 
+      trend: 12, 
+      trendDirection: 'down', 
+      trendLabel: 'vs yesterday',
+      icon: AlertTriangle, 
+      iconClass: 'emergencies' 
+    },
+    { 
+      title: 'Teams Deployed', 
+      value: '24', 
+      trend: 8, 
+      trendDirection: 'up', 
+      trendLabel: 'vs yesterday',
+      icon: Truck, 
+      iconClass: 'teams' 
+    },
+    { 
+      title: 'People Evacuated', 
+      value: '15,432', 
+      trend: 15, 
+      trendDirection: 'up', 
+      trendLabel: 'vs yesterday',
+      icon: Users, 
+      iconClass: 'evacuated' 
+    },
+    { 
+      title: 'Resources Available', 
+      value: '182,000', 
+      trend: null, 
+      trendDirection: null, 
+      trendLabel: 'units',
+      icon: Package, 
+      iconClass: 'resources' 
+    }
   ];
 
-  // Resource status from constants
-  const resources = RESOURCE_STATUS.map(r => ({
-    name: r.type,
-    percentage: r.allocated,
-    color: r.status === 'adequate' ? '#10b981' : r.status === 'low' ? '#f59e0b' : '#ef4444'
-  }));
+  // 24h Weather data
+  const weatherData = {
+    rainfall: 'Heavy',
+    windSpeed: '45 km/h',
+    temperature: '28°C',
+    humidity: '85%'
+  };
+
+  // Get status icon for resource
+  const getStatusIcon = (status) => {
+    if (status === 'adequate') {
+      return <CheckCircle className="w-4 h-4" style={{ color: '#22c55e' }} />;
+    }
+    return <AlertTriangle className="w-4 h-4" style={{ color: status === 'low' ? '#f97316' : '#eab308' }} />;
+  };
 
   return (
     <DashboardLayout
@@ -64,46 +119,183 @@ const NDMADashboard = () => {
       userName={roleConfig.userName}
       pageTitle={roleConfig.title}
       pageSubtitle={roleConfig.subtitle}
-      notificationCount={5}
+      notificationCount={activeStatusCount || 5}
     >
-      {/* Header */}
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.textPrimary, marginBottom: '4px' }}>
-          National Overview - NDMA
-        </h1>
-        <p style={{ fontSize: '14px', color: colors.textMuted }}>
-          Real-time national disaster management dashboard
-        </p>
-      </div>
-
-      {/* Critical Alert Banner - Using modular component */}
-      <CriticalAlertBanner
-        alertCount={activeStatusCount}
-        latestAlert={{
-          title: 'Flash Flood Warning',
-          location: 'Low-lying areas',
-        }}
-        isLight={isLight}
-      />
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {stats.map((stat, index) => (
-          <StatCard key={index} {...stat} />
-        ))}
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Map Section - Takes 2 columns */}
-        <div className="lg:col-span-2" style={{ marginTop: '24px' }}>
-          <WeatherMap isLight={isLight} />
+      <div className={`ndma-page ${isLight ? 'light' : ''}`}>
+        {/* Page Header */}
+        <div className="national-page-header">
+          <h1 className="national-page-title">National Overview - NDMA</h1>
+          <p className="national-page-subtitle">
+            Real-time national disaster management dashboard
+          </p>
         </div>
 
-        {/* Right Sidebar */}
-        <div className="flex flex-col gap-6" style={{ marginTop: '24px' }}>
-          {/* Resource Status - Using modular component */}
-          <ResourceStatus resources={RESOURCE_STATUS} isLight={isLight} />
+        {/* Critical Alert Banner - Red with white text */}
+        {activeStatusCount > 0 && (
+          <div className="national-alert-banner">
+            <div className="national-alert-banner-content">
+              <div className="national-alert-banner-icon">
+                <AlertTriangle />
+              </div>
+              <div className="national-alert-banner-text">
+                <div className="national-alert-banner-title">
+                  {activeStatusCount} Critical Alert{activeStatusCount > 1 ? 's' : ''} Require Attention
+                </div>
+                <div className="national-alert-banner-desc">
+                  Flash Flood Warning - Evacuate low-lying areas immediately
+                </div>
+              </div>
+            </div>
+            <button 
+              className="national-alert-banner-action"
+              onClick={() => navigate('/ndma/alerts')}
+            >
+              View all alerts
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Stats Grid - 4 Cards in a Row */}
+        <div className="national-stats-grid">
+          {stats.map((stat, index) => {
+            const IconComponent = stat.icon;
+            return (
+              <div key={index} className="national-stat-card">
+                <div className="national-stat-card-header">
+                  <span className="national-stat-card-label">{stat.title}</span>
+                  <div className={`national-stat-card-icon ${stat.iconClass}`}>
+                    <IconComponent className="w-5 h-5" />
+                  </div>
+                </div>
+                <div className="national-stat-card-value">{stat.value}</div>
+                {stat.trend !== null ? (
+                  <div className={`national-stat-card-trend ${stat.trendDirection}`}>
+                    {stat.trendDirection === 'up' ? (
+                      <TrendingUp className="w-4 h-4" />
+                    ) : (
+                      <TrendingDown className="w-4 h-4" />
+                    )}
+                    {stat.trend}% {stat.trendLabel}
+                  </div>
+                ) : (
+                  <div className="national-stat-card-trend neutral">
+                    {stat.trendLabel}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Main Content Grid - 2fr left, 1fr right */}
+        <div className="national-main-grid">
+          {/* Left Column - National Weather Map */}
+          <div className="national-map-card">
+            <div className="national-map-header">
+              <div>
+                <h3 className="national-map-title">National Weather Map</h3>
+                <p className="national-map-subtitle">
+                  Real-time weather conditions across Pakistan
+                </p>
+              </div>
+              <div className="national-map-controls">
+                <button className="national-map-btn" title="Toggle layers">
+                  <Layers className="w-4 h-4" />
+                </button>
+                <button className="national-map-btn" title="Refresh">
+                  <RefreshCw className="w-4 h-4" />
+                </button>
+                <button className="national-map-btn" title="Fullscreen">
+                  <Maximize2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            <div className="national-map-container">
+              <NationalMap height="500px" />
+            </div>
+            <div className="national-map-legend">
+              <div className="national-map-legend-item">
+                <div className="national-map-legend-dot severe" />
+                <span className="national-map-legend-label">Severe Weather</span>
+              </div>
+              <div className="national-map-legend-item">
+                <div className="national-map-legend-dot warning" />
+                <span className="national-map-legend-label">Warning</span>
+              </div>
+              <div className="national-map-legend-item">
+                <div className="national-map-legend-dot watch" />
+                <span className="national-map-legend-label">Watch</span>
+              </div>
+              <div className="national-map-legend-item">
+                <div className="national-map-legend-dot normal" />
+                <span className="national-map-legend-label">Normal</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Sidebar - Stacked Cards */}
+          <div className="national-sidebar">
+            {/* Resource Status Card */}
+            <div className="national-resource-card">
+              <div className="national-resource-header">
+                <h3 className="national-resource-title">Resource Status</h3>
+                <span className="national-resource-timestamp">
+                  <Clock className="w-3 h-3" />
+                  Updated just now
+                </span>
+              </div>
+              <div className="national-resource-list">
+                {RESOURCE_STATUS.map((resource, index) => (
+                  <div key={index} className="national-resource-item">
+                    <div className="national-resource-item-header">
+                      <div className="national-resource-item-name">
+                        {getStatusIcon(resource.status)}
+                        {resource.type}
+                      </div>
+                      <div className="national-resource-item-status">
+                        <span className="national-resource-item-percent">
+                          {resource.allocated}%
+                        </span>
+                        <span className={`national-resource-item-badge ${resource.status}`}>
+                          {resource.status}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="national-progress">
+                      <div 
+                        className={`national-progress-bar ${resource.status}`}
+                        style={{ width: `${resource.allocated}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 24h Weather Card */}
+            <div className="national-weather-card">
+              <h3 className="national-weather-title">24h Weather</h3>
+              <div className="national-weather-list">
+                <div className="national-weather-row">
+                  <span className="national-weather-label">Rainfall</span>
+                  <span className="national-weather-value critical">{weatherData.rainfall}</span>
+                </div>
+                <div className="national-weather-row">
+                  <span className="national-weather-label">Wind Speed</span>
+                  <span className="national-weather-value">{weatherData.windSpeed}</span>
+                </div>
+                <div className="national-weather-row">
+                  <span className="national-weather-label">Temperature</span>
+                  <span className="national-weather-value">{weatherData.temperature}</span>
+                </div>
+                <div className="national-weather-row">
+                  <span className="national-weather-label">Humidity</span>
+                  <span className="national-weather-value">{weatherData.humidity}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </DashboardLayout>
