@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@shared/components/layout';
 import { useSettings } from '@app/providers/ThemeProvider';
@@ -18,6 +18,7 @@ import {
   TrendingDown
 } from 'lucide-react';
 import { useBadge } from '@shared/contexts/BadgeContext';
+import { AlertService } from '@shared/services/AlertService';
 
 // Import NationalMap component
 import NationalMap from '../components/NationalMap';
@@ -44,8 +45,25 @@ const NDMADashboard = () => {
   const { activeStatusCount } = useBadge();
   const [activeRoute, setActiveRoute] = useState('dashboard');
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
+  const [criticalAlertsCount, setCriticalAlertsCount] = useState(0);
   const { theme } = useSettings();
   const isLight = theme === 'light';
+
+  // Fetch critical alerts count on mount
+  useEffect(() => {
+    const fetchCriticalAlerts = async () => {
+      try {
+        const alerts = await AlertService.getAlerts();
+        const criticalCount = alerts.filter(
+          a => a.severity === 'critical' && a.status !== 'resolved'
+        ).length;
+        setCriticalAlertsCount(criticalCount);
+      } catch (error) {
+        console.error('Error fetching critical alerts:', error);
+      }
+    };
+    fetchCriticalAlerts();
+  }, [activeStatusCount]); // Re-fetch when activeStatusCount changes
 
   // Toggle map fullscreen mode
   const toggleMapFullscreen = () => {
@@ -141,7 +159,7 @@ const NDMADashboard = () => {
         </div>
 
         {/* Critical Alert Banner - Red with white text */}
-        {activeStatusCount > 0 && (
+        {criticalAlertsCount > 0 && (
           <div className="national-alert-banner">
             <div className="national-alert-banner-content">
               <div className="national-alert-banner-icon">
@@ -149,7 +167,7 @@ const NDMADashboard = () => {
               </div>
               <div className="national-alert-banner-text">
                 <div className="national-alert-banner-title">
-                  {activeStatusCount} Critical Alert{activeStatusCount > 1 ? 's' : ''} Require Attention
+                  {criticalAlertsCount} Critical Alert{criticalAlertsCount > 1 ? 's' : ''} Require Attention
                 </div>
                 <div className="national-alert-banner-desc">
                   Flash Flood Warning - Evacuate low-lying areas immediately

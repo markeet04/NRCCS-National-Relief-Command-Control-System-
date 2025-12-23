@@ -16,6 +16,7 @@ const CreateAlertModal = ({
   loading,
   colors,
   isLight,
+  validationErrors = {},
 }) => {
   if (!isOpen) return null;
 
@@ -23,6 +24,9 @@ const CreateAlertModal = ({
   const availableDistricts = formData.province
     ? provinceDistrictsMap[formData.province] || []
     : [];
+  
+  // Check if form has errors
+  const hasErrors = Object.keys(validationErrors).length > 0;
 
   return (
     <div
@@ -108,7 +112,7 @@ const CreateAlertModal = ({
                   className="block text-sm font-medium"
                   style={{ color: colors.textSecondary, marginBottom: '6px' }}
                 >
-                  Alert Title
+                  Alert Title <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <input
                   type="text"
@@ -120,7 +124,7 @@ const CreateAlertModal = ({
                   style={{
                     backgroundColor: colors.inputBg,
                     color: colors.textPrimary,
-                    border: `1px solid ${colors.border}`,
+                    border: `1px solid ${validationErrors.title ? '#ef4444' : colors.border}`,
                     padding: '8px 12px',
                     fontSize: '14px',
                     outline: 'none',
@@ -128,8 +132,13 @@ const CreateAlertModal = ({
                   placeholder="e.g., Flash Flood Warning"
                   disabled={loading}
                   onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
-                  onBlur={(e) => (e.target.style.borderColor = colors.border)}
+                  onBlur={(e) => (e.target.style.borderColor = validationErrors.title ? '#ef4444' : colors.border)}
                 />
+                {validationErrors.title && (
+                  <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>
+                    {Array.isArray(validationErrors.title) ? validationErrors.title[0] : validationErrors.title}
+                  </p>
+                )}
               </div>
 
               {/* Severity Level */}
@@ -138,7 +147,7 @@ const CreateAlertModal = ({
                   className="block text-sm font-medium"
                   style={{ color: colors.textSecondary, marginBottom: '6px' }}
                 >
-                  Severity Level
+                  Severity Level <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <select
                   name="severity"
@@ -149,7 +158,7 @@ const CreateAlertModal = ({
                   style={{
                     backgroundColor: colors.inputBg,
                     color: colors.textPrimary,
-                    border: `1px solid ${colors.border}`,
+                    border: `1px solid ${validationErrors.severity ? '#ef4444' : colors.border}`,
                     padding: '8px 12px',
                     fontSize: '14px',
                     outline: 'none',
@@ -157,13 +166,18 @@ const CreateAlertModal = ({
                   }}
                   disabled={loading}
                   onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
-                  onBlur={(e) => (e.target.style.borderColor = colors.border)}
+                  onBlur={(e) => (e.target.style.borderColor = validationErrors.severity ? '#ef4444' : colors.border)}
                 >
                   <option value="critical">Critical</option>
                   <option value="high">High</option>
                   <option value="medium">Medium</option>
                   <option value="low">Low</option>
                 </select>
+                {validationErrors.severity && (
+                  <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>
+                    {Array.isArray(validationErrors.severity) ? validationErrors.severity[0] : validationErrors.severity}
+                  </p>
+                )}
               </div>
 
               {/* Affected Provinces */}
@@ -172,8 +186,13 @@ const CreateAlertModal = ({
                   className="block text-sm font-medium"
                   style={{ color: colors.textSecondary, marginBottom: '8px' }}
                 >
-                  Affected Provinces
+                  Affected Provinces <span style={{ color: '#ef4444' }}>*</span>
                 </label>
+                {validationErrors.province && (
+                  <p style={{ color: '#ef4444', fontSize: '12px', marginBottom: '8px' }}>
+                    {Array.isArray(validationErrors.province) ? validationErrors.province[0] : validationErrors.province}
+                  </p>
+                )}
                 <div className="grid grid-cols-2 gap-2">
                   {Object.keys(provinceDistrictsMap).map((province) => (
                     <label
@@ -260,7 +279,7 @@ const CreateAlertModal = ({
                   className="block text-sm font-medium"
                   style={{ color: colors.textSecondary, marginBottom: '6px' }}
                 >
-                  Alert Message
+                  Alert Message <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <textarea
                   name="description"
@@ -272,7 +291,7 @@ const CreateAlertModal = ({
                   style={{
                     backgroundColor: colors.inputBg,
                     color: colors.textPrimary,
-                    border: `1px solid ${colors.border}`,
+                    border: `1px solid ${validationErrors.description ? '#ef4444' : colors.border}`,
                     padding: '8px 12px',
                     fontSize: '14px',
                     resize: 'vertical',
@@ -282,8 +301,13 @@ const CreateAlertModal = ({
                   placeholder="Detailed alert message..."
                   disabled={loading}
                   onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
-                  onBlur={(e) => (e.target.style.borderColor = colors.border)}
+                  onBlur={(e) => (e.target.style.borderColor = validationErrors.description ? '#ef4444' : colors.border)}
                 />
+                {validationErrors.description && (
+                  <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>
+                    {Array.isArray(validationErrors.description) ? validationErrors.description[0] : validationErrors.description}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -369,11 +393,13 @@ CreateAlertModal.propTypes = {
   loading: PropTypes.bool,
   colors: PropTypes.object.isRequired,
   isLight: PropTypes.bool,
+  validationErrors: PropTypes.object,
 };
 
 CreateAlertModal.defaultProps = {
   loading: false,
   isLight: false,
+  validationErrors: {},
 };
 
 export default CreateAlertModal;

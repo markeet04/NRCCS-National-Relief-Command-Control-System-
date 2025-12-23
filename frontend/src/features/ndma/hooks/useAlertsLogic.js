@@ -18,6 +18,7 @@ export const useAlertsLogic = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [viewAlertId, setViewAlertId] = useState(null);
   const [showResolved, setShowResolved] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
   
   // Data State
   const [alerts, setAlerts] = useState([]);
@@ -145,6 +146,12 @@ export const useAlertsLogic = () => {
     } else {
       setNewAlert(prev => ({ ...prev, [name]: value }));
     }
+    // Clear validation error for this field
+    setValidationErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[name];
+      return newErrors;
+    });
   }, []);
 
   /**
@@ -156,6 +163,12 @@ export const useAlertsLogic = () => {
       province: checked ? province : '',
       district: ''
     }));
+    // Clear province validation error
+    setValidationErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors.province;
+      return newErrors;
+    });
   }, []);
 
   /**
@@ -170,9 +183,13 @@ export const useAlertsLogic = () => {
     
     if (!validation.isValid) {
       console.error('❌ Validation errors:', validation.errors);
-      NotificationService.showError('Validation failed: ' + Object.values(validation.errors).join(', '));
+      setValidationErrors(validation.errors);
+      NotificationService.showError('Please fix the validation errors');
       return;
     }
+
+    // Clear validation errors if valid
+    setValidationErrors({});
 
     try {
       setLoading(true);
@@ -213,6 +230,7 @@ export const useAlertsLogic = () => {
    */
   const resetForm = useCallback(() => {
     setNewAlert(INITIAL_ALERT_FORM);
+    setValidationErrors({});
   }, []);
 
   /**
@@ -248,12 +266,18 @@ export const useAlertsLogic = () => {
     [alerts]
   );
 
-  const displayedAlerts = useMemo(
-    () => alerts.filter(alert => 
-      showResolved ? alert.status === 'resolved' : alert.status !== 'resolved'
-    ),
-    [alerts, showResolved]
-  );
+  const displayedAlerts = useMemo(() => {
+    const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+    return alerts
+      .filter(alert => 
+        showResolved ? alert.status === 'resolved' : alert.status !== 'resolved'
+      )
+      .sort((a, b) => {
+        const orderA = severityOrder[a.severity] ?? 4;
+        const orderB = severityOrder[b.severity] ?? 4;
+        return orderA - orderB;
+      });
+  }, [alerts, showResolved]);
 
   const alertStats = useMemo(() => ({
     critical: alerts.filter(a => a.severity === 'critical' && a.status === 'active').length,
@@ -275,6 +299,7 @@ export const useAlertsLogic = () => {
     viewAlertId,
     showResolved,
     newAlert,
+    validationErrors,
     
     // Computed
     alertToView,

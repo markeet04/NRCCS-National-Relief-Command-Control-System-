@@ -612,3 +612,94 @@ body {
   margin-left: 0.25rem;
   vertical-align: middle;
 }
+
+/* ============================================================================
+   ALERT DETAILS MODAL SPACING
+   ============================================================================ */
+
+/* Title section with compact spacing */
+.alert-details-title-section {
+  margin-bottom: 16px;
+}
+
+.alert-details-title {
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+/* Badges container with horizontal gap */
+.alert-details-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Individual badge styling */
+.alert-badge {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.alert-badge-severity {
+  /* Severity-specific styles applied via inline styles */
+}
+
+.alert-badge-status {
+  font-weight: 500;
+  /* Status-specific styles applied via inline styles */
+}
+
+/* Field sections container with compact vertical spacing */
+.alert-details-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Individual field with proper spacing */
+.alert-details-field {
+  /* Container for label + value */
+}
+
+/* Field labels */
+.alert-details-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+/* Field values/content boxes */
+.alert-details-value {
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.alert-details-value p {
+  color: #ffffff;
+  line-height: 1.5;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Active Alert Warning Banner */
+.alert-details-warning {
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-top: 4px;
+}
+
+.alert-details-warning h5 {
+  margin: 0 0 4px 0;
+}
+
+.alert-details-warning p {
+  margin: 0;
+}

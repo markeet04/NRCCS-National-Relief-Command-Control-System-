@@ -14,6 +14,19 @@ import { useAlertsLogic } from '../../hooks';
 import '../../styles/nationwide-alerts.css';
 import '../../styles/global-ndma.css';
 
+// Dark theme colors for modals
+const DARK_THEME_COLORS = {
+  modalBg: '#0f1114',
+  elevatedBg: '#151719',
+  inputBg: '#1a1d21',
+  textPrimary: '#ffffff',
+  textSecondary: '#94a3b8',
+  border: '#2d3238',
+  borderMedium: '#3d4248',
+  buttonSecondary: '#2d3238',
+  buttonSecondaryHover: '#3d4248',
+};
+
 /**
  * AlertsPage Component
  * Nationwide alert management interface with summary stats and alert card list
@@ -28,6 +41,7 @@ const AlertsPage = () => {
     isCreateModalOpen,
     showResolved,
     newAlert,
+    validationErrors,
     
     // Computed
     alertToView,
@@ -274,6 +288,9 @@ const AlertsPage = () => {
         onProvinceChange={handleProvinceChange}
         onSubmit={handleSubmitNewAlert}
         loading={loading}
+        colors={DARK_THEME_COLORS}
+        isLight={false}
+        validationErrors={validationErrors}
       />
 
       {/* Alert Details Modal */}
