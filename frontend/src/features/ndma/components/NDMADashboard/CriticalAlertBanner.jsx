@@ -25,11 +25,11 @@ const CriticalAlertBanner = ({
       className="rounded-xl p-4 mb-6 animate-pulse"
       style={{
         background: isLight 
-          ? 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)'
-          : 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%)',
+          ? 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)'
+          : '#991b1b',
         border: isLight 
           ? '1px solid #fecaca' 
-          : '1px solid rgba(239, 68, 68, 0.3)',
+          : '1px solid #991b1b',
       }}
     >
       <div className="flex items-start justify-between">
@@ -37,16 +37,16 @@ const CriticalAlertBanner = ({
           <div
             className="p-2 rounded-lg"
             style={{
-              backgroundColor: 'rgba(239, 68, 68, 0.2)',
+              backgroundColor: '#991b1b',
             }}
           >
-            <AlertTriangle className="w-5 h-5 text-red-500" />
+            <AlertTriangle className="w-5 h-5 text-red-100" />
           </div>
           
           <div>
             <h4 
               className="font-semibold mb-1"
-              style={{ color: '#ef4444' }}
+              style={{ color: '#fff' }}
             >
               {alertCount} Critical Alert{alertCount > 1 ? 's' : ''} Require Attention
             </h4>
@@ -63,7 +63,7 @@ const CriticalAlertBanner = ({
             <button
               onClick={handleViewAll}
               className="flex items-center gap-1 text-sm font-medium transition-colors hover:underline"
-              style={{ color: '#ef4444' }}
+              style={{ color: '#fff', backgroundColor: '#991b1b', borderRadius: '6px', padding: '0.375rem 0.75rem', border: 'none' }}
             >
               View all alerts
               <ArrowRight className="w-4 h-4" />
@@ -74,8 +74,8 @@ const CriticalAlertBanner = ({
         {onDismiss && (
           <button
             onClick={onDismiss}
-            className="p-1 rounded-full transition-colors hover:bg-red-100"
-            style={{ color: '#ef4444' }}
+            className="p-1 rounded-full transition-colors hover:bg-red-900"
+            style={{ color: '#fff', backgroundColor: '#991b1b' }}
             aria-label="Dismiss alert banner"
           >
             <X className="w-4 h-4" />

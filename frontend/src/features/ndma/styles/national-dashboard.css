@@ -10,7 +10,7 @@
 .national-alert-banner {
   background-color: #991b1b;
   border-radius: 8px;
-  padding: 16px 20px;
+  padding: 12px 18px;
   margin-bottom: 24px;
   display: flex;
   align-items: center;
@@ -24,7 +24,7 @@
 }
 
 .national-alert-banner-icon {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: transparent;
   padding: 8px;
   border-radius: 8px;
   display: flex;
@@ -54,7 +54,7 @@
 }
 
 .national-alert-banner-action {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: transparent;
   color: #ffffff;
   border: none;
   padding: 8px 16px;
@@ -69,7 +69,7 @@
 }
 
 .national-alert-banner-action:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 /* =============================================================================
@@ -274,10 +274,13 @@
   height: 500px;
   position: relative;
   padding-left: 20px;
+  padding-right: 20px;
+  margin-bottom: 20px;
+  
 }
 
 .national-map-legend {
-  padding: 12px 20px 12px 24px;
+  padding: 12px 20px 24px 24px;
   border-top: none;
   display: flex;
   flex-wrap: wrap;
