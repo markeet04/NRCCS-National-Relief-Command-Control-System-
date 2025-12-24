@@ -73,7 +73,7 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
         width: '260px', 
         minWidth: '260px', 
         maxWidth: '260px',
-        backgroundColor: '#0a0a0a',
+        backgroundColor: 'var(--bg-primary)',
         borderRight: '1px solid rgba(255, 255, 255, 0.1)'
       }}
     >

@@ -1,0 +1,502 @@
+/**
+ * Nationwide Alerts Page Styles
+ * Summary stat cards grid + vertical alert card list
+ * Design: NASA mission control / dark theme
+ */
+
+/* ============================================================================
+   PAGE LAYOUT
+   ============================================================================ */
+.alerts-page {
+  padding: 0;
+}
+
+.alerts-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.alerts-page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+}
+
+.alerts-page-subtitle {
+  font-size: 14px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.alerts-page-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ============================================================================
+   SUMMARY STAT CARDS - TOP ROW
+   ============================================================================ */
+.alerts-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 1200px) {
+  .alerts-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .alerts-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.alerts-stat-card {
+  background-color: #0f1114;
+  border-radius: 12px;
+  padding: 20px 20px 20px 24px;
+  text-align: center;
+  transition: all 0.2s ease;
+  position: relative;
+  border: none;
+}
+
+.alerts-stat-card:hover {
+  background-color: #111416;
+  transform: translateY(-2px);
+}
+
+/* Critical Card - Red left border */
+.alerts-stat-card.critical {
+  border-left: 3px solid #ef4444;
+  box-shadow: -2px 0 10px 0 #ef444466;
+}
+
+/* High Card - Orange left border */
+.alerts-stat-card.high {
+  border-left: 3px solid #f97316;
+  box-shadow: -2px 0 10px 0 #f9731666;
+}
+
+/* Medium Card - Yellow left border */
+.alerts-stat-card.medium {
+  border-left: 3px solid #eab308;
+  box-shadow: -2px 0 10px 0 #eab30866;
+}
+
+/* Resolved Card - Green left border */
+.alerts-stat-card.resolved {
+  border-left: 3px solid #22c55e;
+  box-shadow: -2px 0 10px 0 #22c55e66;
+}
+
+.alerts-stat-label {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.alerts-stat-label.critical {
+  color: #ef4444;
+}
+
+.alerts-stat-label.high {
+  color: #f97316;
+}
+
+.alerts-stat-label.medium {
+  color: #eab308;
+}
+
+.alerts-stat-label.resolved {
+  color: #22c55e;
+}
+
+.alerts-stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.alerts-stat-value.critical {
+  color: #ef4444;
+}
+
+.alerts-stat-value.high {
+  color: #f97316;
+}
+
+.alerts-stat-value.medium {
+  color: #eab308;
+}
+
+.alerts-stat-value.resolved {
+  color: #22c55e;
+}
+
+/* ============================================================================
+   ALERT CARDS LIST
+   ============================================================================ */
+.alerts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.alerts-list-empty {
+  text-align: center;
+  padding: 48px 24px;
+  background-color: #0f1114;
+  border: none;
+  border-radius: 12px;
+}
+
+.alerts-list-empty p {
+  color: #64748b;
+  font-size: 15px;
+  margin: 0;
+}
+
+/* Alert Card */
+.alert-card {
+  background-color: #0f1114;
+  border: none;
+  border-radius: 12px;
+  padding: 20px 20px 20px 28px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.alert-card:hover {
+  background-color: #111416;
+  transform: translateY(-2px);
+}
+
+/* Priority Left Borders - 3px solid colored left border */
+.alert-card.critical {
+  border-left: 3px solid #ef4444;
+  box-shadow: inset 4px 0 8px -4px #ef444466;
+}
+
+.alert-card.high {
+  border-left: 3px solid #f97316;
+  box-shadow: inset 4px 0 8px -4px #f9731666;
+}
+
+.alert-card.medium {
+  border-left: 3px solid #eab308;
+  box-shadow: inset 4px 0 8px -4px #eab30866;
+}
+
+.alert-card.low {
+  border-left: 3px solid #22c55e;
+  box-shadow: inset 4px 0 8px -4px #22c55e66;
+}
+
+.alert-card.resolved {
+  opacity: 0.85;
+  border-left: 3px solid #22c55e;
+  box-shadow: inset 4px 0 8px -4px #22c55e66;
+}
+
+/* Alert Card Header */
+.alert-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.alert-card-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Severity Badge */
+.alert-severity-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 16px;
+  text-transform: capitalize;
+}
+
+.alert-severity-badge.critical {
+  background-color: #ef4444;
+  color: #ffffff;
+}
+
+.alert-severity-badge.high {
+  background-color: #f97316;
+  color: #ffffff;
+}
+
+.alert-severity-badge.medium {
+  background-color: #ca8a04;
+  color: #ffffff;
+}
+
+.alert-severity-badge.low {
+  background-color: #22c55e;
+  color: #ffffff;
+}
+
+/* Type Badge */
+.alert-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 16px;
+  background-color: #1f242a;
+  color: #94a3b8;
+  border: 1px solid #2d3238;
+  text-transform: capitalize;
+}
+
+/* Status Badge */
+.alert-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 16px;
+  background-color: #1f242a;
+  color: #94a3b8;
+  border: 1px solid #2d3238;
+  text-transform: capitalize;
+}
+
+.alert-status-badge.resolved {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.alert-status-badge.active {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* Alert Card Title */
+.alert-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 10px 0;
+  line-height: 1.3;
+}
+
+/* Alert Card Description */
+.alert-card-description {
+  font-size: 14px;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin: 0 0 16px 0;
+}
+
+/* Alert Card Meta */
+.alert-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 16px;
+}
+
+.alert-card-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.alert-card-meta-label {
+  color: #64748b;
+}
+
+.alert-card-meta-value {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Alert Card Actions */
+.alert-card-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid #1a1d21;
+}
+
+/* ============================================================================
+   BUTTONS
+   ============================================================================ */
+.alerts-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 40px;
+}
+
+.alerts-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Primary Button (Blue - Create Alert) */
+.alerts-btn-primary {
+  background-color: #0ea5e9;
+  color: #ffffff;
+}
+
+.alerts-btn-primary:hover:not(:disabled) {
+  background-color: #0284c7;
+}
+
+/* Secondary Button (Toggle) */
+.alerts-btn-secondary {
+  background-color: rgba(148, 163, 184, 0.12);
+  color: #e2e8f0;
+}
+
+.alerts-btn-secondary:hover:not(:disabled) {
+  background-color: rgba(148, 163, 184, 0.2);
+}
+
+.alerts-btn-secondary.active {
+  background-color: #0ea5e9;
+  color: #ffffff;
+}
+
+/* Outline Button (View Details) */
+.alerts-btn-outline {
+  background-color: transparent;
+  color: #0ea5e9;
+  border: 1px solid #0ea5e9;
+}
+
+.alerts-btn-outline:hover:not(:disabled) {
+  background-color: rgba(14, 165, 233, 0.1);
+}
+
+/* Success Button (Resolve) */
+.alerts-btn-success {
+  background-color: #059669;
+  color: #ffffff;
+}
+
+.alerts-btn-success:hover:not(:disabled) {
+  background-color: #047857;
+}
+
+/* Warning Button (Reopen) */
+.alerts-btn-warning {
+  background-color: #f59e0b;
+  color: #ffffff;
+}
+
+.alerts-btn-warning:hover:not(:disabled) {
+  background-color: #d97706;
+}
+
+/* Danger Button (Delete) */
+.alerts-btn-danger {
+  background-color: #ef4444;
+  color: #ffffff;
+}
+
+.alerts-btn-danger:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+/* ============================================================================
+   LOADING & ERROR STATES
+   ============================================================================ */
+.alerts-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+}
+
+.alerts-loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #2d3238;
+  border-top-color: #0ea5e9;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.alerts-loading-text {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.alerts-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.alerts-error-icon {
+  width: 48px;
+  height: 48px;
+  color: #ef4444;
+  margin-bottom: 16px;
+}
+
+.alerts-error-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+}
+
+.alerts-error-message {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0 0 20px 0;
+}

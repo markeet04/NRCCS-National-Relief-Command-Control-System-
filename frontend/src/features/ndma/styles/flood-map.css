@@ -1,0 +1,721 @@
+/**
+ * Flood Map Page Styles
+ * Two-column layout with interactive map and province status panel
+ * Design: NASA mission control / dark theme
+ */
+
+/* ============================================================================
+   MAIN LAYOUT - TWO COLUMN GRID
+   ============================================================================ */
+.flood-map-container {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 24px;
+  min-height: calc(100vh - 200px);
+}
+
+@media (max-width: 1200px) {
+  .flood-map-container {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+@media (max-width: 992px) {
+  .flood-map-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================================
+   MAP SECTION (LEFT COLUMN)
+   ============================================================================ */
+.flood-map-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.flood-map-card {
+  background-color: #1a1d21;
+  border: 1px solid #2d3238;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 600px;
+}
+
+.flood-map-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background-color: #263038;
+  border-bottom: 1px solid #2d3238;
+}
+
+.flood-map-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.flood-map-title-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: rgba(59, 130, 246, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3b82f6;
+}
+
+.flood-map-title h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.flood-map-title-subtitle {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.flood-map-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.flood-map-search {
+  position: relative;
+}
+
+.flood-map-search-input {
+  width: 220px;
+  padding: 8px 12px 8px 36px;
+  font-size: 14px;
+  color: #ffffff;
+  background-color: #1f242a;
+  border: 1px solid #2d3238;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.flood-map-search-input::placeholder {
+  color: #64748b;
+}
+
+.flood-map-search-input:focus {
+  border-color: #3b82f6;
+}
+
+.flood-map-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+}
+
+.flood-map-select {
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #ffffff;
+  background-color: #1f242a;
+  border: 1px solid #2d3238;
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+  min-width: 150px;
+}
+
+.flood-map-select:focus {
+  border-color: #3b82f6;
+}
+
+.flood-map-select option {
+  background-color: #1f242a;
+  color: #ffffff;
+}
+
+/* Map Content Area */
+.flood-map-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  position: relative;
+  background: linear-gradient(180deg, #1a1d21 0%, #0f1114 100%);
+}
+
+.flood-map-placeholder {
+  text-align: center;
+}
+
+.flood-map-placeholder-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  color: #3b82f6;
+  opacity: 0.7;
+}
+
+.flood-map-placeholder h3 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+}
+
+.flood-map-placeholder p {
+  font-size: 14px;
+  color: #94a3b8;
+  margin: 0;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+/* Map Legend */
+.flood-map-legend {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background-color: #1f242a;
+  border: 1px solid #2d3238;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.flood-map-legend-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+.flood-map-legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.flood-map-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flood-map-legend-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+.flood-map-legend-color.critical {
+  background-color: #ef4444;
+}
+
+.flood-map-legend-color.high {
+  background-color: #f97316;
+}
+
+.flood-map-legend-color.medium {
+  background-color: #eab308;
+}
+
+.flood-map-legend-color.low {
+  background-color: #22c55e;
+}
+
+.flood-map-legend-label {
+  font-size: 12px;
+  color: #cbd5e1;
+}
+
+/* Layer Controls */
+.flood-map-layers {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #1f242a;
+  border: 1px solid #2d3238;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.flood-map-layers-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+.flood-map-layer-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.flood-map-layer-toggle input[type="checkbox"] {
+  accent-color: #4caf50;
+}
+
+.flood-map-layer-toggle span {
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+/* ============================================================================
+   PROVINCE STATUS PANEL (RIGHT COLUMN)
+   ============================================================================ */
+.flood-province-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: calc(100vh - 200px);
+}
+
+.flood-province-card {
+  background-color: #1a1d21;
+  border: 1px solid #2d3238;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.flood-province-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background-color: #263038;
+  border-bottom: 1px solid #2d3238;
+}
+
+.flood-province-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.flood-province-count {
+  font-size: 12px;
+  color: #94a3b8;
+  background-color: #1f242a;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.flood-province-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.flood-province-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.flood-province-list::-webkit-scrollbar-track {
+  background: #1f242a;
+  border-radius: 3px;
+}
+
+.flood-province-list::-webkit-scrollbar-thumb {
+  background: #3d4248;
+  border-radius: 3px;
+}
+
+.flood-province-list::-webkit-scrollbar-thumb:hover {
+  background: #4d5258;
+}
+
+/* Province Item */
+.flood-province-item {
+  background-color: #1f242a;
+  border: 1px solid #2d3238;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.flood-province-item:last-child {
+  margin-bottom: 0;
+}
+
+.flood-province-item:hover {
+  border-color: #3d4248;
+  background-color: #262b31;
+}
+
+.flood-province-item.selected {
+  border-color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.08);
+}
+
+.flood-province-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.flood-province-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* Risk Badges */
+.flood-risk-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.flood-risk-badge.critical {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.flood-risk-badge.high {
+  background-color: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.flood-risk-badge.medium {
+  background-color: rgba(161, 98, 7, 0.15);
+  color: #ca8a04;
+  border: 1px solid rgba(161, 98, 7, 0.3);
+}
+
+.flood-risk-badge.low {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.flood-risk-badge.warning {
+  background-color: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.flood-risk-badge.normal {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+/* Water Level Progress */
+.flood-water-level {
+  margin-bottom: 12px;
+}
+
+.flood-water-level-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.flood-water-level-label {
+  font-size: 12px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.flood-water-level-value {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.flood-water-level-value.critical {
+  color: #ef4444;
+}
+
+.flood-water-level-value.high {
+  color: #f97316;
+}
+
+.flood-water-level-value.medium {
+  color: #eab308;
+}
+
+.flood-water-level-value.low {
+  color: #22c55e;
+}
+
+.flood-progress-bar {
+  height: 6px;
+  background-color: #2d3238;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.flood-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.flood-progress-fill.critical {
+  background-color: #ef4444;
+}
+
+.flood-progress-fill.high {
+  background-color: #f97316;
+}
+
+.flood-progress-fill.medium {
+  background-color: #eab308;
+}
+
+.flood-progress-fill.low {
+  background-color: #22c55e;
+}
+
+/* Province Stats Row */
+.flood-province-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.flood-province-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.flood-province-stat-icon {
+  width: 16px;
+  height: 16px;
+  color: #64748b;
+}
+
+.flood-province-stat-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.flood-province-stat-label {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* ============================================================================
+   MODAL STYLES
+   ============================================================================ */
+.flood-modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  padding: 20px;
+}
+
+.flood-modal {
+  width: 100%;
+  max-width: 480px;
+  background-color: #1a1d21;
+  border: 1px solid #2d3238;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.flood-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #2d3238;
+}
+
+.flood-modal-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.flood-modal-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.flood-modal-close:hover {
+  background-color: rgba(148, 163, 184, 0.1);
+  color: #ffffff;
+}
+
+.flood-modal-body {
+  padding: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.flood-modal-section {
+  margin-bottom: 20px;
+}
+
+.flood-modal-section:last-child {
+  margin-bottom: 0;
+}
+
+.flood-modal-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.flood-modal-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.flood-modal-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #2d3238;
+}
+
+.flood-modal-list-item:last-child {
+  border-bottom: none;
+}
+
+.flood-modal-list-item span {
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.flood-modal-list-item .default-tag {
+  font-size: 12px;
+  color: #64748b;
+  font-style: italic;
+}
+
+.flood-modal-list-item .delete-btn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.flood-modal-list-item .delete-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.flood-modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #2d3238;
+}
+
+.flood-modal-btn {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.flood-modal-btn-secondary {
+  background-color: #2d3238;
+  color: #ffffff;
+}
+
+.flood-modal-btn-secondary:hover {
+  background-color: #3d4248;
+}
+
+/* ============================================================================
+   ACTION BUTTONS
+   ============================================================================ */
+.flood-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.flood-action-btn-primary {
+  background-color: #4caf50;
+  color: #ffffff;
+}
+
+.flood-action-btn-primary:hover {
+  background-color: #43a047;
+}
+
+.flood-action-btn-ghost {
+  background: transparent;
+  color: #94a3b8;
+  padding: 8px;
+}
+
+.flood-action-btn-ghost:hover {
+  background-color: rgba(148, 163, 184, 0.1);
+  color: #ffffff;
+}

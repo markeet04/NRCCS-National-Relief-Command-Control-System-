@@ -6,8 +6,9 @@ import { useState } from 'react';
 /**
  * ResourceTable Component
  * Displays provincial resource allocations in a sortable table
+ * Uses CSS classes from global-ndma.css
  */
-const ResourceTable = ({ allocations, onEdit, getStatusConfig, isLight }) => {
+const ResourceTable = ({ allocations, onEdit, getStatusConfig }) => {
   const [sortField, setSortField] = useState('province');
   const [sortDirection, setSortDirection] = useState('asc');
 
@@ -36,9 +37,9 @@ const ResourceTable = ({ allocations, onEdit, getStatusConfig, isLight }) => {
   const SortIcon = ({ field }) => {
     if (sortField !== field) return null;
     return sortDirection === 'asc' ? (
-      <ChevronUp className="w-4 h-4 inline ml-1" />
+      <ChevronUp className="w-4 h-4 ndma-sort-icon" />
     ) : (
-      <ChevronDown className="w-4 h-4 inline ml-1" />
+      <ChevronDown className="w-4 h-4 ndma-sort-icon" />
     );
   };
 
@@ -52,25 +53,27 @@ const ResourceTable = ({ allocations, onEdit, getStatusConfig, isLight }) => {
     { key: 'actions', label: 'Actions', sortable: false },
   ];
 
+  // Map status to badge class
+  const getStatusBadgeClass = (status) => {
+    const classMap = {
+      adequate: 'ndma-badge-adequate',
+      moderate: 'ndma-badge-moderate',
+      low: 'ndma-badge-low',
+      critical: 'ndma-badge-critical',
+    };
+    return `ndma-badge ${classMap[status] || classMap.adequate}`;
+  };
+
   return (
-    <div
-      className="rounded-xl overflow-hidden"
-      style={{
-        backgroundColor: 'var(--bg-secondary)',
-        border: '1px solid var(--border-color)',
-      }}
-    >
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+    <div className="ndma-table-container">
+      <div className="resources-table-wrapper">
+        <table className="ndma-table">
+          <thead className="ndma-table-header">
+            <tr>
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider ${
-                    col.sortable ? 'cursor-pointer hover:bg-opacity-80' : ''
-                  }`}
-                  style={{ color: 'var(--text-muted)' }}
+                  className={col.sortable ? 'sortable' : ''}
                   onClick={() => col.sortable && handleSort(col.key)}
                 >
                   {col.label}
@@ -79,74 +82,47 @@ const ResourceTable = ({ allocations, onEdit, getStatusConfig, isLight }) => {
               ))}
             </tr>
           </thead>
-          <tbody>
-            {sortedAllocations.map((allocation, index) => {
-              const statusConfig = getStatusConfig(allocation.status);
-              return (
-                <tr
-                  key={allocation.province}
-                  style={{
-                    borderTop: '1px solid var(--border-color)',
-                    backgroundColor:
-                      index % 2 === 0
-                        ? 'transparent'
-                        : 'var(--bg-tertiary)',
-                  }}
-                >
-                  <td
-                    className="px-6 py-4 font-medium"
-                    style={{ color: 'var(--text-primary)' }}
+          <tbody className="ndma-table-body">
+            {sortedAllocations.map((allocation) => (
+              <tr key={allocation.province}>
+                <td className="ndma-table-cell-primary">
+                  {allocation.province}
+                </td>
+                <td className="ndma-table-cell-secondary">
+                  {formatNumber(allocation.food)}
+                </td>
+                <td className="ndma-table-cell-secondary">
+                  {formatNumber(allocation.medical)}
+                </td>
+                <td className="ndma-table-cell-secondary">
+                  {formatNumber(allocation.shelter)}
+                </td>
+                <td className="ndma-table-cell-secondary">
+                  {formatNumber(allocation.water)}
+                </td>
+                <td>
+                  <span className={getStatusBadgeClass(allocation.status)}>
+                    {allocation.status}
+                  </span>
+                </td>
+                <td>
+                  <button
+                    onClick={() => onEdit(allocation.province)}
+                    className="ndma-btn-icon ndma-btn-icon-blue"
+                    title="Edit allocation"
                   >
-                    {allocation.province}
-                  </td>
-                  <td className="px-6 py-4" style={{ color: 'var(--text-secondary)' }}>
-                    {formatNumber(allocation.food)}
-                  </td>
-                  <td className="px-6 py-4" style={{ color: 'var(--text-secondary)' }}>
-                    {formatNumber(allocation.medical)}
-                  </td>
-                  <td className="px-6 py-4" style={{ color: 'var(--text-secondary)' }}>
-                    {formatNumber(allocation.shelter)}
-                  </td>
-                  <td className="px-6 py-4" style={{ color: 'var(--text-secondary)' }}>
-                    {formatNumber(allocation.water)}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className="px-3 py-1 rounded-full text-xs font-medium capitalize"
-                      style={{
-                        backgroundColor: statusConfig.bgColor,
-                        color: statusConfig.color,
-                      }}
-                    >
-                      {allocation.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <button
-                      onClick={() => onEdit(allocation.province)}
-                      className="p-2 rounded-lg transition-colors"
-                      style={{
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        color: '#3b82f6',
-                      }}
-                      title="Edit allocation"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
 
       {allocations.length === 0 && (
-        <div className="text-center py-12">
-          <p style={{ color: 'var(--text-muted)' }}>
-            No resource allocations found
-          </p>
+        <div className="ndma-table-empty">
+          <p>No resource allocations found</p>
         </div>
       )}
     </div>
@@ -166,11 +142,6 @@ ResourceTable.propTypes = {
   ).isRequired,
   onEdit: PropTypes.func.isRequired,
   getStatusConfig: PropTypes.func.isRequired,
-  isLight: PropTypes.bool,
-};
-
-ResourceTable.defaultProps = {
-  isLight: false,
 };
 
 export default ResourceTable;

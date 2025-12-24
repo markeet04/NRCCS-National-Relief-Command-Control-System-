@@ -2,7 +2,7 @@ import { Controller, Post, Get, UseGuards, Req, HttpCode, HttpStatus, Session } 
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from '../common/guards/local-auth.guard';
 import { SessionAuthGuard } from '../common/guards/session-auth.guard';
-import type { Request } from 'express';
+
 
 @Controller('auth')
 export class AuthController {

@@ -110,8 +110,8 @@ export const isValidSeverity = (severity) => {
  */
 export const isValidProvince = (province) => {
   const validProvinces = [
-    'Punjab', 'Sindh', 'Khyber Pakhtunkhwa', 'KPK', 'Balochistan',
-    'Islamabad', 'Gilgit-Baltistan', 'Azad Jammu and Kashmir', 'AJK'
+    'Punjab', 'Sindh', 'KPK', 'Balochistan',
+    'Islamabad', 'Gilgit', 'AJK'
   ];
   return validProvinces.includes(province);
 };

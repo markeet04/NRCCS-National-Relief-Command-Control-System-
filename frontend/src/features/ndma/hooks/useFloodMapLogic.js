@@ -7,6 +7,7 @@ import {
   FLOOD_RISK_LEVELS,
   STATUS_COLORS,
   MAP_LAYERS,
+  MAP_TYPE_OPTIONS,
 } from '../constants';
 
 /**
@@ -15,7 +16,7 @@ import {
  */
 export const useFloodMapLogic = () => {
   // Data state
-  const [provinceStatus, setProvinceStatus] = useState(PROVINCE_STATUS_DATA);
+  const [provinces, setProvinces] = useState(PROVINCE_STATUS_DATA);
   const [criticalAreas, setCriticalAreas] = useState(CRITICAL_AREAS);
   const [shelterCapacity, setShelterCapacity] = useState(SHELTER_CAPACITY);
   
@@ -24,10 +25,21 @@ export const useFloodMapLogic = () => {
   const [activeLayers, setActiveLayers] = useState(
     MAP_LAYERS.filter(l => l.enabled).map(l => l.id)
   );
-  const [mapType, setMapType] = useState('satellite');
+  const [mapView, setMapView] = useState('satellite');
+  const [searchTerm, setSearchTerm] = useState('');
   
   // Modal state
-  const [isMapTypeModalOpen, setIsMapTypeModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Extra maps for custom user sections
+  const [extraMaps, setExtraMaps] = useState([]);
+  
+  // Default map options
+  const defaultMaps = useMemo(() => MAP_TYPE_OPTIONS || [
+    { name: 'satellite', label: 'Satellite View' },
+    { name: 'terrain', label: 'Terrain View' },
+    { name: 'flood-risk', label: 'Flood Risk Map' },
+  ], []);
   
   // Loading state
   const [loading, setLoading] = useState(false);
@@ -36,25 +48,25 @@ export const useFloodMapLogic = () => {
    * Calculate flood statistics
    */
   const floodStats = useMemo(() => ({
-    totalAffectedDistricts: provinceStatus.reduce((acc, p) => acc + p.affectedDistricts, 0),
-    totalEvacuated: provinceStatus.reduce((acc, p) => acc + p.evacuated, 0),
+    totalAffectedDistricts: provinces.reduce((acc, p) => acc + (p.affectedDistricts || 0), 0),
+    totalEvacuated: provinces.reduce((acc, p) => acc + (p.evacuated || 0), 0),
     criticalAreasCount: criticalAreas.filter(a => a.status === 'critical').length,
     warningAreasCount: criticalAreas.filter(a => a.status === 'warning').length,
     shelterOccupancy: Math.round(
-      (shelterCapacity.reduce((acc, s) => acc + s.occupied, 0) /
-      shelterCapacity.reduce((acc, s) => acc + s.total, 0)) * 100
+      (shelterCapacity.reduce((acc, s) => acc + (s.occupied || 0), 0) /
+      shelterCapacity.reduce((acc, s) => acc + (s.total || 1), 0)) * 100
     ),
-    totalShelterCapacity: shelterCapacity.reduce((acc, s) => acc + s.capacity, 0),
-  }), [provinceStatus, criticalAreas, shelterCapacity]);
+    totalShelterCapacity: shelterCapacity.reduce((acc, s) => acc + (s.capacity || 0), 0),
+  }), [provinces, criticalAreas, shelterCapacity]);
 
   /**
    * Get provinces by status
    */
   const provincesByStatus = useMemo(() => ({
-    critical: provinceStatus.filter(p => p.status === 'critical'),
-    warning: provinceStatus.filter(p => p.status === 'warning'),
-    normal: provinceStatus.filter(p => p.status === 'normal'),
-  }), [provinceStatus]);
+    critical: provinces.filter(p => p.status === 'critical'),
+    warning: provinces.filter(p => p.status === 'warning'),
+    normal: provinces.filter(p => p.status === 'normal'),
+  }), [provinces]);
 
   /**
    * Get color config for status
@@ -74,9 +86,9 @@ export const useFloodMapLogic = () => {
    * Select a province on the map
    */
   const handleSelectProvince = useCallback((provinceId) => {
-    const province = provinceStatus.find(p => p.id === provinceId);
+    const province = provinces.find(p => p.id === provinceId);
     setSelectedProvince(province || null);
-  }, [provinceStatus]);
+  }, [provinces]);
 
   /**
    * Clear province selection
@@ -104,26 +116,44 @@ export const useFloodMapLogic = () => {
   }, [activeLayers]);
 
   /**
-   * Open map type modal
+   * Open modal
    */
-  const openMapTypeModal = useCallback(() => {
-    setIsMapTypeModalOpen(true);
+  const openModal = useCallback(() => {
+    setIsModalOpen(true);
   }, []);
 
   /**
-   * Close map type modal
+   * Close modal
    */
-  const closeMapTypeModal = useCallback(() => {
-    setIsMapTypeModalOpen(false);
+  const closeModal = useCallback(() => {
+    setIsModalOpen(false);
   }, []);
 
   /**
-   * Change map type
+   * Delete a custom map section
+   */
+  const handleDeleteMapSection = useCallback((mapId) => {
+    setExtraMaps(prev => prev.filter(map => map.id !== mapId));
+  }, []);
+
+  /**
+   * Add a custom map section
+   */
+  const handleAddMapSection = useCallback((mapName) => {
+    const newMap = {
+      id: `custom-${Date.now()}`,
+      name: mapName,
+    };
+    setExtraMaps(prev => [...prev, newMap]);
+  }, []);
+
+  /**
+   * Change map view type
    */
   const handleMapTypeChange = useCallback((type) => {
-    setMapType(type);
-    closeMapTypeModal();
-  }, [closeMapTypeModal]);
+    setMapView(type);
+    closeModal();
+  }, [closeModal]);
 
   /**
    * Refresh data
@@ -165,28 +195,38 @@ export const useFloodMapLogic = () => {
 
   return {
     // State
-    provinceStatus,
+    selectedProvince,
+    mapView,
+    searchTerm,
+    isModalOpen,
+    extraMaps,
+    loading,
+    activeLayers,
+    
+    // Data
+    provinces,
     criticalAreas,
     shelterCapacity,
-    selectedProvince,
-    activeLayers,
-    mapType,
-    isMapTypeModalOpen,
-    loading,
+    menuItems,
+    defaultMaps,
     
     // Computed
     floodStats,
     provincesByStatus,
-    menuItems,
     roleConfig,
     
     // Actions
+    setSelectedProvince,
+    setMapView,
+    setSearchTerm,
+    openModal,
+    closeModal,
+    handleDeleteMapSection,
+    handleAddMapSection,
     handleSelectProvince,
     clearProvinceSelection,
     toggleLayer,
     isLayerActive,
-    openMapTypeModal,
-    closeMapTypeModal,
     handleMapTypeChange,
     refreshData,
     getShelterInfo,

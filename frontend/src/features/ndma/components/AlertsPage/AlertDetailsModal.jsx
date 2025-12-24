@@ -1,6 +1,16 @@
 import PropTypes from 'prop-types';
 import { X, AlertTriangle, CheckCircle } from 'lucide-react';
 
+// Dark theme colors matching CreateAlertModal
+const DARK_THEME_COLORS = {
+  modalBg: '#0f1114',
+  elevatedBg: '#151719',
+  inputBg: '#1a1d21',
+  textPrimary: '#ffffff',
+  textSecondary: '#94a3b8',
+  border: '#2d3238',
+};
+
 /**
  * AlertDetailsModal Component
  * Modal for viewing detailed alert information
@@ -56,166 +66,227 @@ const AlertDetailsModal = ({ alert, onClose, onResolve }) => {
   return (
     <div
       className="fixed inset-0 flex items-center justify-center"
-      style={{ backgroundColor: 'rgba(2, 6, 23, 0.75)', zIndex: 9999 }}
+      style={{
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+        zIndex: 9999,
+        padding: '1rem',
+      }}
     >
       <div
-        className="w-full max-w-3xl rounded-2xl"
+        className="w-full"
         style={{
-          backgroundColor: 'var(--bg-tertiary)',
-          border: '1px solid var(--border-color)',
+          maxWidth: '600px',
+          backgroundColor: DARK_THEME_COLORS.modalBg,
+          borderRadius: '12px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
           maxHeight: '90vh',
-          overflow: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         {/* Header */}
         <div
           className="flex items-center justify-between"
           style={{
-            borderBottom: '1px solid var(--border-color)',
-            position: 'sticky',
-            top: 0,
-            backgroundColor: 'var(--bg-tertiary)',
-            zIndex: 10,
-            padding: '24px 32px',
+            padding: '16px 20px',
+            borderBottom: `1px solid ${DARK_THEME_COLORS.border}`,
+            flexShrink: 0,
           }}
         >
-          <div>
-            <h3
-              className="text-xl font-bold"
-              style={{ color: 'var(--text-primary)', marginBottom: '4px' }}
-            >
-              Alert Details
-            </h3>
-            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-              Full alert information
-            </p>
-          </div>
+          <h3
+            className="text-lg font-semibold"
+            style={{ color: DARK_THEME_COLORS.textPrimary, margin: 0 }}
+          >
+            Alert Details
+          </h3>
           <button
-            className="p-2 rounded-full hover:bg-opacity-80 transition-colors"
+            className="p-1.5 rounded transition-colors"
             style={{
-              color: 'var(--text-secondary)',
-              backgroundColor: 'rgba(148, 163, 184, 0.12)',
+              color: DARK_THEME_COLORS.textSecondary,
+              backgroundColor: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
             }}
             onClick={onClose}
             aria-label="Close alert details"
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundColor = DARK_THEME_COLORS.elevatedBg)
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundColor = 'transparent')
+            }
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content */}
-        <div style={{ padding: '32px' }}>
+        <div
+          style={{
+            padding: '16px 20px',
+            flexGrow: 1,
+          }}
+        >
           {/* Title and Badges */}
-          <div style={{ marginBottom: '32px' }}>
+          <div className="alert-details-title-section">
             <h4
-              className="text-2xl font-bold"
+              className="text-lg font-semibold alert-details-title"
               style={{
-                color: 'var(--text-primary)',
-                marginBottom: '20px',
-                lineHeight: '1.3',
-                fontSize: '2.2rem',
+                color: DARK_THEME_COLORS.textPrimary,
               }}
             >
               {alert.title}
             </h4>
-            <div className="flex flex-wrap gap-3">
+            <div className="alert-details-badges">
               <span
-                className="px-4 py-2 rounded-lg text-xs font-semibold uppercase"
+                className="alert-badge alert-badge-severity"
                 style={{
                   backgroundColor: severityStyle.bg,
                   color: severityStyle.color,
                   border: `1px solid ${severityStyle.border}`,
-                  letterSpacing: '0.05em',
-                  fontSize: '1.1rem',
                 }}
               >
                 {alert.severity}
               </span>
               <span
-                className="px-4 py-2 rounded-lg text-xs font-medium flex items-center gap-2"
+                className="alert-badge alert-badge-status"
                 style={{
                   backgroundColor: statusStyle.bg,
                   color: statusStyle.color,
                   border: `1px solid ${statusStyle.border}`,
-                  fontSize: '1.1rem',
                 }}
               >
                 {alert.status === 'active' && (
-                  <AlertTriangle className="w-3.5 h-3.5" />
+                  <AlertTriangle className="w-3 h-3" />
                 )}
                 {alert.status}
               </span>
             </div>
           </div>
 
-          {/* Details Grid */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* Details */}
+          <div className="alert-details-fields">
             {/* Description */}
-            <div
-              className="rounded-lg"
-              style={{ backgroundColor: 'var(--bg-secondary)', padding: '20px 24px' }}
-            >
-              <h5
-                className="text-xs font-semibold"
-                style={{
-                  color: 'var(--text-muted)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  marginBottom: '12px',
-                }}
+            <div className="alert-details-field">
+              <label
+                className="alert-details-label"
+                style={{ color: DARK_THEME_COLORS.textSecondary }}
               >
                 Description
-              </h5>
-              <p
+              </label>
+              <div
+                className="alert-details-value"
                 style={{
-                  color: 'var(--text-primary)',
-                  lineHeight: '1.8',
-                  fontSize: '15px',
+                  backgroundColor: DARK_THEME_COLORS.inputBg,
+                  border: `1px solid ${DARK_THEME_COLORS.border}`,
                 }}
               >
-                {alert.description}
-              </p>
+                <p
+                  style={{
+                    color: DARK_THEME_COLORS.textPrimary,
+                    lineHeight: '1.6',
+                    fontSize: '14px',
+                    margin: 0,
+                  }}
+                >
+                  {alert.description}
+                </p>
+              </div>
             </div>
 
-            {/* Info Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '16px' }}>
-              {alert.type && (
-                <InfoCard label="Alert Type" value={alert.type} />
-              )}
-              {alert.location && (
-                <InfoCard label="Location" value={alert.location} />
-              )}
-              {alert.source && (
-                <InfoCard label="Source" value={alert.source} />
-              )}
-              <InfoCard label="Alert ID" value={`#${alert.id}`} isMonospace />
-            </div>
+            {/* Type */}
+            {alert.type && (
+              <div className="alert-details-field">
+                <label
+                  className="alert-details-label"
+                  style={{ color: DARK_THEME_COLORS.textSecondary }}
+                >
+                  Alert Type
+                </label>
+                <div
+                  className="alert-details-value"
+                  style={{
+                    backgroundColor: DARK_THEME_COLORS.inputBg,
+                    border: `1px solid ${DARK_THEME_COLORS.border}`,
+                  }}
+                >
+                  <p style={{ color: DARK_THEME_COLORS.textPrimary, fontSize: '14px', margin: 0 }}>
+                    {alert.type}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Location */}
+            {alert.location && (
+              <div className="alert-details-field">
+                <label
+                  className="alert-details-label"
+                  style={{ color: DARK_THEME_COLORS.textSecondary }}
+                >
+                  Location
+                </label>
+                <div
+                  className="alert-details-value"
+                  style={{
+                    backgroundColor: DARK_THEME_COLORS.inputBg,
+                    border: `1px solid ${DARK_THEME_COLORS.border}`,
+                  }}
+                >
+                  <p style={{ color: DARK_THEME_COLORS.textPrimary, fontSize: '14px', margin: 0 }}>
+                    {alert.location}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Source */}
+            {alert.source && (
+              <div className="alert-details-field">
+                <label
+                  className="alert-details-label"
+                  style={{ color: DARK_THEME_COLORS.textSecondary }}
+                >
+                  Source
+                </label>
+                <div
+                  className="alert-details-value"
+                  style={{
+                    backgroundColor: DARK_THEME_COLORS.inputBg,
+                    border: `1px solid ${DARK_THEME_COLORS.border}`,
+                  }}
+                >
+                  <p style={{ color: DARK_THEME_COLORS.textPrimary, fontSize: '14px', margin: 0 }}>
+                    {alert.source}
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Active Alert Warning */}
             {alert.status === 'active' && (
               <div
-                className="rounded-lg"
+                className="alert-details-warning"
                 style={{
                   backgroundColor: 'rgba(239, 68, 68, 0.08)',
                   border: '1px solid rgba(239, 68, 68, 0.2)',
-                  padding: '20px 24px',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                   <AlertTriangle
-                    className="w-5 h-5"
+                    className="w-4 h-4"
                     style={{ color: '#ef4444', marginTop: '2px', flexShrink: 0 }}
                   />
                   <div>
                     <h5
                       className="text-sm font-semibold"
-                      style={{ color: '#ef4444', marginBottom: '8px' }}
+                      style={{ color: '#ef4444', marginBottom: '4px', margin: 0 }}
                     >
                       Active Alert
                     </h5>
                     <p
-                      className="text-sm"
-                      style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}
+                      className="text-xs"
+                      style={{ color: DARK_THEME_COLORS.textSecondary, lineHeight: '1.5', margin: 0 }}
                     >
                       This alert is currently active and requires attention.
                     </p>
@@ -224,42 +295,61 @@ const AlertDetailsModal = ({ alert, onClose, onResolve }) => {
               </div>
             )}
           </div>
+        </div>
 
-          {/* Action Buttons */}
-          <div
-            className="flex flex-col md:flex-row"
-            style={{
-              gap: '12px',
-              paddingTop: '24px',
-              marginTop: '24px',
-              borderTop: '1px solid var(--border-color)',
-            }}
-          >
+        {/* Footer Buttons */}
+        <div
+          style={{
+            padding: '16px 20px',
+            borderTop: `1px solid ${DARK_THEME_COLORS.border}`,
+            flexShrink: 0,
+          }}
+        >
+          <div className="flex gap-3">
             <button
-              className="w-full md:w-auto rounded-lg font-medium transition-colors hover:bg-opacity-80"
+              type="button"
+              className="flex-1 rounded-md font-medium transition-colors focus:outline-none"
               style={{
                 backgroundColor: 'rgba(148, 163, 184, 0.12)',
-                color: 'var(--text-primary)',
-                fontSize: '15px',
-                padding: '12px 24px',
+                color: DARK_THEME_COLORS.textPrimary,
+                padding: '10px 16px',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '14px',
               }}
               onClick={onClose}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = 'rgba(148, 163, 184, 0.2)')
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = 'rgba(148, 163, 184, 0.12)')
+              }
             >
               Close
             </button>
             {alert.status === 'active' && onResolve && (
               <button
-                className="w-full md:flex-1 rounded-lg font-semibold flex items-center justify-center transition-colors hover:bg-opacity-90"
+                type="button"
+                className="flex-1 rounded-md font-medium transition-colors focus:outline-none flex items-center justify-center"
                 style={{
                   backgroundColor: '#10b981',
                   color: '#ffffff',
-                  gap: '8px',
-                  padding: '12px 24px',
+                  gap: '6px',
+                  padding: '10px 16px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '14px',
                 }}
                 onClick={() => {
                   onResolve(alert.id);
                   onClose();
                 }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = '#059669')
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = '#10b981')
+                }
               >
                 <CheckCircle className="w-4 h-4" />
                 Mark as Resolved
@@ -270,45 +360,6 @@ const AlertDetailsModal = ({ alert, onClose, onResolve }) => {
       </div>
     </div>
   );
-};
-
-/**
- * InfoCard Component
- * Displays a single piece of information
- */
-const InfoCard = ({ label, value, isMonospace }) => (
-  <div
-    className="rounded-lg"
-    style={{ backgroundColor: 'var(--bg-secondary)', padding: '16px 20px' }}
-  >
-    <h5
-      className="text-xs font-semibold"
-      style={{
-        color: 'var(--text-muted)',
-        textTransform: 'uppercase',
-        letterSpacing: '0.05em',
-        marginBottom: '10px',
-      }}
-    >
-      {label}
-    </h5>
-    <p
-      className={`font-medium ${isMonospace ? 'font-mono' : ''}`}
-      style={{ color: 'var(--text-primary)', fontSize: '15px' }}
-    >
-      {value}
-    </p>
-  </div>
-);
-
-InfoCard.propTypes = {
-  label: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
-  isMonospace: PropTypes.bool,
-};
-
-InfoCard.defaultProps = {
-  isMonospace: false,
 };
 
 AlertDetailsModal.propTypes = {

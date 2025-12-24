@@ -35,7 +35,7 @@ const DashboardLayout = ({
   notificationCount = 0,
 }) => {
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Sidebar */}
       <Sidebar
         menuItems={menuItems}

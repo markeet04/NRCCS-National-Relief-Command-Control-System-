@@ -1,12 +1,8 @@
-import { Plus, AlertTriangle } from 'lucide-react';
+import { Plus, AlertTriangle, CheckCircle, Clock, MapPin, User } from 'lucide-react';
 import { DashboardLayout } from '@shared/components/layout';
-import { useSettings } from '@app/providers/ThemeProvider';
-import { getThemeColors } from '@shared/utils/themeColors';
 
 // Import modular components
 import {
-  AlertStatistics,
-  AlertList,
   CreateAlertModal,
   AlertDetailsModal,
 } from '../../components/AlertsPage';
@@ -14,16 +10,29 @@ import {
 // Import custom hook for alerts logic
 import { useAlertsLogic } from '../../hooks';
 
+// Import styles
+import '../../styles/nationwide-alerts.css';
+import '../../styles/global-ndma.css';
+
+// Dark theme colors for modals
+const DARK_THEME_COLORS = {
+  modalBg: '#0f1114',
+  elevatedBg: '#151719',
+  inputBg: '#1a1d21',
+  textPrimary: '#ffffff',
+  textSecondary: '#94a3b8',
+  border: '#2d3238',
+  borderMedium: '#3d4248',
+  buttonSecondary: '#2d3238',
+  buttonSecondaryHover: '#3d4248',
+};
+
 /**
  * AlertsPage Component
- * Comprehensive alert management interface for viewing, creating, and managing alerts
- * Refactored to use modular components and custom hooks
+ * Nationwide alert management interface with summary stats and alert card list
+ * Matches District dashboard alert style
  */
 const AlertsPage = () => {
-  const { theme } = useSettings();
-  const isLight = theme === 'light';
-  const colors = getThemeColors(isLight);
-
   // Use custom hook for all alert logic
   const {
     // State
@@ -32,6 +41,7 @@ const AlertsPage = () => {
     isCreateModalOpen,
     showResolved,
     newAlert,
+    validationErrors,
     
     // Computed
     alertToView,
@@ -55,6 +65,15 @@ const AlertsPage = () => {
     toggleShowResolved,
   } = useAlertsLogic();
 
+  /**
+   * Get status icon component
+   */
+  const getStatusIcon = (status) => {
+    if (status === 'resolved') return <CheckCircle className="w-4 h-4" />;
+    if (status === 'pending') return <Clock className="w-4 h-4" />;
+    return <AlertTriangle className="w-4 h-4" />;
+  };
+
   // Show loading state
   if (loading && displayedAlerts.length === 0) {
     return (
@@ -68,11 +87,9 @@ const AlertsPage = () => {
         pageSubtitle="Alert Management System"
         notificationCount={activeAlertsCount}
       >
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p style={{ color: 'var(--text-muted)' }}>Loading alerts...</p>
-          </div>
+        <div className="alerts-loading">
+          <div className="alerts-loading-spinner"></div>
+          <p className="alerts-loading-text">Loading alerts...</p>
         </div>
       </DashboardLayout>
     );
@@ -91,21 +108,16 @@ const AlertsPage = () => {
         pageSubtitle="Alert Management System"
         notificationCount={activeAlertsCount}
       >
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-            <p className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
-              Error Loading Alerts
-            </p>
-            <p className="mb-4" style={{ color: 'var(--text-muted)' }}>{error}</p>
-            <button
-              onClick={() => loadAlerts()}
-              className="px-4 py-2 rounded-lg font-medium"
-              style={{ backgroundColor: '#0ea5e9', color: '#ffffff' }}
-            >
-              Retry
-            </button>
-          </div>
+        <div className="alerts-error">
+          <AlertTriangle className="alerts-error-icon" />
+          <h3 className="alerts-error-title">Error Loading Alerts</h3>
+          <p className="alerts-error-message">{error}</p>
+          <button
+            className="alerts-btn alerts-btn-primary"
+            onClick={() => loadAlerts()}
+          >
+            Retry
+          </button>
         </div>
       </DashboardLayout>
     );
@@ -124,44 +136,25 @@ const AlertsPage = () => {
         notificationCount={activeAlertsCount}
       >
         {/* Page Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="alerts-page-header">
           <div>
-            <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-              Nationwide Alerts
-            </h1>
-            <p className="text-sm mb-3" style={{ color: 'var(--text-muted)' }}>
+            <h1 className="alerts-page-title">Nationwide Alerts</h1>
+            <p className="alerts-page-subtitle">
               {showResolved 
                 ? 'Viewing resolved alerts' 
                 : `Monitoring ${activeAlertsCount} active alerts across Pakistan`}
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="alerts-page-actions">
             <button
-              type="button"
-              className="rounded-lg transition-colors text-sm font-medium"
-              style={{ 
-                backgroundColor: showResolved ? '#0ea5e9' : 'rgba(148, 163, 184, 0.12)', 
-                color: showResolved ? '#ffffff' : 'var(--text-primary)',
-                cursor: 'pointer',
-                padding: '10px 20px',
-                minHeight: '40px'
-              }}
+              className={`alerts-btn alerts-btn-secondary ${showResolved ? 'active' : ''}`}
               onClick={toggleShowResolved}
               disabled={loading}
             >
               {showResolved ? 'Show Active' : 'Show Resolved'}
             </button>
             <button
-              type="button"
-              className="flex items-center rounded-lg transition-colors text-sm font-medium"
-              style={{ 
-                backgroundColor: loading ? 'rgba(14, 165, 233, 0.5)' : '#0ea5e9', 
-                color: '#ffffff', 
-                cursor: loading ? 'not-allowed' : 'pointer',
-                padding: '10px 20px',
-                gap: '8px',
-                minHeight: '40px'
-              }}
+              className="alerts-btn alerts-btn-primary"
               onClick={openCreateModal}
               disabled={loading}
             >
@@ -171,21 +164,122 @@ const AlertsPage = () => {
           </div>
         </div>
 
-        {/* Alert Statistics - Modular Component */}
-        <AlertStatistics stats={alertStats} isLight={isLight} />
+        {/* Summary Stat Cards */}
+        <div className="alerts-stats-grid">
+          <div className="alerts-stat-card critical">
+            <div className="alerts-stat-label critical">Critical</div>
+            <div className="alerts-stat-value critical">{alertStats.critical}</div>
+          </div>
+          <div className="alerts-stat-card high">
+            <div className="alerts-stat-label high">High</div>
+            <div className="alerts-stat-value high">{alertStats.high}</div>
+          </div>
+          <div className="alerts-stat-card medium">
+            <div className="alerts-stat-label medium">Medium</div>
+            <div className="alerts-stat-value medium">{alertStats.medium}</div>
+          </div>
+          <div className="alerts-stat-card resolved">
+            <div className="alerts-stat-label resolved">Resolved Today</div>
+            <div className="alerts-stat-value resolved">{alertStats.resolvedToday}</div>
+          </div>
+        </div>
 
-        {/* Alert List - Modular Component */}
-        <AlertList
-          alerts={displayedAlerts}
-          onView={handleViewAlert}
-          onResolve={handleResolveAlert}
-          onReopen={handleReopenAlert}
-          onDelete={handleDeleteAlert}
-          emptyMessage={showResolved ? 'No resolved alerts found' : 'No active alerts at this time'}
-        />
+        {/* Alert Cards List */}
+        {displayedAlerts.length === 0 ? (
+          <div className="alerts-list-empty">
+            <p>{showResolved ? 'No resolved alerts found' : 'No active alerts at this time'}</p>
+          </div>
+        ) : (
+          <div className="alerts-list">
+            {displayedAlerts.map((alert) => (
+              <div 
+                key={alert.id} 
+                className={`alert-card ${alert.severity} ${alert.status === 'resolved' ? 'resolved' : ''}`}
+              >
+                {/* Header with badges */}
+                <div className="alert-card-header">
+                  <div className="alert-card-badges">
+                    <span className={`alert-severity-badge ${alert.severity}`}>
+                      {alert.severity}
+                    </span>
+                    {alert.type && (
+                      <span className="alert-type-badge">
+                        {alert.type}
+                      </span>
+                    )}
+                    <span className={`alert-status-badge ${alert.status}`}>
+                      {getStatusIcon(alert.status)}
+                      {alert.status}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Title */}
+                <h3 className="alert-card-title">{alert.title}</h3>
+
+                {/* Description */}
+                <p className="alert-card-description">{alert.description}</p>
+
+                {/* Meta Info */}
+                <div className="alert-card-meta">
+                  {alert.location && (
+                    <div className="alert-card-meta-item">
+                      <MapPin className="w-4 h-4" />
+                      <span className="alert-card-meta-label">Location:</span>
+                      <span className="alert-card-meta-value">{alert.location}</span>
+                    </div>
+                  )}
+                  {alert.source && (
+                    <div className="alert-card-meta-item">
+                      <User className="w-4 h-4" />
+                      <span className="alert-card-meta-label">Source:</span>
+                      <span className="alert-card-meta-value">{alert.source}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="alert-card-actions">
+                  <button
+                    className="alerts-btn alerts-btn-outline"
+                    onClick={() => handleViewAlert(alert.id)}
+                  >
+                    View Details
+                  </button>
+                  
+                  {alert.status === 'resolved' ? (
+                    <>
+                      <button
+                        className="alerts-btn alerts-btn-warning"
+                        onClick={() => handleReopenAlert(alert.id)}
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        Reopen
+                      </button>
+                      <button
+                        className="alerts-btn alerts-btn-danger"
+                        onClick={() => handleDeleteAlert(alert.id)}
+                      >
+                        Delete
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      className="alerts-btn alerts-btn-success"
+                      onClick={() => handleResolveAlert(alert.id)}
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                      Resolve
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </DashboardLayout>
 
-      {/* Create Alert Modal - Modular Component */}
+      {/* Create Alert Modal */}
       <CreateAlertModal
         isOpen={isCreateModalOpen}
         onClose={closeCreateModal}
@@ -194,11 +288,12 @@ const AlertsPage = () => {
         onProvinceChange={handleProvinceChange}
         onSubmit={handleSubmitNewAlert}
         loading={loading}
-        colors={colors}
-        isLight={isLight}
+        colors={DARK_THEME_COLORS}
+        isLight={false}
+        validationErrors={validationErrors}
       />
 
-      {/* Alert Details Modal - Modular Component */}
+      {/* Alert Details Modal */}
       <AlertDetailsModal
         alert={alertToView}
         onClose={handleCloseViewAlert}
