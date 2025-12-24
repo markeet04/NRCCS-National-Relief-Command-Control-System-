@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { X, Clock, Package, Stethoscope, Home, Droplets, MapPin, TrendingDown } from 'lucide-react';
+import { X, Clock, Package, Stethoscope, Home, Droplets, MapPin } from 'lucide-react';
 
 /**
  * Resource icon mapping
@@ -20,7 +20,7 @@ const RESOURCE_ICONS = {
 /**
  * ResourceHistoryModal Component
  * Enhanced modal showing timeline/history of resource allocations
- * Premium dark theme with improved styling
+ * Styled to match the provincial HistoryModal with timeline view
  */
 const ResourceHistoryModal = ({ 
   isOpen, 
@@ -40,19 +40,6 @@ const ResourceHistoryModal = ({
     });
   };
 
-  const formatTime = (dateString) => {
-    return new Date(dateString).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  // Calculate usage percentage for each entry
-  const getUsagePercent = (allocated, remaining) => {
-    const total = allocated + remaining;
-    return total > 0 ? Math.round((allocated / total) * 100) : 0;
-  };
-
   const Icon = RESOURCE_ICONS[resourceType] || Package;
 
   return (
@@ -66,7 +53,9 @@ const ResourceHistoryModal = ({
             </div>
             <div className="resource-history-header-text">
               <h3 className="resource-history-title">{resourceLabel || resourceType} History</h3>
-              <p className="resource-history-subtitle">Allocation timeline and usage tracking</p>
+              <p className="resource-history-subtitle">
+                {history.length} allocation{history.length !== 1 ? 's' : ''} recorded
+              </p>
             </div>
           </div>
           <button 
@@ -78,72 +67,44 @@ const ResourceHistoryModal = ({
           </button>
         </div>
 
-        {/* Table */}
+        {/* Body - Timeline View */}
         <div className="resource-history-body">
           {history && history.length > 0 ? (
-            <div className="resource-history-table-wrapper">
-              <table className="resource-history-table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Province</th>
-                    <th>Resource</th>
-                    <th>Amount</th>
-                    <th>Remaining</th>
-                    <th>Usage %</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.map((entry, index) => {
-                    const usagePercent = getUsagePercent(entry.amount || 0, entry.remaining || 0);
-                    return (
-                      <tr key={index}>
-                        <td>
-                          <div className="resource-history-date">
-                            <span className="resource-history-date-main">{formatDate(entry.date)}</span>
-                            {entry.time && (
-                              <span className="resource-history-date-time">{formatTime(entry.date)}</span>
-                            )}
-                          </div>
-                        </td>
-                        <td>
-                          <div className="resource-history-province">
-                            <MapPin className="w-3.5 h-3.5" />
-                            <span>{entry.province}</span>
-                          </div>
-                        </td>
-                        <td>
-                          <span className="resource-history-resource">{entry.resource || resourceLabel}</span>
-                        </td>
-                        <td>
-                          <span className="resource-history-amount">
-                            {(entry.amount || 0).toLocaleString()} {entry.unit || 'units'}
-                          </span>
-                        </td>
-                        <td>
-                          <span className="resource-history-remaining">
-                            {(entry.remaining || 0).toLocaleString()} {entry.unit || 'units'}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="resource-history-usage">
-                            <div className="resource-history-usage-bar">
-                              <div 
-                                className="resource-history-usage-fill"
-                                style={{ 
-                                  width: `${usagePercent}%`,
-                                  backgroundColor: usagePercent > 70 ? '#ef4444' : usagePercent > 50 ? '#f97316' : '#22c55e'
-                                }}
-                              />
-                            </div>
-                            <span className="resource-history-usage-percent">{usagePercent}%</span>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="history-timeline">
+              {history.map((entry, index) => (
+                <div key={index} className="history-item">
+                  <div className="history-item-dot">
+                    <div className="history-item-dot-inner" />
+                  </div>
+                  <div className="history-item-content">
+                    <div className="history-item-header">
+                      <span className="history-item-date">{formatDate(entry.date)}</span>
+                      <span className="history-item-status delivered">delivered</span>
+                    </div>
+                    <div className="history-item-details">
+                      <div className="history-item-row">
+                        <span className="history-item-label">
+                          <MapPin className="w-3.5 h-3.5" style={{ display: 'inline', marginRight: '4px' }} />
+                          Province
+                        </span>
+                        <span className="history-item-value">{entry.province}</span>
+                      </div>
+                      <div className="history-item-row">
+                        <span className="history-item-label">Amount Allocated</span>
+                        <span className="history-item-value">
+                          {(entry.amount || 0).toLocaleString()} {entry.unit || 'units'}
+                        </span>
+                      </div>
+                      <div className="history-item-row">
+                        <span className="history-item-label">Remaining Stock</span>
+                        <span className="history-item-value">
+                          {(entry.remaining || 0).toLocaleString()} {entry.unit || 'units'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="resource-history-empty">
@@ -155,28 +116,6 @@ const ResourceHistoryModal = ({
             </div>
           )}
         </div>
-
-        {/* Summary Stats */}
-        {history && history.length > 0 && (
-          <div className="resource-history-summary">
-            <div className="resource-history-summary-item">
-              <span className="resource-history-summary-label">Total Allocations</span>
-              <span className="resource-history-summary-value">{history.length}</span>
-            </div>
-            <div className="resource-history-summary-item">
-              <span className="resource-history-summary-label">Total Distributed</span>
-              <span className="resource-history-summary-value">
-                {history.reduce((sum, entry) => sum + (entry.amount || 0), 0).toLocaleString()}
-              </span>
-            </div>
-            <div className="resource-history-summary-item">
-              <span className="resource-history-summary-label">Provinces Served</span>
-              <span className="resource-history-summary-value">
-                {new Set(history.map(entry => entry.province)).size}
-              </span>
-            </div>
-          </div>
-        )}
 
         {/* Footer */}
         <div className="resource-history-footer">

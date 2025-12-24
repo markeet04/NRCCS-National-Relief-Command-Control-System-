@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LayoutGrid, List, Send, Package, Droplets, Home, Stethoscope, ChevronDown } from 'lucide-react';
+import { Send, Package, Droplets, Home, Stethoscope, ChevronDown } from 'lucide-react';
 import { DashboardLayout } from '@shared/components/layout';
 
 // Import modular components
@@ -30,9 +30,6 @@ import '../../styles/resource-allocation.css';
  * - Refactored with CSS classes - no inline styles
  */
 const ResourcesPage = () => {
-  // View mode state: 'cards' or 'table'
-  const [viewMode, setViewMode] = useState('cards');
-  
   // History modal state
   const [historyProvince, setHistoryProvince] = useState(null);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
@@ -162,7 +159,7 @@ const ResourcesPage = () => {
           {/* Resource Statistics */}
           <ResourceStats stats={resourceStats} />
 
-          {/* Tab Navigation with View Toggle */}
+          {/* Tab Navigation */}
           <div className="ndma-tabs">
             <div className="tabs-list">
               {tabs.map((tab) => (
@@ -175,28 +172,6 @@ const ResourcesPage = () => {
                 </button>
               ))}
             </div>
-            
-            {/* View Toggle Buttons - only show for provincial tab */}
-            {activeTab === 'provincial' && (
-              <div className="view-toggle-container">
-                <button
-                  type="button"
-                  className={`view-toggle-btn ${viewMode === 'cards' ? 'active' : ''}`}
-                  onClick={() => setViewMode('cards')}
-                  title="Card View"
-                >
-                  <LayoutGrid className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
-                  onClick={() => setViewMode('table')}
-                  title="Table View"
-                >
-                  <List className="w-4 h-4" />
-                </button>
-              </div>
-            )}
           </div>
 
           {/* Content based on active tab */}
@@ -216,31 +191,17 @@ const ResourcesPage = () => {
           )}
 
           {activeTab === 'provincial' && (
-            <>
-              {viewMode === 'cards' ? (
-                /* Card-based Grid View */
-                <div className="province-cards-grid">
-                  {provincialAllocations.map((allocation) => (
-                    <ProvinceResourceCardV2
-                      key={allocation.province}
-                      allocation={allocation}
-                      onEdit={openAllocationModal}
-                      onViewHistory={() => handleViewHistory(allocation.province)}
-                      getStatusConfig={getStatusConfig}
-                    />
-                  ))}
-                </div>
-              ) : (
-                /* Table View */
-                <div className="resources-table-section">
-                  <ResourceTable
-                    allocations={provincialAllocations}
-                    onEdit={openAllocationModal}
-                    getStatusConfig={getStatusConfig}
-                  />
-                </div>
-              )}
-            </>
+            <div className="province-cards-grid">
+              {provincialAllocations.map((allocation) => (
+                <ProvinceResourceCardV2
+                  key={allocation.province}
+                  allocation={allocation}
+                  onEdit={openAllocationModal}
+                  onViewHistory={() => handleViewHistory(allocation.province)}
+                  getStatusConfig={getStatusConfig}
+                />
+              ))}
+            </div>
           )}
 
           {activeTab === 'allocate' && (
