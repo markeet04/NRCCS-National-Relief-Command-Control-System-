@@ -8,7 +8,6 @@ export const useTrackStatusSearch = () => {
   const [searchType, setSearchType] = useState(SEARCH_TYPES.CNIC);
   const [searchValue, setSearchValue] = useState('');
   const [searchError, setSearchError] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const formatCNIC = (value) => {
@@ -67,12 +66,10 @@ export const useTrackStatusSearch = () => {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      setIsAuthenticated(true);
     }, 1500);
   };
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
     setSearchValue('');
     setSearchError('');
   };
@@ -84,7 +81,6 @@ export const useTrackStatusSearch = () => {
     handleSearchValueChange,
     searchError,
     handleSearch,
-    isAuthenticated,
     isLoading,
     handleLogout,
   };
