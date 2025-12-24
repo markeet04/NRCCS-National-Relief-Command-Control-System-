@@ -1,4 +1,5 @@
-import { Plus } from 'lucide-react';
+import { useState } from 'react';
+import { LayoutGrid, List, Send, Package, Droplets, Home, Stethoscope, ChevronDown } from 'lucide-react';
 import { DashboardLayout } from '@shared/components/layout';
 
 // Import modular components
@@ -6,6 +7,11 @@ import {
   ResourceStats,
   ResourceTable,
   AllocationModal,
+  ProvinceResourceCardV2,
+  ProvincialRequestCard,
+  HistoryModal,
+  NationalStockCard,
+  ResourceHistoryModal,
 } from '../../components/ResourcesPage';
 
 // Import custom hook for resources logic
@@ -18,9 +24,24 @@ import '../../styles/resource-allocation.css';
 /**
  * ResourcesPage Component
  * Comprehensive resource management interface for tracking and allocating resources
- * Refactored with CSS classes - no inline styles
+ * Features:
+ * - Card-based provincial stock view with animated gauges
+ * - Provincial Requests section with Accept/Reject functionality
+ * - Refactored with CSS classes - no inline styles
  */
 const ResourcesPage = () => {
+  // View mode state: 'cards' or 'table'
+  const [viewMode, setViewMode] = useState('cards');
+  
+  // History modal state
+  const [historyProvince, setHistoryProvince] = useState(null);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  
+  // Resource history modal state
+  const [resourceHistoryType, setResourceHistoryType] = useState(null);
+  const [resourceHistoryLabel, setResourceHistoryLabel] = useState(null);
+  const [isResourceHistoryOpen, setIsResourceHistoryOpen] = useState(false);
+
   // Use custom hook for all resource logic
   const {
     // State
@@ -30,6 +51,9 @@ const ResourcesPage = () => {
     selectedProvince,
     allocationForm,
     loading,
+    provincialRequests,
+    allocationHistory,
+    nationalStock,
     
     // Computed
     resourceStats,
@@ -42,7 +66,75 @@ const ResourcesPage = () => {
     handleAllocationChange,
     handleSubmitAllocation,
     getStatusConfig,
+    handleApproveRequest,
+    handleRejectRequest,
   } = useResourcesLogic();
+
+  // Handle view history for a province
+  const handleViewHistory = (provinceName) => {
+    setHistoryProvince(provinceName);
+    setIsHistoryModalOpen(true);
+  };
+
+  // Handle resource history view
+  const handleResourceHistory = (resourceType, resourceLabel) => {
+    setResourceHistoryType(resourceType);
+    setResourceHistoryLabel(resourceLabel);
+    setIsResourceHistoryOpen(true);
+  };
+
+  // Get pending requests count
+  const pendingRequestsCount = provincialRequests?.filter(r => r.status === 'pending').length || 0;
+
+  // Allocation form state
+  const [allocateForm, setAllocateForm] = useState({
+    targetProvince: '',
+    resourceType: '',
+    quantity: '',
+    priority: 'normal',
+    notes: ''
+  });
+
+  // Handle allocation form change
+  const handleAllocateFormChange = (field, value) => {
+    setAllocateForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Handle allocation submission
+  const handleAllocateSubmit = (e) => {
+    e.preventDefault();
+    if (!allocateForm.targetProvince || !allocateForm.resourceType || !allocateForm.quantity) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    // Process allocation
+    console.log('Allocating resources:', allocateForm);
+    alert(`Successfully allocated ${allocateForm.quantity} units of ${allocateForm.resourceType} to ${allocateForm.targetProvince}`);
+    // Reset form
+    setAllocateForm({
+      targetProvince: '',
+      resourceType: '',
+      quantity: '',
+      priority: 'normal',
+      notes: ''
+    });
+  };
+
+  // Resource types for allocation
+  const resourceTypes = [
+    { id: 'food', label: 'Food Supplies', icon: Package, unit: 'tons' },
+    { id: 'water', label: 'Water', icon: Droplets, unit: 'liters' },
+    { id: 'medical', label: 'Medical Supplies', icon: Stethoscope, unit: 'kits' },
+    { id: 'shelter', label: 'Shelter Materials', icon: Home, unit: 'units' },
+  ];
+
+  // Tab configuration
+  const tabs = [
+    { id: 'national', label: 'National Stock' },
+    { id: 'provincial', label: 'Provincial Stock' },
+    { id: 'allocate', label: 'Allocate Resources' },
+    { id: 'requests', label: `Provincial Requests${pendingRequestsCount > 0 ? ` (${pendingRequestsCount})` : ''}` },
+  ];
 
   return (
     <>
@@ -54,7 +146,7 @@ const ResourcesPage = () => {
         userName="Admin"
         pageTitle="National Rescue & Crisis Coordination System"
         pageSubtitle="Resource Management System"
-        notificationCount={0}
+        notificationCount={pendingRequestsCount}
       >
         <div className="resources-page">
           {/* Page Header */}
@@ -65,40 +157,300 @@ const ResourcesPage = () => {
                 Track and allocate resources across provinces
               </p>
             </div>
-            <button
-              type="button"
-              className="ndma-btn ndma-btn-primary"
-              onClick={() => openAllocationModal('Punjab')}
-            >
-              <Plus className="w-4 h-4" />
-              Allocate Resources
-            </button>
           </div>
 
           {/* Resource Statistics */}
           <ResourceStats stats={resourceStats} />
 
-          {/* Tab Navigation */}
+          {/* Tab Navigation with View Toggle */}
           <div className="ndma-tabs">
-            {['overview', 'national', 'provincial'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`ndma-tab ${activeTab === tab ? 'ndma-tab-active' : ''}`}
-              >
-                {tab === 'national' ? 'National Stock' : tab}
-              </button>
-            ))}
+            <div className="tabs-list">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`ndma-tab ${activeTab === tab.id ? 'ndma-tab-active' : ''}`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+            
+            {/* View Toggle Buttons - only show for provincial tab */}
+            {activeTab === 'provincial' && (
+              <div className="view-toggle-container">
+                <button
+                  type="button"
+                  className={`view-toggle-btn ${viewMode === 'cards' ? 'active' : ''}`}
+                  onClick={() => setViewMode('cards')}
+                  title="Card View"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
+                  onClick={() => setViewMode('table')}
+                  title="Table View"
+                >
+                  <List className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Resource Table */}
-          <div className="resources-table-section">
-            <ResourceTable
-              allocations={provincialAllocations}
-              onEdit={openAllocationModal}
-              getStatusConfig={getStatusConfig}
-            />
-          </div>
+          {/* Content based on active tab */}
+          {activeTab === 'national' && (
+            <div className="national-stock-section">
+              <div className="national-stock-grid">
+                {Object.entries(nationalStock).map(([resourceType, data]) => (
+                  <NationalStockCard
+                    key={resourceType}
+                    resourceType={resourceType}
+                    data={data}
+                    onViewHistory={() => handleResourceHistory(resourceType, data.label || resourceType)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'provincial' && (
+            <>
+              {viewMode === 'cards' ? (
+                /* Card-based Grid View */
+                <div className="province-cards-grid">
+                  {provincialAllocations.map((allocation) => (
+                    <ProvinceResourceCardV2
+                      key={allocation.province}
+                      allocation={allocation}
+                      onEdit={openAllocationModal}
+                      onViewHistory={() => handleViewHistory(allocation.province)}
+                      getStatusConfig={getStatusConfig}
+                    />
+                  ))}
+                </div>
+              ) : (
+                /* Table View */
+                <div className="resources-table-section">
+                  <ResourceTable
+                    allocations={provincialAllocations}
+                    onEdit={openAllocationModal}
+                    getStatusConfig={getStatusConfig}
+                  />
+                </div>
+              )}
+            </>
+          )}
+
+          {activeTab === 'allocate' && (
+            /* Allocate Resources Section */
+            <div className="allocate-resources-section">
+              <div className="allocate-section-header">
+                <h2 className="allocate-section-title">Allocate Resources to Provinces</h2>
+                <p className="allocate-section-subtitle">Distribute national stock to provincial authorities</p>
+              </div>
+
+              <div className="allocate-content-grid">
+                {/* Allocation Form */}
+                <div className="allocate-form-card">
+                  <form onSubmit={handleAllocateSubmit} className="allocate-form">
+                    {/* Target Province */}
+                    <div className="allocate-form-group">
+                      <label className="allocate-form-label">Target Province *</label>
+                      <div className="allocate-select-wrapper">
+                        <select
+                          value={allocateForm.targetProvince}
+                          onChange={(e) => handleAllocateFormChange('targetProvince', e.target.value)}
+                          className="allocate-form-select"
+                          required
+                        >
+                          <option value="">Select Province</option>
+                          {provincialAllocations.map((alloc) => (
+                            <option key={alloc.province} value={alloc.province}>
+                              {alloc.province}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="allocate-select-icon" />
+                      </div>
+                    </div>
+
+                    {/* Resource Type */}
+                    <div className="allocate-form-group">
+                      <label className="allocate-form-label">Resource Type *</label>
+                      <div className="allocate-resource-options">
+                        {resourceTypes.map((resource) => {
+                          const IconComponent = resource.icon;
+                          return (
+                            <button
+                              key={resource.id}
+                              type="button"
+                              className={`allocate-resource-option ${allocateForm.resourceType === resource.id ? 'active' : ''}`}
+                              onClick={() => handleAllocateFormChange('resourceType', resource.id)}
+                            >
+                              <IconComponent className="allocate-resource-icon" />
+                              <span>{resource.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Quantity */}
+                    <div className="allocate-form-group">
+                      <label className="allocate-form-label">
+                        Quantity * {allocateForm.resourceType && `(${resourceTypes.find(r => r.id === allocateForm.resourceType)?.unit || 'units'})`}
+                      </label>
+                      <input
+                        type="number"
+                        value={allocateForm.quantity}
+                        onChange={(e) => handleAllocateFormChange('quantity', e.target.value)}
+                        className="allocate-form-input"
+                        placeholder="Enter quantity"
+                        min="1"
+                        required
+                      />
+                    </div>
+
+                    {/* Priority */}
+                    <div className="allocate-form-group">
+                      <label className="allocate-form-label">Priority Level</label>
+                      <div className="allocate-priority-options">
+                        {['low', 'normal', 'high', 'critical'].map((priority) => (
+                          <button
+                            key={priority}
+                            type="button"
+                            className={`allocate-priority-option priority-${priority} ${allocateForm.priority === priority ? 'active' : ''}`}
+                            onClick={() => handleAllocateFormChange('priority', priority)}
+                          >
+                            {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Notes */}
+                    <div className="allocate-form-group">
+                      <label className="allocate-form-label">Notes (Optional)</label>
+                      <textarea
+                        value={allocateForm.notes}
+                        onChange={(e) => handleAllocateFormChange('notes', e.target.value)}
+                        className="allocate-form-textarea"
+                        placeholder="Add any additional notes or instructions..."
+                        rows={3}
+                      />
+                    </div>
+
+                    {/* Submit Button */}
+                    <button type="submit" className="allocate-submit-btn">
+                      <Send className="allocate-submit-icon" />
+                      Allocate Resources
+                    </button>
+                  </form>
+                </div>
+
+                {/* Quick Stats Panel */}
+                <div className="allocate-stats-panel">
+                  <h3 className="allocate-stats-title">Available Stock</h3>
+                  <div className="allocate-stats-list">
+                    {Object.entries(nationalStock).map(([type, data]) => {
+                      const available = data.total - data.allocated;
+                      const percentage = Math.round((available / data.total) * 100);
+                      return (
+                        <div key={type} className="allocate-stat-item">
+                          <div className="allocate-stat-header">
+                            <span className="allocate-stat-label">{data.label || type}</span>
+                            <span className="allocate-stat-value">{available.toLocaleString()} available</span>
+                          </div>
+                          <div className="allocate-stat-bar">
+                            <div 
+                              className={`allocate-stat-progress ${percentage < 30 ? 'low' : percentage < 60 ? 'medium' : 'high'}`}
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Recent Allocations */}
+                  <div className="allocate-recent">
+                    <h4 className="allocate-recent-title">Recent Allocations</h4>
+                    <div className="allocate-recent-list">
+                      <div className="allocate-recent-item">
+                        <span className="allocate-recent-province">Punjab</span>
+                        <span className="allocate-recent-resource">Food - 500 tons</span>
+                        <span className="allocate-recent-time">2 hours ago</span>
+                      </div>
+                      <div className="allocate-recent-item">
+                        <span className="allocate-recent-province">Sindh</span>
+                        <span className="allocate-recent-resource">Medical - 200 kits</span>
+                        <span className="allocate-recent-time">5 hours ago</span>
+                      </div>
+                      <div className="allocate-recent-item">
+                        <span className="allocate-recent-province">KPK</span>
+                        <span className="allocate-recent-resource">Shelter - 150 units</span>
+                        <span className="allocate-recent-time">1 day ago</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'requests' && (
+            /* Provincial Requests Section */
+            <div className="provincial-requests-section">
+              <div className="requests-section-header">
+                <h2 className="requests-section-title">Pending Resource Requests</h2>
+                <span className="requests-count-badge">
+                  {pendingRequestsCount} pending
+                </span>
+              </div>
+              
+              <div className="requests-cards-grid">
+                {provincialRequests
+                  .filter(r => r.status === 'pending')
+                  .map((request) => (
+                    <ProvincialRequestCard
+                      key={request.id}
+                      request={request}
+                      onApprove={handleApproveRequest}
+                      onReject={handleRejectRequest}
+                      nationalStock={nationalStock}
+                    />
+                  ))}
+                {pendingRequestsCount === 0 && (
+                  <div className="requests-empty-state">
+                    <p>No pending requests at this time.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Processed Requests */}
+              {provincialRequests.filter(r => r.status !== 'pending').length > 0 && (
+                <div className="processed-requests-section">
+                  <h3 className="processed-requests-title">Recently Processed</h3>
+                  <div className="requests-cards-grid">
+                    {provincialRequests
+                      .filter(r => r.status !== 'pending')
+                      .slice(0, 4)
+                      .map((request) => (
+                        <ProvincialRequestCard
+                          key={request.id}
+                          request={request}
+                          onApprove={handleApproveRequest}
+                          onReject={handleRejectRequest}
+                          nationalStock={nationalStock}
+                        />
+                      ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </DashboardLayout>
 
@@ -112,6 +464,34 @@ const ResourcesPage = () => {
         onSubmit={handleSubmitAllocation}
         loading={loading}
       />
+
+      {/* History Modal */}
+      {isHistoryModalOpen && (
+        <HistoryModal
+          isOpen={isHistoryModalOpen}
+          onClose={() => {
+            setIsHistoryModalOpen(false);
+            setHistoryProvince(null);
+          }}
+          province={historyProvince}
+          history={allocationHistory[historyProvince] || []}
+        />
+      )}
+
+      {/* Resource History Modal */}
+      {isResourceHistoryOpen && (
+        <ResourceHistoryModal
+          isOpen={isResourceHistoryOpen}
+          onClose={() => {
+            setIsResourceHistoryOpen(false);
+            setResourceHistoryType(null);
+            setResourceHistoryLabel(null);
+          }}
+          resourceType={resourceHistoryType}
+          resourceLabel={resourceHistoryLabel}
+          history={allocationHistory[resourceHistoryType] || []}
+        />
+      )}
     </>
   );
 };

@@ -19,6 +19,7 @@ import {
 /**
  * Sidebar Component
  * Reusable navigation sidebar for all dashboard types
+ * Features glowing active state indicator
  * @param {Object} props - Component props
  * @param {Array} props.menuItems - Navigation menu items
  * @param {string} props.activeRoute - Currently active route
@@ -105,24 +106,27 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
                   onClick={() => handleMenuClick(item.route)}
                   onMouseEnter={() => setHoveredItem(item.route)}
                   onMouseLeave={() => setHoveredItem(null)}
-                  className="w-full flex items-center rounded-lg transition-all duration-200 text-left relative"
+                  className={`w-full flex items-center rounded-lg transition-all duration-200 text-left relative ${isActive ? 'sidebar-nav-item-active' : ''}`}
                   style={{
                     padding: '12px 14px',
                     color: '#ffffff',
-                    backgroundColor: isActive ? 'rgba(134, 239, 172, 0.15)' : (isHovered ? 'rgba(255, 255, 255, 0.05)' : 'transparent'),
+                    backgroundColor: isActive ? 'rgba(76, 175, 80, 0.1)' : (isHovered ? 'rgba(255, 255, 255, 0.05)' : 'transparent'),
                     fontWeight: '500',
                     fontSize: '15px',
                     justifyContent: 'flex-start',
                     gap: '14px',
-                    border: isActive ? '1px solid rgba(134, 239, 172, 0.2)' : '1px solid transparent'
+                    border: isActive ? '1px solid rgba(76, 175, 80, 0.2)' : '1px solid transparent',
+                    boxShadow: 'none' /* Removed intense glow - subtle CSS glow applied via class */
                   }}
                   title={item.label}
                 >
                   <Icon 
-                    className="flex-shrink-0" 
+                    className={`flex-shrink-0 sidebar-nav-icon ${isActive ? 'sidebar-icon-glow' : ''}`}
                     style={{ 
                       width: '22px', 
-                      height: '22px'
+                      height: '22px',
+                      color: isActive ? '#4caf50' : '#ffffff',
+                      transition: 'filter 0.3s ease, color 0.3s ease'
                     }} 
                   />
                   <>
@@ -131,6 +135,10 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
                       <span className="text-white font-semibold" style={{ fontSize: '12px', backgroundColor: '#ef4444', padding: '3px 9px', borderRadius: '12px', minWidth: '22px', textAlign: 'center' }}>
                         {item.badge}
                       </span>
+                    )}
+                    {/* Active indicator dot - subtle */}
+                    {isActive && (
+                      <span className="sidebar-active-dot" />
                     )}
                   </>
                 </button>
