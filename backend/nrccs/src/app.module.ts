@@ -10,6 +10,7 @@ import { SuperadminModule } from './superadmin/superadmin.module';
 import { PdmaModule } from './pdma/pdma.module';
 import { DistrictModule } from './district/district.module';
 import { CivilianModule } from './civilian/civilian.module';
+import { NdmaModule } from './ndma/ndma.module';
 
 
 @Module({
@@ -32,7 +33,8 @@ import { CivilianModule } from './civilian/civilian.module';
     SuperadminModule,
     PdmaModule,
     DistrictModule,
-    CivilianModule
+    CivilianModule,
+    NdmaModule,  // NDMA Dashboard module
   ],
   controllers: [AppController],
   providers: [AppService],

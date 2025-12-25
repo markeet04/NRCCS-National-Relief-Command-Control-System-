@@ -2,15 +2,17 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
 import { useBadge } from '@shared/contexts/BadgeContext';
 import { NotificationService } from '@services/NotificationService';
-import { 
-  INITIAL_NATIONAL_STOCK, 
+import NdmaApiService from '@shared/services/NdmaApiService';
+import {
+  INITIAL_NATIONAL_STOCK,
   INITIAL_PROVINCIAL_ALLOCATIONS,
   RESOURCE_CATEGORIES,
   RESOURCE_STATUS_LEVELS,
 } from '../constants';
 
 /**
- * Initial mock data for provincial requests
+ * Initial mock data for provincial requests - kept as fallback
+ * TODO: Add backend endpoint for provincial requests if needed
  */
 const INITIAL_PROVINCIAL_REQUESTS = [
   {
@@ -89,50 +91,26 @@ const INITIAL_ALLOCATION_HISTORY = {
   ],
   'Gilgit Baltistan': [],
   'AJK': [],
-  'food': [
-    { date: '2025-01-15T08:30:00Z', province: 'Punjab', resource: 'Food Supplies', amount: 1500, remaining: 8500, unit: 'tons' },
-    { date: '2025-01-12T14:20:00Z', province: 'Sindh', resource: 'Food Supplies', amount: 2000, remaining: 10000, unit: 'tons' },
-    { date: '2025-01-08T10:15:00Z', province: 'KPK', resource: 'Food Supplies', amount: 1200, remaining: 12000, unit: 'tons' },
-    { date: '2025-01-05T16:45:00Z', province: 'Balochistan', resource: 'Food Supplies', amount: 800, remaining: 13200, unit: 'tons' },
-    { date: '2024-12-28T09:00:00Z', province: 'Punjab', resource: 'Food Supplies', amount: 1000, remaining: 14000, unit: 'tons' },
-  ],
-  'medical': [
-    { date: '2025-01-14T11:30:00Z', province: 'Sindh', resource: 'Medical Kits', amount: 3000, remaining: 15500, unit: 'kits' },
-    { date: '2025-01-10T13:15:00Z', province: 'KPK', resource: 'Medical Kits', amount: 2500, remaining: 18500, unit: 'kits' },
-    { date: '2025-01-07T15:00:00Z', province: 'Punjab', resource: 'Medical Kits', amount: 2000, remaining: 21000, unit: 'kits' },
-    { date: '2025-01-03T10:30:00Z', province: 'Balochistan', resource: 'Medical Kits', amount: 2000, remaining: 23000, unit: 'kits' },
-  ],
-  'shelter': [
-    { date: '2025-01-13T09:45:00Z', province: 'Sindh', resource: 'Shelter Units', amount: 1200, remaining: 4000, unit: 'units' },
-    { date: '2025-01-09T14:30:00Z', province: 'Punjab', resource: 'Shelter Units', amount: 1000, remaining: 5200, unit: 'units' },
-    { date: '2025-01-06T11:00:00Z', province: 'KPK', resource: 'Shelter Units', amount: 800, remaining: 6200, unit: 'units' },
-    { date: '2025-01-02T16:15:00Z', province: 'Balochistan', resource: 'Shelter Units', amount: 1000, remaining: 7000, unit: 'units' },
-  ],
-  'water': [
-    { date: '2025-01-16T12:00:00Z', province: 'Punjab', resource: 'Water Supply', amount: 80000, remaining: 250000, unit: 'liters' },
-    { date: '2025-01-11T08:30:00Z', province: 'Sindh', resource: 'Water Supply', amount: 70000, remaining: 330000, unit: 'liters' },
-    { date: '2025-01-08T15:45:00Z', province: 'KPK', resource: 'Water Supply', amount: 50000, remaining: 400000, unit: 'liters' },
-    { date: '2025-01-04T10:00:00Z', province: 'Balochistan', resource: 'Water Supply', amount: 50000, remaining: 450000, unit: 'liters' },
-  ],
 };
 
 /**
  * useResourcesLogic Hook
  * Manages all business logic for the NDMA Resources page
- * Includes Provincial Requests with Accept/Reject functionality
+ * Fetches real data from backend API
  */
 export const useResourcesLogic = () => {
   // Tab state - default to 'national' (removed 'overview')
   const [activeTab, setActiveTab] = useState('national');
-  
-  // Data state
+
+  // Data state - initialized with fallback mock data
   const [nationalStock, setNationalStock] = useState(INITIAL_NATIONAL_STOCK);
-  const [provincialAllocations, setProvincialAllocations] = useState(INITIAL_PROVINCIAL_ALLOCATIONS);
-  
+  const [provincialAllocations, setProvincialAllocations] = useState([]);
+  const [backendResourceStats, setBackendResourceStats] = useState(null);
+
   // Provincial Requests state
   const [provincialRequests, setProvincialRequests] = useState(INITIAL_PROVINCIAL_REQUESTS);
   const [allocationHistory, setAllocationHistory] = useState(INITIAL_ALLOCATION_HISTORY);
-  
+
   // Modal state
   const [isAllocationModalOpen, setIsAllocationModalOpen] = useState(false);
   const [selectedProvince, setSelectedProvince] = useState(null);
@@ -142,9 +120,76 @@ export const useResourcesLogic = () => {
     shelter: 0,
     water: 0,
   });
-  
-  // Loading state
-  const [loading, setLoading] = useState(false);
+
+  // Loading and error state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  /**
+   * Fetch resources data from backend API
+   */
+  const fetchResourcesData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch resource stats and resources by province in parallel
+      const [resourceStats, resourcesByProvince, allResources] = await Promise.all([
+        NdmaApiService.getResourceStats(),
+        NdmaApiService.getResourcesByProvince(),
+        NdmaApiService.getAllResources()
+      ]);
+
+      console.log('📦 Resources data loaded:', { resourceStats, resourcesByProvince, allResources });
+
+      // Store backend resource stats
+      setBackendResourceStats(resourceStats);
+
+      // Transform resources by province to provincial allocations format
+      if (Array.isArray(resourcesByProvince)) {
+        const allocations = resourcesByProvince.map(item => ({
+          province: item.province?.name || item.provinceName || 'Unknown',
+          food: item.totalQuantity || 0,
+          medical: 0,
+          shelter: 0,
+          water: 0,
+          totalQuantity: item.totalQuantity || 0,
+          totalAllocated: item.totalAllocated || 0,
+          availableQuantity: item.availableQuantity || 0,
+          status: item.availableQuantity > 1000 ? 'adequate' : item.availableQuantity > 500 ? 'moderate' : 'low',
+          lastUpdated: new Date().toISOString(),
+        }));
+        setProvincialAllocations(allocations.length > 0 ? allocations : INITIAL_PROVINCIAL_ALLOCATIONS);
+      }
+
+      // Update national stock from backend stats
+      if (resourceStats) {
+        setNationalStock({
+          food: {
+            available: resourceStats.totalQuantity || 0,
+            allocated: resourceStats.totalAllocated || 0,
+            unit: 'units'
+          },
+          medical: { available: 0, allocated: 0, unit: 'kits' },
+          shelter: { available: 0, allocated: 0, unit: 'units' },
+          water: { available: 0, allocated: 0, unit: 'liters' },
+        });
+      }
+
+    } catch (err) {
+      console.error('❌ Error fetching resources:', err);
+      setError('Failed to load resources data');
+      // Keep using fallback mock data
+      setProvincialAllocations(INITIAL_PROVINCIAL_ALLOCATIONS);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch data on mount
+  useEffect(() => {
+    fetchResourcesData();
+  }, [fetchResourcesData]);
 
   /**
    * Calculate resource statistics
@@ -156,7 +201,7 @@ export const useResourcesLogic = () => {
     provincesCount: provincialAllocations.length,
     utilizationRate: Math.round(
       (Object.values(nationalStock).reduce((acc, item) => acc + item.allocated, 0) /
-      Object.values(nationalStock).reduce((acc, item) => acc + item.available, 0)) * 100
+        Object.values(nationalStock).reduce((acc, item) => acc + item.available, 0)) * 100
     ),
   }), [nationalStock, provincialAllocations]);
 
@@ -182,7 +227,7 @@ export const useResourcesLogic = () => {
   const getProvinceStatus = useCallback((allocation) => {
     const totalAllocated = allocation.food + allocation.medical + allocation.shelter + allocation.water;
     const avgAllocation = totalAllocated / 4;
-    
+
     if (avgAllocation >= 2000) return 'adequate';
     if (avgAllocation >= 1000) return 'moderate';
     if (avgAllocation >= 500) return 'low';
@@ -228,10 +273,10 @@ export const useResourcesLogic = () => {
    */
   const handleSubmitAllocation = useCallback(async () => {
     if (!selectedProvince) return;
-    
+
     try {
       setLoading(true);
-      
+
       // Update provincial allocations
       setProvincialAllocations(prev => {
         const existingIndex = prev.findIndex(p => p.province === selectedProvince);
@@ -241,7 +286,7 @@ export const useResourcesLogic = () => {
           status: getProvinceStatus(allocationForm),
           lastUpdated: new Date().toISOString(),
         };
-        
+
         if (existingIndex >= 0) {
           const updated = [...prev];
           updated[existingIndex] = newAllocation;
@@ -249,7 +294,7 @@ export const useResourcesLogic = () => {
         }
         return [...prev, newAllocation];
       });
-      
+
       // Update national stock (subtract allocated amounts)
       setNationalStock(prev => ({
         ...prev,
@@ -258,7 +303,7 @@ export const useResourcesLogic = () => {
         shelter: { ...prev.shelter, allocated: prev.shelter.allocated + allocationForm.shelter },
         water: { ...prev.water, allocated: prev.water.allocated + allocationForm.water },
       }));
-      
+
       NotificationService.showSuccess(`Resources allocated to ${selectedProvince} successfully`);
       closeAllocationModal();
     } catch (err) {
@@ -284,7 +329,7 @@ export const useResourcesLogic = () => {
     if (!request) return;
 
     // Update request status
-    setProvincialRequests(prev => 
+    setProvincialRequests(prev =>
       prev.map(r => r.id === requestId ? { ...r, status: 'approved' } : r)
     );
 
@@ -313,7 +358,7 @@ export const useResourcesLogic = () => {
     if (!request) return;
 
     // Update request status
-    setProvincialRequests(prev => 
+    setProvincialRequests(prev =>
       prev.map(r => r.id === requestId ? { ...r, status: 'rejected' } : r)
     );
 
@@ -344,13 +389,13 @@ export const useResourcesLogic = () => {
     loading,
     provincialRequests,
     allocationHistory,
-    
+
     // Computed
     resourceStats,
     resourcesByCategory,
     menuItems,
     roleConfig,
-    
+
     // Actions
     setActiveTab,
     openAllocationModal,

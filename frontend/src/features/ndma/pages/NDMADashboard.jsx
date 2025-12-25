@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@shared/components/layout';
 import { useSettings } from '@app/providers/ThemeProvider';
-import { 
-  AlertTriangle, 
-  Truck, 
-  Users, 
-  Package, 
+import {
+  AlertTriangle,
+  Truck,
+  Users,
+  Package,
   ArrowRight,
   Layers,
   RefreshCw,
@@ -15,10 +15,11 @@ import {
   Clock,
   CheckCircle,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
+  Loader2
 } from 'lucide-react';
 import { useBadge } from '@shared/contexts/BadgeContext';
-import { AlertService } from '@shared/services/AlertService';
+import NdmaApiService from '@shared/services/NdmaApiService';
 
 // Import NationalMap component
 import NationalMap from '../components/NationalMap';
@@ -42,28 +43,57 @@ import '../styles/national-dashboard.css';
  */
 const NDMADashboard = () => {
   const navigate = useNavigate();
-  const { activeStatusCount, provincialRequestsCount } = useBadge();
+  const { activeStatusCount, provincialRequestsCount, updateActiveStatusCount } = useBadge();
   const [activeRoute, setActiveRoute] = useState('dashboard');
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
   const [criticalAlertsCount, setCriticalAlertsCount] = useState(0);
   const { theme } = useSettings();
   const isLight = theme === 'light';
 
-  // Fetch critical alerts count on mount
+  // Loading and data states for dashboard stats
+  const [loading, setLoading] = useState(true);
+  const [dashboardStats, setDashboardStats] = useState(null);
+  const [resourceStats, setResourceStats] = useState(null);
+  const [error, setError] = useState(null);
+
+  // Fetch all dashboard data from backend
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch dashboard stats, resource stats, and alerts in parallel
+      const [statsData, resStats, alertsData] = await Promise.all([
+        NdmaApiService.getDashboardStats(),
+        NdmaApiService.getResourceStats(),
+        NdmaApiService.getAllAlerts({ status: 'active' })
+      ]);
+
+      setDashboardStats(statsData);
+      setResourceStats(resStats);
+
+      // Calculate critical alerts count
+      const criticalCount = Array.isArray(alertsData)
+        ? alertsData.filter(a => a.severity === 'critical').length
+        : 0;
+      setCriticalAlertsCount(criticalCount);
+
+      // Update badge count
+      const activeAlertsCount = Array.isArray(alertsData) ? alertsData.length : 0;
+      updateActiveStatusCount(activeAlertsCount);
+
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError('Failed to load dashboard data');
+    } finally {
+      setLoading(false);
+    }
+  }, [updateActiveStatusCount]);
+
+  // Fetch data on mount and when badge changes
   useEffect(() => {
-    const fetchCriticalAlerts = async () => {
-      try {
-        const alerts = await AlertService.getAlerts();
-        const criticalCount = alerts.filter(
-          a => a.severity === 'critical' && a.status !== 'resolved'
-        ).length;
-        setCriticalAlertsCount(criticalCount);
-      } catch (error) {
-        console.error('Error fetching critical alerts:', error);
-      }
-    };
-    fetchCriticalAlerts();
-  }, [activeStatusCount]); // Re-fetch when activeStatusCount changes
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   // Toggle map fullscreen mode
   const toggleMapFullscreen = () => {
@@ -82,43 +112,51 @@ const NDMADashboard = () => {
     }
   };
 
-  // Stats data with trend arrows
+  // Format number for display
+  const formatNumber = (num) => {
+    if (num === null || num === undefined) return '0';
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+    if (num >= 1000) return `${(num / 1000).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  // Build stats array from backend data
   const stats = [
-    { 
-      title: 'Active Emergencies', 
-      value: '3', 
-      trend: 12, 
-      trendDirection: 'down', 
-      trendLabel: 'vs yesterday',
-      icon: AlertTriangle, 
-      iconClass: 'emergencies' 
+    {
+      title: 'Active Emergencies',
+      value: loading ? '...' : formatNumber(dashboardStats?.activeAlerts || 0),
+      trend: null,
+      trendDirection: null,
+      trendLabel: 'active alerts',
+      icon: AlertTriangle,
+      iconClass: 'emergencies'
     },
-    { 
-      title: 'Teams Deployed', 
-      value: '24', 
-      trend: 8, 
-      trendDirection: 'up', 
-      trendLabel: 'vs yesterday',
-      icon: Truck, 
-      iconClass: 'teams' 
+    {
+      title: 'Teams Deployed',
+      value: loading ? '...' : formatNumber(dashboardStats?.activeTeams || 0),
+      trend: null,
+      trendDirection: null,
+      trendLabel: 'rescue teams',
+      icon: Truck,
+      iconClass: 'teams'
     },
-    { 
-      title: 'People Evacuated', 
-      value: '15,432', 
-      trend: 15, 
-      trendDirection: 'up', 
-      trendLabel: 'vs yesterday',
-      icon: Users, 
-      iconClass: 'evacuated' 
+    {
+      title: 'People Evacuated',
+      value: loading ? '...' : formatNumber(dashboardStats?.peopleSheltered || 0),
+      trend: null,
+      trendDirection: null,
+      trendLabel: 'in shelters',
+      icon: Users,
+      iconClass: 'evacuated'
     },
-    { 
-      title: 'Resources Available', 
-      value: '182,000', 
-      trend: null, 
-      trendDirection: null, 
+    {
+      title: 'Resources Available',
+      value: loading ? '...' : formatNumber(resourceStats?.availableQuantity || dashboardStats?.totalResources || 0),
+      trend: null,
+      trendDirection: null,
       trendLabel: 'units',
-      icon: Package, 
-      iconClass: 'resources' 
+      icon: Package,
+      iconClass: 'resources'
     }
   ];
 
@@ -174,7 +212,7 @@ const NDMADashboard = () => {
                 </div>
               </div>
             </div>
-            <button 
+            <button
               className="national-alert-banner-action"
               onClick={() => navigate('/ndma/alerts')}
             >
@@ -189,11 +227,11 @@ const NDMADashboard = () => {
           {stats.map((stat, index) => {
             const IconComponent = stat.icon;
             // Determine left border accent class based on stat type
-            const borderClass = 
+            const borderClass =
               stat.iconClass === 'emergencies' ? 'border-left-red' :
-              stat.iconClass === 'teams' ? 'border-left-blue' :
-              stat.iconClass === 'evacuated' ? 'border-left-green' :
-              stat.iconClass === 'resources' ? 'border-left-purple' : '';
+                stat.iconClass === 'teams' ? 'border-left-blue' :
+                  stat.iconClass === 'evacuated' ? 'border-left-green' :
+                    stat.iconClass === 'resources' ? 'border-left-purple' : '';
             return (
               <div key={index} className={`national-stat-card ${borderClass}`}>
                 <div className="national-stat-card-header">
@@ -240,7 +278,7 @@ const NDMADashboard = () => {
                 <button className="national-map-btn" title="Refresh">
                   <RefreshCw className="w-4 h-4" />
                 </button>
-                <button 
+                <button
                   className={`national-map-btn ${isMapFullscreen ? 'fullscreen-active' : ''}`}
                   title={isMapFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
                   onClick={toggleMapFullscreen}
@@ -305,7 +343,7 @@ const NDMADashboard = () => {
                       </div>
                     </div>
                     <div className="national-progress">
-                      <div 
+                      <div
                         className={`national-progress-bar ${resource.status}`}
                         style={{ width: `${resource.allocated}%` }}
                       />

@@ -1,9 +1,10 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
 import { useBadge } from '@shared/contexts/BadgeContext';
-import { 
-  PROVINCE_STATUS_DATA, 
-  CRITICAL_AREAS, 
+import NdmaApiService from '@shared/services/NdmaApiService';
+import {
+  PROVINCE_STATUS_DATA,
+  CRITICAL_AREAS,
   SHELTER_CAPACITY,
   FLOOD_RISK_LEVELS,
   STATUS_COLORS,
@@ -14,16 +15,18 @@ import {
 /**
  * useFloodMapLogic Hook
  * Manages all business logic for the NDMA Flood Map page
+ * Fetches real data from backend API
  */
 export const useFloodMapLogic = () => {
   // Get badge counts from context for global visibility
   const { activeStatusCount, provincialRequestsCount } = useBadge();
 
-  // Data state
+  // Data state - initialized with fallback mock data
   const [provinces, setProvinces] = useState(PROVINCE_STATUS_DATA);
   const [criticalAreas, setCriticalAreas] = useState(CRITICAL_AREAS);
   const [shelterCapacity, setShelterCapacity] = useState(SHELTER_CAPACITY);
-  
+  const [floodZones, setFloodZones] = useState([]);
+
   // Map state
   const [selectedProvince, setSelectedProvince] = useState(null);
   const [activeLayers, setActiveLayers] = useState(
@@ -31,22 +34,107 @@ export const useFloodMapLogic = () => {
   );
   const [mapView, setMapView] = useState('satellite');
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   // Extra maps for custom user sections
   const [extraMaps, setExtraMaps] = useState([]);
-  
+
   // Default map options
   const defaultMaps = useMemo(() => MAP_TYPE_OPTIONS || [
     { name: 'satellite', label: 'Satellite View' },
     { name: 'terrain', label: 'Terrain View' },
     { name: 'flood-risk', label: 'Flood Risk Map' },
   ], []);
-  
-  // Loading state
-  const [loading, setLoading] = useState(false);
+
+  // Loading and error state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  /**
+   * Fetch flood map data from backend API
+   */
+  const fetchFloodMapData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch map data, flood zones, shelters, and province data in parallel
+      const [mapData, floodZonesData, shelterStats, provinceData] = await Promise.all([
+        NdmaApiService.getMapData(),
+        NdmaApiService.getFloodZones(),
+        NdmaApiService.getShelterStats(),
+        NdmaApiService.getMapProvinceData()
+      ]);
+
+      console.log('🗺️ Flood map data loaded:', { mapData, floodZonesData, shelterStats, provinceData });
+
+      // Update flood zones
+      if (Array.isArray(floodZonesData)) {
+        setFloodZones(floodZonesData);
+
+        // Transform flood zones to critical areas format
+        const criticalFromBackend = floodZonesData
+          .filter(zone => zone.riskLevel === 'critical' || zone.riskLevel === 'high')
+          .map(zone => ({
+            id: zone.id,
+            name: zone.name,
+            type: 'district',
+            status: zone.riskLevel === 'critical' ? 'critical' : 'warning',
+            waterLevel: 0,
+            threshold: 0,
+            location: zone.province || 'Unknown',
+            coordinates: [0, 0],
+            lastUpdated: 'Just now',
+          }));
+
+        if (criticalFromBackend.length > 0) {
+          setCriticalAreas(criticalFromBackend);
+        }
+      }
+
+      // Update province data
+      if (Array.isArray(provinceData)) {
+        const provinceStatus = provinceData.map(p => ({
+          id: p.code?.toLowerCase() || p.name?.toLowerCase().replace(/\s+/g, '-'),
+          name: p.name,
+          status: p.overallRisk === 'critical' ? 'critical' : p.overallRisk === 'high' ? 'warning' : 'normal',
+          waterLevel: 0,
+          floodRisk: p.overallRisk || 'low',
+          affectedDistricts: p.criticalDistricts + p.highRiskDistricts,
+          evacuated: 0,
+          coordinates: [30, 70], // Default Pakistan center
+        }));
+
+        if (provinceStatus.length > 0) {
+          setProvinces(provinceStatus);
+        }
+      }
+
+      // Update shelter capacity from stats
+      if (shelterStats) {
+        setShelterCapacity([{
+          province: 'National',
+          total: shelterStats.totalShelters || 0,
+          occupied: Math.round((shelterStats.currentOccupancy / shelterStats.totalCapacity) * shelterStats.totalShelters) || 0,
+          capacity: shelterStats.totalCapacity || 0,
+        }]);
+      }
+
+    } catch (err) {
+      console.error('❌ Error fetching flood map data:', err);
+      setError('Failed to load flood map data');
+      // Keep using fallback mock data
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch data on mount
+  useEffect(() => {
+    fetchFloodMapData();
+  }, [fetchFloodMapData]);
 
   /**
    * Calculate flood statistics
@@ -58,7 +146,7 @@ export const useFloodMapLogic = () => {
     warningAreasCount: criticalAreas.filter(a => a.status === 'warning').length,
     shelterOccupancy: Math.round(
       (shelterCapacity.reduce((acc, s) => acc + (s.occupied || 0), 0) /
-      shelterCapacity.reduce((acc, s) => acc + (s.total || 1), 0)) * 100
+        shelterCapacity.reduce((acc, s) => acc + (s.total || 1), 0)) * 100
     ),
     totalShelterCapacity: shelterCapacity.reduce((acc, s) => acc + (s.capacity || 0), 0),
   }), [provinces, criticalAreas, shelterCapacity]);
@@ -105,7 +193,7 @@ export const useFloodMapLogic = () => {
    * Toggle map layer
    */
   const toggleLayer = useCallback((layerId) => {
-    setActiveLayers(prev => 
+    setActiveLayers(prev =>
       prev.includes(layerId)
         ? prev.filter(id => id !== layerId)
         : [...prev, layerId]
@@ -167,11 +255,11 @@ export const useFloodMapLogic = () => {
       setLoading(true);
       // Simulate API call - replace with actual service calls
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // In production, fetch fresh data from APIs
       // const newProvinceStatus = await FloodService.getProvinceStatus();
       // setProvinceStatus(newProvinceStatus);
-      
+
     } catch (err) {
       console.error('Error refreshing flood data:', err);
     } finally {
@@ -206,19 +294,19 @@ export const useFloodMapLogic = () => {
     extraMaps,
     loading,
     activeLayers,
-    
+
     // Data
     provinces,
     criticalAreas,
     shelterCapacity,
     menuItems,
     defaultMaps,
-    
+
     // Computed
     floodStats,
     provincesByStatus,
     roleConfig,
-    
+
     // Actions
     setSelectedProvince,
     setMapView,

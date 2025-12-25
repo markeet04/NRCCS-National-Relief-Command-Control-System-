@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useBadge } from '@shared/contexts/BadgeContext';
-import { AlertService } from '@services/AlertService';
+import NdmaApiService from '@shared/services/NdmaApiService';
 import { NotificationService } from '@services/NotificationService';
 import { validateAlert } from '@utils/validationUtils';
 import { getCurrentTimestamp, isToday } from '@utils/dateUtils';
@@ -13,18 +13,18 @@ import { INITIAL_ALERT_FORM } from '../constants';
  */
 export const useAlertsLogic = () => {
   const { updateActiveStatusCount, activeStatusCount, provincialRequestsCount } = useBadge();
-  
+
   // UI State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [viewAlertId, setViewAlertId] = useState(null);
   const [showResolved, setShowResolved] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
-  
+
   // Data State
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   // Form State
   const [newAlert, setNewAlert] = useState(INITIAL_ALERT_FORM);
 
@@ -34,21 +34,23 @@ export const useAlertsLogic = () => {
   }, []);
 
   /**
-   * Load alerts from service
+   * Load alerts from backend API
    */
   const loadAlerts = useCallback(async (showSuccessMessage = false) => {
     try {
       setLoading(true);
       setError(null);
-      console.log('📥 Loading alerts from AlertService...');
-      const alertsData = await AlertService.getAlerts();
+      console.log('📥 Loading alerts from backend API...');
+      const alertsData = await NdmaApiService.getAllAlerts();
       console.log('📋 Loaded alerts:', alertsData);
       setAlerts(Array.isArray(alertsData) ? alertsData : []);
-      
+
       // Update badge count with active alerts
-      const activeAlerts = alertsData.filter(alert => alert.status !== 'resolved');
+      const activeAlerts = Array.isArray(alertsData)
+        ? alertsData.filter(alert => alert.status !== 'resolved')
+        : [];
       updateActiveStatusCount(activeAlerts.length);
-      
+
       if (showSuccessMessage) {
         NotificationService.showSuccess('Alerts loaded successfully');
       }
@@ -80,49 +82,43 @@ export const useAlertsLogic = () => {
    */
   const handleResolveAlert = useCallback(async (id) => {
     try {
-      const updatedAlert = await AlertService.updateAlert(id, { status: 'resolved' });
+      const updatedAlert = await NdmaApiService.resolveAlert(id);
       setAlerts(prev => {
         const newAlerts = prev.map(alert =>
-          alert.id === id ? updatedAlert : alert
+          alert.id === id ? { ...alert, status: 'resolved', resolvedAt: new Date().toISOString() } : alert
         );
         const activeAlerts = newAlerts.filter(alert => alert.status !== 'resolved');
         updateActiveStatusCount(activeAlerts.length);
         return newAlerts;
       });
-      NotificationService.showSuccess('Alert status updated');
+      NotificationService.showSuccess('Alert resolved successfully');
     } catch (err) {
-      console.error('Error updating alert:', err);
-      NotificationService.showError('Failed to update alert');
+      console.error('Error resolving alert:', err);
+      NotificationService.showError('Failed to resolve alert');
     }
   }, [updateActiveStatusCount]);
 
   /**
-   * Reopen a resolved alert
+   * Reopen a resolved alert - Note: Backend doesn't have reopen endpoint, so we reload
    */
   const handleReopenAlert = useCallback(async (id) => {
     try {
-      const updatedAlert = await AlertService.updateAlert(id, { status: 'active' });
-      setAlerts(prev => {
-        const newAlerts = prev.map(alert =>
-          alert.id === id ? updatedAlert : alert
-        );
-        const activeAlerts = newAlerts.filter(alert => alert.status !== 'resolved');
-        updateActiveStatusCount(activeAlerts.length);
-        return newAlerts;
-      });
-      NotificationService.showSuccess('Alert reopened successfully');
+      // Backend doesn't have reopen, so we'll just reload alerts
+      // In production, you'd want to add a reopen endpoint
+      NotificationService.showInfo('Reopening alerts requires admin action');
+      await loadAlerts(false);
     } catch (err) {
       console.error('Error reopening alert:', err);
       NotificationService.showError('Failed to reopen alert');
     }
-  }, [updateActiveStatusCount]);
+  }, [loadAlerts]);
 
   /**
    * Delete an alert
    */
   const handleDeleteAlert = useCallback(async (id) => {
     try {
-      await AlertService.deleteAlert(id);
+      await NdmaApiService.deleteAlert(id);
       setAlerts(prev => {
         const newAlerts = prev.filter(alert => alert.id !== id);
         const activeAlerts = newAlerts.filter(alert => alert.status !== 'resolved');
@@ -180,7 +176,7 @@ export const useAlertsLogic = () => {
     console.log('🔍 Validating alert data:', newAlert);
     const validation = validateAlert(newAlert);
     console.log('✅ Validation result:', validation);
-    
+
     if (!validation.isValid) {
       console.error('❌ Validation errors:', validation.errors);
       setValidationErrors(validation.errors);
@@ -194,7 +190,7 @@ export const useAlertsLogic = () => {
     try {
       setLoading(true);
       console.log('⏳ Starting alert creation process...');
-      
+
       const location = [newAlert.province, newAlert.district, newAlert.tehsil]
         .filter(Boolean)
         .join(', ');
@@ -206,16 +202,16 @@ export const useAlertsLogic = () => {
       };
 
       console.log('📦 Creating alert with payload:', alertPayload);
-      await AlertService.createAlert(alertPayload);
+      await NdmaApiService.createAlert(alertPayload);
       console.log('✅ Alert created successfully');
-      
+
       // Reload all alerts from service
       await loadAlerts(false);
-      
+
       // Reset form and close modal
       resetForm();
       setIsCreateModalOpen(false);
-      
+
       NotificationService.showSuccess('Alert published successfully');
     } catch (err) {
       console.error('❌ Error creating alert:', err);
@@ -269,7 +265,7 @@ export const useAlertsLogic = () => {
   const displayedAlerts = useMemo(() => {
     const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
     return alerts
-      .filter(alert => 
+      .filter(alert =>
         showResolved ? alert.status === 'resolved' : alert.status !== 'resolved'
       )
       .sort((a, b) => {
@@ -301,7 +297,7 @@ export const useAlertsLogic = () => {
     showResolved,
     newAlert,
     validationErrors,
-    
+
     // Computed
     alertToView,
     activeAlertsCount,
@@ -309,7 +305,7 @@ export const useAlertsLogic = () => {
     alertStats,
     roleConfig,
     menuItems,
-    
+
     // Actions
     loadAlerts,
     handleViewAlert,
