@@ -43,8 +43,25 @@ const useMissingPersonsLogic = () => {
             console.error('[Missing Persons] Error response:', err.response?.data);
             console.error('[Missing Persons] Error status:', err.response?.status);
 
+            // Don't immediately show auth error - the session might just be slow
+            // Let the auth provider handle session expiration
             if (err.response?.status === 401) {
-                setError('Please login as a district user to view missing persons.');
+                console.log('[Missing Persons] 401 error - will retry once');
+                // Try one more time after a brief delay
+                setTimeout(async () => {
+                    try {
+                        const data = await districtApi.getMissingPersons(params);
+                        setPersons(Array.isArray(data) ? data : []);
+                        setError(null);
+                        setLoading(false);
+                    } catch (retryErr) {
+                        console.error('[Missing Persons] Retry failed:', retryErr);
+                        setError('Please login as a district user to view missing persons.');
+                        setPersons([]);
+                        setLoading(false);
+                    }
+                }, 500);
+                return; // Don't set loading to false yet
             } else if (err.response?.status === 403) {
                 setError('Access denied. You do not have permission.');
             } else {

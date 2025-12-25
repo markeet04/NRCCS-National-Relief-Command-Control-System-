@@ -43,8 +43,10 @@ export const AuthProvider = ({ children }) => {
 
     // Listen for session expiration events
     const handleSessionExpired = () => {
-      console.log('[AuthProvider] Session expired event');
+      console.log('[AuthProvider] ⚠️ Session expired event received');
+      console.log('[AuthProvider] Current user before expiration:', user);
       setUser(null);
+      console.log('[AuthProvider] User cleared, will redirect to landing');
     };
 
     window.addEventListener('session-expired', handleSessionExpired);

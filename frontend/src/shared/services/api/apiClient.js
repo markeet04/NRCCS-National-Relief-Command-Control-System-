@@ -27,8 +27,19 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       console.log('[apiClient] 401 error - session expired or not authenticated');
-      // Let the application handle the redirect
-      window.dispatchEvent(new Event('session-expired'));
+      console.log('[apiClient] Request URL:', error.config?.url);
+      
+      // Only dispatch session-expired for auth-related endpoints
+      // This prevents false positives from race conditions or temporary network issues
+      if (error.config?.url?.includes('/auth/validate-session') || 
+          error.config?.url?.includes('/auth/login')) {
+        console.log('[apiClient] Auth endpoint failed, dispatching session-expired');
+        window.dispatchEvent(new Event('session-expired'));
+      } else {
+        console.log('[apiClient] Non-auth endpoint failed with 401, letting component handle it');
+        // Don't automatically expire session - let the component handle it
+        // The component can retry or show an error message
+      }
     }
     return Promise.reject(error);
   }

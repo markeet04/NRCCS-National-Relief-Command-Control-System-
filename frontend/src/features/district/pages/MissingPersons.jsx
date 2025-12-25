@@ -1,21 +1,61 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '../../../shared/components/layout';
 import { useSettings } from '../../../app/providers/ThemeProvider';
 import { getThemeColors } from '../../../shared/utils/themeColors';
-import { DISTRICT_MENU_ITEMS, DEFAULT_DISTRICT_INFO } from '../constants';
+import { DISTRICT_MENU_ITEMS } from '../constants';
 import useMissingPersonsLogic from '../hooks/useMissingPersonsLogic';
 import StatusUpdateModal from '../components/MissingPersons/StatusUpdateModal';
 import { ToastContainer } from '../../../shared/components/ui';
 import { Search, Users, UserCheck, UserX, AlertTriangle } from 'lucide-react';
+import { useAuth } from '../../../app/providers/AuthProvider';
+import districtApi from '../services/districtApi';
 
 const MissingPersons = () => {
     const navigate = useNavigate();
     const { theme } = useSettings();
     const isLight = theme === 'light';
     const colors = getThemeColors(isLight);
+    const { user } = useAuth();
 
     const [activeRoute, setActiveRoute] = useState('missing-persons');
+    const [districtName, setDistrictName] = useState('Loading...');
+    const [pendingSosCount, setPendingSosCount] = useState(0);
+
+    // Fetch only district info on mount - lightweight call
+    useEffect(() => {
+        console.log('[MissingPersons] Component mounted, user:', user);
+        
+        const fetchDistrictName = async () => {
+            try {
+                console.log('[MissingPersons] Fetching district info...');
+                const info = await districtApi.getDistrictInfo();
+                console.log('[MissingPersons] District info received:', info);
+                setDistrictName(info.name || 'District');
+            } catch (err) {
+                console.error('[MissingPersons] Failed to fetch district info:', err);
+                setDistrictName(user?.district?.name || 'District');
+            }
+        };
+
+        const fetchPendingCount = async () => {
+            try {
+                console.log('[MissingPersons] Fetching pending SOS count...');
+                const stats = await districtApi.getDashboardStats();
+                console.log('[MissingPersons] Stats received:', stats);
+                setPendingSosCount(stats.pendingSOS || 0);
+            } catch (err) {
+                console.error('[MissingPersons] Failed to fetch SOS count:', err);
+            }
+        };
+
+        fetchDistrictName();
+        fetchPendingCount();
+
+        return () => {
+            console.log('[MissingPersons] Component unmounting');
+        };
+    }, [user]);
 
     const {
         persons,
@@ -75,9 +115,9 @@ const MissingPersons = () => {
             onNavigate={handleNavigate}
             pageTitle="Missing Persons"
             pageSubtitle="Manage and update missing person reports in your district"
-            userRole={`District ${DEFAULT_DISTRICT_INFO.name}`}
+            userRole={`District ${districtName}`}
             userName="District Officer"
-            notificationCount={activeCases}
+            notificationCount={pendingSosCount || activeCases || 0}
         >
             <div style={{ padding: '24px' }}>
                 {/* Page Header */}
