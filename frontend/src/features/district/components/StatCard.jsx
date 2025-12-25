@@ -56,16 +56,70 @@ const StatCard = ({
   
   // Resolve icon - can be a component or a string key
   const IconComponent = typeof icon === 'string' ? ICON_MAP[icon] : icon;
+
+  // Get left border color based on gradientKey - bright colors for dark mode (matches NDMA style)
+  const getLeftBorderColor = () => {
+    if (isLight) return 'transparent';
+    const borderColors = {
+      rose: '#ef4444',
+      red: '#ef4444',
+      danger: '#ef4444',
+      amber: '#f59e0b',
+      orange: '#f97316',
+      warning: '#f59e0b',
+      blue: '#3b82f6',
+      info: '#3b82f6',
+      violet: '#8b5cf6',
+      emerald: '#10b981',
+      green: '#22c55e',
+      success: '#10b981',
+      cyan: '#06b6d4',
+      teal: '#14b8a6',
+      indigo: '#6366f1',
+      purple: '#a855f7',
+      default: '#6b7280',
+    };
+    return borderColors[gradientKey] || borderColors.default;
+  };
+
+  // Get glow shadow color for dark mode - matches NDMA style
+  const getGlowShadow = () => {
+    if (isLight) return gradient ? gradient.shadow : colors.cardShadow;
+    
+    const glowColors = {
+      rose: 'rgba(239, 68, 68, 0.4)',
+      red: 'rgba(239, 68, 68, 0.4)',
+      danger: 'rgba(239, 68, 68, 0.4)',
+      amber: 'rgba(245, 158, 11, 0.4)',
+      orange: 'rgba(249, 115, 22, 0.4)',
+      warning: 'rgba(245, 158, 11, 0.4)',
+      blue: 'rgba(59, 130, 246, 0.4)',
+      info: 'rgba(59, 130, 246, 0.4)',
+      violet: 'rgba(139, 92, 246, 0.4)',
+      emerald: 'rgba(16, 185, 129, 0.4)',
+      green: 'rgba(34, 197, 94, 0.4)',
+      success: 'rgba(16, 185, 129, 0.4)',
+      cyan: 'rgba(6, 182, 212, 0.4)',
+      teal: 'rgba(20, 184, 166, 0.4)',
+      indigo: 'rgba(99, 102, 241, 0.4)',
+      purple: 'rgba(168, 85, 247, 0.4)',
+      default: 'rgba(107, 114, 128, 0.3)',
+    };
+    
+    const glowColor = glowColors[gradientKey] || glowColors.default;
+    return `-2px 0 10px 0 ${glowColor}`;
+  };
   
   return (
     <div 
-      className="rounded-xl transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 overflow-hidden"
+      className="stat-card-unified rounded-xl transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 overflow-hidden"
       style={{ 
         background: gradient ? gradient.bg : colors.cardBg,
         border: gradient ? 'none' : `1px solid ${colors.cardBorder}`,
         borderTop: gradient ? `4px solid ${gradient.borderTop}` : `1px solid ${colors.cardBorder}`,
+        borderLeft: !isLight ? `4px solid ${getLeftBorderColor()}` : (gradient ? 'none' : `1px solid ${colors.cardBorder}`),
         padding: '24px',
-        boxShadow: gradient ? gradient.shadow : (isLight ? colors.cardShadow : 'none')
+        boxShadow: getGlowShadow()
       }}
     >
       <div className="flex items-start justify-between">

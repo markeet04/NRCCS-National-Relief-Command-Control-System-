@@ -196,50 +196,22 @@ const DistrictDashboard = () => {
         </div>
       </div>
 
-      {/* Stats Grid - NDMA Style (4 columns) */}
+      {/* Stats Grid - Using StatCard component for consistent styling */}
       <div 
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
         style={{ gap: '16px', marginBottom: '24px' }}
       >
         {displayStats.slice(0, 4).map((stat, index) => (
-          <div key={index} style={statCardStyle}>
-            <div className="flex items-center justify-between mb-2">
-              <span style={{ color: colors.textSecondary, fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                {stat.title}
-              </span>
-              <div style={{ 
-                background: colors.primaryLight, 
-                borderRadius: '8px', 
-                padding: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                {stat.icon === 'radio' && <Radio style={{ color: colors.primary, width: '18px', height: '18px' }} />}
-                {stat.icon === 'home' && <Home style={{ color: colors.primary, width: '18px', height: '18px' }} />}
-                {stat.icon === 'users' && <Users style={{ color: colors.primary, width: '18px', height: '18px' }} />}
-                {stat.icon === 'package' && <Package style={{ color: colors.primary, width: '18px', height: '18px' }} />}
-              </div>
-            </div>
-            <p style={{ color: colors.textPrimary, fontSize: '32px', fontWeight: '700', marginBottom: '4px' }}>
-              {stat.value}
-            </p>
-            {stat.trend !== null && (
-              <span style={{ 
-                color: stat.trendDirection === 'up' ? colors.success : stat.trendDirection === 'down' ? colors.critical : colors.textMuted,
-                fontSize: '13px',
-                fontWeight: '500'
-              }}>
-                {stat.trendDirection === 'up' ? '↑' : stat.trendDirection === 'down' ? '↓' : ''}
-                {' '}{Math.abs(stat.trend)}% {stat.trendLabel}
-              </span>
-            )}
-            {stat.trend === null && stat.trendLabel && (
-              <span style={{ color: colors.textMuted, fontSize: '13px' }}>
-                {stat.trendLabel}
-              </span>
-            )}
-          </div>
+          <StatCard
+            key={index}
+            title={stat.title}
+            value={stat.value}
+            icon={stat.icon}
+            trend={stat.trend}
+            trendLabel={stat.trendLabel}
+            trendDirection={stat.trendDirection}
+            gradientKey={stat.gradientKey}
+          />
         ))}
       </div>
 
