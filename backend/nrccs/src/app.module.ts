@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { SuperadminModule } from './superadmin/superadmin.module';
 import { PdmaModule } from './pdma/pdma.module';
+import { DistrictModule } from './district/district.module';
 import { CivilianModule } from './civilian/civilian.module';
 
 
@@ -30,6 +31,7 @@ import { CivilianModule } from './civilian/civilian.module';
     AuthModule,
     SuperadminModule,
     PdmaModule,
+    DistrictModule,
     CivilianModule
   ],
   controllers: [AppController],

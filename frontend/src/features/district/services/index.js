@@ -45,7 +45,6 @@ export const DamageReportService = {
   getStats: districtApi.getDamageReportStats,
 };
 
-<<<<<<< HEAD
 /**
  * Missing Person Service
  */
@@ -76,14 +75,4 @@ export const MissingPersonService = {
   },
 };
 
-export default {
-  DistrictService,
-  SOSService,
-  RescueTeamService,
-  ShelterService,
-  DamageReportService,
-  MissingPersonService,
-};
-=======
 export default districtApi;
->>>>>>> 6359c37555c12cd2f6317af6315ce53b99524ea7

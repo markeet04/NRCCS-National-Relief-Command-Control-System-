@@ -119,12 +119,29 @@ export const useDistrictData = () => {
     try {
       // Fetch all data in parallel for performance
       const [statsData, infoData, sosData, alertsData, weatherData] = await Promise.all([
-        districtApi.getDashboardStats(),
-        districtApi.getDistrictInfo(),
-        districtApi.getAllSosRequests(), // No parameters needed - backend will return all
-        districtApi.getAlerts(),
-        districtApi.getWeather(),
+        districtApi.getDashboardStats().catch(err => {
+          console.error('Stats API error:', err);
+          return { pendingSOS: 0, activeShelters: 0, shelterCapacity: 0, activeTeams: 0, localResources: 0, damageReports: 0 };
+        }),
+        districtApi.getDistrictInfo().catch(err => {
+          console.error('District info API error:', err);
+          return { name: 'District', province: 'Unknown' };
+        }),
+        districtApi.getAllSosRequests().catch(err => {
+          console.error('SOS API error:', err);
+          return [];
+        }),
+        districtApi.getAlerts().catch(err => {
+          console.error('Alerts API error:', err);
+          return [];
+        }),
+        districtApi.getWeather().catch(err => {
+          console.error('Weather API error:', err);
+          return null;
+        }),
       ]);
+      
+      console.log('📊 Dashboard Data Fetched:', { statsData, infoData, sosData, alertsData, weatherData });
       
       // Keep raw stats for direct access
       setRawStats(statsData);
@@ -146,6 +163,7 @@ export const useDistrictData = () => {
         id: alert.id,
         type: alert.alertType || alert.type,
         description: alert.message || alert.description,
+        severity: alert.severity,
         color: getSeverityColor(alert.severity),
       })));
       
