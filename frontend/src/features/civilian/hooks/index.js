@@ -8,3 +8,4 @@ export { default as useFindSheltersLogic } from './useFindSheltersLogic';
 export { default as useMissingPersonsFilters } from './useMissingPersonsFilters';
 export { default as useReportForm } from './useReportForm';
 export { default as useMissingPersonsLogic } from './useMissingPersonsLogic';
+export { useTrackStatusLogic } from './useTrackStatusLogic';

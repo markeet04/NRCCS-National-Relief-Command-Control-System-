@@ -1,60 +1,107 @@
-import { useState, useEffect } from 'react';
-import { MOCK_ALERTS, ALERTS_PER_PAGE, SEVERITY_CONFIG } from '../constants';
+import { useState, useEffect, useMemo } from 'react';
+import civilianApi from '../services/civilianApi';
+import {
+  ALERTS_PER_PAGE,
+  FILTER_OPTIONS,
+  SEVERITY_CONFIG,
+} from '../constants/alertsNoticesConstants';
 
-const useAlertsLogic = () => {
+export const useAlertsLogic = () => {
   const [alerts, setAlerts] = useState([]);
-  const [filteredAlerts, setFilteredAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeFilter, setActiveFilter] = useState('All');
   const [sortBy, setSortBy] = useState('Latest');
   const [expandedId, setExpandedId] = useState(null);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [displayCount, setDisplayCount] = useState(ALERTS_PER_PAGE);
 
-  // Simulate API call
+  // Fetch alerts from API
   useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setAlerts(MOCK_ALERTS);
-      setFilteredAlerts(MOCK_ALERTS.slice(0, ALERTS_PER_PAGE));
-      setLoading(false);
-    }, 800);
+    const fetchAlerts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await civilianApi.getAllAlerts({ limit: 100 });
+
+        // Transform backend data to match frontend expectations
+        const transformedAlerts = data.map((alert) => ({
+          id: alert.id,
+          severity: mapSeverity(alert.severity),
+          title: alert.title,
+          timestamp: alert.issuedAt || alert.time,
+          briefDescription: alert.shortDescription || alert.message || alert.description?.substring(0, 100),
+          fullDescription: alert.description || alert.message,
+          affectedAreas: alert.affectedAreas || [],
+          recommendedActions: alert.recommendedActions || [],
+          isRead: false, // Track client-side
+        }));
+
+        setAlerts(transformedAlerts);
+      } catch (err) {
+        console.error('Failed to fetch alerts:', err);
+        setError('Failed to load alerts. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAlerts();
   }, []);
 
-  // Filter and sort logic
-  useEffect(() => {
-    let result = [...alerts];
+  // Map backend severity to frontend format
+  const mapSeverity = (severity) => {
+    const severityMap = {
+      'critical': 'Critical',
+      'high': 'Warning',
+      'medium': 'Warning',
+      'low': 'Info',
+      'info': 'Info',
+    };
+    return severityMap[severity] || 'Info';
+  };
 
-    // Apply filter
+  // Filter alerts
+  const filteredAlerts = useMemo(() => {
+    let filtered = [...alerts];
+
+    // Apply severity filter
     if (activeFilter !== 'All') {
-      result = result.filter(alert => alert.severity === activeFilter);
+      filtered = filtered.filter((alert) => alert.severity === activeFilter);
     }
 
-    // Apply sort
-    if (sortBy === 'Latest') {
-      result.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    } else if (sortBy === 'Oldest') {
-      result.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-    } else if (sortBy === 'Severity') {
-      const severityOrder = { Critical: 0, Warning: 1, Info: 2 };
-      result.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+    // Apply sorting
+    switch (sortBy) {
+      case 'Latest':
+        filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        break;
+      case 'Oldest':
+        filtered.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        break;
+      case 'Severity':
+        const severityOrder = { Critical: 0, Warning: 1, Info: 2 };
+        filtered.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+        break;
+      default:
+        break;
     }
 
     // Apply pagination
-    const paginatedResult = result.slice(0, page * ALERTS_PER_PAGE);
-    setFilteredAlerts(paginatedResult);
-    setHasMore(paginatedResult.length < result.length);
-  }, [alerts, activeFilter, sortBy, page]);
+    return filtered.slice(0, displayCount);
+  }, [alerts, activeFilter, sortBy, displayCount]);
+
+  const unreadCount = useMemo(() => {
+    return alerts.filter((alert) => !alert.isRead).length;
+  }, [alerts]);
+
+  const hasMore = displayCount < alerts.length;
 
   const handleFilterChange = (filter) => {
     setActiveFilter(filter);
-    setPage(1);
-    setExpandedId(null);
+    setDisplayCount(ALERTS_PER_PAGE);
   };
 
-  const handleSortChange = (e) => {
-    setSortBy(e.target.value);
-    setPage(1);
+  const handleSortChange = (sort) => {
+    setSortBy(sort);
   };
 
   const toggleExpand = (id) => {
@@ -62,15 +109,15 @@ const useAlertsLogic = () => {
   };
 
   const markAsRead = (id) => {
-    setAlerts(prevAlerts =>
-      prevAlerts.map(alert =>
+    setAlerts((prev) =>
+      prev.map((alert) =>
         alert.id === id ? { ...alert, isRead: true } : alert
       )
     );
   };
 
   const loadMore = () => {
-    setPage(prevPage => prevPage + 1);
+    setDisplayCount((prev) => prev + ALERTS_PER_PAGE);
   };
 
   const getSeverityConfig = (severity) => {
@@ -81,30 +128,32 @@ const useAlertsLogic = () => {
     const date = new Date(timestamp);
     const now = new Date();
     const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
 
-    if (diffMins < 60) return `${diffMins} minutes ago`;
-    if (diffHours < 24) return `${diffHours} hours ago`;
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffHours < 1) {
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+    }
+    if (diffHours < 24) {
+      return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    }
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 7) {
+      return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+    }
 
     return date.toLocaleDateString('en-PK', {
+      year: 'numeric',
       month: 'short',
       day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     });
   };
-
-  const unreadCount = alerts.filter(a => !a.isRead).length;
 
   return {
     alerts,
     filteredAlerts,
     loading,
+    error,
     activeFilter,
     sortBy,
     expandedId,

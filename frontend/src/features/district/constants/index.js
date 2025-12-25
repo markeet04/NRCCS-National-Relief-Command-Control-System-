@@ -11,6 +11,7 @@ export const DISTRICT_MENU_ITEMS = [
   { route: 'shelters', label: 'Shelter Management', icon: 'resources' },
   { route: 'rescue', label: 'Rescue Teams', icon: 'resources' },
   { route: 'reports', label: 'Damage Reports', icon: 'map' },
+  { route: 'missing-persons', label: 'Missing Persons', icon: 'search' },
 ];
 
 // SOS Request status options (for dropdowns)

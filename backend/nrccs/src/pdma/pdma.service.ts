@@ -31,7 +31,7 @@ export class PdmaService {
     private rescueTeamRepository: Repository<RescueTeam>,
     @InjectRepository(ActivityLog)
     private activityLogRepository: Repository<ActivityLog>,
-  ) {}
+  ) { }
 
   // ==================== HELPER METHODS ====================
 
@@ -389,8 +389,8 @@ export class PdmaService {
     const shelterData: Partial<Shelter> = {
       name: createShelterDto.name,
       address: createShelterDto.address || createShelterDto.location,
-      capacity: typeof createShelterDto.capacity === 'string' 
-        ? parseInt(createShelterDto.capacity, 10) || 0 
+      capacity: typeof createShelterDto.capacity === 'string'
+        ? parseInt(createShelterDto.capacity, 10) || 0
         : createShelterDto.capacity || 0,
       contactPhone: createShelterDto.contactPhone || createShelterDto.contact,
       managerName: createShelterDto.managerName || createShelterDto.contactPerson,
@@ -609,11 +609,11 @@ export class PdmaService {
 
     // Update allocation
     resource.allocated += allocateDto.quantity;
-    
+
     // Update resource status based on allocation percentage
     const newAvailable = resource.quantity - resource.allocated;
     const usagePercentage = (resource.allocated / resource.quantity) * 100;
-    
+
     if (newAvailable === 0) {
       // Fully allocated
       resource.status = ResourceStatus.ALLOCATED;
@@ -627,7 +627,7 @@ export class PdmaService {
       // Still available
       resource.status = ResourceStatus.AVAILABLE;
     }
-    
+
     const updated = await this.resourceRepository.save(resource);
 
     await this.logActivity(
@@ -781,10 +781,10 @@ export class PdmaService {
 
     // Get active SOS requests
     const sosRequests = await this.sosRepository.find({
-      where: { 
-        districtId: In(districtIds), 
+      where: {
+        districtId: In(districtIds),
         status: In([SosStatus.PENDING, SosStatus.ASSIGNED, SosStatus.EN_ROUTE]),
-        isDeleted: false 
+        isDeleted: false
       },
       select: ['id', 'districtId', 'locationLat', 'locationLng', 'peopleCount', 'status', 'priority'],
     });

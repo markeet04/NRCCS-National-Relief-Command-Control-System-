@@ -35,16 +35,30 @@ const TrackStatus = () => {
         requests={requests}
       />
 
-      <FilterTabs
-        activeFilter={activeFilter}
-        setActiveFilter={setActiveFilter}
-        requests={requests}
+      <SearchForm
+        searchType={searchType}
+        setSearchType={setSearchType}
+        searchValue={searchValue}
+        handleSearchValueChange={handleSearchValueChange}
+        searchError={searchError}
+        handleSearch={handleSearch}
+        isLoading={isLoading}
       />
 
-      <RequestsList
-        filteredRequests={filteredRequests}
-        handleViewDetails={handleViewDetails}
-      />
+      {requests.length > 0 && (
+        <>
+          <FilterTabs
+            activeFilter={activeFilter}
+            setActiveFilter={setActiveFilter}
+            requests={requests}
+          />
+
+          <RequestsList
+            filteredRequests={filteredRequests}
+            handleViewDetails={handleViewDetails}
+          />
+        </>
+      )}
 
       {selectedRequest && (
         <DetailModal selectedRequest={selectedRequest} onClose={closeDetailModal} />
