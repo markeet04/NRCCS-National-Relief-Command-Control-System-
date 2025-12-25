@@ -52,6 +52,9 @@ import weatherAnimationService from '@shared/services/weatherAnimationService';
 import { useSettings } from '../../../../app/providers/ThemeProvider';
 import { getThemeColors } from '../../../../shared/utils/themeColors';
 
+// Map Configuration
+import { getBasemapByTheme } from '@shared/config/mapConfig';
+
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
@@ -64,8 +67,8 @@ const DISTRICT_CONFIG = {
   lat: 34.0,
   lon: 71.57,
   zoom: 11,
-  minZoom: 10,
-  maxZoom: 16,
+  minZoom: 9,
+  maxZoom: 14,  // Constrained to prevent pixelation at district level
   bounds: {
     minLon: 71.3,
     minLat: 33.8,
@@ -818,13 +821,19 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
           }));
         });
 
-        // Build layers array (only valid layers)
-        const mapLayers = [evacuationLayer, precipLayer, windLayer, sheltersLayer, hospitalsLayer];
+        // Build layers - correct ordering: vector first, then raster weather on top
+        const mapLayers = [
+          evacuationLayer,   // Evacuation routes (vector)
+          sheltersLayer,     // Shelter markers
+          hospitalsLayer,    // Hospital markers  
+          precipLayer,       // Weather raster (semi-transparent)
+          windLayer          // Wind animation layer (top)
+        ];
         if (riversLayer) mapLayers.unshift(riversLayer);
 
-        // Create Map with reliable basemap
+        // Create Map with theme-aware basemap
         const map = new Map({
-          basemap: 'dark-gray-vector',
+          basemap: getBasemapByTheme(theme),
           layers: mapLayers
         });
         mapInstanceRef.current = map;
@@ -1152,38 +1161,7 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
         </div>
       </div>
 
-      {/* Toggle Buttons */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '16px' }}>
-        <button
-          onClick={toggleRain}
-          style={getButtonStyle(rainEnabled)}
-          title={`Rain based on ${weatherData?.current?.precipitation || 0}mm precipitation`}
-        >
-          <CloudRain style={{ width: '18px', height: '18px' }} />
-          Rain Effect
-          {rainEnabled && <span style={{ opacity: 0.8 }}>●</span>}
-        </button>
-
-        <button
-          onClick={toggleWind}
-          style={getButtonStyle(windEnabled)}
-          title={`Wind: ${weatherData?.current?.windSpeed || 0} km/h from ${getWindDirectionText(weatherData?.current?.windDirection || 0)}`}
-        >
-          <Wind style={{ width: '18px', height: '18px' }} />
-          Wind Flow
-          {windEnabled && <span style={{ opacity: 0.8 }}>●</span>}
-        </button>
-
-        <button
-          onClick={togglePrecipitation}
-          style={getButtonStyle(precipEnabled)}
-          title={`Precipitation zones based on ${weatherData?.current?.precipitation || 0}mm`}
-        >
-          <Droplets style={{ width: '18px', height: '18px' }} />
-          Precipitation
-          {precipEnabled && <span style={{ opacity: 0.8 }}>●</span>}
-        </button>
-      </div>
+      {/* Animation controls available in LayerList widget above */}
 
       {/* Legend with REAL data */}
       {activeLayers.length > 0 && weatherData && (

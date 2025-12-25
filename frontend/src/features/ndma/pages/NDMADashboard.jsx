@@ -292,7 +292,7 @@ const NDMADashboard = () => {
               </div>
             </div>
             <div className={`national-map-container ${isMapFullscreen ? 'map-container-fullscreen' : ''}`}>
-              <NationalMap height={isMapFullscreen ? 'calc(100vh - 180px)' : '500px'} />
+              <NationalMap height={isMapFullscreen ? 'calc(100vh - 180px)' : '650px'} />
             </div>
             <div className="national-map-legend">
               <div className="national-map-legend-item">

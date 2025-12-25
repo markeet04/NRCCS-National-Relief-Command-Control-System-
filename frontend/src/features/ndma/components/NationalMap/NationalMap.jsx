@@ -54,6 +54,12 @@ import weatherAnimationService from '@shared/services/weatherAnimationService';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 
+// Map Configuration
+import { getBasemapByTheme, ROLE_MAP_CONFIG } from '@shared/config/mapConfig';
+
+// ArcGIS Reactive Utils (replaces deprecated view.watch)
+import * as reactiveUtils from '@arcgis/core/core/reactiveUtils';
+
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
@@ -64,7 +70,7 @@ const PAKISTAN_CONFIG = {
   center: [69.3451, 30.3753], // Pakistan center (lon, lat)
   zoom: 5,
   minZoom: 4,
-  maxZoom: 16,
+  maxZoom: 8,  // Constrained to prevent pixelation at national level
   bounds: {
     minLon: 60.8,
     minLat: 23.5,
@@ -807,22 +813,24 @@ const NationalMap = ({ height = '450px' }) => {
           }));
         });
 
-        // Build layers array (only add valid layers)
+        // Build layers array - CORRECT ORDERING for visual clarity:
+        // Bottom: Terrain/Hillshade → Rivers → Flood zones → Evacuation → Weather (raster) → Points
+        // Raster weather layers (precip, wind) should be semi-transparent and ABOVE polygons but not obscuring roads
         const mapLayers = [
-          hillshadeLayer,
-          floodZonesLayer,
-          evacuationLayer,
-          precipLayer,
-          windLayer,
-          sheltersLayer,
-          hospitalsLayer,
-          locationLayer
+          hillshadeLayer,          // Bottom - terrain
+          floodZonesLayer,         // Flood polygon layers
+          evacuationLayer,         // Evacuation routes (vector)
+          sheltersLayer,           // Shelter points
+          hospitalsLayer,          // Hospital points
+          precipLayer,             // Weather raster (semi-transparent)
+          windLayer,               // Wind animation layer
+          locationLayer            // Top - user location marker
         ];
         if (riversLayer) mapLayers.splice(1, 0, riversLayer);
 
-        // Map with basemap (use dark-gray-vector for reliability)
+        // Map with theme-aware basemap
         const map = new Map({
-          basemap: 'dark-gray-vector',
+          basemap: getBasemapByTheme(theme),
           layers: mapLayers
         });
         mapInstanceRef.current = map;
@@ -914,30 +922,32 @@ const NationalMap = ({ height = '450px' }) => {
 
         initAnimationMode();
 
-        // Handle map view changes - debounced
-        view.watch('center', () => {
-          if (viewMoveTimeoutRef.current) {
-            clearTimeout(viewMoveTimeoutRef.current);
-          }
-          viewMoveTimeoutRef.current = setTimeout(() => {
-            const center = view.center;
-            if (center) {
-              console.log(`Map moved to: ${center.latitude.toFixed(4)}, ${center.longitude.toFixed(4)}`);
-              loadWeatherData(center.latitude, center.longitude);
-
-              // Reinitialize particles for new view
-              if (windEnabled) {
-                initWindParticles();
-              }
-              if (precipEnabled) {
-                precipZonesRef.current = null;
-                precipLayerRef.current?.removeAll();
-                const zones = createPrecipitationZones();
-                precipLayerRef.current?.addMany(zones);
-              }
+        // Handle map view changes - debounced using reactiveUtils (replaces deprecated view.watch)
+        reactiveUtils.watch(
+          () => view.center,
+          (center) => {
+            if (viewMoveTimeoutRef.current) {
+              clearTimeout(viewMoveTimeoutRef.current);
             }
-          }, 1000); // 1 second debounce
-        });
+            viewMoveTimeoutRef.current = setTimeout(() => {
+              if (center) {
+                console.log(`Map moved to: ${center.latitude.toFixed(4)}, ${center.longitude.toFixed(4)}`);
+                loadWeatherData(center.latitude, center.longitude);
+
+                // Reinitialize particles for new view
+                if (windEnabled) {
+                  initWindParticles();
+                }
+                if (precipEnabled) {
+                  precipZonesRef.current = null;
+                  precipLayerRef.current?.removeAll();
+                  const zones = createPrecipitationZones();
+                  precipLayerRef.current?.addMany(zones);
+                }
+              }
+            }, 1000); // 1 second debounce
+          }
+        );
 
         // Click to get weather for specific point
         view.on('click', async (event) => {
@@ -1295,26 +1305,7 @@ const NationalMap = ({ height = '450px' }) => {
         </div>
       </div>
 
-      {/* Toggle Buttons */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '16px' }}>
-        <button onClick={toggleRain} style={getButtonStyle(rainEnabled)}>
-          <CloudRain style={{ width: '18px', height: '18px' }} />
-          Rain Effect
-          {rainEnabled && <span style={{ opacity: 0.8 }}>●</span>}
-        </button>
-
-        <button onClick={toggleWind} style={getButtonStyle(windEnabled)}>
-          <Wind style={{ width: '18px', height: '18px' }} />
-          Wind Flow
-          {windEnabled && <span style={{ opacity: 0.8 }}>●</span>}
-        </button>
-
-        <button onClick={togglePrecipitation} style={getButtonStyle(precipEnabled)}>
-          <Droplets style={{ width: '18px', height: '18px' }} />
-          Precipitation
-          {precipEnabled && <span style={{ opacity: 0.8 }}>●</span>}
-        </button>
-      </div>
+      {/* Animation controls moved to LayerList widget in map UI */}
 
       {/* Legend */}
       {activeLayers.length > 0 && weatherData && (

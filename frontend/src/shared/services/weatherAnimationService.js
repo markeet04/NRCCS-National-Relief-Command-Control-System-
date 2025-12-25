@@ -57,14 +57,28 @@ class WeatherAnimationService {
         this.bounds = null;
         this.listeners = [];
         this.autoRefreshTimer = null;
+        // New fields for proper lifecycle
+        this.view = null;
+        this.fetchWeatherCallback = null;
     }
 
     /**
      * Initialize the animation service
+     * @param {Object} options - Optional initialization options
+     * @param {MapView} options.view - ArcGIS MapView instance
+     * @param {Function} options.fetchWeatherForMapCenter - Weather fetch callback
      * @returns {Promise<Object>} Mode details
      */
-    async initialize() {
+    async initialize(options = {}) {
         console.log('🌦️ Initializing Weather Animation Service...');
+
+        // Store view and callback if provided
+        if (options.view) {
+            this.view = options.view;
+        }
+        if (options.fetchWeatherForMapCenter) {
+            this.fetchWeatherCallback = options.fetchWeatherForMapCenter;
+        }
 
         try {
             this.modeDetails = await getAnimationMode();
@@ -79,6 +93,14 @@ class WeatherAnimationService {
             this.mode = 'timeslider';
             return { recommendedMode: 'timeslider', error: error.message };
         }
+    }
+
+    /**
+     * Simplified init method - alias for initialize
+     * @param {Object} options - { view, fetchWeatherForMapCenter }
+     */
+    async init(options = {}) {
+        return this.initialize(options);
     }
 
     /**
