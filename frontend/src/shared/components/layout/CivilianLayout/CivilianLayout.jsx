@@ -12,7 +12,6 @@ const CivilianLayout = ({ children }) => {
     { path: '/civilian/shelters', label: 'Shelters' },
     { path: '/civilian/alerts', label: 'Alerts' },
     { path: '/civilian/missing', label: 'Missing Persons' },
-    { path: '/civilian/track', label: 'Track Status' },
     { path: '/civilian/help', label: 'Help' },
   ];
 

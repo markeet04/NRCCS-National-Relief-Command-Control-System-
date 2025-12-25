@@ -12,10 +12,9 @@ const StatusUpdateModal = ({ person, onClose, onUpdate }) => {
         { value: 'closed', label: 'Case Closed', color: '#9ca3af' },
     ];
 
-    const handleStatusClick = (status) => {
-        if (window.confirm(`Are you sure you want to mark ${person.name} as ${status.toUpperCase()}?`)) {
-            onUpdate(status);
-        }
+    const handleStatusClick = (e, status) => {
+        e.stopPropagation();
+        onUpdate(status);
     };
 
     return (
@@ -57,7 +56,7 @@ const StatusUpdateModal = ({ person, onClose, onUpdate }) => {
                                     key={status.value}
                                     className={`status-button ${person.status === status.value ? 'current' : ''}`}
                                     style={{ borderColor: status.color }}
-                                    onClick={() => handleStatusClick(status.value)}
+                                    onClick={(e) => handleStatusClick(e, status.value)}
                                     disabled={person.status === status.value}
                                 >
                                     <span className="color-indicator" style={{ backgroundColor: status.color }}></span>

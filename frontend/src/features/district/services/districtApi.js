@@ -387,6 +387,53 @@ const districtApi = {
       throw new Error(error.response?.data?.message || 'Failed to reset shelter supplies');
     }
   },
+
+  // ==================== MISSING PERSONS ====================
+
+  async getMissingPersons(params = {}) {
+    try {
+      const response = await apiClient.get('/district/missing-persons', { params });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch missing persons');
+    }
+  },
+
+  async getMissingPersonStats() {
+    try {
+      const response = await apiClient.get('/district/missing-persons/stats');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch missing persons stats');
+    }
+  },
+
+  async getMissingPersonById(id) {
+    try {
+      const response = await apiClient.get(`/district/missing-persons/${id}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch missing person');
+    }
+  },
+
+  async updateMissingPersonStatus(id, data) {
+    try {
+      const response = await apiClient.put(`/district/missing-persons/${id}/status`, data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to update missing person status');
+    }
+  },
+
+  async triggerAutoDeadCheck() {
+    try {
+      const response = await apiClient.post('/district/missing-persons/check-auto-dead');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to trigger auto-dead check');
+    }
+  },
 // ...existing code...
 };
 

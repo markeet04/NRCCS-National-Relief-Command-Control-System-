@@ -1,4 +1,4 @@
-import { useBadge } from '../../contexts/BadgeContext';
+import { useBadge } from '../../../contexts/BadgeContext';
 
 /**
  * Badge Component

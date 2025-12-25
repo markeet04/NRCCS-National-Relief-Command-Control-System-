@@ -15,6 +15,7 @@ import { DamageReport } from '../common/entities/damage-report.entity';
 import { SosRequestTimeline } from '../common/entities/sos-request-timeline.entity';
 import { WeatherData } from '../common/entities/weather-data.entity';
 import { ResourceAllocation } from '../common/entities/resource-allocation.entity';
+import { MissingPerson } from '../common/entities/missing-person.entity';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ResourceAllocation } from '../common/entities/resource-allocation.entit
       SosRequestTimeline,
       WeatherData,
       ResourceAllocation,
+      MissingPerson,
     ]),
   ],
   controllers: [DistrictController],

@@ -6,6 +6,7 @@ import { getThemeColors } from '../../../shared/utils/themeColors';
 import { DISTRICT_MENU_ITEMS, DEFAULT_DISTRICT_INFO } from '../constants';
 import useMissingPersonsLogic from '../hooks/useMissingPersonsLogic';
 import StatusUpdateModal from '../components/MissingPersons/StatusUpdateModal';
+import { ToastContainer } from '../../../shared/components/ui';
 import { Search, Users, UserCheck, UserX, AlertTriangle } from 'lucide-react';
 
 const MissingPersons = () => {
@@ -23,6 +24,8 @@ const MissingPersons = () => {
         filters,
         selectedPerson,
         showStatusModal,
+        notifications,
+        removeNotification,
         handleFilterChange,
         handleSearchChange,
         handlePersonClick,
@@ -444,6 +447,9 @@ const MissingPersons = () => {
                     onUpdate={handleStatusUpdate}
                 />
             )}
+
+            {/* Toast Notifications */}
+            <ToastContainer notifications={notifications} onClose={removeNotification} />
         </DashboardLayout>
     );
 };

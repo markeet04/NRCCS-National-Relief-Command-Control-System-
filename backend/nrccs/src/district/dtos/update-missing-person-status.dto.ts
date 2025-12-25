@@ -3,7 +3,7 @@ import { MissingPersonStatus } from '../../common/entities/missing-person.entity
 
 export class UpdateMissingPersonStatusDto {
     @IsEnum(MissingPersonStatus, {
-        message: 'Status must be one of: active, found, dead, closed',
+        message: 'Status must be one of: active, found, dead, searching, closed',
     })
     status: MissingPersonStatus;
 

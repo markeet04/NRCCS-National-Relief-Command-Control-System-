@@ -42,6 +42,7 @@ import {
 import {
   AllocateResourceToShelterDto,
 } from './dtos/resource.dto';
+import { UpdateMissingPersonStatusDto } from './dtos/update-missing-person-status.dto';
 
 @Controller('district')
 @UseGuards(SessionAuthGuard, RolesGuard)
@@ -337,5 +338,45 @@ export class DistrictController {
   @Get('shelters-for-allocation')
   async getSheltersForAllocation(@CurrentUser() user: User) {
     return await this.districtService.getSheltersForAllocation(user);
+  }
+
+  // ==================== MISSING PERSONS ====================
+
+  @Get('missing-persons')
+  async getMissingPersons(
+    @CurrentUser() user: User,
+    @Query('status') status?: string,
+    @Query('search') search?: string,
+  ) {
+    return await this.districtService.getMissingPersons(user, status, search);
+  }
+
+  @Get('missing-persons/stats')
+  async getMissingPersonStats(@CurrentUser() user: User) {
+    return await this.districtService.getMissingPersonStats(user);
+  }
+
+  @Get('missing-persons/:id')
+  async getMissingPersonById(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: User,
+  ) {
+    return await this.districtService.getMissingPersonById(id, user);
+  }
+
+  @Put('missing-persons/:id/status')
+  async updateMissingPersonStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateMissingPersonStatusDto,
+    @CurrentUser() user: User,
+  ) {
+    return await this.districtService.updateMissingPersonStatus(id, dto, user);
+  }
+
+  @Post('missing-persons/check-auto-dead')
+  @HttpCode(HttpStatus.OK)
+  async triggerAutoDeadCheck(@CurrentUser() user: User) {
+    // Manual trigger for testing - only accessible to district users
+    return await this.districtService.checkAndMarkDeadPersons();
   }
 }

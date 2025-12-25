@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import districtApi from '../services/districtApi';
+import { useNotification } from '../../../shared/hooks';
 
 const useMissingPersonsLogic = () => {
+    const notification = useNotification?.() || null;
     const [persons, setPersons] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -70,6 +72,14 @@ const useMissingPersonsLogic = () => {
     const handleStatusUpdate = async (newStatus) => {
         if (!selectedPerson) return;
 
+        const statusLabels = {
+            active: 'Missing (Active)',
+            found: 'Found Alive',
+            dead: 'Declared Dead',
+            searching: 'Searching',
+            closed: 'Case Closed',
+        };
+
         try {
             await districtApi.updateMissingPersonStatus(selectedPerson.id, {
                 status: newStatus,
@@ -83,10 +93,14 @@ const useMissingPersonsLogic = () => {
             setSelectedPerson(null);
 
             // Show success message
-            alert(`Status updated to ${newStatus.toUpperCase()} successfully!`);
+            if (notification) {
+                notification.success(`Status updated to "${statusLabels[newStatus] || newStatus}" successfully!`);
+            }
         } catch (err) {
             console.error('Failed to update status:', err);
-            alert('Failed to update status. Please try again.');
+            if (notification) {
+                notification.error('Failed to update status. Please try again.');
+            }
         }
     };
 
@@ -102,6 +116,8 @@ const useMissingPersonsLogic = () => {
         filters,
         selectedPerson,
         showStatusModal,
+        notifications: notification?.notifications || [],
+        removeNotification: notification?.removeNotification || (() => {}),
         handleFilterChange,
         handleSearchChange,
         handlePersonClick,

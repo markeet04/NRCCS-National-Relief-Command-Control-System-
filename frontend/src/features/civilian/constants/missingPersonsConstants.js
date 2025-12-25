@@ -110,8 +110,10 @@ export const AGE_RANGE_OPTIONS = [
 
 export const STATUS_OPTIONS = [
   { value: 'all', label: 'All Status' },
-  { value: 'active', label: 'Active Cases' },
-  { value: 'found', label: 'Found' },
+  { value: 'active', label: 'Missing (Active)' },
+  { value: 'found', label: 'Found Alive' },
+  { value: 'dead', label: 'Declared Dead' },
+  { value: 'closed', label: 'Case Closed' },
 ];
 
 export const GENDER_FORM_OPTIONS = ['Male', 'Female', 'Other'];

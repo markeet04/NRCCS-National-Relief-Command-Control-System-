@@ -54,19 +54,42 @@ const useMissingPersonsLogic = () => {
     fetchMissingPersons();
   }, [filters]);
 
-  // Filter by search query
+  // Filter by search query and local filters
   const filteredPersons = missingPersons.filter((person) => {
-    const matchesSearch = person.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      person.lastSeen.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
+    // Search filter
+    const matchesSearch = !searchQuery || 
+      person.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (person.lastSeen && person.lastSeen.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    // Gender filter
+    const matchesGender = filters.gender === 'all' || 
+      person.gender?.toLowerCase() === filters.gender.toLowerCase();
+    
+    // Age range filter
+    let matchesAge = true;
+    if (filters.ageRange && filters.ageRange !== 'all') {
+      const [minAge, maxAge] = filters.ageRange.split('-').map(Number);
+      matchesAge = person.age >= minAge && person.age <= maxAge;
+    }
+    
+    // Status filter
+    const matchesStatus = filters.status === 'all' || 
+      person.status === filters.status;
+    
+    return matchesSearch && matchesGender && matchesAge && matchesStatus;
   });
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
 
-  const handleFilterChange = (newFilters) => {
-    setFilters((prev) => ({ ...prev, ...newFilters }));
+  const handleFilterChange = (key, value) => {
+    // Handle both object and key-value pair formats
+    if (typeof key === 'object') {
+      setFilters((prev) => ({ ...prev, ...key }));
+    } else {
+      setFilters((prev) => ({ ...prev, [key]: value }));
+    }
   };
 
   const handlePersonClick = (person) => {

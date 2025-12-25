@@ -50,7 +50,7 @@ CREATE TYPE alert_severity AS ENUM ('critical', 'high', 'medium', 'low', 'info')
 CREATE TYPE alert_status AS ENUM ('active', 'expired', 'resolved', 'pending', 'draft');
 CREATE TYPE resource_type AS ENUM ('food', 'water', 'medical', 'shelter', 'clothing', 'blanket', 'transport', 'communication', 'equipment', 'personnel', 'other');
 CREATE TYPE resource_status AS ENUM ('available', 'allocated', 'low', 'critical', 'maintenance', 'deployed');
-CREATE TYPE missing_person_status AS ENUM ('active', 'found', 'searching', 'closed');
+CREATE TYPE missing_person_status AS ENUM ('active', 'found', 'dead', 'searching', 'closed');
 CREATE TYPE flood_zone_level AS ENUM ('critical', 'high', 'medium', 'stable', 'low');
 CREATE TYPE district_risk_level AS ENUM ('critical', 'high', 'medium', 'stable', 'low');
 CREATE TYPE gender_type AS ENUM ('Male', 'Female', 'Other');

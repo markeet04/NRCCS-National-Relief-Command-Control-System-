@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository, In, LessThan } from 'typeorm';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { User } from '../common/entities/user.entity';
 import { District } from '../common/entities/district.entity';
 import { Shelter, ShelterStatus } from '../common/entities/shelter.entity';
@@ -13,6 +14,8 @@ import { DamageReport, DamageReportStatus } from '../common/entities/damage-repo
 import { SosRequestTimeline } from '../common/entities/sos-request-timeline.entity';
 import { WeatherData } from '../common/entities/weather-data.entity';
 import { ResourceAllocation } from '../common/entities/resource-allocation.entity';
+import { MissingPerson, MissingPersonStatus } from '../common/entities/missing-person.entity';
+import { UpdateMissingPersonStatusDto } from './dtos/update-missing-person-status.dto';
 import {
   UpdateSosStatusDto,
   AssignTeamDto,
@@ -60,6 +63,8 @@ export class DistrictService {
     private weatherDataRepository: Repository<WeatherData>,
     @InjectRepository(ResourceAllocation)
     private resourceAllocationRepository: Repository<ResourceAllocation>,
+    @InjectRepository(MissingPerson)
+    private missingPersonRepository: Repository<MissingPerson>,
   ) {}
 
   // ==================== HELPER METHODS ====================
@@ -1175,5 +1180,174 @@ export class DistrictService {
       select: ['id', 'name', 'address', 'capacity', 'occupancy', 'status'],
       order: { name: 'ASC' },
     });
+  }
+
+  // ==================== MISSING PERSONS ====================
+
+  /**
+   * Get all missing persons for the district
+   */
+  async getMissingPersons(user: User, status?: string, search?: string) {
+    const districtId = this.verifyDistrictAccess(user);
+
+    const queryBuilder = this.missingPersonRepository.createQueryBuilder('mp')
+      .leftJoinAndSelect('mp.district', 'district')
+      .where('mp.districtId = :districtId', { districtId });
+
+    if (status && status !== 'all') {
+      queryBuilder.andWhere('mp.status = :status', { status });
+    }
+
+    if (search) {
+      queryBuilder.andWhere(
+        '(LOWER(mp.name) LIKE LOWER(:search) OR LOWER(mp.caseNumber) LIKE LOWER(:search) OR LOWER(mp.lastSeenLocation) LIKE LOWER(:search))',
+        { search: `%${search}%` }
+      );
+    }
+
+    const persons = await queryBuilder
+      .orderBy('mp.createdAt', 'DESC')
+      .getMany();
+
+    // Add computed fields
+    const now = new Date();
+    return persons.map(person => {
+      const lastSeenDate = person.lastSeenDate ? new Date(person.lastSeenDate) : null;
+      const daysMissing = lastSeenDate 
+        ? Math.floor((now.getTime() - lastSeenDate.getTime()) / (1000 * 60 * 60 * 24))
+        : null;
+      
+      return {
+        ...person,
+        daysMissing,
+        shouldBeDeclaredDead: daysMissing !== null && daysMissing >= 20 && person.status === MissingPersonStatus.ACTIVE,
+        isCritical: daysMissing !== null && daysMissing >= 17 && daysMissing < 20 && person.status === MissingPersonStatus.ACTIVE,
+      };
+    });
+  }
+
+  /**
+   * Get missing person stats for the district
+   */
+  async getMissingPersonStats(user: User) {
+    const districtId = this.verifyDistrictAccess(user);
+
+    const [total, active, found, dead] = await Promise.all([
+      this.missingPersonRepository.count({ where: { districtId } }),
+      this.missingPersonRepository.count({ where: { districtId, status: MissingPersonStatus.ACTIVE } }),
+      this.missingPersonRepository.count({ where: { districtId, status: MissingPersonStatus.FOUND } }),
+      this.missingPersonRepository.count({ where: { districtId, status: MissingPersonStatus.DEAD } }),
+    ]);
+
+    // Count critical cases (17+ days but < 20)
+    const criticalDate = new Date();
+    criticalDate.setDate(criticalDate.getDate() - 17);
+    
+    const critical = await this.missingPersonRepository
+      .createQueryBuilder('mp')
+      .where('mp.districtId = :districtId', { districtId })
+      .andWhere('mp.status = :status', { status: MissingPersonStatus.ACTIVE })
+      .andWhere('mp.lastSeenDate <= :criticalDate', { criticalDate })
+      .getCount();
+
+    return { total, active, found, dead, critical };
+  }
+
+  /**
+   * Update missing person status
+   */
+  async updateMissingPersonStatus(id: number, dto: UpdateMissingPersonStatusDto, user: User) {
+    const districtId = this.verifyDistrictAccess(user);
+
+    const person = await this.missingPersonRepository.findOne({
+      where: { id, districtId },
+    });
+
+    if (!person) {
+      throw new NotFoundException('Missing person report not found or not in your district');
+    }
+
+    // Validate status transition
+    if (person.status === MissingPersonStatus.DEAD && dto.status === MissingPersonStatus.ACTIVE) {
+      throw new BadRequestException('Cannot change status from dead to active');
+    }
+
+    const oldStatus = person.status;
+    person.status = dto.status;
+
+    // If marked as found, record the timestamp
+    if (dto.status === MissingPersonStatus.FOUND) {
+      person.foundAt = new Date();
+    }
+
+    await this.missingPersonRepository.save(person);
+
+    // Log the activity
+    await this.logActivity(
+      'missing_person_status_update',
+      'Missing Person Status Updated',
+      `Updated status of ${person.name} (${person.caseNumber}) from ${oldStatus} to ${dto.status}${dto.notes ? ` - ${dto.notes}` : ''}`,
+      user.id,
+      districtId,
+    );
+
+    return {
+      success: true,
+      message: `Status updated to ${dto.status}`,
+      person,
+    };
+  }
+
+  /**
+   * Get a single missing person by ID
+   */
+  async getMissingPersonById(id: number, user: User) {
+    const districtId = this.verifyDistrictAccess(user);
+
+    const person = await this.missingPersonRepository.findOne({
+      where: { id, districtId },
+      relations: ['district'],
+    });
+
+    if (!person) {
+      throw new NotFoundException('Missing person report not found or not in your district');
+    }
+
+    const now = new Date();
+    const lastSeenDate = person.lastSeenDate ? new Date(person.lastSeenDate) : null;
+    const daysMissing = lastSeenDate 
+      ? Math.floor((now.getTime() - lastSeenDate.getTime()) / (1000 * 60 * 60 * 24))
+      : null;
+
+    return {
+      ...person,
+      daysMissing,
+      shouldBeDeclaredDead: daysMissing !== null && daysMissing >= 20 && person.status === MissingPersonStatus.ACTIVE,
+      isCritical: daysMissing !== null && daysMissing >= 17 && daysMissing < 20 && person.status === MissingPersonStatus.ACTIVE,
+    };
+  }
+
+  /**
+   * Cron job: Auto-mark missing persons as dead after 20 days
+   * Runs at 2 AM every day
+   */
+  @Cron(CronExpression.EVERY_DAY_AT_2AM)
+  async checkAndMarkDeadPersons() {
+    console.log('[CRON] Running auto-dead check for missing persons...');
+    
+    const twentyDaysAgo = new Date();
+    twentyDaysAgo.setDate(twentyDaysAgo.getDate() - 20);
+
+    const result = await this.missingPersonRepository
+      .createQueryBuilder()
+      .update(MissingPerson)
+      .set({ status: MissingPersonStatus.DEAD })
+      .where('status = :status', { status: MissingPersonStatus.ACTIVE })
+      .andWhere('lastSeenDate <= :twentyDaysAgo', { twentyDaysAgo })
+      .execute();
+
+    console.log(`[CRON] Auto-marked ${result.affected || 0} missing persons as deceased (20+ days missing)`);
+    
+    return { affected: result.affected || 0 };
   }
 }
