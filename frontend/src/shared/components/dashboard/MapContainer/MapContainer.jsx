@@ -64,13 +64,13 @@ const MapContainer = ({
       </div>
 
       {/* Map Content */}
-      <div className="relative h-[500px]" style={{ backgroundColor: '#0f172a' }}>
+      <div className="relative h-[500px]" style={{ backgroundColor: isLight ? '#e0f2fe' : '#0f172a' }}>
         {children || (
           <svg width="100%" height="100%" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
             {/* Pakistan Map with Enhanced Heatmap */}
             <g>
               {/* Background */}
-              <rect width="900" height="600" fill="#0f172a" />
+              <rect width="900" height="600" fill={isLight ? '#e0f2fe' : '#0f172a'} />
               
               {/* Accurate Pakistan map outline based on actual geography */}
               <path

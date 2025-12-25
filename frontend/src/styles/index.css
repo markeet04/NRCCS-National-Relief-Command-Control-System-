@@ -110,11 +110,25 @@ button, input, select, textarea, option {
   --text-secondary: #475569;
   --text-muted: #64748b;
   --border-color: #e2e8f0;
-  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
   --card-accent: #e0e7ff;
   --elevated-bg: #ffffff;
   --elevated-bg-2: #f8fafc;
   --sidebar-bg: #059669;
+  
+  /* Additional light mode variables */
+  --card-bg: #ffffff;
+  --card-bg-hover: #f8fafc;
+  --card-border: #e2e8f0;
+  --modal-bg: #ffffff;
+  --modal-overlay: rgba(0, 0, 0, 0.5);
+  --table-header-bg: #f1f5f9;
+  --table-row-hover: #f8fafc;
+  --table-row-even: #fafafa;
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-thumb: #cbd5e1;
 }
 
 body {

@@ -870,31 +870,266 @@ div.national-weather-card.border-left-cyan {
   color: #ffffff;
 }
 
-/* Light Theme Overrides for Map Components */
-.ndma-page.light .national-map-weather-bar {
-  background-color: #eff6ff;
-  border-color: #bfdbfe;
+/* ============================================================================
+   LIGHT MODE OVERRIDES - National Dashboard
+   Stat cards match District/PDMA style with gradient backgrounds
+   ============================================================================ */
+
+/* Light mode stat cards - BASE STYLE with gradient backgrounds */
+[data-theme="light"] .national-stat-card {
+  border: none !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  transition: all 0.3s ease !important;
 }
 
-.ndma-page.light .national-map-location-name,
-.ndma-page.light .national-map-weather-value {
-  color: #1e293b;
+[data-theme="light"] .national-stat-card:hover {
+  transform: translateY(-4px) scale(1.02) !important;
 }
 
-.ndma-page.light .national-map-quickjump {
-  background-color: #ffffff;
-  border-color: #e2e8f0;
+/* Emergencies card - Red/Rose gradient (matches District rose) */
+[data-theme="light"] .national-stat-card.border-left-red {
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important;
+  border-left: none !important;
+  border-top: 4px solid #fb7185 !important;
+  box-shadow: 0 4px 20px rgba(244, 63, 94, 0.35) !important;
 }
 
-.ndma-page.light .national-map-city-btn {
-  background-color: #f8fafc;
-  border-color: #e2e8f0;
-  color: #475569;
+[data-theme="light"] .national-stat-card.border-left-red:hover {
+  box-shadow: 0 8px 30px rgba(244, 63, 94, 0.45) !important;
 }
 
-.ndma-page.light .national-map-city-btn:hover {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
-  color: #ffffff;
+[data-theme="light"] .national-stat-card.border-left-red .national-stat-card-label,
+[data-theme="light"] .national-stat-card.border-left-red .national-stat-card-value,
+[data-theme="light"] .national-stat-card.border-left-red .national-stat-card-trend {
+  color: #ffffff !important;
 }
 
+[data-theme="light"] .national-stat-card.border-left-red .national-stat-card-icon {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+/* Teams Deployed card - Blue gradient (matches District blue) */
+[data-theme="light"] .national-stat-card.border-left-blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  border-left: none !important;
+  border-top: 4px solid #60a5fa !important;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.35) !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-blue:hover {
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.45) !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-blue .national-stat-card-label,
+[data-theme="light"] .national-stat-card.border-left-blue .national-stat-card-value,
+[data-theme="light"] .national-stat-card.border-left-blue .national-stat-card-trend {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-blue .national-stat-card-icon {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+/* People Evacuated card - Green/Emerald gradient (matches District emerald) */
+[data-theme="light"] .national-stat-card.border-left-green {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  border-left: none !important;
+  border-top: 4px solid #34d399 !important;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35) !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-green:hover {
+  box-shadow: 0 8px 30px rgba(16, 185, 129, 0.45) !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-green .national-stat-card-label,
+[data-theme="light"] .national-stat-card.border-left-green .national-stat-card-value,
+[data-theme="light"] .national-stat-card.border-left-green .national-stat-card-trend {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-green .national-stat-card-icon {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+/* Resources Available card - Purple/Violet gradient (matches District violet) */
+[data-theme="light"] .national-stat-card.border-left-purple {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
+  border-left: none !important;
+  border-top: 4px solid #a78bfa !important;
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.35) !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-purple:hover {
+  box-shadow: 0 8px 30px rgba(139, 92, 246, 0.45) !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-purple .national-stat-card-label,
+[data-theme="light"] .national-stat-card.border-left-purple .national-stat-card-value,
+[data-theme="light"] .national-stat-card.border-left-purple .national-stat-card-trend {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-purple .national-stat-card-icon {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+/* Additional gradient variants for other stat cards */
+[data-theme="light"] .national-stat-card.border-left-cyan {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
+  border-left: none !important;
+  border-top: 4px solid #22d3ee !important;
+  box-shadow: 0 4px 20px rgba(6, 182, 212, 0.35) !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-cyan:hover {
+  box-shadow: 0 8px 30px rgba(6, 182, 212, 0.45) !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-cyan .national-stat-card-label,
+[data-theme="light"] .national-stat-card.border-left-cyan .national-stat-card-value,
+[data-theme="light"] .national-stat-card.border-left-cyan .national-stat-card-trend {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-cyan .national-stat-card-icon {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-orange {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+  border-left: none !important;
+  border-top: 4px solid #fb923c !important;
+  box-shadow: 0 4px 20px rgba(249, 115, 22, 0.35) !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-orange:hover {
+  box-shadow: 0 8px 30px rgba(249, 115, 22, 0.45) !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-orange .national-stat-card-label,
+[data-theme="light"] .national-stat-card.border-left-orange .national-stat-card-value,
+[data-theme="light"] .national-stat-card.border-left-orange .national-stat-card-trend {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-orange .national-stat-card-icon {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-yellow {
+  background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%) !important;
+  border-left: none !important;
+  border-top: 4px solid #facc15 !important;
+  box-shadow: 0 4px 20px rgba(234, 179, 8, 0.35) !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-yellow:hover {
+  box-shadow: 0 8px 30px rgba(234, 179, 8, 0.45) !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-yellow .national-stat-card-label,
+[data-theme="light"] .national-stat-card.border-left-yellow .national-stat-card-value,
+[data-theme="light"] .national-stat-card.border-left-yellow .national-stat-card-trend {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .national-stat-card.border-left-yellow .national-stat-card-icon {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+/* Light mode map card */
+[data-theme="light"] .national-map-card {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .national-map-card.border-left-blue {
+  box-shadow: -2px 0 8px 0 rgba(33, 150, 243, 0.2) !important;
+}
+
+[data-theme="light"] .national-map-title {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .national-map-subtitle {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .national-map-legend-label {
+  color: #64748b !important;
+}
+
+/* Light mode resource card */
+[data-theme="light"] .national-resource-card {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .national-resource-card.border-left-green {
+  box-shadow: -2px 0 8px 0 rgba(76, 175, 80, 0.2) !important;
+}
+
+[data-theme="light"] .national-resource-title {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .national-resource-timestamp {
+  color: #94a3b8 !important;
+}
+
+/* Light mode weather card */
+[data-theme="light"] .national-weather-card {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .national-weather-card.border-left-cyan {
+  box-shadow: -2px 0 8px 0 rgba(6, 182, 212, 0.2) !important;
+}
+
+/* Light mode weather bar */
+[data-theme="light"] .national-map-weather-bar {
+  background-color: #f0f9ff !important;
+  border-color: #bae6fd !important;
+}
+
+[data-theme="light"] .national-map-location-name,
+[data-theme="light"] .national-map-weather-value {
+  color: #1e293b !important;
+}
+
+/* Light mode quick jump */
+[data-theme="light"] .national-map-quickjump {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .national-map-city-btn {
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .national-map-city-btn:hover {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+/* Light mode page header */
+[data-theme="light"] .national-page-title {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .national-page-subtitle {
+  color: #64748b !important;
+}
+
+/* Alert banner stays red in both modes (it's an alert) */

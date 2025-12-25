@@ -261,3 +261,97 @@
 .user-modal__btn--submit:hover {
   background: #1d4ed8;
 }
+
+/* ============================================================================
+   LIGHT MODE OVERRIDES - User Modal
+   ============================================================================ */
+
+[data-theme="light"] .user-modal-overlay {
+  background: rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="light"] .user-modal {
+  background: #ffffff !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-theme="light"] .user-modal__header {
+  background: #ffffff !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .user-modal__title {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .user-modal__close {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .user-modal__close:hover {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .user-modal__section-title {
+  color: #1e293b !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .user-modal__label {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .user-modal__input,
+[data-theme="light"] .user-modal__select {
+  background: #ffffff !important;
+  border-color: #d1d5db !important;
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .user-modal__input:focus,
+[data-theme="light"] .user-modal__select:focus {
+  background: #ffffff !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+[data-theme="light"] .user-modal__input:disabled,
+[data-theme="light"] .user-modal__select:disabled {
+  background: #f1f5f9 !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .user-modal__select option {
+  background: #ffffff !important;
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .user-modal__hint {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .user-modal__actions {
+  border-top-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .user-modal__btn--cancel {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .user-modal__btn--cancel:hover {
+  background: #e2e8f0 !important;
+}
+
+[data-theme="light"] .user-modal::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+}
+
+[data-theme="light"] .user-modal::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+}
+
+[data-theme="light"] .user-modal::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8 !important;
+}

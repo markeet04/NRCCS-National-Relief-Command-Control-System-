@@ -719,3 +719,216 @@
   background-color: rgba(148, 163, 184, 0.1);
   color: #ffffff;
 }
+
+/* ============================================================================
+   LIGHT MODE OVERRIDES - Flood Map
+   ============================================================================ */
+
+[data-theme="light"] .flood-map-card {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .flood-map-header {
+  background-color: #f8fafc !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .flood-map-title h2 {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .flood-map-title-subtitle {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .flood-map-search-input {
+  background-color: #ffffff !important;
+  border-color: #d1d5db !important;
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .flood-map-search-input::placeholder {
+  color: #9ca3af !important;
+}
+
+[data-theme="light"] .flood-map-select {
+  background-color: #ffffff !important;
+  border-color: #d1d5db !important;
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .flood-map-select option {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .flood-map-content {
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%) !important;
+}
+
+[data-theme="light"] .flood-map-placeholder h3 {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .flood-map-placeholder p {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .flood-map-legend {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .flood-map-legend-title {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .flood-map-legend-label {
+  color: #64748b !important;
+}
+
+/* Province Panel Light Mode */
+[data-theme="light"] .flood-province-panel {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .flood-province-header {
+  background-color: #f8fafc !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .flood-province-title h2 {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .flood-province-list {
+  background-color: transparent !important;
+}
+
+[data-theme="light"] .flood-province-card {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .flood-province-card:hover {
+  background-color: #f8fafc !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .flood-province-name {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .flood-province-meta {
+  color: #64748b !important;
+}
+
+/* Modal Light Mode */
+[data-theme="light"] .flood-modal-overlay {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="light"] .flood-modal {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .flood-modal-header {
+  background-color: #f8fafc !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .flood-modal-title {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .flood-modal-body {
+  background-color: #ffffff !important;
+}
+
+[data-theme="light"] .flood-modal-footer {
+  border-top-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .flood-modal-btn-secondary {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .flood-modal-btn-secondary:hover {
+  background-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .flood-action-btn-ghost {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .flood-action-btn-ghost:hover {
+  background-color: #f1f5f9 !important;
+  color: #1e293b !important;
+}
+
+/* Province Item Light Mode */
+[data-theme="light"] .flood-province-item {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .flood-province-item:hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .flood-province-item.selected {
+  background-color: rgba(59, 130, 246, 0.05) !important;
+  border-color: #3b82f6 !important;
+}
+
+/* Province Stats Light Mode */
+[data-theme="light"] .flood-province-stat-value {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .flood-province-stat-label {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .flood-province-stat-icon {
+  color: #64748b !important;
+}
+
+/* Water Level Light Mode */
+[data-theme="light"] .flood-water-level-label {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .flood-progress-bar {
+  background-color: #e2e8f0 !important;
+}
+
+/* Province Count Badge */
+[data-theme="light"] .flood-province-count {
+  background-color: #f1f5f9 !important;
+  color: #64748b !important;
+}
+
+[data-theme="light"] .flood-province-header h3 {
+  color: #1e293b !important;
+}
+
+/* Layer Controls Light Mode */
+[data-theme="light"] .flood-map-layers {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .flood-map-layers-title {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .flood-map-layer-toggle span {
+  color: #475569 !important;
+}
