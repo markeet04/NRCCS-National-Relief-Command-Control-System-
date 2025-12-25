@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Home, AlertCircle } from 'lucide-react';
 import PropTypes from 'prop-types';
+
+// API base URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 // Validation rules matching CreateShelterDto from backend
 const validateShelterForm = (formData) => {
@@ -31,6 +34,7 @@ const validateShelterForm = (formData) => {
 const ShelterForm = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     name: '',
+    districtId: '',
     location: '',
     capacity: '',
     facilities: [],
@@ -40,6 +44,32 @@ const ShelterForm = ({ isOpen, onClose, onSubmit }) => {
   });
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [districts, setDistricts] = useState([]);
+  const [loadingDistricts, setLoadingDistricts] = useState(false);
+
+  // Fetch districts when form opens
+  useEffect(() => {
+    if (isOpen) {
+      fetchDistricts();
+    }
+  }, [isOpen]);
+
+  const fetchDistricts = async () => {
+    setLoadingDistricts(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/pdma/districts`, {
+        credentials: 'include',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setDistricts(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch districts:', err);
+    } finally {
+      setLoadingDistricts(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -85,6 +115,7 @@ const ShelterForm = ({ isOpen, onClose, onSubmit }) => {
     // Submit with parsed values
     onSubmit({
       name: formData.name.trim(),
+      districtId: formData.districtId ? parseInt(formData.districtId, 10) : undefined,
       location: formData.location?.trim() || undefined,
       address: formData.address?.trim() || undefined,
       capacity: formData.capacity ? parseInt(formData.capacity, 10) : undefined,
@@ -95,6 +126,7 @@ const ShelterForm = ({ isOpen, onClose, onSubmit }) => {
     
     setFormData({
       name: '',
+      districtId: '',
       location: '',
       capacity: '',
       facilities: [],
@@ -206,17 +238,49 @@ const ShelterForm = ({ isOpen, onClose, onSubmit }) => {
             )}
           </div>
 
-          {/* Location */}
+          {/* District Dropdown */}
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px', color: '#374151' }}>
-              District/Area
+              District *
+            </label>
+            <select
+              name="districtId"
+              value={formData.districtId}
+              onChange={handleChange}
+              style={{
+                ...getInputStyle('districtId'),
+                cursor: loadingDistricts ? 'wait' : 'pointer'
+              }}
+              disabled={loadingDistricts}
+            >
+              <option value="">
+                {loadingDistricts ? 'Loading districts...' : 'Select a district'}
+              </option>
+              {districts.map((district) => (
+                <option key={district.id} value={district.id}>
+                  {district.name}
+                </option>
+              ))}
+            </select>
+            {touched.districtId && !formData.districtId && (
+              <div style={errorStyle}>
+                <AlertCircle size={12} />
+                Please select a district
+              </div>
+            )}
+          </div>
+
+          {/* Location/Area within District */}
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px', color: '#374151' }}>
+              Location/Area
             </label>
             <input
               type="text"
               name="location"
               value={formData.location}
               onChange={handleChange}
-              placeholder="e.g., Karachi, Hyderabad"
+              placeholder="e.g., Near City Hospital, Main Bazaar"
               style={getInputStyle('location')}
             />
           </div>

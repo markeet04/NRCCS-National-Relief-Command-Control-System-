@@ -9,7 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { SuperadminModule } from './superadmin/superadmin.module';
 import { PdmaModule } from './pdma/pdma.module';
 import { CivilianModule } from './civilian/civilian.module';
-import { DistrictModule } from './district/district.module';
+
 
 @Module({
   imports: [
@@ -30,8 +30,7 @@ import { DistrictModule } from './district/district.module';
     AuthModule,
     SuperadminModule,
     PdmaModule,
-    CivilianModule,
-    DistrictModule,
+    CivilianModule
   ],
   controllers: [AppController],
   providers: [AppService],

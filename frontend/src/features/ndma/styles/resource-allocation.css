@@ -66,16 +66,28 @@
 /* ============================================================================
    STAT CARD LAYOUT
    ============================================================================ */
+
 .resources-stat-card {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem 1rem 1.25rem; /* Reduce vertical height, add horizontal padding */
+  min-height: 120px;
+  box-sizing: border-box;
 }
+
 
 .resources-stat-header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  padding-bottom: 0.25rem;
+}
+
+/* ICON PADDING FIX - Add internal padding to stat icons */
+.resources-stat-header .ndma-stat-icon {
+  padding: 0.5rem; /* Decreased padding */
+  box-sizing: content-box;
 }
 
 .resources-stat-label {
@@ -89,11 +101,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: 0.75rem 0 0.5rem 0; /* Reduce vertical padding */
 }
 
 .resources-stat-value {
-  font-size: 2.25rem;
+  font-size: 1.5rem; /* Decreased from 2.25rem */
   font-weight: 700;
   color: #ffffff;
   line-height: 1;
@@ -105,6 +117,1178 @@
   margin-top: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+/* ============================================================================
+   NATIONAL STOCK SECTION
+   ============================================================================ */
+.national-stock-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.national-stock-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 1280px) {
+  .national-stock-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .national-stock-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================================
+   NATIONAL STOCK CARD
+   ============================================================================ */
+.national-stock-card {
+  background-color: #0f1114;
+  border: 1px solid #1e2227;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.national-stock-card:hover {
+  border-color: #2d3238;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Card border colors based on status */
+.national-stock-card.status-adequate {
+  border-left: 3px solid #22c55e;
+}
+
+.national-stock-card.status-adequate:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(34, 197, 94, 0.15);
+}
+
+.national-stock-card.status-moderate {
+  border-left: 3px solid #eab308;
+}
+
+.national-stock-card.status-moderate:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(234, 179, 8, 0.15);
+}
+
+.national-stock-card.status-low {
+  border-left: 3px solid #f97316;
+}
+
+.national-stock-card.status-low:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(249, 115, 22, 0.15);
+}
+
+.national-stock-card.status-critical {
+  border-left: 3px solid #ef4444;
+}
+
+.national-stock-card.status-critical:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(239, 68, 68, 0.15);
+}
+
+/* Card Header */
+.national-stock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.national-stock-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.national-stock-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0.5rem;
+  border-radius: 8px;
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+}
+
+.national-stock-icon.status-adequate {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.national-stock-icon.status-moderate {
+  background-color: rgba(234, 179, 8, 0.1);
+  color: #eab308;
+}
+
+.national-stock-icon.status-low {
+  background-color: rgba(249, 115, 22, 0.1);
+  color: #f97316;
+}
+
+.national-stock-icon.status-critical {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.national-stock-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.national-stock-badge {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.national-stock-badge.status-adequate {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.national-stock-badge.status-moderate {
+  background-color: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.national-stock-badge.status-low {
+  background-color: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.national-stock-badge.status-critical {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* Chart Container */
+.national-stock-chart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem 0;
+  position: relative;
+  min-height: 180px;
+}
+
+.national-stock-chart-center {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -10%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.national-stock-percentage {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.national-stock-percentage-label {
+  font-size: 0.6875rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Stats Grid inside card */
+.national-stock-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: #151719;
+  border-radius: 8px;
+}
+
+.national-stock-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.national-stock-stat-label {
+  font-size: 0.6875rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.national-stock-stat-value {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.national-stock-stat-unit {
+  font-size: 0.625rem;
+  color: #64748b;
+  margin-left: 0.125rem;
+}
+
+/* History Button */
+.national-stock-history-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #94a3b8;
+  background-color: rgba(148, 163, 184, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.national-stock-history-btn:hover {
+  color: #ffffff;
+  background-color: rgba(148, 163, 184, 0.2);
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+/* ============================================================================
+   RESOURCE HISTORY MODAL
+   ============================================================================ */
+.resource-history-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.resource-history-modal {
+  background-color: #0f1114;
+  border: 1px solid #1e2227;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+}
+
+.resource-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  background-color: #151719;
+  border-bottom: 1px solid #1e2227;
+}
+
+.resource-history-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.resource-history-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0.625rem;
+  border-radius: 10px;
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.resource-history-icon {
+  width: 24px;
+  height: 24px;
+  color: #4caf50;
+}
+
+.resource-history-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.resource-history-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.resource-history-subtitle {
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.resource-history-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background-color: rgba(148, 163, 184, 0.1);
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resource-history-close-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.resource-history-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem;
+}
+
+.resource-history-table-wrapper {
+  overflow-x: auto;
+}
+
+.resource-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.resource-history-table thead {
+  background-color: #151719;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.resource-history-table th {
+  padding: 0.875rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #1e2227;
+}
+
+.resource-history-table tbody tr {
+  border-bottom: 1px solid #1e2227;
+  transition: background-color 0.2s ease;
+}
+
+.resource-history-table tbody tr:hover {
+  background-color: rgba(148, 163, 184, 0.05);
+}
+
+.resource-history-table td {
+  padding: 0.875rem 1rem;
+  color: #ffffff;
+}
+
+.resource-history-date {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.resource-history-date-main {
+  color: #ffffff;
+}
+
+.resource-history-date-time {
+  font-size: 0.6875rem;
+  color: #64748b;
+}
+
+.resource-history-province {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: #94a3b8;
+}
+
+.resource-history-resource {
+  color: #4caf50;
+  font-weight: 500;
+}
+
+.resource-history-amount {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.resource-history-remaining {
+  color: #94a3b8;
+}
+
+.resource-history-usage {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.resource-history-usage-bar {
+  width: 60px;
+  height: 6px;
+  background-color: #1e2227;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.resource-history-usage-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.resource-history-usage-percent {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  min-width: 32px;
+}
+
+.resource-history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+}
+
+.resource-history-empty-icon {
+  width: 48px;
+  height: 48px;
+  color: #2d3238;
+  margin-bottom: 1rem;
+}
+
+.resource-history-empty-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #94a3b8;
+  margin: 0 0 0.5rem 0;
+}
+
+.resource-history-empty-subtext {
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.resource-history-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background-color: #151719;
+  border-top: 1px solid #1e2227;
+}
+
+.resource-history-summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.resource-history-summary-label {
+  font-size: 0.6875rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.resource-history-summary-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.resource-history-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem 1.25rem;
+  background-color: #0f1114;
+  border-top: 1px solid #1e2227;
+}
+
+.resource-history-close-footer-btn {
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #4caf50;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resource-history-close-footer-btn:hover {
+  background-color: #45a049;
+}
+
+/* ============================================================================
+   VIEW TOGGLE BUTTONS
+   ============================================================================ */
+.view-toggle-container {
+  display: flex;
+  gap: 0.25rem;
+  background-color: #1a1d21;
+  padding: 0.25rem;
+  border-radius: 8px;
+  border: 1px solid #2d3238;
+}
+
+.view-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: none;
+  background-color: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-toggle-btn:hover {
+  color: #94a3b8;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.view-toggle-btn.active {
+  background-color: #4caf50;
+  color: #ffffff;
+}
+
+/* ============================================================================
+   TABS WITH FLEX LAYOUT
+   ============================================================================ */
+.ndma-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.tabs-list {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ============================================================================
+   PROVINCE CARDS GRID - Responsive Layout
+   ============================================================================ */
+.province-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+@media (max-width: 1280px) {
+  .province-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .province-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================================
+   PROVINCE RESOURCE CARD
+   ============================================================================ */
+.province-resource-card {
+  background-color: #0f1114;
+  border: 1px solid #1e2227;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.province-resource-card:hover {
+  border-color: #2d3238;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.province-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.province-card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.province-badge {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.province-badge-adequate {
+  background-color: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+}
+
+.province-badge-moderate {
+  background-color: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.province-badge-low {
+  background-color: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.province-badge-critical {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* ============================================================================
+   SEMI-CIRCULAR GAUGE STYLES
+   ============================================================================ */
+.province-main-gauge {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0;
+}
+
+.province-mini-gauges {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+@media (max-width: 480px) {
+  .province-mini-gauges {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.gauge-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.gauge-wrapper {
+  position: relative;
+}
+
+.gauge-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.gauge-percentage {
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ============================================================================
+   RESOURCE INDICATORS
+   ============================================================================ */
+.province-resource-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: #151719;
+  border-radius: 8px;
+}
+
+.resource-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.375rem 0;
+}
+
+.resource-indicator-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.resource-indicator-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.resource-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.resource-dot-green {
+  background-color: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+}
+
+.resource-dot-yellow {
+  background-color: #eab308;
+  box-shadow: 0 0 6px rgba(234, 179, 8, 0.5);
+}
+
+.resource-dot-orange {
+  background-color: #f97316;
+  box-shadow: 0 0 6px rgba(249, 115, 22, 0.5);
+}
+
+.resource-dot-red {
+  background-color: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+}
+
+.resource-indicator-label {
+  font-size: 0.8125rem;
+  color: #94a3b8;
+}
+
+.resource-indicator-value {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.resource-indicator-unit {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-left: 0.25rem;
+}
+
+.resource-trend-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.resource-trend-up {
+  color: #22c55e;
+}
+
+.resource-trend-down {
+  color: #f97316;
+}
+
+/* ============================================================================
+   PROVINCE CARD ACTION BUTTONS
+   ============================================================================ */
+.province-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.province-edit-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #4caf50;
+  background-color: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.province-edit-btn:hover {
+  background-color: rgba(76, 175, 80, 0.2);
+  border-color: #4caf50;
+}
+
+.province-history-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem;
+  color: #94a3b8;
+  background-color: rgba(148, 163, 184, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.province-history-btn:hover {
+  color: #ffffff;
+  background-color: rgba(148, 163, 184, 0.2);
+}
+
+/* ============================================================================
+   PROVINCIAL REQUESTS SECTION
+   ============================================================================ */
+.provincial-requests-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.requests-section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.requests-section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.requests-count-badge {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #f97316;
+  background-color: rgba(249, 115, 22, 0.15);
+  border-radius: 9999px;
+}
+
+/* ============================================================================
+   REQUESTS CARDS GRID
+   ============================================================================ */
+.requests-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .requests-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================================
+   PROVINCIAL REQUEST CARD
+   ============================================================================ */
+.provincial-request-card {
+  background-color: #0f1114;
+  border: 1px solid #1e2227;
+  border-left: 3px solid #f97316;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.provincial-request-card:hover {
+  border-color: #2d3238;
+  border-left-color: #f97316;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), -2px 0 15px rgba(249, 115, 22, 0.2);
+}
+
+.provincial-request-card.request-processed {
+  opacity: 0.7;
+  border-left-color: #64748b;
+}
+
+.request-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.request-province-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.request-province-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.request-priority-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.request-priority-high {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.request-priority-medium {
+  background-color: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.request-priority-low {
+  background-color: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+}
+
+.request-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* ============================================================================
+   REQUEST ITEMS LIST
+   ============================================================================ */
+.request-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: #151719;
+  border-radius: 8px;
+}
+
+.request-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.375rem 0;
+}
+
+.request-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background-color: rgba(249, 115, 22, 0.1);
+  color: #f97316;
+}
+
+.request-item-name {
+  flex: 1;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+}
+
+.request-item-quantity {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.request-reason {
+  font-size: 0.8125rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ============================================================================
+   REQUEST ACTION BUTTONS
+   ============================================================================ */
+.request-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.request-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.request-btn-approve {
+  flex: 1;
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.request-btn-approve:hover {
+  background-color: rgba(34, 197, 94, 0.25);
+  border-color: #22c55e;
+}
+
+.request-btn-reject {
+  flex: 1;
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.request-btn-reject:hover {
+  background-color: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+}
+
+.request-btn-details {
+  background-color: rgba(148, 163, 184, 0.1);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.request-btn-details:hover {
+  background-color: rgba(148, 163, 184, 0.2);
+  color: #ffffff;
+}
+
+/* ============================================================================
+   REQUEST STATUS BADGE
+   ============================================================================ */
+.request-status-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.request-status-approved {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.request-status-rejected {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* ============================================================================
+   REQUEST STOCK WARNING
+   ============================================================================ */
+.request-stock-warning {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: #f97316;
+  background-color: rgba(249, 115, 22, 0.1);
+  border-radius: 6px;
+}
+
+/* ============================================================================
+   PROCESSED REQUESTS SECTION
+   ============================================================================ */
+.processed-requests-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #1e2227;
+}
+
+.processed-requests-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin: 0 0 1rem 0;
+}
+
+/* ============================================================================
+   EMPTY STATE
+   ============================================================================ */
+.requests-empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background-color: #0f1114;
+  border: 1px dashed #2d3238;
+  border-radius: 12px;
+  color: #64748b;
 }
 
 /* ============================================================================
@@ -171,3 +1355,913 @@
 .resources-modal-actions > button {
   flex: 1;
 }
+
+/* ============================================================================
+   HISTORY MODAL STYLES (Province History)
+   ============================================================================ */
+.history-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.history-province-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: #151719;
+  border-radius: 8px;
+}
+
+.history-province-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.history-total-allocations {
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+/* Timeline container */
+.history-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Individual history item */
+.history-item {
+  display: flex;
+  gap: 1rem;
+  position: relative;
+  padding-bottom: 1.25rem;
+}
+
+.history-item:last-child {
+  padding-bottom: 0;
+}
+
+/* Timeline dot and line */
+.history-item-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 0.25rem;
+}
+
+.history-item-dot-inner {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #4caf50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
+  z-index: 2;
+}
+
+.history-item:not(:last-child) .history-item-dot::after {
+  content: '';
+  width: 2px;
+  flex: 1;
+  background-color: #2d3238;
+  margin-top: 0.5rem;
+}
+
+/* History item content */
+.history-item-content {
+  flex: 1;
+  background-color: #151719;
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+  border: 1px solid #1e2227;
+}
+
+.history-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.history-item-date {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.history-item-status {
+  padding: 0.1875rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.history-item-status.approved {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.history-item-status.rejected {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.history-item-status.pending {
+  background-color: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.history-item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.history-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.history-item-label {
+  font-size: 0.8125rem;
+  color: #94a3b8;
+}
+
+.history-item-value {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.history-item-approved-by {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #1e2227;
+}
+
+/* Empty state */
+.history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+}
+
+.history-empty-icon {
+  color: #2d3238;
+  margin-bottom: 1rem;
+}
+
+.history-empty-text {
+  font-size: 0.9375rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ============================================================================
+   ALLOCATION PANEL - BETWEEN SECTIONS
+   ============================================================================ */
+.allocation-panel {
+  background-color: #0f1114;
+  border: 1px solid #1e2227;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  max-width: 100%;
+}
+
+.allocation-panel-header {
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #1e2227;
+}
+
+.allocation-panel-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 0.25rem 0;
+}
+
+.allocation-panel-subtitle {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.allocation-panel-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.allocation-province-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  grid-column: 1 / -1;
+}
+
+.allocation-province-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: #151719;
+  border: 1px solid #1e2227;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.allocation-province-btn:hover {
+  background-color: #1a1d21;
+  border-color: #2d3238;
+}
+
+.allocation-province-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.allocation-province-status {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.1875rem 0.5rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.allocation-province-status.status-adequate {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.allocation-province-status.status-moderate {
+  background-color: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.allocation-province-status.status-low {
+  background-color: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.allocation-province-status.status-critical {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.allocation-panel-cta {
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4caf50;
+  background-color: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  grid-column: 1 / -1;
+}
+
+.allocation-panel-cta:hover {
+  background-color: rgba(76, 175, 80, 0.2);
+  border-color: #4caf50;
+}
+
+/* ============================================================================
+   PROVINCE CARD V2 - REDESIGNED
+   ============================================================================ */
+.province-card-v2 {
+  background-color: #0f1114;
+  border: 1px solid #1e2227;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.province-card-v2:hover {
+  border-color: #2d3238;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(76, 175, 80, 0.05);
+  transform: translateY(-2px);
+}
+
+.province-card-v2-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.province-card-v2-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.province-card-v2-icon {
+  width: 18px;
+  height: 18px;
+  color: #64748b;
+}
+
+.province-card-v2-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+/* Main Gauge V2 */
+.province-main-gauge-v2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding: 0.5rem 0;
+}
+
+.main-gauge-svg {
+  display: block;
+}
+
+.main-gauge-progress {
+  transition: stroke-dashoffset 1.5s ease-out;
+}
+
+.province-main-gauge-center {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.province-main-gauge-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.province-main-gauge-label {
+  font-size: 0.625rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Resource List V2 */
+.province-card-v2-resources {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: #151719;
+  border-radius: 8px;
+}
+
+.province-resource-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.375rem 0;
+}
+
+.province-resource-row-left {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.province-resource-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.province-resource-row-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.province-resource-row-value {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.province-resource-row-unit {
+  font-size: 0.6875rem;
+  color: #64748b;
+  margin-left: 0.125rem;
+}
+
+.province-resource-row-right {
+  display: flex;
+  align-items: center;
+}
+
+.province-resource-row-trend {
+  width: 16px;
+  height: 16px;
+}
+
+.province-resource-row-trend-up {
+  color: #22c55e;
+}
+
+.province-resource-row-trend-down {
+  color: #f97316;
+}
+
+/* Action Buttons V2 */
+.province-card-v2-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.province-card-v2-edit-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #4caf50;
+  background-color: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.province-card-v2-edit-btn:hover {
+  background-color: rgba(76, 175, 80, 0.2);
+  border-color: #4caf50;
+}
+
+.province-card-v2-history-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem;
+  color: #94a3b8;
+  background-color: rgba(148, 163, 184, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.province-card-v2-history-btn:hover {
+  color: #ffffff;
+  background-color: rgba(148, 163, 184, 0.2);
+}
+
+/* ============================================================================
+   CIRCULAR RESOURCE GAUGE
+   ============================================================================ */
+.circular-gauge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circular-gauge-svg {
+  display: block;
+}
+
+.circular-gauge-progress {
+  transition: stroke-dashoffset 1.2s ease-out;
+}
+
+.circular-gauge-text {
+  position: absolute;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ============================================================================
+   ALLOCATE RESOURCES SECTION
+   ============================================================================ */
+.allocate-resources-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.allocate-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.allocate-section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.allocate-section-subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.allocate-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .allocate-content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Allocation Form Card */
+.allocate-form-card {
+  background-color: #0f1114;
+  border: 1px solid #1e2227;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.allocate-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.allocate-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.allocate-form-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.allocate-select-wrapper {
+  position: relative;
+}
+
+.allocate-form-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  padding-right: 2.5rem;
+  font-size: 0.875rem;
+  color: #ffffff;
+  background-color: #151719;
+  border: 1px solid #1e2227;
+  border-radius: 8px;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.allocate-form-select:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.allocate-select-icon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.allocate-form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #ffffff;
+  background-color: #151719;
+  border: 1px solid #1e2227;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.allocate-form-input:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.allocate-form-input::placeholder {
+  color: #64748b;
+}
+
+.allocate-form-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #ffffff;
+  background-color: #151719;
+  border: 1px solid #1e2227;
+  border-radius: 8px;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.allocate-form-textarea:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.allocate-form-textarea::placeholder {
+  color: #64748b;
+}
+
+/* Resource Type Options */
+.allocate-resource-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .allocate-resource-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+.allocate-resource-option {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #94a3b8;
+  background-color: #151719;
+  border: 1px solid #1e2227;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.allocate-resource-option:hover {
+  border-color: #2d3238;
+  color: #ffffff;
+}
+
+.allocate-resource-option.active {
+  border-color: #4caf50;
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+}
+
+.allocate-resource-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Priority Options */
+.allocate-priority-options {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.allocate-priority-option {
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.allocate-priority-option.priority-low {
+  color: #64748b;
+  background-color: rgba(100, 116, 139, 0.15);
+  border-color: rgba(100, 116, 139, 0.3);
+}
+
+.allocate-priority-option.priority-low.active,
+.allocate-priority-option.priority-low:hover {
+  background-color: rgba(100, 116, 139, 0.25);
+  color: #94a3b8;
+}
+
+.allocate-priority-option.priority-normal {
+  color: #22c55e;
+  background-color: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.allocate-priority-option.priority-normal.active,
+.allocate-priority-option.priority-normal:hover {
+  background-color: rgba(34, 197, 94, 0.25);
+}
+
+.allocate-priority-option.priority-high {
+  color: #f97316;
+  background-color: rgba(249, 115, 22, 0.15);
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+.allocate-priority-option.priority-high.active,
+.allocate-priority-option.priority-high:hover {
+  background-color: rgba(249, 115, 22, 0.25);
+}
+
+.allocate-priority-option.priority-critical {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.allocate-priority-option.priority-critical.active,
+.allocate-priority-option.priority-critical:hover {
+  background-color: rgba(239, 68, 68, 0.25);
+}
+
+/* Submit Button */
+.allocate-submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.allocate-submit-btn:hover {
+  background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%);
+  box-shadow: 0 4px 20px rgba(76, 175, 80, 0.3);
+  transform: translateY(-1px);
+}
+
+.allocate-submit-btn:active {
+  transform: translateY(0);
+}
+
+.allocate-submit-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Stats Panel */
+.allocate-stats-panel {
+  background-color: #0f1114;
+  border: 1px solid #1e2227;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.allocate-stats-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.allocate-stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.allocate-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.allocate-stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.allocate-stat-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.allocate-stat-value {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.allocate-stat-bar {
+  height: 6px;
+  background-color: #1e2227;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.allocate-stat-progress {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.allocate-stat-progress.high {
+  background: linear-gradient(90deg, #4caf50 0%, #66bb6a 100%);
+}
+
+.allocate-stat-progress.medium {
+  background: linear-gradient(90deg, #eab308 0%, #facc15 100%);
+}
+
+.allocate-stat-progress.low {
+  background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+}
+
+/* Recent Allocations */
+.allocate-recent {
+  border-top: 1px solid #1e2227;
+  padding-top: 1.25rem;
+}
+
+.allocate-recent-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 1rem 0;
+}
+
+.allocate-recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.allocate-recent-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.75rem;
+  background-color: #151719;
+  border-radius: 8px;
+  border: 1px solid #1e2227;
+}
+
+.allocate-recent-province {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.allocate-recent-resource {
+  font-size: 0.75rem;
+  color: #4caf50;
+}
+
+.allocate-recent-time {
+  font-size: 0.6875rem;
+  color: #64748b;
+}
+

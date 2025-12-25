@@ -5,7 +5,7 @@ import { Plus, X, Eye, Check, Search, ChevronDown, Upload, FileText, Clock, Chec
 import { useSettings } from '../../../app/providers/ThemeProvider';
 import { getThemeColors } from '../../../shared/utils/themeColors';
 import { DISTRICT_MENU_ITEMS } from '../constants';
-import { useDamageReports, REPORT_STATUS_OPTIONS } from '../hooks';
+import { useDamageReports, REPORT_STATUS_OPTIONS, useDistrictData } from '../hooks';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 const DamageReports = () => {
@@ -36,6 +36,9 @@ const DamageReports = () => {
     verifyReport,
     getStatusInfo
   } = useDamageReports();
+
+  // District info for layout
+  const { districtInfo, rawStats } = useDistrictData();
   
   const navigate = useNavigate();
 
@@ -43,6 +46,43 @@ const DamageReports = () => {
 
   // Destructure stats
   const { totalReports, pendingVerification, verified } = stats;
+
+  const handleExportCSV = () => {
+    if (filteredReports.length === 0) {
+      alert('No data to export');
+      return;
+    }
+
+    // Create CSV headers
+    const headers = ['Report ID', 'Location', 'Submitted By', 'Date', 'Status', 'Description'];
+    
+    // Create CSV rows
+    const rows = filteredReports.map(report => [
+      report.id,
+      report.location || '',
+      report.submittedBy || '',
+      report.date || new Date(report.reportedAt).toLocaleDateString(),
+      report.status || '',
+      (report.description || '').replace(/"/g, '""') // Escape quotes
+    ]);
+
+    // Combine headers and rows
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `damage_reports_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleNavigate = (route) => {
     setActiveRoute(route);
@@ -101,7 +141,7 @@ const DamageReports = () => {
       date: new Date().toISOString().split('T')[0],
       status: 'pending',
       description: formData.description,
-      photos: formData.photos.length > 0 ? formData.photos : ['https://images.unsplash.com/photo-1547683905-f686c993aae5?w=400']
+      photos: formData.photos
     });
     handleCloseCreateModal();
   };
@@ -120,9 +160,9 @@ const DamageReports = () => {
       onNavigate={handleNavigate}
       pageTitle="Damage Reports"
       pageSubtitle="Review and verify damage assessments"
-      userRole="District Sukkur"
+      userRole={`District ${districtInfo?.name || 'Loading...'}`}
       userName="District Officer"
-      notificationCount={15}
+      notificationCount={rawStats?.pendingSOS || stats.pending}
     >
       {/* Header with Search, Filter and Create Button */}
       <div style={{ padding: '24px' }}>
@@ -200,7 +240,7 @@ const DamageReports = () => {
             }}
           >
             <div style={{ width: '100px', height: '100px', position: 'relative', minWidth: '100px', minHeight: '100px' }}>
-              <ResponsiveContainer width={100} height={100}>
+              <ResponsiveContainer width="100%" height="100%">
                 <PieChart width={100} height={100}>
                   <Pie
                     data={[
@@ -436,7 +476,7 @@ const DamageReports = () => {
             Create Report
           </button>
           <button
-            onClick={() => console.log('Exporting...')}
+            onClick={handleExportCSV}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -811,13 +851,45 @@ const DamageReports = () => {
                   onChange={e => {
                     const files = Array.from(e.target.files);
                     Promise.all(files.map(file => {
-                      return new Promise(resolve => {
+                      return new Promise((resolve, reject) => {
+                        // Compress image before converting to base64
                         const reader = new FileReader();
-                        reader.onload = ev => resolve(ev.target.result);
+                        reader.onload = (event) => {
+                          const img = new Image();
+                          img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            let width = img.width;
+                            let height = img.height;
+                            
+                            // Resize if too large (max 800px)
+                            const maxSize = 800;
+                            if (width > height && width > maxSize) {
+                              height = (height * maxSize) / width;
+                              width = maxSize;
+                            } else if (height > maxSize) {
+                              width = (width * maxSize) / height;
+                              height = maxSize;
+                            }
+                            
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            
+                            // Convert to base64 with compression (0.7 quality)
+                            resolve(canvas.toDataURL('image/jpeg', 0.7));
+                          };
+                          img.onerror = reject;
+                          img.src = event.target.result;
+                        };
+                        reader.onerror = reject;
                         reader.readAsDataURL(file);
                       });
                     })).then(images => {
                       setFormData(fd => ({ ...fd, photos: images }));
+                    }).catch(err => {
+                      console.error('Error processing images:', err);
+                      alert('Error processing images. Please try again.');
                     });
                   }}
                 />
@@ -826,7 +898,7 @@ const DamageReports = () => {
                   Click to upload or drag and drop
                 </p>
                 <p style={{ color: colors.textMuted, fontSize: '12px' }}>
-                  PNG, JPG up to 10MB
+                  PNG, JPG (will be compressed to max 800px)
                 </p>
                 {formData.photos && formData.photos.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '16px', justifyContent: 'center' }}>

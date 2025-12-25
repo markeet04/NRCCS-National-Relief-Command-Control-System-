@@ -26,6 +26,9 @@ import Map from '@arcgis/core/Map';
 import MapView from '@arcgis/core/views/MapView';
 import Graphic from '@arcgis/core/Graphic';
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
+import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
+import TileLayer from '@arcgis/core/layers/TileLayer';
+import MapImageLayer from '@arcgis/core/layers/MapImageLayer';
 import Point from '@arcgis/core/geometry/Point';
 import Polygon from '@arcgis/core/geometry/Polygon';
 import Polyline from '@arcgis/core/geometry/Polyline';
@@ -33,8 +36,19 @@ import SimpleFillSymbol from '@arcgis/core/symbols/SimpleFillSymbol';
 import SimpleLineSymbol from '@arcgis/core/symbols/SimpleLineSymbol';
 import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol';
 
+// ArcGIS Widgets
+import LayerList from '@arcgis/core/widgets/LayerList';
+import Legend from '@arcgis/core/widgets/Legend';
+import Expand from '@arcgis/core/widgets/Expand';
+
 // ArcGIS Dark Theme CSS
 import '@arcgis/core/assets/esri/themes/dark/main.css';
+
+// GIS Layer Configuration
+import { GIS_LAYERS, EMERGENCY_FACILITIES, LAYER_SYMBOLS } from '@config/gisLayerConfig';
+
+// Weather Animation Service
+import weatherAnimationService from '@shared/services/weatherAnimationService';
 
 // Theme
 import { useSettings } from '@app/providers/ThemeProvider';
@@ -106,9 +120,9 @@ const fetchWeatherData = async (lat, lon) => {
 
     const response = await fetch(`${WEATHER_API_URL}?${params}`);
     if (!response.ok) throw new Error('Weather API request failed');
-    
+
     const data = await response.json();
-    
+
     return {
       current: {
         temperature: data.current.temperature_2m,
@@ -198,6 +212,7 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [currentLocation, setCurrentLocation] = useState({ lat: 31.1704, lon: 72.7097, name: 'Punjab' });
   const [lastUpdate, setLastUpdate] = useState(null);
+  const [animationMode, setAnimationMode] = useState({ mode: 'detecting', label: '🔍 Detecting...' });
 
   // Theme
   const { theme } = useSettings();
@@ -212,14 +227,14 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
     setWeatherLoading(true);
     const data = await fetchWeatherData(lat, lon);
     const locationName = await getLocationName(lat, lon);
-    
+
     if (data) {
       setWeatherData(data);
       weatherDataRef.current = data;
       setCurrentLocation({ lat, lon, name: locationName });
       setLastUpdate(new Date());
       console.log(`✓ Weather data loaded for ${locationName}:`, data.current);
-      
+
       precipZonesRef.current = null;
     }
     setWeatherLoading(false);
@@ -236,7 +251,7 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
   const getCurrentViewBounds = useCallback(() => {
     const view = viewRef.current;
     if (!view?.extent) return PUNJAB_CONFIG.bounds;
-    
+
     return {
       minLon: view.extent.xmin,
       minLat: view.extent.ymin,
@@ -251,17 +266,19 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
 
   const startRainAnimation = useCallback(() => {
     const canvas = rainCanvasRef.current;
+    const mapContainer = mapContainerRef.current;
     const weather = weatherDataRef.current;
-    if (!canvas) return;
+    if (!canvas || !mapContainer) return;
 
     const ctx = canvas.getContext('2d');
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    const containerRect = mapContainer.getBoundingClientRect();
+    canvas.width = containerRect.width || 800;
+    canvas.height = containerRect.height || 450;
 
     const precipitation = weather?.current?.precipitation || 0;
     const rain = weather?.current?.rain || 0;
     const actualRain = Math.max(precipitation, rain);
-    
+
     const baseDrops = 50;
     const maxDrops = 400;
     const dropCount = Math.min(maxDrops, baseDrops + Math.floor(actualRain * 35));
@@ -291,10 +308,10 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
         ctx.strokeStyle = `rgba(147, 197, 253, ${drop.opacity})`;
         ctx.lineWidth = drop.thickness;
         ctx.lineCap = 'round';
-        
+
         const endX = drop.x - Math.sin(rainAngle) * drop.length;
         const endY = drop.y + Math.cos(rainAngle) * drop.length;
-        
+
         ctx.moveTo(drop.x, drop.y);
         ctx.lineTo(endX, endY);
         ctx.stroke();
@@ -356,37 +373,37 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
 
   const getTurbulence = useCallback((x, y, bounds, noiseGrid) => {
     if (!noiseGrid) return { dx: 0, dy: 0 };
-    
+
     const gridSize = noiseGrid.length;
     const normalizedX = (x - bounds.minLon) / (bounds.maxLon - bounds.minLon);
     const normalizedY = (y - bounds.minLat) / (bounds.maxLat - bounds.minLat);
-    
+
     const gridX = Math.max(0, Math.min(gridSize - 1, normalizedX * (gridSize - 1)));
     const gridY = Math.max(0, Math.min(gridSize - 1, normalizedY * (gridSize - 1)));
-    
+
     const x0 = Math.floor(gridX);
     const y0 = Math.floor(gridY);
     const x1 = Math.min(x0 + 1, gridSize - 1);
     const y1 = Math.min(y0 + 1, gridSize - 1);
-    
+
     const fx = gridX - x0;
     const fy = gridY - y0;
-    
+
     const n00 = noiseGrid[x0]?.[y0] || { angle: 0, magnitude: 0 };
     const n10 = noiseGrid[x1]?.[y0] || { angle: 0, magnitude: 0 };
     const n01 = noiseGrid[x0]?.[y1] || { angle: 0, magnitude: 0 };
     const n11 = noiseGrid[x1]?.[y1] || { angle: 0, magnitude: 0 };
-    
+
     const angle = n00.angle * (1 - fx) * (1 - fy) +
-                  n10.angle * fx * (1 - fy) +
-                  n01.angle * (1 - fx) * fy +
-                  n11.angle * fx * fy;
-    
+      n10.angle * fx * (1 - fy) +
+      n01.angle * (1 - fx) * fy +
+      n11.angle * fx * fy;
+
     const magnitude = n00.magnitude * (1 - fx) * (1 - fy) +
-                      n10.magnitude * fx * (1 - fy) +
-                      n01.magnitude * (1 - fx) * fy +
-                      n11.magnitude * fx * fy;
-    
+      n10.magnitude * fx * (1 - fy) +
+      n01.magnitude * (1 - fx) * fy +
+      n11.magnitude * fx * fy;
+
     return {
       dx: Math.cos(angle) * magnitude * 0.15,
       dy: Math.sin(angle) * magnitude * 0.15
@@ -396,17 +413,17 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
   const initWindParticles = useCallback(() => {
     const bounds = getCurrentViewBounds();
     const weather = weatherDataRef.current;
-    
+
     noiseGridRef.current = createNoiseField();
-    
+
     const windSpeed = weather?.current?.windSpeed || 5;
     const baseCount = 130;
     const particleCount = Math.min(280, Math.floor(baseCount + windSpeed * 2));
-    
+
     const particles = [];
     const width = bounds.maxLon - bounds.minLon;
     const height = bounds.maxLat - bounds.minLat;
-    
+
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: bounds.minLon + Math.random() * width,
@@ -424,56 +441,56 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
   const runWindAnimation = useCallback(() => {
     const graphicsLayer = windLayerRef.current;
     const weather = weatherDataRef.current;
-    
+
     if (!graphicsLayer || !windAnimatingRef.current) return;
 
     const bounds = getCurrentViewBounds();
     const particles = windParticlesRef.current;
     const noiseGrid = noiseGridRef.current;
     const time = Date.now() * 0.001;
-    
+
     const windDirDegrees = weather?.current?.windDirection || 0;
     const windSpeedKmh = weather?.current?.windSpeed || 5;
-    
+
     const windAngleRad = ((windDirDegrees + 180) % 360) * (Math.PI / 180);
-    
+
     const baseWindX = Math.sin(windAngleRad);
     const baseWindY = Math.cos(windAngleRad);
-    
+
     const speedScale = 0.0015 + (windSpeedKmh / 80) * 0.003;
     const turbulenceScale = Math.max(0.1, 0.4 - windSpeedKmh / 100);
 
     graphicsLayer.removeAll();
     const graphics = [];
-    
+
     const width = bounds.maxLon - bounds.minLon;
     const height = bounds.maxLat - bounds.minLat;
 
     particles.forEach((p) => {
       const turbulence = getTurbulence(p.x, p.y, bounds, noiseGrid);
       const oscillation = Math.sin(time * 2 + p.turbulencePhase) * 0.3;
-      
+
       const moveX = (baseWindX + turbulence.dx * turbulenceScale + oscillation * turbulence.dy) * (p.baseSpeed + speedScale);
       const moveY = (baseWindY + turbulence.dy * turbulenceScale + oscillation * turbulence.dx) * (p.baseSpeed + speedScale);
-      
+
       p.x += moveX;
       p.y += moveY;
       p.age++;
 
       p.trail.push({ x: p.x, y: p.y });
-      
+
       const maxTrailLength = Math.floor(11 + windSpeedKmh / 5);
       if (p.trail.length > maxTrailLength) p.trail.shift();
 
       const margin = width * 0.02;
       const outOfBounds = p.x > bounds.maxLon + margin || p.x < bounds.minLon - margin ||
-                          p.y > bounds.maxLat + margin || p.y < bounds.minLat - margin;
-      
+        p.y > bounds.maxLat + margin || p.y < bounds.minLat - margin;
+
       if (outOfBounds || p.age > p.maxAge) {
         const spawnEdge = Math.random();
         const windFromX = -baseWindX;
         const windFromY = -baseWindY;
-        
+
         if (Math.abs(windFromX) > Math.abs(windFromY)) {
           p.x = windFromX > 0 ? bounds.minLon - margin : bounds.maxLon + margin;
           p.y = bounds.minLat + Math.random() * height;
@@ -481,12 +498,12 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
           p.x = bounds.minLon + Math.random() * width;
           p.y = windFromY > 0 ? bounds.minLat - margin : bounds.maxLat + margin;
         }
-        
+
         if (spawnEdge < 0.3) {
           p.x = bounds.minLon + Math.random() * width;
           p.y = bounds.minLat + Math.random() * height;
         }
-        
+
         p.trail = [];
         p.age = 0;
         p.turbulencePhase = Math.random() * Math.PI * 2;
@@ -511,7 +528,7 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
         }
 
         const paths = p.trail.map(t => [t.x, t.y]);
-        
+
         graphics.push(new Graphic({
           geometry: new Polyline({
             paths: [paths],
@@ -577,34 +594,34 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
 
     const currentPrecip = weather?.current?.precipitation || 0;
     const precipProb = weather?.hourly?.precipitationProbability?.[0] || 0;
-    
+
     const zoneCount = Math.max(3, Math.min(8, Math.floor(currentPrecip * 2) + Math.floor(precipProb / 20)));
 
     if (!precipZonesRef.current || precipZonesRef.current.length !== zoneCount) {
       const zones = [];
       const width = bounds.maxLon - bounds.minLon;
       const height = bounds.maxLat - bounds.minLat;
-      
+
       const cols = Math.ceil(Math.sqrt(zoneCount));
       const rows = Math.ceil(zoneCount / cols);
-      
+
       for (let i = 0; i < zoneCount; i++) {
         const col = i % cols;
         const row = Math.floor(i / cols);
-        
+
         const baseX = bounds.minLon + (col + 0.5) * (width / cols);
         const baseY = bounds.minLat + (row + 0.5) * (height / rows);
-        
+
         const seedX = Math.sin(i * 12.9898) * 43758.5453;
         const seedY = Math.sin(i * 78.233) * 43758.5453;
         const offsetX = ((seedX - Math.floor(seedX)) - 0.5) * width * 0.15;
         const offsetY = ((seedY - Math.floor(seedY)) - 0.5) * height * 0.15;
-        
+
         zones.push({
           centerX: Math.max(bounds.minLon + width * 0.05, Math.min(bounds.maxLon - width * 0.05, baseX + offsetX)),
           centerY: Math.max(bounds.minLat + height * 0.05, Math.min(bounds.maxLat - height * 0.05, baseY + offsetY)),
           sizeVariance: 0.8 + ((seedX + seedY) % 1) * 0.4,
-          shapeSeeds: Array.from({ length: 18 }, (_, j) => 
+          shapeSeeds: Array.from({ length: 18 }, (_, j) =>
             0.6 + (Math.sin((i * 18 + j) * 43.233) * 0.5 + 0.5) * 0.8
           )
         });
@@ -686,16 +703,72 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
         });
 
         const windLayer = new GraphicsLayer({ title: 'Wind Flow', visible: false });
-        const precipLayer = new GraphicsLayer({ title: 'Precipitation', visible: false });
+        const precipLayer = new GraphicsLayer({ title: 'Precipitation Zones', visible: false });
         const locationLayer = new GraphicsLayer({ title: 'Location Marker', visible: true });
 
         windLayerRef.current = windLayer;
         precipLayerRef.current = precipLayer;
         locationMarkerRef.current = locationLayer;
 
+        // ============================================================
+        // GIS LAYERS - Terrain, Hydrology, Emergency
+        // ============================================================
+
+        // Hillshade Terrain
+        const hillshadeLayer = new TileLayer({
+          url: GIS_LAYERS.terrain.hillshade.url,
+          title: GIS_LAYERS.terrain.hillshade.title,
+          visible: false,
+          opacity: 0.4
+        });
+
+        // Rivers (TileLayer - public, no auth)
+        const riversLayer = GIS_LAYERS.hydrology.rivers.url ? new TileLayer({
+          url: GIS_LAYERS.hydrology.rivers.url,
+          title: GIS_LAYERS.hydrology.rivers.title,
+          visible: true,
+          opacity: 0.7
+        }) : null;
+
+        // Emergency Facilities
+        const hospitalsLayer = new GraphicsLayer({ title: 'Hospitals', visible: false });
+        const sheltersLayer = new GraphicsLayer({ title: 'Shelters', visible: false });
+
+        // Add hospital markers
+        EMERGENCY_FACILITIES.hospitals.forEach(h => {
+          hospitalsLayer.add(new Graphic({
+            geometry: new Point({ longitude: h.lon, latitude: h.lat }),
+            symbol: new SimpleMarkerSymbol({
+              style: 'cross', color: LAYER_SYMBOLS.hospital.color, size: LAYER_SYMBOLS.hospital.size,
+              outline: { color: [255, 255, 255], width: 2 }
+            }),
+            attributes: h,
+            popupTemplate: { title: '{name}', content: 'Emergency: {emergency}<br>Beds: {beds}' }
+          }));
+        });
+
+        // Add shelter markers
+        EMERGENCY_FACILITIES.shelters.forEach(s => {
+          const sym = LAYER_SYMBOLS.shelter[s.status] || LAYER_SYMBOLS.shelter.available;
+          sheltersLayer.add(new Graphic({
+            geometry: new Point({ longitude: s.lon, latitude: s.lat }),
+            symbol: new SimpleMarkerSymbol({
+              style: 'square', color: sym.color, size: sym.size,
+              outline: { color: [255, 255, 255], width: 2 }
+            }),
+            attributes: s,
+            popupTemplate: { title: '{name}', content: 'Capacity: {capacity}<br>Status: {status}' }
+          }));
+        });
+
+        // Build layers array (only add valid layers)
+        const mapLayers = [hillshadeLayer, precipLayer, windLayer, sheltersLayer, hospitalsLayer, locationLayer];
+        if (riversLayer) mapLayers.splice(1, 0, riversLayer);
+
+        // Map with reliable basemap
         const map = new Map({
-          basemap: apiKey ? 'hybrid' : 'topo-vector',
-          layers: [precipLayer, windLayer, locationLayer]
+          basemap: 'dark-gray-vector',
+          layers: mapLayers
         });
         mapInstanceRef.current = map;
 
@@ -716,6 +789,25 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
 
         await view.when();
 
+        // LayerList Widget
+        const layerList = new LayerList({
+          view: view,
+          listItemCreatedFunction: (event) => { event.item.panel = { content: 'legend', open: false }; }
+        });
+        const layerListExpand = new Expand({
+          view, content: layerList, expandIcon: 'layers', expandTooltip: 'Layer List', expanded: false, group: 'top-left'
+        });
+        view.ui.add(layerListExpand, 'top-left');
+
+        // Legend Widget
+        const legend = new Legend({ view, style: 'card' });
+        const legendExpand = new Expand({
+          view, content: legend, expandIcon: 'legend', expandTooltip: 'Legend', expanded: false, group: 'top-left'
+        });
+        view.ui.add(legendExpand, 'top-left');
+
+        console.log('✓ PDMA GIS Layers initialized');
+
         // Handle map view changes
         view.watch('center', () => {
           if (viewMoveTimeoutRef.current) {
@@ -725,7 +817,7 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
             const center = view.center;
             if (center) {
               loadWeatherData(center.latitude, center.longitude);
-              
+
               if (windEnabled) {
                 initWindParticles();
               }
@@ -742,7 +834,7 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
         // Click handler
         view.on('click', async (event) => {
           const { latitude, longitude } = event.mapPoint;
-          
+
           locationLayer.removeAll();
           locationLayer.add(new Graphic({
             geometry: new Point({
@@ -847,8 +939,8 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
     transition: 'all 0.2s ease',
     backgroundColor: isActive ? '#166534' : '#10b981',
     color: '#ffffff',
-    boxShadow: isActive 
-      ? 'inset 0 2px 4px rgba(0, 0, 0, 0.25), 0 0 15px rgba(16, 185, 129, 0.5)' 
+    boxShadow: isActive
+      ? 'inset 0 2px 4px rgba(0, 0, 0, 0.25), 0 0 15px rgba(16, 185, 129, 0.5)'
       : '0 2px 4px rgba(0, 0, 0, 0.15)'
   });
 
@@ -894,21 +986,21 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
                 {weatherData.current.temperature}°C
               </span>
             </div>
-            
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Wind style={{ width: '16px', height: '16px', color: '#3b82f6' }} />
               <span style={{ color: colors.textPrimary, fontWeight: '600', fontSize: '14px' }}>
                 {weatherData.current.windSpeed} km/h {getWindDirectionText(weatherData.current.windDirection)}
               </span>
             </div>
-            
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Droplets style={{ width: '16px', height: '16px', color: '#8b5cf6' }} />
               <span style={{ color: colors.textPrimary, fontWeight: '600', fontSize: '14px' }}>
                 {weatherData.current.precipitation} mm
               </span>
             </div>
-            
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Gauge style={{ width: '16px', height: '16px', color: '#06b6d4' }} />
               <span style={{ color: colors.textPrimary, fontWeight: '600', fontSize: '14px' }}>
@@ -931,13 +1023,13 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
                   opacity: weatherLoading ? 0.5 : 1
                 }}
               >
-                <RefreshCw 
-                  style={{ 
-                    width: '14px', 
-                    height: '14px', 
+                <RefreshCw
+                  style={{
+                    width: '14px',
+                    height: '14px',
                     color: colors.textMuted,
                     animation: weatherLoading ? 'spin 1s linear infinite' : 'none'
-                  }} 
+                  }}
                 />
               </button>
             </div>
@@ -1133,7 +1225,7 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
           <div style={{ fontSize: '11px', fontWeight: '700', color: colors.textSecondary, marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             Live Weather for {currentLocation.name}
           </div>
-          
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {rainEnabled && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1150,7 +1242,7 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
                 </div>
               </div>
             )}
-            
+
             {windEnabled && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#60a5fa20', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1166,7 +1258,7 @@ const ProvincialMap = ({ province = 'Punjab', height = '450px' }) => {
                 </div>
               </div>
             )}
-            
+
             {precipEnabled && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#8b5cf620', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

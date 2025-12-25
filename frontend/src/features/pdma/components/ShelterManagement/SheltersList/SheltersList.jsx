@@ -1,6 +1,6 @@
-import { Building, Users, AlertTriangle, MapPin } from 'lucide-react';
+import { Building, AlertTriangle, MapPin } from 'lucide-react';
 
-const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter, onEditShelter }) => {
+const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) => {
   return (
     <div style={{
       display: 'grid',
@@ -129,7 +129,6 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter, onEd
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            marginBottom: '12px',
             fontSize: '13px'
           }}>
             <AlertTriangle size={16} color={shelter.capacity > 0 && Math.round((shelter.currentOccupancy / shelter.capacity) * 100) >= 100 ? colors.danger : shelter.capacity > 0 && Math.round((shelter.currentOccupancy / shelter.capacity) * 100) > 80 ? colors.warning : colors.success} />
@@ -137,30 +136,6 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter, onEd
               {shelter.capacity > 0 && Math.round((shelter.currentOccupancy / shelter.capacity) * 100) >= 100 ? 'Fully occupied' : shelter.capacity > 0 && Math.round((shelter.currentOccupancy / shelter.capacity) * 100) > 80 ? 'Near capacity' : 'Space available'}
             </span>
           </div>
-
-          <button
-            onClick={() => onEditShelter(shelter.id)}
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              backgroundColor: 'transparent',
-              color: colors.primary,
-              border: `1px solid ${colors.primary}`,
-              borderRadius: '4px',
-              fontSize: '13px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = colors.primaryLight || '#F0F9FF';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-            }}
-          >
-            Edit Details
-          </button>
         </div>
       ))}
     </div>

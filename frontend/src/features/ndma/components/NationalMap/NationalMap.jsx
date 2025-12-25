@@ -26,6 +26,9 @@ import Map from '@arcgis/core/Map';
 import MapView from '@arcgis/core/views/MapView';
 import Graphic from '@arcgis/core/Graphic';
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
+import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
+import TileLayer from '@arcgis/core/layers/TileLayer';
+import MapImageLayer from '@arcgis/core/layers/MapImageLayer';
 import Point from '@arcgis/core/geometry/Point';
 import Polygon from '@arcgis/core/geometry/Polygon';
 import Polyline from '@arcgis/core/geometry/Polyline';
@@ -33,8 +36,19 @@ import SimpleFillSymbol from '@arcgis/core/symbols/SimpleFillSymbol';
 import SimpleLineSymbol from '@arcgis/core/symbols/SimpleLineSymbol';
 import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol';
 
+// ArcGIS Widgets
+import LayerList from '@arcgis/core/widgets/LayerList';
+import Legend from '@arcgis/core/widgets/Legend';
+import Expand from '@arcgis/core/widgets/Expand';
+
 // ArcGIS Dark Theme CSS
 import '@arcgis/core/assets/esri/themes/dark/main.css';
+
+// GIS Layer Configuration
+import { GIS_LAYERS, EMERGENCY_FACILITIES, LAYER_SYMBOLS } from '@config/gisLayerConfig';
+
+// Weather Animation Service
+import weatherAnimationService from '@shared/services/weatherAnimationService';
 
 // Theme
 import { useSettings } from '@app/providers/ThemeProvider';
@@ -109,9 +123,9 @@ const fetchWeatherData = async (lat, lon) => {
 
     const response = await fetch(`${WEATHER_API_URL}?${params}`);
     if (!response.ok) throw new Error('Weather API request failed');
-    
+
     const data = await response.json();
-    
+
     return {
       current: {
         temperature: data.current.temperature_2m,
@@ -204,6 +218,7 @@ const NationalMap = ({ height = '450px' }) => {
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [currentLocation, setCurrentLocation] = useState({ lat: 30.3753, lon: 69.3451, name: 'Pakistan' });
   const [lastUpdate, setLastUpdate] = useState(null);
+  const [animationMode, setAnimationMode] = useState({ mode: 'detecting', label: '🔍 Detecting...' });
 
   // Theme
   const { theme } = useSettings();
@@ -218,14 +233,14 @@ const NationalMap = ({ height = '450px' }) => {
     setWeatherLoading(true);
     const data = await fetchWeatherData(lat, lon);
     const locationName = await getLocationName(lat, lon);
-    
+
     if (data) {
       setWeatherData(data);
       weatherDataRef.current = data;
       setCurrentLocation({ lat, lon, name: locationName });
       setLastUpdate(new Date());
       console.log(`✓ Weather data loaded for ${locationName}:`, data.current);
-      
+
       // Reset precipitation zones when location changes
       precipZonesRef.current = null;
     }
@@ -244,7 +259,7 @@ const NationalMap = ({ height = '450px' }) => {
   const getCurrentViewBounds = useCallback(() => {
     const view = viewRef.current;
     if (!view?.extent) return PAKISTAN_CONFIG.bounds;
-    
+
     return {
       minLon: view.extent.xmin,
       minLat: view.extent.ymin,
@@ -259,17 +274,20 @@ const NationalMap = ({ height = '450px' }) => {
 
   const startRainAnimation = useCallback(() => {
     const canvas = rainCanvasRef.current;
+    const mapContainer = mapContainerRef.current;
     const weather = weatherDataRef.current;
-    if (!canvas) return;
+    if (!canvas || !mapContainer) return;
 
     const ctx = canvas.getContext('2d');
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    // Use map container dimensions since canvas may have display:none initially
+    const containerRect = mapContainer.getBoundingClientRect();
+    canvas.width = containerRect.width || 800;
+    canvas.height = containerRect.height || 450;
 
     const precipitation = weather?.current?.precipitation || 0;
     const rain = weather?.current?.rain || 0;
     const actualRain = Math.max(precipitation, rain);
-    
+
     const baseDrops = 50;
     const maxDrops = 400;
     const dropCount = Math.min(maxDrops, baseDrops + Math.floor(actualRain * 35));
@@ -299,10 +317,10 @@ const NationalMap = ({ height = '450px' }) => {
         ctx.strokeStyle = `rgba(147, 197, 253, ${drop.opacity})`;
         ctx.lineWidth = drop.thickness;
         ctx.lineCap = 'round';
-        
+
         const endX = drop.x - Math.sin(rainAngle) * drop.length;
         const endY = drop.y + Math.cos(rainAngle) * drop.length;
-        
+
         ctx.moveTo(drop.x, drop.y);
         ctx.lineTo(endX, endY);
         ctx.stroke();
@@ -364,37 +382,37 @@ const NationalMap = ({ height = '450px' }) => {
 
   const getTurbulence = useCallback((x, y, bounds, noiseGrid) => {
     if (!noiseGrid) return { dx: 0, dy: 0 };
-    
+
     const gridSize = noiseGrid.length;
     const normalizedX = (x - bounds.minLon) / (bounds.maxLon - bounds.minLon);
     const normalizedY = (y - bounds.minLat) / (bounds.maxLat - bounds.minLat);
-    
+
     const gridX = Math.max(0, Math.min(gridSize - 1, normalizedX * (gridSize - 1)));
     const gridY = Math.max(0, Math.min(gridSize - 1, normalizedY * (gridSize - 1)));
-    
+
     const x0 = Math.floor(gridX);
     const y0 = Math.floor(gridY);
     const x1 = Math.min(x0 + 1, gridSize - 1);
     const y1 = Math.min(y0 + 1, gridSize - 1);
-    
+
     const fx = gridX - x0;
     const fy = gridY - y0;
-    
+
     const n00 = noiseGrid[x0]?.[y0] || { angle: 0, magnitude: 0 };
     const n10 = noiseGrid[x1]?.[y0] || { angle: 0, magnitude: 0 };
     const n01 = noiseGrid[x0]?.[y1] || { angle: 0, magnitude: 0 };
     const n11 = noiseGrid[x1]?.[y1] || { angle: 0, magnitude: 0 };
-    
+
     const angle = n00.angle * (1 - fx) * (1 - fy) +
-                  n10.angle * fx * (1 - fy) +
-                  n01.angle * (1 - fx) * fy +
-                  n11.angle * fx * fy;
-    
+      n10.angle * fx * (1 - fy) +
+      n01.angle * (1 - fx) * fy +
+      n11.angle * fx * fy;
+
     const magnitude = n00.magnitude * (1 - fx) * (1 - fy) +
-                      n10.magnitude * fx * (1 - fy) +
-                      n01.magnitude * (1 - fx) * fy +
-                      n11.magnitude * fx * fy;
-    
+      n10.magnitude * fx * (1 - fy) +
+      n01.magnitude * (1 - fx) * fy +
+      n11.magnitude * fx * fy;
+
     return {
       dx: Math.cos(angle) * magnitude * 0.15,
       dy: Math.sin(angle) * magnitude * 0.15
@@ -404,17 +422,17 @@ const NationalMap = ({ height = '450px' }) => {
   const initWindParticles = useCallback(() => {
     const bounds = getCurrentViewBounds();
     const weather = weatherDataRef.current;
-    
+
     noiseGridRef.current = createNoiseField();
-    
+
     const windSpeed = weather?.current?.windSpeed || 5;
     const baseCount = 120;
     const particleCount = Math.min(250, Math.floor(baseCount + windSpeed * 2));
-    
+
     const particles = [];
     const width = bounds.maxLon - bounds.minLon;
     const height = bounds.maxLat - bounds.minLat;
-    
+
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: bounds.minLon + Math.random() * width,
@@ -432,56 +450,56 @@ const NationalMap = ({ height = '450px' }) => {
   const runWindAnimation = useCallback(() => {
     const graphicsLayer = windLayerRef.current;
     const weather = weatherDataRef.current;
-    
+
     if (!graphicsLayer || !windAnimatingRef.current) return;
 
     const bounds = getCurrentViewBounds();
     const particles = windParticlesRef.current;
     const noiseGrid = noiseGridRef.current;
     const time = Date.now() * 0.001;
-    
+
     const windDirDegrees = weather?.current?.windDirection || 0;
     const windSpeedKmh = weather?.current?.windSpeed || 5;
-    
+
     const windAngleRad = ((windDirDegrees + 180) % 360) * (Math.PI / 180);
-    
+
     const baseWindX = Math.sin(windAngleRad);
     const baseWindY = Math.cos(windAngleRad);
-    
+
     const speedScale = 0.002 + (windSpeedKmh / 80) * 0.004;
     const turbulenceScale = Math.max(0.1, 0.4 - windSpeedKmh / 100);
 
     graphicsLayer.removeAll();
     const graphics = [];
-    
+
     const width = bounds.maxLon - bounds.minLon;
     const height = bounds.maxLat - bounds.minLat;
 
     particles.forEach((p) => {
       const turbulence = getTurbulence(p.x, p.y, bounds, noiseGrid);
       const oscillation = Math.sin(time * 2 + p.turbulencePhase) * 0.3;
-      
+
       const moveX = (baseWindX + turbulence.dx * turbulenceScale + oscillation * turbulence.dy) * (p.baseSpeed + speedScale);
       const moveY = (baseWindY + turbulence.dy * turbulenceScale + oscillation * turbulence.dx) * (p.baseSpeed + speedScale);
-      
+
       p.x += moveX;
       p.y += moveY;
       p.age++;
 
       p.trail.push({ x: p.x, y: p.y });
-      
+
       const maxTrailLength = Math.floor(10 + windSpeedKmh / 6);
       if (p.trail.length > maxTrailLength) p.trail.shift();
 
       const margin = width * 0.02;
       const outOfBounds = p.x > bounds.maxLon + margin || p.x < bounds.minLon - margin ||
-                          p.y > bounds.maxLat + margin || p.y < bounds.minLat - margin;
-      
+        p.y > bounds.maxLat + margin || p.y < bounds.minLat - margin;
+
       if (outOfBounds || p.age > p.maxAge) {
         const spawnEdge = Math.random();
         const windFromX = -baseWindX;
         const windFromY = -baseWindY;
-        
+
         if (Math.abs(windFromX) > Math.abs(windFromY)) {
           p.x = windFromX > 0 ? bounds.minLon - margin : bounds.maxLon + margin;
           p.y = bounds.minLat + Math.random() * height;
@@ -489,12 +507,12 @@ const NationalMap = ({ height = '450px' }) => {
           p.x = bounds.minLon + Math.random() * width;
           p.y = windFromY > 0 ? bounds.minLat - margin : bounds.maxLat + margin;
         }
-        
+
         if (spawnEdge < 0.3) {
           p.x = bounds.minLon + Math.random() * width;
           p.y = bounds.minLat + Math.random() * height;
         }
-        
+
         p.trail = [];
         p.age = 0;
         p.turbulencePhase = Math.random() * Math.PI * 2;
@@ -519,7 +537,7 @@ const NationalMap = ({ height = '450px' }) => {
         }
 
         const paths = p.trail.map(t => [t.x, t.y]);
-        
+
         graphics.push(new Graphic({
           geometry: new Polyline({
             paths: [paths],
@@ -585,7 +603,7 @@ const NationalMap = ({ height = '450px' }) => {
 
     const currentPrecip = weather?.current?.precipitation || 0;
     const precipProb = weather?.hourly?.precipitationProbability?.[0] || 0;
-    
+
     const zoneCount = Math.max(3, Math.min(8, Math.floor(currentPrecip * 2) + Math.floor(precipProb / 20)));
 
     // Generate stable zone positions
@@ -593,27 +611,27 @@ const NationalMap = ({ height = '450px' }) => {
       const zones = [];
       const width = bounds.maxLon - bounds.minLon;
       const height = bounds.maxLat - bounds.minLat;
-      
+
       const cols = Math.ceil(Math.sqrt(zoneCount));
       const rows = Math.ceil(zoneCount / cols);
-      
+
       for (let i = 0; i < zoneCount; i++) {
         const col = i % cols;
         const row = Math.floor(i / cols);
-        
+
         const baseX = bounds.minLon + (col + 0.5) * (width / cols);
         const baseY = bounds.minLat + (row + 0.5) * (height / rows);
-        
+
         const seedX = Math.sin(i * 12.9898) * 43758.5453;
         const seedY = Math.sin(i * 78.233) * 43758.5453;
         const offsetX = ((seedX - Math.floor(seedX)) - 0.5) * width * 0.15;
         const offsetY = ((seedY - Math.floor(seedY)) - 0.5) * height * 0.15;
-        
+
         zones.push({
           centerX: Math.max(bounds.minLon + width * 0.05, Math.min(bounds.maxLon - width * 0.05, baseX + offsetX)),
           centerY: Math.max(bounds.minLat + height * 0.05, Math.min(bounds.maxLat - height * 0.05, baseY + offsetY)),
           sizeVariance: 0.8 + ((seedX + seedY) % 1) * 0.4,
-          shapeSeeds: Array.from({ length: 18 }, (_, j) => 
+          shapeSeeds: Array.from({ length: 18 }, (_, j) =>
             0.6 + (Math.sin((i * 18 + j) * 43.233) * 0.5 + 0.5) * 0.8
           )
         });
@@ -696,19 +714,116 @@ const NationalMap = ({ height = '450px' }) => {
           spatialReference: { wkid: 4326 }
         });
 
-        // Layers
+        // Layers - Weather Animation
         const windLayer = new GraphicsLayer({ title: 'Wind Flow', visible: false });
-        const precipLayer = new GraphicsLayer({ title: 'Precipitation', visible: false });
+        const precipLayer = new GraphicsLayer({ title: 'Precipitation Zones', visible: false });
         const locationLayer = new GraphicsLayer({ title: 'Location Marker', visible: true });
 
         windLayerRef.current = windLayer;
         precipLayerRef.current = precipLayer;
         locationMarkerRef.current = locationLayer;
 
-        // Map
+        // ============================================================
+        // GIS LAYERS - Terrain, Hydrology, Emergency Services
+        // ============================================================
+
+        // Hillshade Terrain Layer (public TileLayer)
+        const hillshadeLayer = new TileLayer({
+          url: GIS_LAYERS.terrain.hillshade.url,
+          title: GIS_LAYERS.terrain.hillshade.title,
+          visible: false,
+          opacity: 0.4
+        });
+
+        // Rivers & Water Reference Layer (public TileLayer - no auth)
+        const riversLayer = GIS_LAYERS.hydrology.rivers.url ? new TileLayer({
+          url: GIS_LAYERS.hydrology.rivers.url,
+          title: GIS_LAYERS.hydrology.rivers.title,
+          visible: true,
+          opacity: 0.7
+        }) : null;
+
+        // Emergency Facilities Layers (GraphicsLayer - local data)
+        const hospitalsLayer = new GraphicsLayer({ title: 'Hospitals', visible: false });
+        const sheltersLayer = new GraphicsLayer({ title: 'Shelters', visible: false });
+        const evacuationLayer = new GraphicsLayer({ title: 'Evacuation Routes', visible: false });
+        const floodZonesLayer = new GraphicsLayer({ title: 'Flood Zones', visible: false });
+
+        // Add hospital markers
+        EMERGENCY_FACILITIES.hospitals.forEach(hospital => {
+          hospitalsLayer.add(new Graphic({
+            geometry: new Point({ longitude: hospital.lon, latitude: hospital.lat }),
+            symbol: new SimpleMarkerSymbol({
+              style: 'cross',
+              color: LAYER_SYMBOLS.hospital.color,
+              size: LAYER_SYMBOLS.hospital.size,
+              outline: { color: [255, 255, 255], width: 2 }
+            }),
+            attributes: hospital,
+            popupTemplate: {
+              title: '{name}',
+              content: 'Emergency: {emergency}<br>Beds: {beds}'
+            }
+          }));
+        });
+
+        // Add shelter markers
+        EMERGENCY_FACILITIES.shelters.forEach(shelter => {
+          const symbolConfig = LAYER_SYMBOLS.shelter[shelter.status] || LAYER_SYMBOLS.shelter.available;
+          sheltersLayer.add(new Graphic({
+            geometry: new Point({ longitude: shelter.lon, latitude: shelter.lat }),
+            symbol: new SimpleMarkerSymbol({
+              style: 'square',
+              color: symbolConfig.color,
+              size: symbolConfig.size,
+              outline: { color: [255, 255, 255], width: 2 }
+            }),
+            attributes: shelter,
+            popupTemplate: {
+              title: '{name}',
+              content: 'Capacity: {capacity}<br>Status: {status}'
+            }
+          }));
+        });
+
+        // Add evacuation routes
+        EMERGENCY_FACILITIES.evacuationRoutes.forEach(route => {
+          const symbolConfig = LAYER_SYMBOLS.evacuationRoute[route.status] || LAYER_SYMBOLS.evacuationRoute.clear;
+          evacuationLayer.add(new Graphic({
+            geometry: new Polyline({
+              paths: [route.paths],
+              spatialReference: { wkid: 4326 }
+            }),
+            symbol: new SimpleLineSymbol({
+              color: symbolConfig.color,
+              width: symbolConfig.width,
+              style: 'solid'
+            }),
+            attributes: route,
+            popupTemplate: {
+              title: '{name}',
+              content: 'Status: {status}'
+            }
+          }));
+        });
+
+        // Build layers array (only add valid layers)
+        const mapLayers = [
+          hillshadeLayer,
+          floodZonesLayer,
+          evacuationLayer,
+          precipLayer,
+          windLayer,
+          sheltersLayer,
+          hospitalsLayer,
+          locationLayer
+        ];
+        if (riversLayer) mapLayers.splice(1, 0, riversLayer);
+
+        // Map with basemap (use dark-gray-vector for reliability)
         const map = new Map({
-          basemap: apiKey ? 'hybrid' : 'satellite',
-          layers: [precipLayer, windLayer, locationLayer]
+          basemap: 'dark-gray-vector',
+          layers: mapLayers
         });
         mapInstanceRef.current = map;
 
@@ -730,6 +845,75 @@ const NationalMap = ({ height = '450px' }) => {
 
         await view.when();
 
+        // ============================================================
+        // UI WIDGETS - LayerList and Legend
+        // ============================================================
+
+        // LayerList Widget
+        const layerList = new LayerList({
+          view: view,
+          listItemCreatedFunction: (event) => {
+            const item = event.item;
+            // Add legend for each layer
+            item.panel = {
+              content: 'legend',
+              open: false
+            };
+          }
+        });
+
+        const layerListExpand = new Expand({
+          view: view,
+          content: layerList,
+          expandIcon: 'layers',
+          expandTooltip: 'Layer List',
+          expanded: false,
+          group: 'top-left'
+        });
+        view.ui.add(layerListExpand, 'top-left');
+
+        // Legend Widget
+        const legend = new Legend({
+          view: view,
+          style: 'card'
+        });
+
+        const legendExpand = new Expand({
+          view: view,
+          content: legend,
+          expandIcon: 'legend',
+          expandTooltip: 'Legend',
+          expanded: false,
+          group: 'top-left'
+        });
+        view.ui.add(legendExpand, 'top-left');
+
+        console.log('✓ GIS Layers and Widgets initialized');
+
+        // ============================================================
+        // WEATHER ANIMATION SERVICE INITIALIZATION
+        // ============================================================
+
+        const initAnimationMode = async () => {
+          try {
+            await weatherAnimationService.initialize();
+            const modeInfo = weatherAnimationService.getMode();
+            setAnimationMode(modeInfo);
+
+            // Start auto-refresh for weather data
+            weatherAnimationService.startAutoRefresh(() => {
+              fetchWeatherForMapCenter(view);
+            });
+
+            console.log(`✓ Animation Mode: ${modeInfo.label}`);
+          } catch (error) {
+            console.warn('Animation init warning:', error);
+            setAnimationMode({ mode: 'timeslider', label: '⏱ Time-Based Mode' });
+          }
+        };
+
+        initAnimationMode();
+
         // Handle map view changes - debounced
         view.watch('center', () => {
           if (viewMoveTimeoutRef.current) {
@@ -740,7 +924,7 @@ const NationalMap = ({ height = '450px' }) => {
             if (center) {
               console.log(`Map moved to: ${center.latitude.toFixed(4)}, ${center.longitude.toFixed(4)}`);
               loadWeatherData(center.latitude, center.longitude);
-              
+
               // Reinitialize particles for new view
               if (windEnabled) {
                 initWindParticles();
@@ -759,7 +943,7 @@ const NationalMap = ({ height = '450px' }) => {
         view.on('click', async (event) => {
           const { latitude, longitude } = event.mapPoint;
           console.log(`Clicked: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
-          
+
           // Add marker at clicked location
           locationLayer.removeAll();
           locationLayer.add(new Graphic({
@@ -866,8 +1050,8 @@ const NationalMap = ({ height = '450px' }) => {
     transition: 'all 0.2s ease',
     backgroundColor: isActive ? '#1e40af' : '#3b82f6',
     color: '#ffffff',
-    boxShadow: isActive 
-      ? 'inset 0 2px 4px rgba(0, 0, 0, 0.25), 0 0 15px rgba(59, 130, 246, 0.5)' 
+    boxShadow: isActive
+      ? 'inset 0 2px 4px rgba(0, 0, 0, 0.25), 0 0 15px rgba(59, 130, 246, 0.5)'
       : '0 2px 4px rgba(0, 0, 0, 0.15)'
   });
 
@@ -896,6 +1080,23 @@ const NationalMap = ({ height = '450px' }) => {
           {weatherLoading && (
             <Loader2 className="animate-spin national-map-weather-loading" />
           )}
+          {/* Animation Mode Badge */}
+          <span style={{
+            marginLeft: 'auto',
+            padding: '4px 10px',
+            borderRadius: '12px',
+            fontSize: '11px',
+            fontWeight: '600',
+            backgroundColor: animationMode.mode === 'webgl' || animationMode.mode === 'webgl-lite'
+              ? 'rgba(34, 197, 94, 0.2)'
+              : 'rgba(59, 130, 246, 0.2)',
+            color: animationMode.mode === 'webgl' || animationMode.mode === 'webgl-lite'
+              ? '#22c55e'
+              : '#3b82f6',
+            border: `1px solid ${animationMode.mode === 'webgl' || animationMode.mode === 'webgl-lite' ? '#22c55e' : '#3b82f6'}`
+          }}>
+            {animationMode.label}
+          </span>
         </div>
 
         {/* Weather Data */}
@@ -907,21 +1108,21 @@ const NationalMap = ({ height = '450px' }) => {
                 {weatherData.current.temperature}°C
               </span>
             </div>
-            
+
             <div className="national-map-weather-item">
               <Wind className="national-map-weather-icon wind" />
               <span className="national-map-weather-value">
                 {weatherData.current.windSpeed} km/h {getWindDirectionText(weatherData.current.windDirection)}
               </span>
             </div>
-            
+
             <div className="national-map-weather-item">
               <Droplets className="national-map-weather-icon precip" />
               <span className="national-map-weather-value">
                 {weatherData.current.precipitation} mm
               </span>
             </div>
-            
+
             <div className="national-map-weather-item">
               <Gauge className="national-map-weather-icon humidity" />
               <span className="national-map-weather-value">
@@ -939,7 +1140,7 @@ const NationalMap = ({ height = '450px' }) => {
                 className="national-map-refresh-btn"
                 title="Refresh weather data"
               >
-                <RefreshCw 
+                <RefreshCw
                   className={`national-map-refresh-icon ${weatherLoading ? 'spinning' : ''}`}
                 />
               </button>
@@ -1127,7 +1328,7 @@ const NationalMap = ({ height = '450px' }) => {
           <div style={{ fontSize: '11px', fontWeight: '700', color: colors.textSecondary, marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             Live Weather for {currentLocation.name}
           </div>
-          
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {rainEnabled && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1144,7 +1345,7 @@ const NationalMap = ({ height = '450px' }) => {
                 </div>
               </div>
             )}
-            
+
             {windEnabled && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#60a5fa20', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1160,7 +1361,7 @@ const NationalMap = ({ height = '450px' }) => {
                 </div>
               </div>
             )}
-            
+
             {precipEnabled && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#8b5cf620', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

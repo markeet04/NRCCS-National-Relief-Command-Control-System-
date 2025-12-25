@@ -10,7 +10,7 @@
 .national-alert-banner {
   background-color: #991b1b;
   border-radius: 8px;
-  padding: 16px 20px;
+  padding: 12px 18px;
   margin-bottom: 24px;
   display: flex;
   align-items: center;
@@ -24,7 +24,7 @@
 }
 
 .national-alert-banner-icon {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: transparent;
   padding: 8px;
   border-radius: 8px;
   display: flex;
@@ -54,7 +54,7 @@
 }
 
 .national-alert-banner-action {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: transparent;
   color: #ffffff;
   border: none;
   padding: 8px 16px;
@@ -69,7 +69,7 @@
 }
 
 .national-alert-banner-action:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 /* =============================================================================
@@ -224,6 +224,28 @@
   border: none;
   border-radius: 12px;
   overflow: hidden;
+  /* Ensure only left-side glow from border-left-* class */
+  box-shadow: none !important;
+}
+
+/* Apply left-only glow when combined with border accent classes */
+.national-map-card.border-left-blue {
+  box-shadow: -2px 0 10px 0 rgba(33, 150, 243, 0.4) !important;
+}
+
+/* Ultra-specific override - force remove all-side shadows */
+.national-main-grid .national-map-card,
+.national-main-grid > .national-map-card,
+div.national-map-card {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.national-main-grid .national-map-card.border-left-blue,
+.national-main-grid > .national-map-card.border-left-blue,
+div.national-map-card.border-left-blue {
+  box-shadow: -2px 0 10px 0 rgba(33, 150, 243, 0.4) !important;
+  filter: none !important;
 }
 
 .national-map-header {
@@ -274,10 +296,13 @@
   height: 500px;
   position: relative;
   padding-left: 20px;
+  padding-right: 20px;
+  margin-bottom: 20px;
+  
 }
 
 .national-map-legend {
-  padding: 12px 20px 12px 24px;
+  padding: 12px 20px 24px 24px;
   border-top: none;
   display: flex;
   flex-wrap: wrap;
@@ -334,6 +359,28 @@
   border: none;
   border-radius: 12px;
   padding: 20px 20px 20px 24px;
+  /* Ensure only left-side glow from border-left-* class */
+  box-shadow: none !important;
+}
+
+/* Apply left-only glow when combined with border accent classes */
+.national-resource-card.border-left-green {
+  box-shadow: -2px 0 10px 0 rgba(76, 175, 80, 0.4) !important;
+}
+
+/* Ultra-specific override - force remove all-side shadows */
+.national-sidebar .national-resource-card,
+.national-sidebar > .national-resource-card,
+div.national-resource-card {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.national-sidebar .national-resource-card.border-left-green,
+.national-sidebar > .national-resource-card.border-left-green,
+div.national-resource-card.border-left-green {
+  box-shadow: -2px 0 10px 0 rgba(76, 175, 80, 0.4) !important;
+  filter: none !important;
 }
 
 .national-resource-header {
@@ -462,6 +509,28 @@
   border: none;
   border-radius: 12px;
   padding: 20px 20px 20px 24px;
+  /* Ensure only left-side glow from border-left-* class */
+  box-shadow: none !important;
+}
+
+/* Apply left-only glow when combined with border accent classes */
+.national-weather-card.border-left-cyan {
+  box-shadow: -2px 0 10px 0 rgba(6, 182, 212, 0.4) !important;
+}
+
+/* Ultra-specific override - force remove all-side shadows */
+.national-sidebar .national-weather-card,
+.national-sidebar > .national-weather-card,
+div.national-weather-card {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.national-sidebar .national-weather-card.border-left-cyan,
+.national-sidebar > .national-weather-card.border-left-cyan,
+div.national-weather-card.border-left-cyan {
+  box-shadow: -2px 0 10px 0 rgba(6, 182, 212, 0.4) !important;
+  filter: none !important;
 }
 
 .national-weather-title {

@@ -9,22 +9,14 @@ export const RESOURCE_CATEGORIES = [
   { id: 'medical', label: 'Medical Kits', unit: 'kits', icon: 'first-aid' },
   { id: 'shelter', label: 'Shelter Materials', unit: 'units', icon: 'home' },
   { id: 'water', label: 'Clean Water', unit: 'liters', icon: 'droplet' },
-  { id: 'clothing', label: 'Clothing', unit: 'sets', icon: 'shirt' },
-  { id: 'blankets', label: 'Blankets', unit: 'pieces', icon: 'layers' },
-  { id: 'hygiene', label: 'Hygiene Kits', unit: 'kits', icon: 'spray-can' },
-  { id: 'equipment', label: 'Rescue Equipment', unit: 'units', icon: 'wrench' },
 ];
 
 // Initial national stock data
 export const INITIAL_NATIONAL_STOCK = {
-  food: { available: 15000, allocated: 8500, unit: 'tons' },
-  medical: { available: 25000, allocated: 12000, unit: 'kits' },
-  shelter: { available: 8000, allocated: 5500, unit: 'units' },
-  water: { available: 500000, allocated: 320000, unit: 'liters' },
-  clothing: { available: 50000, allocated: 28000, unit: 'sets' },
-  blankets: { available: 75000, allocated: 45000, unit: 'pieces' },
-  hygiene: { available: 30000, allocated: 18000, unit: 'kits' },
-  equipment: { available: 2000, allocated: 1200, unit: 'units' },
+  food: { available: 15000, allocated: 6500, unit: 'tons' },
+  medical: { available: 25000, allocated: 9500, unit: 'kits' },
+  shelter: { available: 8000, allocated: 4000, unit: 'units' },
+  water: { available: 500000, allocated: 250000, unit: 'liters' },
 };
 
 // Provincial allocation data

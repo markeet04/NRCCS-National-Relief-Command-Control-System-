@@ -5,7 +5,7 @@ import { Users, MapPin, Phone, Search, ChevronDown, Eye, Edit, Plus, X, Clock, T
 import { useSettings } from '../../../app/providers/ThemeProvider';
 import { getThemeColors } from '../../../shared/utils/themeColors';
 import { DISTRICT_MENU_ITEMS } from '../constants';
-import { useRescueTeamData, TEAM_STATUS_OPTIONS } from '../hooks';
+import { useRescueTeamData, TEAM_STATUS_OPTIONS, useDistrictData } from '../hooks';
 import { 
   PieChart, 
   Pie, 
@@ -28,6 +28,9 @@ const RescueTeams = () => {
   const { theme } = useSettings();
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
+
+  // District info for layout
+  const { districtInfo, rawStats: districtStats } = useDistrictData();
   
   // Use the rescue team data hook
   const {
@@ -172,9 +175,9 @@ const RescueTeams = () => {
       onNavigate={handleNavigate}
       pageTitle="Rescue Teams Management"
       pageSubtitle="Monitor and coordinate rescue operations"
-      userRole="District Sukkur"
+      userRole={`District ${districtInfo?.name || 'Loading...'}`}
       userName="District Officer"
-      notificationCount={15}
+      notificationCount={districtStats?.pendingSOS || 0}
     >
       {/* KPI Summary Cards Row */}
       <div 
@@ -230,7 +233,7 @@ const RescueTeams = () => {
             borderLeft: `4px solid #10b981`
           }}
         >
-          <div style={{ width: '90px', height: '90px', position: 'relative' }}>
+          <div style={{ width: '90px', height: '90px', minWidth: '90px', minHeight: '90px', position: 'relative' }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -288,7 +291,7 @@ const RescueTeams = () => {
             borderLeft: `4px solid #f59e0b`
           }}
         >
-          <div style={{ width: '90px', height: '90px' }}>
+          <div style={{ width: '90px', height: '90px', minWidth: '90px', minHeight: '90px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -588,7 +591,7 @@ const RescueTeams = () => {
 
                 {/* Team Composition Chart & Details */}
                 <div style={{ padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
-                  <div style={{ width: '100px', height: '100px' }}>
+                  <div style={{ width: '100px', height: '100px', minWidth: '100px', minHeight: '100px' }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie

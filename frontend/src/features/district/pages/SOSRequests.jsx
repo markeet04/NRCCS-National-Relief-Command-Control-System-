@@ -13,9 +13,10 @@ import { getThemeColors } from '../../../shared/utils/themeColors';
 // Hooks
 import { useSOSRequests } from '../hooks/useSOSRequests';
 import { useRescueTeamData } from '../hooks/useRescueTeamData';
+import { useDistrictData } from '../hooks/useDistrictData';
 
 // Constants
-import { DISTRICT_MENU_ITEMS, DEFAULT_DISTRICT_INFO } from '../constants';
+import { DISTRICT_MENU_ITEMS } from '../constants';
 
 // Modular SOS Components
 import {
@@ -43,6 +44,9 @@ const SOSRequests = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showMap, setShowMap] = useState(false);
+
+  // District info hook
+  const { districtInfo } = useDistrictData();
 
   // Hooks for data
   const {
@@ -93,16 +97,6 @@ const SOSRequests = () => {
     setShowDetailsModal(true);
   }, []);
 
-  const handleExportCSV = useCallback(() => {
-    console.log('Exporting CSV...', filteredRequests);
-    // TODO: Implement CSV export
-  }, [filteredRequests]);
-
-  const handleCreateNew = useCallback(() => {
-    console.log('Creating new SOS request...');
-    // TODO: Implement create new SOS
-  }, []);
-
   // Navigation handler
   const handleNavigate = useCallback((route) => {
     setActiveRoute(route);
@@ -120,7 +114,7 @@ const SOSRequests = () => {
       onNavigate={handleNavigate}
       pageTitle="SOS Requests"
       pageSubtitle="Monitor and manage emergency SOS requests in real-time"
-      userRole={`District ${DEFAULT_DISTRICT_INFO.name}`}
+      userRole={`District ${districtInfo?.name || 'Officer'}`}
       userName="District Officer"
       notificationCount={pendingCount}
     >
@@ -158,8 +152,6 @@ const SOSRequests = () => {
             onSearchChange={setSearchQuery}
             statusFilter={statusFilter}
             onStatusChange={setStatusFilter}
-            onExport={handleExportCSV}
-            onCreateNew={handleCreateNew}
             colors={colors}
             isLight={isLight}
           />

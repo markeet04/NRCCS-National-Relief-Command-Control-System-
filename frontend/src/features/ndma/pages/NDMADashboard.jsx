@@ -42,7 +42,7 @@ import '../styles/national-dashboard.css';
  */
 const NDMADashboard = () => {
   const navigate = useNavigate();
-  const { activeStatusCount } = useBadge();
+  const { activeStatusCount, provincialRequestsCount } = useBadge();
   const [activeRoute, setActiveRoute] = useState('dashboard');
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
   const [criticalAlertsCount, setCriticalAlertsCount] = useState(0);
@@ -71,7 +71,7 @@ const NDMADashboard = () => {
   };
 
   // Use custom hook for dashboard logic
-  const { roleConfig, menuItems } = useDashboardLogic(activeStatusCount);
+  const { roleConfig, menuItems } = useDashboardLogic(activeStatusCount, provincialRequestsCount);
 
   const handleNavigate = (route) => {
     setActiveRoute(route);

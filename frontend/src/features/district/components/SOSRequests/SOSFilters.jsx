@@ -3,7 +3,7 @@
  * Search and filter controls for SOS requests
  */
 
-import { Search, ChevronDown, Download, Plus } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 const STATUS_OPTIONS = ['Pending', 'Assigned', 'En-route', 'Rescued'];
 
@@ -13,20 +13,9 @@ const SOSFilters = ({
   statusFilter, 
   onStatusChange, 
   statusOptions = STATUS_OPTIONS,
-  onExport,
-  onCreateNew,
   colors, 
   isLight 
 }) => {
-  const handleExport = () => {
-    if (onExport) onExport();
-    else console.log('Export to CSV clicked');
-  };
-
-  const handleCreateNew = () => {
-    if (onCreateNew) onCreateNew();
-    else console.log('Create New SOS clicked');
-  };
 
   return (
     <div style={{ 
@@ -104,54 +93,6 @@ const SOSFilters = ({
             <option key={option} value={option}>{option}</option>
           ))}
         </select>
-      </div>
-
-      {/* Action Buttons */}
-      <div style={{ display: 'flex', gap: '12px' }}>
-        <button
-          onClick={handleExport}
-          className="hover:scale-105"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '12px 20px',
-            background: isLight ? '#f3f4f6' : 'rgba(75, 85, 99, 0.3)',
-            color: colors.textPrimary,
-            border: `1px solid ${colors.border}`,
-            borderRadius: '10px',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          <Download style={{ width: '18px', height: '18px' }} />
-          Export CSV
-        </button>
-
-        <button
-          onClick={handleCreateNew}
-          className="hover:scale-105"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '12px 24px',
-            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '10px',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            boxShadow: '0 4px 15px rgba(239, 68, 68, 0.3)',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          <Plus style={{ width: '18px', height: '18px' }} />
-          Create New SOS
-        </button>
       </div>
     </div>
   );

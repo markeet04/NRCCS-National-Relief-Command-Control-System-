@@ -101,16 +101,45 @@ const StatCard = ({
     return borderColors[gradientKey] || borderColors[color] || borderColors.default;
   };
 
+  // Get glow shadow color for dark mode - matches NDMA style
+  const getGlowShadow = () => {
+    if (isLight) return gradient ? gradient.shadow : colors.cardShadow;
+    
+    const glowColors = {
+      rose: 'rgba(239, 68, 68, 0.4)',      // Red glow for critical/danger
+      red: 'rgba(239, 68, 68, 0.4)',
+      danger: 'rgba(239, 68, 68, 0.4)',
+      amber: 'rgba(245, 158, 11, 0.4)',    // Amber glow for warnings
+      orange: 'rgba(249, 115, 22, 0.4)',
+      warning: 'rgba(245, 158, 11, 0.4)',
+      blue: 'rgba(59, 130, 246, 0.4)',     // Blue glow for info
+      info: 'rgba(59, 130, 246, 0.4)',
+      violet: 'rgba(139, 92, 246, 0.4)',
+      emerald: 'rgba(16, 185, 129, 0.4)',  // Green glow for success
+      green: 'rgba(34, 197, 94, 0.4)',
+      success: 'rgba(16, 185, 129, 0.4)',
+      cyan: 'rgba(6, 182, 212, 0.4)',      // Cyan glow
+      teal: 'rgba(20, 184, 166, 0.4)',
+      indigo: 'rgba(99, 102, 241, 0.4)',
+      purple: 'rgba(168, 85, 247, 0.4)',
+      default: 'rgba(107, 114, 128, 0.3)',
+    };
+    
+    const glowColor = glowColors[gradientKey] || glowColors[color] || glowColors.default;
+    // Return left-side glow that matches NDMA stat cards
+    return `-2px 0 10px 0 ${glowColor}`;
+  };
+
   return (
     <div
-      className="rounded-xl transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 overflow-hidden"
+      className="stat-card-unified rounded-xl transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 overflow-hidden"
       style={{ 
         background: gradient ? gradient.bg : colors.cardBg,
         border: gradient ? 'none' : `1px solid ${colors.cardBorder}`,
         borderTop: gradient ? `4px solid ${gradient.borderTop}` : `1px solid ${colors.cardBorder}`,
         borderLeft: !isLight ? `4px solid ${getLeftBorderColor()}` : (gradient ? 'none' : `1px solid ${colors.cardBorder}`),
         padding: '20px',
-        boxShadow: gradient ? gradient.shadow : colors.cardShadow
+        boxShadow: getGlowShadow()
       }}
     >
       <div className="flex items-start justify-between">

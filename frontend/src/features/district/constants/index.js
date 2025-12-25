@@ -10,6 +10,7 @@ export const DISTRICT_MENU_ITEMS = [
   { route: 'sos', label: 'SOS Requests', icon: 'alerts' },
   { route: 'shelters', label: 'Shelter Management', icon: 'resources' },
   { route: 'rescue', label: 'Rescue Teams', icon: 'resources' },
+  { route: 'resources', label: 'Resource Distribution', icon: 'resources' },
   { route: 'reports', label: 'Damage Reports', icon: 'map' },
   { route: 'missing-persons', label: 'Missing Persons', icon: 'search' },
 ];
@@ -86,4 +87,15 @@ export const DEFAULT_DISTRICT_INFO = {
   name: 'Sukkur',
   province: 'Sindh',
   role: 'District Officer',
+};
+
+// Resource distribution filters for district
+export const RESOURCE_DISTRIBUTION_FILTERS = ['all', 'available', 'allocated', 'low', 'critical'];
+
+// Resource status colors
+export const RESOURCE_STATUS_COLORS = {
+  available: { bg: '#10b981', light: 'rgba(16, 185, 129, 0.1)' },
+  allocated: { bg: '#3b82f6', light: 'rgba(59, 130, 246, 0.1)' },
+  low: { bg: '#f59e0b', light: 'rgba(245, 158, 11, 0.1)' },
+  critical: { bg: '#ef4444', light: 'rgba(239, 68, 68, 0.1)' },
 };

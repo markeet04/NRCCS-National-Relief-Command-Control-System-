@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { 
@@ -13,20 +13,26 @@ import {
   ChevronRight,
   Users,
   Settings,
-  Zap
+  Zap,
+  Menu,
+  PanelLeftClose,
+  PanelLeft
 } from 'lucide-react';
 
 /**
  * Sidebar Component
  * Reusable navigation sidebar for all dashboard types
+ * Features glowing active state indicator and collapsible functionality
  * @param {Object} props - Component props
  * @param {Array} props.menuItems - Navigation menu items
  * @param {string} props.activeRoute - Currently active route
  * @param {Function} props.onNavigate - Navigation handler
  * @param {string} props.userRole - User role (NDMA, PDMA, District)
  * @param {string} props.userName - User name for display
+ * @param {boolean} props.isCollapsed - Whether sidebar is collapsed
+ * @param {Function} props.onToggleCollapse - Handler to toggle collapse state
  */
-const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Admin' }) => {
+const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Admin', isCollapsed = false, onToggleCollapse }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -68,32 +74,39 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
 
   return (
     <div 
-      className="fixed left-0 top-0 h-screen flex flex-col z-50 transition-all duration-300"
-      style={{ 
-        width: '260px', 
-        minWidth: '260px', 
-        maxWidth: '260px',
-        backgroundColor: 'var(--bg-primary)',
-        borderRight: '1px solid rgba(255, 255, 255, 0.1)'
-      }}
+      className={`sidebar-container ${isCollapsed ? 'sidebar-collapsed' : ''}`}
     >
+      {/* Collapse Toggle Button */}
+      <button
+        onClick={onToggleCollapse}
+        className="sidebar-toggle-btn"
+        title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+      >
+        {isCollapsed ? (
+          <PanelLeft className="sidebar-toggle-icon" />
+        ) : (
+          <PanelLeftClose className="sidebar-toggle-icon" />
+        )}
+      </button>
 
       {/* Logo Section */}
-      <div style={{ padding: '24px 18px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-        <div className="flex items-center" style={{ gap: '14px', justifyContent: 'flex-start' }}>
-          <div className="rounded-lg flex items-center justify-center" style={{ width: '40px', height: '40px', backgroundColor: 'transparent', border: '2px solid rgba(255, 255, 255, 0.3)' }}>
-            <Shield className="text-white" style={{ width: '22px', height: '22px' }} />
+      <div className="sidebar-logo-section">
+        <div className="sidebar-logo-wrapper">
+          <div className="sidebar-logo-icon">
+            <Shield className="text-white" />
           </div>
-          <div>
-            <h1 className="text-white font-bold" style={{ fontSize: '17px', letterSpacing: '0.02em' }}>NRCCS</h1>
-            <p className="uppercase tracking-wider" style={{ fontSize: '11px', color: '#86efac', marginTop: '2px' }}>{userRole}</p>
-          </div>
+          {!isCollapsed && (
+            <div className="sidebar-logo-text">
+              <h1 className="sidebar-logo-title">NRCCS</h1>
+              <p className="sidebar-logo-role">{userRole}</p>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Navigation Menu */}
-      <nav className="flex-1 overflow-y-auto" style={{ padding: '20px 14px' }}>
-        <ul style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      <nav className="sidebar-nav">
+        <ul className="sidebar-nav-list">
           {menuItems.map((item) => {
             const Icon = iconMap[item.icon] || LayoutDashboard;
             const isActive = activeRoute === item.route;
@@ -105,34 +118,30 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
                   onClick={() => handleMenuClick(item.route)}
                   onMouseEnter={() => setHoveredItem(item.route)}
                   onMouseLeave={() => setHoveredItem(null)}
-                  className="w-full flex items-center rounded-lg transition-all duration-200 text-left relative"
-                  style={{
-                    padding: '12px 14px',
-                    color: '#ffffff',
-                    backgroundColor: isActive ? 'rgba(134, 239, 172, 0.15)' : (isHovered ? 'rgba(255, 255, 255, 0.05)' : 'transparent'),
-                    fontWeight: '500',
-                    fontSize: '15px',
-                    justifyContent: 'flex-start',
-                    gap: '14px',
-                    border: isActive ? '1px solid rgba(134, 239, 172, 0.2)' : '1px solid transparent'
-                  }}
+                  className={`sidebar-nav-btn ${isActive ? 'sidebar-nav-item-active' : ''} ${isHovered ? 'sidebar-nav-item-hovered' : ''}`}
                   title={item.label}
                 >
                   <Icon 
-                    className="flex-shrink-0" 
-                    style={{ 
-                      width: '22px', 
-                      height: '22px'
-                    }} 
+                    className={`sidebar-nav-icon ${isActive ? 'sidebar-icon-glow' : ''}`}
                   />
-                  <>
-                    <span className="flex-1" style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{item.label}</span>
-                    {item.badge && (
-                      <span className="text-white font-semibold" style={{ fontSize: '12px', backgroundColor: '#ef4444', padding: '3px 9px', borderRadius: '12px', minWidth: '22px', textAlign: 'center' }}>
-                        {item.badge}
-                      </span>
-                    )}
-                  </>
+                  {!isCollapsed && (
+                    <>
+                      <span className="sidebar-nav-label">{item.label}</span>
+                      {item.badge && (
+                        <span className="sidebar-nav-badge">
+                          {item.badge}
+                        </span>
+                      )}
+                      {isActive && (
+                        <span className="sidebar-active-dot" />
+                      )}
+                    </>
+                  )}
+                  {isCollapsed && item.badge && (
+                    <span className="sidebar-nav-badge-collapsed">
+                      {item.badge}
+                    </span>
+                  )}
                 </button>
               </li>
             );
@@ -141,24 +150,23 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
       </nav>
 
       {/* User Section */}
-      <div style={{ padding: '14px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
-        <div className="flex items-center" style={{ padding: '10px', gap: '14px', justifyContent: 'flex-start' }}>
-          <div className="rounded-full flex items-center justify-center text-white font-semibold" style={{ width: '40px', height: '40px', fontSize: '16px', backgroundColor: 'rgba(255, 255, 255, 0.15)' }}>
+      <div className="sidebar-user-section">
+        <div className="sidebar-user-wrapper">
+          <div className="sidebar-user-avatar">
             {userName.charAt(0).toUpperCase()}
           </div>
-          <div className="flex-1">
-            <p className="text-white font-medium" style={{ fontSize: '14px' }}>{userName}</p>
-            <p className="uppercase tracking-wide" style={{ fontSize: '11px', color: '#86efac', marginTop: '2px' }}>{userRole}</p>
-          </div>
+          {!isCollapsed && (
+            <div className="sidebar-user-info">
+              <p className="sidebar-user-name">{userName}</p>
+              <p className="sidebar-user-role">{userRole}</p>
+            </div>
+          )}
           <button 
             onClick={handleLogout}
-            className="transition-colors" 
-            style={{ color: 'rgba(255, 255, 255, 0.6)', cursor: 'pointer', padding: '4px' }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
-            onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.6)'}
+            className={`sidebar-logout-btn ${isCollapsed ? 'sidebar-logout-collapsed' : ''}`}
             title="Logout"
           >
-            <LogOut style={{ width: '20px', height: '20px' }} />
+            <LogOut className="sidebar-logout-icon" />
           </button>
         </div>
       </div>
@@ -179,6 +187,8 @@ Sidebar.propTypes = {
   onNavigate: PropTypes.func.isRequired,
   userRole: PropTypes.string.isRequired,
   userName: PropTypes.string,
+  isCollapsed: PropTypes.bool,
+  onToggleCollapse: PropTypes.func,
 };
 
 export default Sidebar;
