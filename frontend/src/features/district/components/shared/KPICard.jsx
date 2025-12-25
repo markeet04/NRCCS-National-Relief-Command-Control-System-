@@ -69,7 +69,7 @@ const KPICard = ({
     const centerValue = chartData[0]?.value || 0;
     
     return (
-      <div style={{ width: '90px', height: '90px', position: 'relative' }}>
+      <div style={{ width: '90px', height: '90px', minWidth: '90px', minHeight: '90px', position: 'relative' }}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie

@@ -23,6 +23,7 @@ const SOSRequests = React.lazy(() => import('@features/district/pages/SOSRequest
 const DistrictShelterManagement = React.lazy(() => import('@features/district/pages/ShelterManagement'));
 const RescueTeams = React.lazy(() => import('@features/district/pages/RescueTeams'));
 const DamageReports = React.lazy(() => import('@features/district/pages/DamageReports'));
+const DistrictResourceDistribution = React.lazy(() => import('@features/district/pages/ResourceDistribution'));
 const CivilianPortalRoutes = React.lazy(() => import('@features/civilian/pages/CivilianPortalRoutes'));
 const SuperAdminPortalRoutes = React.lazy(() => import('@features/superadmin/pages/SuperAdminPortalRoutes'));
 
@@ -55,6 +56,7 @@ const AppRoutes = () => {
       <Route path="/district/shelters" element={<ProtectedRoute allowedRoles={['district']}><React.Suspense fallback={<>Loading...</>}><DistrictShelterManagement /></React.Suspense></ProtectedRoute>} />
       <Route path="/district/rescue" element={<ProtectedRoute allowedRoles={['district']}><React.Suspense fallback={<>Loading...</>}><RescueTeams /></React.Suspense></ProtectedRoute>} />
       <Route path="/district/reports" element={<ProtectedRoute allowedRoles={['district']}><React.Suspense fallback={<>Loading...</>}><DamageReports /></React.Suspense></ProtectedRoute>} />
+      <Route path="/district/resources" element={<ProtectedRoute allowedRoles={['district']}><React.Suspense fallback={<>Loading...</>}><DistrictResourceDistribution /></React.Suspense></ProtectedRoute>} />
       <Route path="/district/map" element={<ProtectedRoute allowedRoles={['district']}><FloodMapPage /></ProtectedRoute>} />
 
       {/* Civilian Portal - Protected */}

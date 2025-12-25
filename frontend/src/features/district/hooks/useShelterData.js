@@ -1,69 +1,12 @@
 /**
  * useShelterData Hook
  * Manages shelter data, filtering, calculations, and CRUD operations
- * Ready for backend integration
+ * Fully integrated with backend API - no hardcoded data
  */
 
-import { useState, useCallback, useMemo } from 'react';
-
-// Initial shelter data - will be replaced with API calls
-const INITIAL_SHELTERS = [
-  {
-    id: 'SH-001',
-    name: 'Government High School',
-    address: 'Civil Lines, Sukkur',
-    capacity: 500,
-    occupancy: 342,
-    contactPerson: 'Mr. Rashid Ahmed',
-    contactPhone: '+92-300-1112233',
-    resources: { food: 80, water: 60, medical: 90, tents: 40 },
-    amenities: ['Electricity', 'Clean Water', 'Toilets', 'Medical Room', 'Kitchen']
-  },
-  {
-    id: 'SH-002',
-    name: 'Community Center Rohri',
-    address: 'Main Road, Rohri',
-    capacity: 300,
-    occupancy: 285,
-    contactPerson: 'Ms. Sara Khan',
-    contactPhone: '+92-301-2222222',
-    resources: { food: 45, water: 30, medical: 55, tents: 25 },
-    amenities: ['Electricity', 'Clean Water', 'Toilets']
-  },
-  {
-    id: 'SH-003',
-    name: 'Sports Complex Shelter',
-    address: 'Airport Road, Sukkur',
-    capacity: 800,
-    occupancy: 156,
-    contactPerson: 'Mr. Hassan Ali',
-    contactPhone: '+92-302-3333333',
-    resources: { food: 95, water: 88, medical: 92, tents: 78 },
-    amenities: ['Electricity', 'Clean Water', 'Toilets', 'Medical Room', 'Kitchen', 'Playground']
-  },
-  {
-    id: 'SH-004',
-    name: 'City Hall Emergency Center',
-    address: 'Downtown, Sukkur',
-    capacity: 400,
-    occupancy: 400,
-    contactPerson: 'Mr. Imran Shah',
-    contactPhone: '+92-303-4444444',
-    resources: { food: 20, water: 15, medical: 35, tents: 10 },
-    amenities: ['Electricity', 'Toilets']
-  },
-  {
-    id: 'SH-005',
-    name: 'Railway Station Camp',
-    address: 'Station Road, Sukkur',
-    capacity: 600,
-    occupancy: 420,
-    contactPerson: 'Ms. Fatima Bibi',
-    contactPhone: '+92-304-5555555',
-    resources: { food: 65, water: 70, medical: 50, tents: 55 },
-    amenities: ['Electricity', 'Clean Water', 'Toilets', 'Kitchen']
-  }
-];
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import districtApi from '../services/districtApi';
+import { useNotification } from '../../../shared/hooks';
 
 // Status options for filtering
 export const SHELTER_STATUS_OPTIONS = [
@@ -74,13 +17,57 @@ export const SHELTER_STATUS_OPTIONS = [
 ];
 
 export const useShelterData = () => {
-  const [shelters, setShelters] = useState(INITIAL_SHELTERS);
-  const [loading, setLoading] = useState(false);
+  const [shelters, setShelters] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const notification = useNotification?.() || null;
+  const showSuccess = notification?.success || console.log;
+  const showError = notification?.error || console.error;
   
   // Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+
+  // Fetch shelters from API
+  const fetchShelters = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await districtApi.getAllShelters();
+      const data = response.data || response || [];
+      
+      // Transform API data to match component expectations
+      setShelters(data.map(shelter => ({
+        id: shelter.id,
+        name: shelter.name,
+        address: shelter.address || shelter.location || 'Unknown location',
+        capacity: shelter.capacity || 0,
+        occupancy: shelter.occupancy || shelter.currentOccupancy || 0,
+        contactPerson: shelter.managerName || shelter.contactPerson || 'Not assigned',
+        contactPhone: shelter.managerPhone || shelter.contactPhone || 'N/A',
+        resources: {
+          food: shelter.supplyFood ?? shelter.foodSupplyLevel ?? shelter.supplies?.food ?? 0,
+          water: shelter.supplyWater ?? shelter.waterSupplyLevel ?? shelter.supplies?.water ?? 0,
+          medical: shelter.supplyMedical ?? shelter.medicalSupplyLevel ?? shelter.supplies?.medical ?? 0,
+          tents: shelter.supplyTents ?? shelter.tentSupplyLevel ?? shelter.supplies?.tents ?? 0,
+        },
+        amenities: shelter.amenities || [],
+        status: shelter.status,
+        coordinates: shelter.coordinates || { lat: shelter.lat, lng: shelter.lng },
+      })));
+    } catch (err) {
+      console.error('Failed to fetch shelters:', err);
+      setError(err.message || 'Failed to fetch shelters');
+      showError('Failed to load shelters');
+    } finally {
+      setLoading(false);
+    }
+  }, [showError]);
+
+  // Initial fetch
+  useEffect(() => {
+    fetchShelters();
+  }, [fetchShelters]);
 
   // Helper functions
   const getStatus = useCallback((occupancy, capacity) => {
@@ -173,63 +160,105 @@ export const useShelterData = () => {
   // CRUD Actions
   const addShelter = useCallback(async (shelterData) => {
     setLoading(true);
+    setError(null);
     try {
-      // TODO: Replace with API call
-      const newShelter = {
-        id: `SH-${String(shelters.length + 1).padStart(3, '0')}`,
-        ...shelterData,
-        amenities: shelterData.amenities || []
-      };
-      setShelters(prev => [...prev, newShelter]);
-      return newShelter;
+      await districtApi.createShelter(shelterData);
+      showSuccess('Shelter created successfully');
+      
+      // Refetch to get updated list from backend
+      await fetchShelters();
     } catch (err) {
+      console.error('Failed to create shelter:', err);
       setError(err.message);
+      showError(err.message || 'Failed to create shelter');
       throw err;
     } finally {
       setLoading(false);
     }
-  }, [shelters.length]);
+  }, [showSuccess, showError, fetchShelters]);
 
   const updateShelter = useCallback(async (shelterId, shelterData) => {
     setLoading(true);
+    setError(null);
     try {
-      // TODO: Replace with API call
-      setShelters(prev => 
-        prev.map(s => s.id === shelterId ? { ...s, ...shelterData } : s)
-      );
+      await districtApi.updateShelter(shelterId, shelterData);
+      showSuccess('Shelter updated successfully');
+      
+      // Refetch to get updated status and fields from backend
+      await fetchShelters();
     } catch (err) {
+      console.error('Failed to update shelter:', err);
       setError(err.message);
+      showError(err.message || 'Failed to update shelter');
       throw err;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showSuccess, showError, fetchShelters]);
+
+  const updateShelterSupplies = useCallback(async (shelterId, supplies) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await districtApi.updateShelterSupplies(shelterId, supplies);
+      setShelters(prev => 
+        prev.map(s => s.id === shelterId ? { 
+          ...s, 
+          resources: { ...s.resources, ...supplies } 
+        } : s)
+      );
+      showSuccess('Shelter supplies updated');
+    } catch (err) {
+      console.error('Failed to update supplies:', err);
+      setError(err.message);
+      showError(err.message || 'Failed to update supplies');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [showSuccess, showError]);
+
+  const updateShelterOccupancy = useCallback(async (shelterId, occupancy) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await districtApi.updateShelterOccupancy(shelterId, occupancy);
+      showSuccess('Shelter occupancy updated');
+      
+      // Refetch to get updated status (backend auto-updates status based on occupancy)
+      await fetchShelters();
+    } catch (err) {
+      console.error('Failed to update occupancy:', err);
+      setError(err.message);
+      showError(err.message || 'Failed to update occupancy');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [showSuccess, showError, fetchShelters]);
 
   const deleteShelter = useCallback(async (shelterId) => {
     setLoading(true);
+    setError(null);
     try {
-      // TODO: Replace with API call
-      setShelters(prev => prev.filter(s => s.id !== shelterId));
+      await districtApi.deleteShelter(shelterId);
+      showSuccess('Shelter deleted successfully');
+      
+      // Refetch to get updated list from backend
+      await fetchShelters();
     } catch (err) {
+      console.error('Failed to delete shelter:', err);
       setError(err.message);
+      showError(err.message || 'Failed to delete shelter');
       throw err;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showSuccess, showError, fetchShelters]);
 
   const refresh = useCallback(async () => {
-    setLoading(true);
-    try {
-      // TODO: Replace with API call
-      await new Promise(resolve => setTimeout(resolve, 300));
-      setShelters(INITIAL_SHELTERS);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    await fetchShelters();
+  }, [fetchShelters]);
 
   return {
     // Data
@@ -255,6 +284,8 @@ export const useShelterData = () => {
     // Actions
     addShelter,
     updateShelter,
+    updateShelterSupplies,
+    updateShelterOccupancy,
     deleteShelter,
     refresh,
     

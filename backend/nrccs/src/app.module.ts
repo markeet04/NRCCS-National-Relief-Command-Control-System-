@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { SuperadminModule } from './superadmin/superadmin.module';
 import { PdmaModule } from './pdma/pdma.module';
+import { DistrictModule } from './district/district.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { PdmaModule } from './pdma/pdma.module';
     AuthModule,
     SuperadminModule,
     PdmaModule,
+    DistrictModule,
   ],
   controllers: [AppController],
   providers: [AppService],

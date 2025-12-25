@@ -28,6 +28,7 @@ export const DISTRICT_MENU_ITEMS = [
   { route: 'sos', label: 'SOS Requests', icon: 'alerts' },
   { route: 'shelters', label: 'Shelter Management', icon: 'resources' },
   { route: 'rescue', label: 'Rescue Teams', icon: 'resources' },
+  { route: 'resources', label: 'Resource Distribution', icon: 'resources' },
   { route: 'reports', label: 'Damage Reports', icon: 'map' },
 ];
 

@@ -1,104 +1,12 @@
 /**
  * useRescueTeamData Hook
  * Manages rescue team data, filtering, calculations, and CRUD operations
- * Ready for backend integration
+ * Fully integrated with backend API - no hardcoded data
  */
 
-import { useState, useCallback, useMemo } from 'react';
-
-// Initial team data - will be replaced with API calls
-const INITIAL_TEAMS = [
-  {
-    id: 'RT-001',
-    name: 'Team Alpha',
-    type: 'Rescue 1122',
-    leader: 'Captain Ahmed Raza',
-    contact: '+92-300-1234567',
-    members: 8,
-    status: 'available',
-    location: 'Sukkur Central Station',
-    coordinates: '27.7056, 68.8575',
-    equipment: ['Boat', 'Medical Kit', 'Ropes', 'Life Jackets'],
-    notes: 'Fully equipped water rescue team',
-    lastUpdated: '5 mins ago',
-    composition: { medical: 2, rescue: 4, support: 2 }
-  },
-  {
-    id: 'RT-002',
-    name: 'Team Bravo',
-    type: 'Rescue 1122',
-    leader: 'Lt. Hassan Ali',
-    contact: '+92-301-9876543',
-    members: 6,
-    status: 'deployed',
-    location: 'Rohri Flood Zone',
-    coordinates: '27.6922, 68.8947',
-    equipment: ['Boat', 'Medical Kit', 'Communication Radio'],
-    notes: 'Currently assisting flood victims',
-    lastUpdated: '12 mins ago',
-    composition: { medical: 1, rescue: 4, support: 1 }
-  },
-  {
-    id: 'RT-003',
-    name: 'Team Charlie',
-    type: 'Civil Defense',
-    leader: 'Major Tariq Mahmood',
-    contact: '+92-333-5551234',
-    members: 10,
-    status: 'on-mission',
-    location: 'Saleh Pat Region',
-    coordinates: '27.7500, 68.9000',
-    equipment: ['Trucks', 'Heavy Equipment', 'Medical Supplies'],
-    notes: 'Infrastructure support team - Mission in progress',
-    lastUpdated: '8 mins ago',
-    composition: { medical: 2, rescue: 5, support: 3 }
-  },
-  {
-    id: 'RT-004',
-    name: 'Team Delta',
-    type: 'Medical Response',
-    leader: 'Dr. Ayesha Siddiqui',
-    contact: '+92-321-1112233',
-    members: 4,
-    status: 'available',
-    location: 'District Hospital',
-    coordinates: '27.7100, 68.8600',
-    equipment: ['Ambulance', 'Medical Equipment', 'First Aid'],
-    notes: 'Medical emergency response unit',
-    lastUpdated: '3 mins ago',
-    composition: { medical: 3, rescue: 0, support: 1 }
-  },
-  {
-    id: 'RT-005',
-    name: 'Team Echo',
-    type: 'Rescue 1122',
-    leader: 'Inspector Rashid Khan',
-    contact: '+92-321-4445566',
-    members: 7,
-    status: 'on-mission',
-    location: 'Pano Aqil',
-    coordinates: '27.8500, 69.1000',
-    equipment: ['Boat', 'Rescue Gear', 'Communication Radio'],
-    notes: 'Evacuation in progress',
-    lastUpdated: '15 mins ago',
-    composition: { medical: 1, rescue: 5, support: 1 }
-  },
-  {
-    id: 'RT-006',
-    name: 'Team Foxtrot',
-    type: 'Civil Defense',
-    leader: 'Sergeant Zafar Iqbal',
-    contact: '+92-333-9998877',
-    members: 9,
-    status: 'unavailable',
-    location: 'Base Camp',
-    coordinates: '27.7056, 68.8575',
-    equipment: ['Communication Equipment', 'First Aid'],
-    notes: 'Under maintenance - Expected available in 2 hours',
-    lastUpdated: '20 mins ago',
-    composition: { medical: 2, rescue: 4, support: 3 }
-  }
-];
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import districtApi from '../services/districtApi';
+import { useNotification } from '../../../shared/hooks';
 
 // Status options for filtering
 export const TEAM_STATUS_OPTIONS = [
@@ -110,13 +18,69 @@ export const TEAM_STATUS_OPTIONS = [
 ];
 
 export const useRescueTeamData = () => {
-  const [teams, setTeams] = useState(INITIAL_TEAMS);
-  const [loading, setLoading] = useState(false);
+  const [teams, setTeams] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const notification = useNotification?.() || null;
+  const showSuccess = notification?.success || console.log;
+  const showError = notification?.error || console.error;
   
   // Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+
+  // Fetch teams from API
+  const fetchTeams = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await districtApi.getAllRescueTeams();
+      const data = response.data || response || [];
+      
+      // Transform API data to match component expectations
+      setTeams(data.map(team => ({
+        id: team.id,
+        name: team.name,
+        type: team.specialization || team.type || 'Rescue 1122',
+        leader: team.leaderName || 'Not assigned',
+        contact: team.contactNumber || 'N/A',
+        members: team.memberCount || team.members?.length || 0,
+        status: team.status?.toLowerCase().replace('_', '-') || 'available',
+        location: team.currentLocation || team.baseLocation || 'Unknown',
+        coordinates: team.coordinates || null,
+        equipment: team.equipment || [],
+        notes: team.notes || '',
+        lastUpdated: getTimeAgo(team.updatedAt),
+        composition: team.composition || { medical: 0, rescue: 0, support: 0 }
+      })));
+    } catch (err) {
+      console.error('Failed to fetch rescue teams:', err);
+      setError(err.message || 'Failed to fetch rescue teams');
+      showError('Failed to load rescue teams');
+    } finally {
+      setLoading(false);
+    }
+  }, [showError]);
+
+  // Helper to get time ago string
+  const getTimeAgo = (dateString) => {
+    if (!dateString) return 'Unknown';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} mins ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours} hours ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} days ago`;
+  };
+
+  // Initial fetch
+  useEffect(() => {
+    fetchTeams();
+  }, [fetchTeams]);
 
   // Helper functions
   const getStatusInfo = useCallback((status) => {
@@ -183,82 +147,126 @@ export const useRescueTeamData = () => {
   // CRUD Actions
   const addTeam = useCallback(async (teamData) => {
     setLoading(true);
+    setError(null);
     try {
-      // TODO: Replace with API call
-      const newTeam = {
-        id: `RT-${String(teams.length + 1).padStart(3, '0')}`,
-        type: teamData.type || 'Rescue 1122',
+      const newTeam = await districtApi.createRescueTeam({
+        name: teamData.name,
+        leaderName: teamData.leader,
+        contactNumber: teamData.contact,
+        memberCount: teamData.members,
+        specialization: teamData.type,
+        baseLocation: teamData.location,
         equipment: teamData.equipment || [],
         notes: teamData.notes || '',
+      });
+      
+      setTeams(prev => [...prev, {
+        id: newTeam.id,
+        name: newTeam.name,
+        type: newTeam.specialization || 'Rescue 1122',
+        leader: newTeam.leaderName || teamData.leader,
+        contact: newTeam.contactNumber || teamData.contact,
+        members: newTeam.memberCount || teamData.members,
+        status: 'available',
+        location: newTeam.baseLocation || teamData.location,
+        equipment: newTeam.equipment || [],
+        notes: newTeam.notes || '',
         lastUpdated: 'Just now',
-        composition: teamData.composition || { medical: 2, rescue: 4, support: 2 },
-        ...teamData
-      };
-      setTeams(prev => [...prev, newTeam]);
+        composition: { medical: 2, rescue: 4, support: 2 }
+      }]);
+      showSuccess(`Team "${teamData.name}" created successfully`);
       return newTeam;
     } catch (err) {
+      console.error('Failed to create team:', err);
       setError(err.message);
+      showError(err.message || 'Failed to create team');
       throw err;
     } finally {
       setLoading(false);
     }
-  }, [teams.length]);
+  }, [showSuccess, showError]);
 
   const updateTeam = useCallback(async (teamId, teamData) => {
     setLoading(true);
+    setError(null);
     try {
-      // TODO: Replace with API call
-      setTeams(prev => 
-        prev.map(t => t.id === teamId ? { ...t, ...teamData, lastUpdated: 'Just now' } : t)
-      );
+      // Update basic team info
+      await districtApi.updateRescueTeam(teamId, {
+        name: teamData.name,
+        leaderName: teamData.leader,
+        contactNumber: teamData.contact,
+        memberCount: teamData.members,
+        specialization: teamData.type,
+        baseLocation: teamData.location,
+        currentLocation: teamData.location,
+        equipment: teamData.equipment,
+        notes: teamData.notes,
+      });
+      
+      // If status changed, update it separately
+      if (teamData.status) {
+        const apiStatus = teamData.status.toLowerCase();
+        await districtApi.updateTeamStatus(teamId, apiStatus);
+      }
+      
+      showSuccess('Team updated successfully');
+      
+      // Refetch to get latest data from backend
+      await fetchTeams();
     } catch (err) {
+      console.error('Failed to update team:', err);
       setError(err.message);
+      showError(err.message || 'Failed to update team');
       throw err;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showSuccess, showError, fetchTeams]);
 
   const deleteTeam = useCallback(async (teamId) => {
     setLoading(true);
+    setError(null);
     try {
-      // TODO: Replace with API call
+      await districtApi.deleteRescueTeam(teamId);
       setTeams(prev => prev.filter(t => t.id !== teamId));
+      showSuccess('Team deleted successfully');
     } catch (err) {
+      console.error('Failed to delete team:', err);
       setError(err.message);
+      showError(err.message || 'Failed to delete team');
       throw err;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showSuccess, showError]);
 
   const updateTeamStatus = useCallback(async (teamId, newStatus) => {
     setLoading(true);
+    setError(null);
     try {
-      // TODO: Replace with API call
-      setTeams(prev => 
-        prev.map(t => t.id === teamId ? { ...t, status: newStatus, lastUpdated: 'Just now' } : t)
-      );
+      // Convert status to API format - backend expects lowercase with hyphens
+      // e.g., 'available', 'busy', 'deployed', 'on-mission', 'unavailable', 'resting'
+      const apiStatus = newStatus.toLowerCase();
+      
+      await districtApi.updateTeamStatus(teamId, apiStatus);
+      
+      showSuccess(`Team status updated to ${apiStatus}`);
+      
+      // Refetch to ensure we have the latest data from backend
+      await fetchTeams();
     } catch (err) {
+      console.error('Failed to update team status:', err);
       setError(err.message);
+      showError(err.message || 'Failed to update team status');
       throw err;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showSuccess, showError, fetchTeams]);
 
   const refresh = useCallback(async () => {
-    setLoading(true);
-    try {
-      // TODO: Replace with API call
-      await new Promise(resolve => setTimeout(resolve, 300));
-      setTeams(INITIAL_TEAMS);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    await fetchTeams();
+  }, [fetchTeams]);
 
   return {
     // Data

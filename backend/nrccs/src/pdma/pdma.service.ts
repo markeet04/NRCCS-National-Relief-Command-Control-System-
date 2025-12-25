@@ -590,11 +590,11 @@ export class PdmaService {
   }
 
   async allocateResource(id: number, allocateDto: AllocateResourceDto, user: User) {
-    const resource = await this.resourceRepository.findOne({
+    const provinceResource = await this.resourceRepository.findOne({
       where: { id, provinceId: user.provinceId },
     });
 
-    if (!resource) {
+    if (!provinceResource) {
       throw new NotFoundException('Resource not found or access denied');
     }
 
@@ -602,44 +602,78 @@ export class PdmaService {
     await this.verifyDistrictAccess(allocateDto.districtId, user.provinceId);
 
     // Check available quantity
-    const available = resource.quantity - resource.allocated;
+    const available = provinceResource.quantity - provinceResource.allocated;
     if (allocateDto.quantity > available) {
-      throw new BadRequestException(`Only ${available} ${resource.unit} available for allocation`);
+      throw new BadRequestException(`Only ${available} ${provinceResource.unit} available for allocation`);
     }
 
-    // Update allocation
-    resource.allocated += allocateDto.quantity;
+    // Update province-level allocation tracking
+    provinceResource.allocated += allocateDto.quantity;
     
-    // Update resource status based on allocation percentage
-    const newAvailable = resource.quantity - resource.allocated;
-    const usagePercentage = (resource.allocated / resource.quantity) * 100;
+    // Update province resource status based on allocation percentage
+    const usagePercentage = (provinceResource.allocated / provinceResource.quantity) * 100;
     
-    if (newAvailable === 0) {
-      // Fully allocated
-      resource.status = ResourceStatus.ALLOCATED;
+    if (usagePercentage >= 100) {
+      provinceResource.status = ResourceStatus.ALLOCATED;
     } else if (usagePercentage >= 90) {
-      // Critical: 90% or more used
-      resource.status = ResourceStatus.CRITICAL;
+      provinceResource.status = ResourceStatus.CRITICAL;
     } else if (usagePercentage >= 70) {
-      // Low: 70-89% used
-      resource.status = ResourceStatus.LOW;
+      provinceResource.status = ResourceStatus.LOW;
     } else {
-      // Still available
-      resource.status = ResourceStatus.AVAILABLE;
+      provinceResource.status = ResourceStatus.AVAILABLE;
     }
     
-    const updated = await this.resourceRepository.save(resource);
+    await this.resourceRepository.save(provinceResource);
+
+    // Create or update district-level resource
+    let districtResource = await this.resourceRepository.findOne({
+      where: { 
+        name: provinceResource.name,
+        type: provinceResource.type,
+        districtId: allocateDto.districtId,
+      },
+    });
+
+    if (districtResource) {
+      // Add to existing district resource
+      districtResource.quantity += allocateDto.quantity;
+      districtResource.allocated = districtResource.allocated || 0;
+    } else {
+      // Create new district resource
+      districtResource = this.resourceRepository.create({
+        name: provinceResource.name,
+        icon: provinceResource.icon,
+        type: provinceResource.type,
+        category: provinceResource.category,
+        resourceType: provinceResource.resourceType,
+        quantity: allocateDto.quantity,
+        unit: provinceResource.unit,
+        location: `District ${allocateDto.districtId} Warehouse`,
+        provinceId: user.provinceId,
+        districtId: allocateDto.districtId,
+        status: ResourceStatus.AVAILABLE,
+        allocated: 0,
+        allocatedQuantity: 0,
+        description: allocateDto.purpose || provinceResource.description,
+      });
+    }
+
+    const savedDistrictResource = await this.resourceRepository.save(districtResource);
 
     await this.logActivity(
       'resource_allocated',
-      'Resource Allocated',
-      `${user.name} allocated ${allocateDto.quantity} ${resource.unit} of ${resource.name} to district ${allocateDto.districtId}`,
+      'Resource Allocated to District',
+      `${user.name} allocated ${allocateDto.quantity} ${provinceResource.unit} of ${provinceResource.name} to district ${allocateDto.districtId}`,
       user.id,
       user.provinceId,
       allocateDto.districtId,
     );
 
-    return updated;
+    return {
+      provinceResource,
+      districtResource: savedDistrictResource,
+      message: `Successfully allocated ${allocateDto.quantity} ${provinceResource.unit} of ${provinceResource.name} to district`,
+    };
   }
 
   // ==================== SOS REQUESTS ====================

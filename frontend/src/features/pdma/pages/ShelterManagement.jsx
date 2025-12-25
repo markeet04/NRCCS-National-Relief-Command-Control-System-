@@ -1,12 +1,9 @@
 import { useMemo } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
-import DemoModal from '@shared/components/DemoModal/DemoModal';
-import ShelterForm from '@shared/components/DemoModal/ShelterForm';
-import EditShelterForm from '@shared/components/DemoModal/EditShelterForm';
 import { Home, Loader2 } from 'lucide-react';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
-import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
+import { getMenuItemsByRole } from '@shared/constants/dashboardConfig';
 import {
   ShelterSearchBar,
   SheltersList,
@@ -25,17 +22,6 @@ const ShelterManagement = () => {
     setSearchQuery,
     selectedShelter,
     setSelectedShelter,
-    demoModal,
-    setDemoModal,
-    isShelterFormOpen,
-    setIsShelterFormOpen,
-    isEditFormOpen,
-    setIsEditFormOpen,
-    editingShelter,
-    showDemo,
-    handleShelterFormSubmit,
-    handleOpenEditForm,
-    handleShelterUpdate,
     shelters: apiShelters,
     totalCapacity,
     totalOccupancy,
@@ -47,8 +33,7 @@ const ShelterManagement = () => {
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
 
-  // Get role configuration and menu items from shared config
-  const roleConfig = ROLE_CONFIG.pdma;
+  // Get menu items from shared config
   const menuItems = useMemo(() => getMenuItemsByRole('pdma'), []);
 
   // Transform backend data to UI format
@@ -58,17 +43,13 @@ const ShelterManagement = () => {
     (shelter.location && shelter.location.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const handleRegisterShelter = () => {
-    setIsShelterFormOpen(true);
-  };
-
   return (
     <DashboardLayout
       menuItems={menuItems}
       activeRoute={activeRoute}
       onNavigate={setActiveRoute}
       pageTitle="Shelter Registry"
-      pageSubtitle="Manage emergency shelters across the province"
+      pageSubtitle="View emergency shelters across the province (read-only)"
       pageIcon={Home}
       pageIconColor="#8b5cf6"
       userRole="PDMA"
@@ -115,23 +96,13 @@ const ShelterManagement = () => {
               colors={colors}
             />
 
-            {/* Search Bar and Register Button */}
-            <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ flex: 1 }}>
-                <ShelterSearchBar 
-                  searchTerm={searchQuery}
-                  onSearchChange={setSearchQuery}
-                  placeholder="Search shelters by name or location..."
-                />
-              </div>
-              <button
-                onClick={handleRegisterShelter}
-                className="pdma-button pdma-button-success pdma-button-small"
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}
-              >
-                <Home size={14} />
-                Register Shelter
-              </button>
+            {/* Search Bar */}
+            <div style={{ marginBottom: '20px' }}>
+              <ShelterSearchBar 
+                searchTerm={searchQuery}
+                onSearchChange={setSearchQuery}
+                placeholder="Search shelters by name or location..."
+              />
             </div>
 
         {/* Shelters List Component */}
@@ -143,35 +114,10 @@ const ShelterManagement = () => {
             setSelectedShelter(shelter);
           }}
           selectedShelter={selectedShelter?.id}
-          onEditShelter={handleOpenEditForm}
         />
           </>
         )}
       </div>
-
-      {/* Demo Modal */}
-      <DemoModal
-        isOpen={demoModal.isOpen}
-        onClose={() => setDemoModal({ ...demoModal, isOpen: false })}
-        title={demoModal.title}
-        message={demoModal.message}
-        type={demoModal.type}
-      />
-
-      {/* Shelter Form Modal */}
-      <ShelterForm
-        isOpen={isShelterFormOpen}
-        onClose={() => setIsShelterFormOpen(false)}
-        onSubmit={handleShelterFormSubmit}
-      />
-
-      {/* Edit Shelter Form Modal */}
-      <EditShelterForm
-        isOpen={isEditFormOpen}
-        onClose={() => setIsEditFormOpen(false)}
-        onSubmit={handleShelterUpdate}
-        shelter={editingShelter}
-      />
     </DashboardLayout>
   );
 };

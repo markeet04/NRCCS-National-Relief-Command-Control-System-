@@ -5,7 +5,7 @@ import { Plus, X, Edit, Eye, Search, ChevronDown, MapPin, Users, Home, Package }
 import { useSettings } from '../../../app/providers/ThemeProvider';
 import { getThemeColors } from '../../../shared/utils/themeColors';
 import { DISTRICT_MENU_ITEMS } from '../constants';
-import { useShelterData, SHELTER_STATUS_OPTIONS } from '../hooks';
+import { useShelterData, SHELTER_STATUS_OPTIONS, useDistrictData } from '../hooks';
 import { 
   RadialBarChart, 
   RadialBar, 
@@ -50,6 +50,9 @@ const ShelterManagement = () => {
   const { theme } = useSettings();
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
+
+  // District info for layout
+  const { districtInfo, rawStats: districtStats } = useDistrictData();
   
   // Use the shelter data hook
   const {
@@ -198,9 +201,9 @@ const ShelterManagement = () => {
       onNavigate={handleNavigate}
       pageTitle="Shelter Management"
       pageSubtitle="Monitor and manage emergency shelters"
-      userRole="District Sukkur"
+      userRole={`District ${districtInfo?.name || 'Loading...'}`}
       userName="District Officer"
-      notificationCount={15}
+      notificationCount={districtStats?.pendingSOS || 0}
     >
       {/* KPI Summary Cards Row */}
       <div 
@@ -256,7 +259,7 @@ const ShelterManagement = () => {
             borderLeft: `4px solid #8b5cf6`
           }}
         >
-          <div style={{ width: '100px', height: '100px', position: 'relative' }}>
+          <div style={{ width: '100px', height: '100px', minWidth: '100px', minHeight: '100px', position: 'relative' }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -314,7 +317,7 @@ const ShelterManagement = () => {
             borderLeft: `4px solid #10b981`
           }}
         >
-          <div style={{ width: '100px', height: '100px' }}>
+          <div style={{ width: '100px', height: '100px', minWidth: '100px', minHeight: '100px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -598,7 +601,7 @@ const ShelterManagement = () => {
 
               {/* Resource Speedometer Gauge */}
               <div style={{ padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
-                <div style={{ width: '140px', height: '140px', position: 'relative' }}>
+                <div style={{ width: '140px', height: '140px', minWidth: '140px', minHeight: '140px', position: 'relative' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <RadialBarChart 
                       cx="50%" 
@@ -1123,7 +1126,7 @@ const ShelterManagement = () => {
                 Resource Levels
               </h4>
               <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                <div style={{ width: '120px', height: '120px', position: 'relative' }}>
+                <div style={{ width: '120px', height: '120px', minWidth: '120px', minHeight: '120px', position: 'relative' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <RadialBarChart 
                       cx="50%" 
