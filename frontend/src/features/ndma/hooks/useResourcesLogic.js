@@ -1,5 +1,6 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
+import { useBadge } from '@shared/contexts/BadgeContext';
 import { NotificationService } from '@services/NotificationService';
 import { 
   INITIAL_NATIONAL_STOCK, 
@@ -9,16 +10,128 @@ import {
 } from '../constants';
 
 /**
+ * Initial mock data for provincial requests
+ */
+const INITIAL_PROVINCIAL_REQUESTS = [
+  {
+    id: 'req-001',
+    province: 'Punjab',
+    requestDate: '2025-01-15T10:30:00Z',
+    status: 'pending',
+    priority: 'high',
+    items: [
+      { name: 'Food Supplies', quantity: 5000, unit: 'kg' },
+      { name: 'Medical Kits', quantity: 200, unit: 'units' },
+      { name: 'Water Bottles', quantity: 10000, unit: 'liters' },
+    ],
+    reason: 'Flood relief operations in southern districts',
+    requestedBy: 'PDMA Punjab',
+  },
+  {
+    id: 'req-002',
+    province: 'Sindh',
+    requestDate: '2025-01-14T14:15:00Z',
+    status: 'pending',
+    priority: 'medium',
+    items: [
+      { name: 'Shelter Tents', quantity: 150, unit: 'units' },
+      { name: 'Blankets', quantity: 500, unit: 'units' },
+    ],
+    reason: 'Displacement camp expansion',
+    requestedBy: 'PDMA Sindh',
+  },
+  {
+    id: 'req-003',
+    province: 'KPK',
+    requestDate: '2025-01-13T09:00:00Z',
+    status: 'pending',
+    priority: 'high',
+    items: [
+      { name: 'Medical Kits', quantity: 300, unit: 'units' },
+      { name: 'Emergency Medicine', quantity: 100, unit: 'boxes' },
+    ],
+    reason: 'Emergency medical response in remote areas',
+    requestedBy: 'PDMA KPK',
+  },
+  {
+    id: 'req-004',
+    province: 'Balochistan',
+    requestDate: '2025-01-12T16:45:00Z',
+    status: 'pending',
+    priority: 'low',
+    items: [
+      { name: 'Food Supplies', quantity: 2000, unit: 'kg' },
+      { name: 'Water Bottles', quantity: 5000, unit: 'liters' },
+    ],
+    reason: 'Routine stock replenishment',
+    requestedBy: 'PDMA Balochistan',
+  },
+];
+
+/**
+ * Initial allocation history by province
+ */
+const INITIAL_ALLOCATION_HISTORY = {
+  'Punjab': [
+    { date: '2025-01-10', items: [{ name: 'Food Supplies', quantity: 3000 }, { name: 'Water', quantity: 8000 }], status: 'approved', approvedBy: 'NDMA Admin' },
+    { date: '2025-01-05', items: [{ name: 'Medical Kits', quantity: 150 }, { name: 'Shelter Tents', quantity: 50 }], status: 'approved', approvedBy: 'NDMA Admin' },
+    { date: '2024-12-28', items: [{ name: 'Blankets', quantity: 1000 }, { name: 'Food Supplies', quantity: 2000 }], status: 'approved', approvedBy: 'NDMA Admin' },
+  ],
+  'Sindh': [
+    { date: '2025-01-08', items: [{ name: 'Shelter Tents', quantity: 100 }, { name: 'Water', quantity: 5000 }], status: 'approved', approvedBy: 'NDMA Admin' },
+    { date: '2025-01-01', items: [{ name: 'Food Supplies', quantity: 4000 }], status: 'approved', approvedBy: 'NDMA Admin' },
+  ],
+  'KPK': [
+    { date: '2025-01-07', items: [{ name: 'Medical Kits', quantity: 200 }, { name: 'Emergency Medicine', quantity: 50 }], status: 'approved', approvedBy: 'NDMA Admin' },
+  ],
+  'Balochistan': [
+    { date: '2025-01-03', items: [{ name: 'Water', quantity: 3000 }, { name: 'Food Supplies', quantity: 1500 }], status: 'approved', approvedBy: 'NDMA Admin' },
+  ],
+  'Gilgit Baltistan': [],
+  'AJK': [],
+  'food': [
+    { date: '2025-01-15T08:30:00Z', province: 'Punjab', resource: 'Food Supplies', amount: 1500, remaining: 8500, unit: 'tons' },
+    { date: '2025-01-12T14:20:00Z', province: 'Sindh', resource: 'Food Supplies', amount: 2000, remaining: 10000, unit: 'tons' },
+    { date: '2025-01-08T10:15:00Z', province: 'KPK', resource: 'Food Supplies', amount: 1200, remaining: 12000, unit: 'tons' },
+    { date: '2025-01-05T16:45:00Z', province: 'Balochistan', resource: 'Food Supplies', amount: 800, remaining: 13200, unit: 'tons' },
+    { date: '2024-12-28T09:00:00Z', province: 'Punjab', resource: 'Food Supplies', amount: 1000, remaining: 14000, unit: 'tons' },
+  ],
+  'medical': [
+    { date: '2025-01-14T11:30:00Z', province: 'Sindh', resource: 'Medical Kits', amount: 3000, remaining: 15500, unit: 'kits' },
+    { date: '2025-01-10T13:15:00Z', province: 'KPK', resource: 'Medical Kits', amount: 2500, remaining: 18500, unit: 'kits' },
+    { date: '2025-01-07T15:00:00Z', province: 'Punjab', resource: 'Medical Kits', amount: 2000, remaining: 21000, unit: 'kits' },
+    { date: '2025-01-03T10:30:00Z', province: 'Balochistan', resource: 'Medical Kits', amount: 2000, remaining: 23000, unit: 'kits' },
+  ],
+  'shelter': [
+    { date: '2025-01-13T09:45:00Z', province: 'Sindh', resource: 'Shelter Units', amount: 1200, remaining: 4000, unit: 'units' },
+    { date: '2025-01-09T14:30:00Z', province: 'Punjab', resource: 'Shelter Units', amount: 1000, remaining: 5200, unit: 'units' },
+    { date: '2025-01-06T11:00:00Z', province: 'KPK', resource: 'Shelter Units', amount: 800, remaining: 6200, unit: 'units' },
+    { date: '2025-01-02T16:15:00Z', province: 'Balochistan', resource: 'Shelter Units', amount: 1000, remaining: 7000, unit: 'units' },
+  ],
+  'water': [
+    { date: '2025-01-16T12:00:00Z', province: 'Punjab', resource: 'Water Supply', amount: 80000, remaining: 250000, unit: 'liters' },
+    { date: '2025-01-11T08:30:00Z', province: 'Sindh', resource: 'Water Supply', amount: 70000, remaining: 330000, unit: 'liters' },
+    { date: '2025-01-08T15:45:00Z', province: 'KPK', resource: 'Water Supply', amount: 50000, remaining: 400000, unit: 'liters' },
+    { date: '2025-01-04T10:00:00Z', province: 'Balochistan', resource: 'Water Supply', amount: 50000, remaining: 450000, unit: 'liters' },
+  ],
+};
+
+/**
  * useResourcesLogic Hook
  * Manages all business logic for the NDMA Resources page
+ * Includes Provincial Requests with Accept/Reject functionality
  */
 export const useResourcesLogic = () => {
-  // Tab state
-  const [activeTab, setActiveTab] = useState('overview');
+  // Tab state - default to 'national' (removed 'overview')
+  const [activeTab, setActiveTab] = useState('national');
   
   // Data state
   const [nationalStock, setNationalStock] = useState(INITIAL_NATIONAL_STOCK);
   const [provincialAllocations, setProvincialAllocations] = useState(INITIAL_PROVINCIAL_ALLOCATIONS);
+  
+  // Provincial Requests state
+  const [provincialRequests, setProvincialRequests] = useState(INITIAL_PROVINCIAL_REQUESTS);
+  const [allocationHistory, setAllocationHistory] = useState(INITIAL_ALLOCATION_HISTORY);
   
   // Modal state
   const [isAllocationModalOpen, setIsAllocationModalOpen] = useState(false);
@@ -163,8 +276,61 @@ export const useResourcesLogic = () => {
     return RESOURCE_STATUS_LEVELS[status] || RESOURCE_STATUS_LEVELS.adequate;
   }, []);
 
-  // Menu items for NDMA role
-  const menuItems = useMemo(() => getMenuItemsByRole('ndma', 0), []);
+  /**
+   * Handle approving a provincial request
+   */
+  const handleApproveRequest = useCallback((requestId) => {
+    const request = provincialRequests.find(r => r.id === requestId);
+    if (!request) return;
+
+    // Update request status
+    setProvincialRequests(prev => 
+      prev.map(r => r.id === requestId ? { ...r, status: 'approved' } : r)
+    );
+
+    // Add to allocation history
+    setAllocationHistory(prev => ({
+      ...prev,
+      [request.province]: [
+        {
+          date: new Date().toISOString().split('T')[0],
+          items: request.items,
+          status: 'approved',
+          approvedBy: 'NDMA Admin',
+        },
+        ...(prev[request.province] || []),
+      ],
+    }));
+
+    NotificationService.showSuccess(`Request from ${request.province} approved`);
+  }, [provincialRequests]);
+
+  /**
+   * Handle rejecting a provincial request
+   */
+  const handleRejectRequest = useCallback((requestId) => {
+    const request = provincialRequests.find(r => r.id === requestId);
+    if (!request) return;
+
+    // Update request status
+    setProvincialRequests(prev => 
+      prev.map(r => r.id === requestId ? { ...r, status: 'rejected' } : r)
+    );
+
+    NotificationService.showInfo(`Request from ${request.province} rejected`);
+  }, [provincialRequests]);
+
+  // Get badge counts from context for global visibility
+  const { activeStatusCount, provincialRequestsCount, updateProvincialRequestsCount } = useBadge();
+
+  // Calculate and update pending provincial requests count
+  useEffect(() => {
+    const pendingCount = provincialRequests.filter(req => req.status === 'pending').length;
+    updateProvincialRequestsCount(pendingCount);
+  }, [provincialRequests, updateProvincialRequestsCount]);
+
+  // Menu items for NDMA role - uses context badge counts for consistency across all pages
+  const menuItems = useMemo(() => getMenuItemsByRole('ndma', activeStatusCount, provincialRequestsCount), [activeStatusCount, provincialRequestsCount]);
   const roleConfig = ROLE_CONFIG.ndma;
 
   return {
@@ -176,6 +342,8 @@ export const useResourcesLogic = () => {
     selectedProvince,
     allocationForm,
     loading,
+    provincialRequests,
+    allocationHistory,
     
     // Computed
     resourceStats,
@@ -191,6 +359,8 @@ export const useResourcesLogic = () => {
     handleSubmitAllocation,
     getProvinceStatus,
     getStatusConfig,
+    handleApproveRequest,
+    handleRejectRequest,
   };
 };
 

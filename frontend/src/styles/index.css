@@ -28,7 +28,7 @@
   --elevated-bg: #1a1a1a;
   --elevated-bg-2: #2a2a2a;
   
-  /* Font scale */
+  /* Font scale - default 1, modified by Settings */
   --font-scale: 1;
   
   /* Sidebar */
@@ -40,6 +40,66 @@
   --medium: #eab308;
   --low: #3b82f6;
   --success: #10b981;
+}
+
+/* =============================================================================
+   FORCE GLOBAL FONT SCALING - HIGHEST PRIORITY - NUCLEAR OPTION
+   This MUST override all hardcoded px values across the entire app
+   Applied via data-font-size attribute on <html> element
+   ============================================================================= */
+
+/* Font scale CSS variable definitions */
+html[data-font-size="small"],
+html[data-fontsize="small"] {
+  --font-scale: 0.875 !important;
+  font-size: 14px !important;
+}
+
+html[data-font-size="medium"],
+html[data-fontsize="medium"] {
+  --font-scale: 1 !important;
+  font-size: 16px !important;
+}
+
+html[data-font-size="large"],
+html[data-fontsize="large"] {
+  --font-scale: 1.125 !important;
+  font-size: 18px !important;
+}
+
+/* Default base font-size on html element */
+html {
+  font-size: 16px;
+}
+
+/* FORCE all elements to inherit and scale - use rem which inherits from html */
+body {
+  font-size: 1rem !important;
+}
+
+/* Common text elements - force rem-based sizing */
+h1, .text-3xl, .text-4xl { font-size: 1.875rem !important; }
+h2, .text-2xl { font-size: 1.5rem !important; }
+h3, .text-xl { font-size: 1.25rem !important; }
+h4, .text-lg { font-size: 1.125rem !important; }
+h5, h6, .text-base { font-size: 1rem !important; }
+.text-sm, small { font-size: 0.875rem !important; }
+.text-xs { font-size: 0.75rem !important; }
+
+/* All generic elements - force inheritance */
+p, span, div, a, li, td, th, label {
+  font-size: inherit !important;
+}
+
+/* Form elements - force rem sizing */
+button, input, select, textarea, option {
+  font-size: 1rem !important;
+}
+
+/* Override inline styles on common classes */
+.card, .title, .subtitle, .value, .label, .stat-value, .stat-label,
+.ndma-text-primary, .ndma-text-secondary, .ndma-text-muted {
+  font-size: inherit !important;
 }
 
 [data-theme="light"] {
@@ -67,8 +127,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg-secondary);
   color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
-  font-size: calc(16px * var(--font-scale, 1));
+  transition: background-color 0.3s ease, color 0.3s ease, font-size 0.2s ease;
+  font-size: 1rem; /* Inherits from html which uses --font-scale */
 }
 
 #root {
@@ -99,29 +159,6 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-secondary);
 }
-
-/* Font scaling - applies to all text elements */
-[data-fontsize="small"] {
-  --font-scale: 0.9;
-}
-
-[data-fontsize="medium"] {
-  --font-scale: 1;
-}
-
-[data-fontsize="large"] {
-  --font-scale: 1.1;
-}
-
-/* Apply font scale to common text elements */
-h1, h2, h3, h4, h5, h6, p, span, div, label, button, input, textarea, select, td, th, li, a {
-  font-size: inherit;
-}
-
-/* Scale specific sizes when font-scale changes */
-[data-fontsize="small"] body { font-size: 14.4px; }
-[data-fontsize="medium"] body { font-size: 16px; }
-[data-fontsize="large"] body { font-size: 17.6px; }
 
 /* Focus styles for accessibility */
 button:focus-visible,

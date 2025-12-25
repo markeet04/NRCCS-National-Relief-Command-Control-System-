@@ -38,35 +38,45 @@ const SuperAdminDashboard = () => {
     }
   };
 
-  // Transform backend stats to component format
+  // Transform backend stats to component format with gradientKey for consistent styling
   const formattedStats = stats ? [
     {
       title: 'Total Users',
       value: stats.totalUsers || 0,
-      icon: '👥',
+      icon: 'users',
       color: '#3b82f6',
-      trend: '+12%'
+      gradientKey: 'blue',
+      trend: 12,
+      trendDirection: 'up',
+      trendLabel: 'vs last month'
     },
     {
       title: 'Active Users',
       value: stats.activeUsers || 0,
-      icon: '✅',
+      icon: 'activity',
       color: '#10b981',
-      trend: '+8%'
+      gradientKey: 'emerald',
+      trend: 8,
+      trendDirection: 'up',
+      trendLabel: 'vs last month'
     },
     {
       title: 'Inactive Users',
       value: stats.inactiveUsers || 0,
-      icon: '⏸️',
+      icon: 'alert',
       color: '#f59e0b',
-      trend: '-3%'
+      gradientKey: 'amber',
+      trend: 3,
+      trendDirection: 'down',
+      trendLabel: 'vs last month'
     },
     {
       title: 'System Health',
       value: stats.systemHealth?.database || 'Unknown',
-      icon: '💚',
+      icon: 'shield',
       color: '#10b981',
-      trend: 'Online'
+      gradientKey: 'emerald',
+      trendLabel: 'Online'
     }
   ] : [];
 

@@ -17,9 +17,7 @@ const TrackStatus = () => {
     handleSearchValueChange,
     searchError,
     handleSearch,
-    isAuthenticated,
     isLoading,
-    handleLogout,
     activeFilter,
     setActiveFilter,
     requests,
@@ -29,28 +27,12 @@ const TrackStatus = () => {
     closeDetailModal,
   } = useTrackStatusLogic();
 
-  if (!isAuthenticated) {
-    return (
-      <div className="track-status-page">
-        <SearchForm
-          searchType={searchType}
-          setSearchType={setSearchType}
-          searchValue={searchValue}
-          handleSearchValueChange={handleSearchValueChange}
-          searchError={searchError}
-          handleSearch={handleSearch}
-          isLoading={isLoading}
-        />
-      </div>
-    );
-  }
+  // ...existing code...
 
   return (
     <div className="track-status-page">
       <PageHeader
         requests={requests}
-        isAuthenticated={isAuthenticated}
-        handleLogout={handleLogout}
       />
 
       <FilterTabs

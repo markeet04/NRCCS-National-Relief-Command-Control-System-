@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Shared Layout & Theme
@@ -8,7 +8,7 @@ import { getThemeColors } from '../../../shared/utils/themeColors';
 
 // District-specific imports - hooks, constants, components
 import { useDistrictData, useRescueTeams } from '../hooks';
-import { DISTRICT_MENU_ITEMS } from '../constants';
+import { DISTRICT_MENU_ITEMS, DEFAULT_DISTRICT_INFO, STAT_GRADIENT_KEYS } from '../constants';
 import { StatCard, WeatherCard, AlertsList, LiveMapCard, SOSTable, DistrictMap } from '../components';
 
 // Icons
@@ -28,25 +28,86 @@ const DistrictDashboard = () => {
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
 
-  // Use custom hooks for data management - fully connected to backend
+  // Use dynamic theme colors for all styling
+
+  // District info - would come from auth context in production
+  const districtInfo = DEFAULT_DISTRICT_INFO;
+
+  // Use custom hooks for data management (ready for backend integration)
   const { 
     stats, 
-    rawStats,
-    districtInfo,
     recentSOS, 
     alerts, 
     weather, 
-    loading: dashboardLoading,
-    error: dashboardError,
-  } = useDistrictData();
+    loading: dashboardLoading 
+  } = useDistrictData(districtInfo.name);
 
   const { 
     teams, 
     teamCounts 
-  } = useRescueTeams();
+  } = useRescueTeams(districtInfo.name);
 
-  // Use stats directly from the hook (already formatted)
-  const displayStats = stats || [];
+  // Transform stats for display with proper gradient keys
+  const displayStats = useMemo(() => {
+    if (!stats) return [];
+    
+    return [
+      {
+        title: 'PENDING SOS',
+        value: String(stats.pendingSOS || 15),
+        icon: 'radio',
+        trend: stats.sosTrend || 12,
+        trendLabel: 'vs yesterday',
+        trendDirection: 'down',
+        gradientKey: STAT_GRADIENT_KEYS.danger,
+      },
+      {
+        title: 'ACTIVE SHELTERS',
+        value: String(stats.activeShelters || 8),
+        icon: 'home',
+        trend: stats.shelterTrend || 2,
+        trendLabel: 'newly opened',
+        trendDirection: 'up',
+        gradientKey: STAT_GRADIENT_KEYS.success,
+      },
+      {
+        title: 'SHELTER CAPACITY',
+        value: String(stats.shelterCapacity || 850),
+        icon: 'users',
+        trend: null,
+        trendLabel: null,
+        trendDirection: null,
+        gradientKey: STAT_GRADIENT_KEYS.info,
+      },
+      {
+        title: 'RESCUE TEAMS ACTIVE',
+        value: String(stats.activeTeams || teamCounts?.busy || 12),
+        icon: 'users',
+        trend: null,
+        trendLabel: null,
+        trendDirection: null,
+        gradientKey: 'blue',
+      },
+      {
+        title: 'LOCAL RESOURCES',
+        value: String(stats.localResources || 0),
+        icon: 'package',
+        trend: stats.resourceTrend || 5,
+        trendLabel: 'units available',
+        trendDirection: 'down',
+        gradientKey: STAT_GRADIENT_KEYS.warning,
+      },
+      {
+        title: 'DAMAGE REPORTS',
+        value: String(stats.damageReports || 34),
+        icon: 'file',
+        trend: stats.reportsTrend || 8,
+        trendLabel: 'submitted today',
+        trendDirection: 'up',
+        gradientKey: STAT_GRADIENT_KEYS.default,
+      },
+    ];
+  }, [stats, teamCounts]);
 
   // Navigation handler
   const handleNavigate = (route) => {
@@ -95,47 +156,23 @@ const DistrictDashboard = () => {
       menuItems={DISTRICT_MENU_ITEMS}
       activeRoute={activeRoute}
       onNavigate={handleNavigate}
-      userRole={`District ${districtInfo?.name || 'Loading...'}`}
+      userRole={`District ${districtInfo.name}`}
       userName="District Officer"
       pageTitle="National Rescue & Crisis Coordination System"
-      pageSubtitle={districtInfo ? `${districtInfo.name} District - ${districtInfo.province} Province tactical operations` : 'Loading district...'}
-      notificationCount={rawStats?.pendingSOS || 0}
+      pageSubtitle={`${districtInfo.name} District - ${districtInfo.province} Province tactical operations`}
+      notificationCount={stats?.pendingSOS || 15}
     >
-      {/* Loading State */}
-      {dashboardLoading && (
-        <div style={{ textAlign: 'center', padding: '40px', color: colors.textMuted }}>
-          Loading dashboard data...
-        </div>
-      )}
-
-      {/* Error State */}
-      {dashboardError && (
-        <div style={{ 
-          backgroundColor: colors.criticalBg, 
-          border: `1px solid ${colors.critical}`, 
-          borderRadius: '8px', 
-          padding: '16px', 
-          marginBottom: '24px',
-          color: colors.critical
-        }}>
-          Error: {dashboardError}
-        </div>
-      )}
-
-      {!dashboardLoading && !dashboardError && (
-        <>
       {/* Page Header - NDMA Style */}
       <div style={{ marginBottom: '24px' }}>
         <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.textPrimary, marginBottom: '4px' }}>
-          District Overview - {districtInfo?.name || 'Loading...'}
+          District Overview - {districtInfo.name}
         </h1>
         <p style={{ fontSize: '14px', color: colors.textSecondary }}>
           Real-time district disaster management dashboard
         </p>
       </div>
 
-      {/* Critical Alert Banner - Only show if there are critical alerts */}
-      {alerts?.some(a => a.severity === 'critical') && (
+      {/* Critical Alert Banner - NDMA Style */}
       <div 
         style={{ 
           backgroundColor: colors.criticalBg, 
@@ -150,61 +187,32 @@ const DistrictDashboard = () => {
           <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: colors.critical }} />
           <div>
             <div style={{ color: colors.criticalText, fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
-              {alerts.find(a => a.severity === 'critical')?.type || 'Critical Alert'}
+              Flash Flood Warning
             </div>
             <div style={{ color: colors.criticalText, fontSize: '13px', lineHeight: '1.5' }}>
-              {alerts.find(a => a.severity === 'critical')?.description || 'Check alerts for details'}
+              Heavy rainfall expected in next 24 hours. Evacuate low-lying areas immediately.
             </div>
           </div>
         </div>
       </div>
-      )}
 
-      {/* Stats Grid - NDMA Style (4 columns) */}
+      {/* Stats Grid - Using StatCard component for consistent styling */}
       <div 
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
         style={{ gap: '16px', marginBottom: '24px' }}
       >
-        {displayStats.slice(0, 4).map((stat, index) => {
-          const IconComponent = stat.icon;
-          return (
-          <div key={stat.id || index} style={statCardStyle}>
-            <div className="flex items-center justify-between mb-2">
-              <span style={{ color: colors.textSecondary, fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                {stat.title}
-              </span>
-              <div style={{ 
-                background: colors.primaryLight, 
-                borderRadius: '8px', 
-                padding: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                {IconComponent && <IconComponent style={{ color: colors.primary, width: '18px', height: '18px' }} />}
-              </div>
-            </div>
-            <p style={{ color: colors.textPrimary, fontSize: '32px', fontWeight: '700', marginBottom: '4px' }}>
-              {stat.value}
-            </p>
-            {stat.trend !== null && stat.trend !== undefined && (
-              <span style={{ 
-                color: stat.trendDirection === 'up' ? colors.success : stat.trendDirection === 'down' ? colors.critical : colors.textMuted,
-                fontSize: '13px',
-                fontWeight: '500'
-              }}>
-                {stat.trendDirection === 'up' ? '↑' : stat.trendDirection === 'down' ? '↓' : ''}
-                {' '}{Math.abs(stat.trend)}% {stat.trendLabel}
-              </span>
-            )}
-            {(stat.trend === null || stat.trend === undefined) && stat.trendLabel && (
-              <span style={{ color: colors.textMuted, fontSize: '13px' }}>
-                {stat.trendLabel}
-              </span>
-            )}
-          </div>
-          );
-        })}
+        {displayStats.slice(0, 4).map((stat, index) => (
+          <StatCard
+            key={index}
+            title={stat.title}
+            value={stat.value}
+            icon={stat.icon}
+            trend={stat.trend}
+            trendLabel={stat.trendLabel}
+            trendDirection={stat.trendDirection}
+            gradientKey={stat.gradientKey}
+          />
+        ))}
       </div>
 
       {/* Map and Sidebar Section */}
@@ -216,11 +224,11 @@ const DistrictDashboard = () => {
         <div className="lg:col-span-2">
           <div style={{ ...cardStyle, padding: '24px', borderLeft: !isLight ? '4px solid #3b82f6' : cardStyle.borderLeft }}>
             <h3 style={{ color: colors.textPrimary, fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>
-              {districtInfo?.name || 'District'} - Live Situation Map
+              {districtInfo.name} District - Live Situation Map
             </h3>
             {/* ArcGIS District Map with Weather Layers */}
             <DistrictMap 
-              districtName={districtInfo?.name}
+              districtName={districtInfo.name}
               height="450px"
             />
           </div>
@@ -233,24 +241,24 @@ const DistrictDashboard = () => {
             <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>
               24h Weather
             </h3>
-            {weather ? (
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <span style={{ color: colors.textMuted, fontSize: '14px' }}>Conditions</span>
-                <span style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>{weather.conditions}</span>
+                <span style={{ color: colors.textMuted, fontSize: '14px' }}>Rainfall</span>
+                <span style={{ color: colors.critical, fontSize: '14px', fontWeight: '600' }}>{weather?.rainfall || 'Heavy'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span style={{ color: colors.textMuted, fontSize: '14px' }}>Wind Speed</span>
+                <span style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>{weather?.windSpeed || '45 km/h'}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span style={{ color: colors.textMuted, fontSize: '14px' }}>Temperature</span>
-                <span style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>{weather.temperature}</span>
+                <span style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>{weather?.temperature || '28°C'}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span style={{ color: colors.textMuted, fontSize: '14px' }}>Forecast</span>
-                <span style={{ color: colors.textSecondary, fontSize: '13px' }}>{weather.forecast}</span>
+                <span style={{ color: colors.textMuted, fontSize: '14px' }}>Humidity</span>
+                <span style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>{weather?.humidity || '85%'}</span>
               </div>
             </div>
-            ) : (
-              <p style={{ color: colors.textMuted, fontSize: '13px' }}>Weather data unavailable</p>
-            )}
           </div>
 
           {/* Today's Alerts Card - NDMA Style */}
@@ -259,34 +267,34 @@ const DistrictDashboard = () => {
               Today's Alerts
             </h3>
             <div className="flex flex-col gap-3">
-              {alerts && alerts.length > 0 ? alerts.slice(0, 3).map((alert, index) => (
-                <div key={alert.id || index} className="flex items-start gap-2">
+              {alerts?.slice(0, 3).map((alert, index) => (
+                <div key={index} className="flex items-start gap-2">
                   <div style={{ 
                     width: '8px', 
                     height: '8px', 
                     borderRadius: '50%', 
-                    backgroundColor: alert.color || colors.warning,
+                    backgroundColor: alert.severity === 'critical' ? colors.critical : colors.warning,
                     marginTop: '6px',
                     flexShrink: 0
                   }} />
                   <div>
                     <p style={{ color: colors.textPrimary, fontSize: '13px', fontWeight: '500' }}>
-                      {alert.type || alert.title}
+                      {alert.title || alert.message}
                     </p>
                     <p style={{ color: colors.textMuted, fontSize: '12px' }}>
-                      {alert.description}
+                      {alert.time || '2 hours ago'}
                     </p>
                   </div>
                 </div>
-              )) : (
+              )) || (
                 <p style={{ color: colors.textMuted, fontSize: '13px' }}>No alerts today</p>
               )}
             </div>
           </div>
         </div>
       </div>
-        </>
-      )}
+
+      {/* ...existing code... */}
     </DashboardLayout>
   );
 };

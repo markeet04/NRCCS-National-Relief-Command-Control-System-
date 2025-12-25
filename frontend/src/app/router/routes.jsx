@@ -59,8 +59,8 @@ const AppRoutes = () => {
       <Route path="/district/resources" element={<ProtectedRoute allowedRoles={['district']}><React.Suspense fallback={<>Loading...</>}><DistrictResourceDistribution /></React.Suspense></ProtectedRoute>} />
       <Route path="/district/map" element={<ProtectedRoute allowedRoles={['district']}><FloodMapPage /></ProtectedRoute>} />
 
-      {/* Civilian Portal - Protected */}
-      <Route path="/civilian/*" element={<ProtectedRoute allowedRoles={['civilian']}><React.Suspense fallback={<>Loading...</>}><CivilianPortalRoutes /></React.Suspense></ProtectedRoute>} />
+      {/* Civilian Portal - Open to all */}
+      <Route path="/civilian/*" element={<React.Suspense fallback={<>Loading...</>}><CivilianPortalRoutes /></React.Suspense>} />
 
       {/* Super Admin Portal - Protected (SuperAdmin only) */}
       <Route path="/superadmin/*" element={<ProtectedRoute allowedRoles={['superadmin']}><React.Suspense fallback={<>Loading...</>}><SuperAdminPortalRoutes /></React.Suspense></ProtectedRoute>} />

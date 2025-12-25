@@ -6,6 +6,7 @@ import { formatNumber } from '@utils/formatUtils';
  * ResourceStats Component
  * Displays resource statistics in a responsive grid
  * Uses CSS classes from global-ndma.css and resource-allocation.css
+ * Now includes colored left border with glow effect
  */
 const ResourceStats = ({ stats }) => {
   const statCards = [
@@ -16,6 +17,8 @@ const ResourceStats = ({ stats }) => {
       unit: 'units',
       icon: Package,
       iconClass: 'ndma-stat-icon ndma-stat-icon-blue',
+      borderClass: 'border-left-blue',
+      glowClass: 'glow-blue',
     },
     {
       key: 'totalAllocated',
@@ -24,6 +27,8 @@ const ResourceStats = ({ stats }) => {
       unit: 'distributed',
       icon: Truck,
       iconClass: 'ndma-stat-icon ndma-stat-icon-green',
+      borderClass: 'border-left-green',
+      glowClass: 'glow-green',
     },
     {
       key: 'totalAvailable',
@@ -32,6 +37,8 @@ const ResourceStats = ({ stats }) => {
       unit: 'in stock',
       icon: Box,
       iconClass: 'ndma-stat-icon ndma-stat-icon-yellow',
+      borderClass: 'border-left-yellow',
+      glowClass: 'glow-yellow',
     },
     {
       key: 'provincesCount',
@@ -40,6 +47,8 @@ const ResourceStats = ({ stats }) => {
       unit: 'regions',
       icon: Map,
       iconClass: 'ndma-stat-icon ndma-stat-icon-purple',
+      borderClass: 'border-left-purple',
+      glowClass: 'glow-purple',
     },
   ];
 
@@ -48,7 +57,10 @@ const ResourceStats = ({ stats }) => {
       {statCards.map((card) => {
         const Icon = card.icon;
         return (
-          <div key={card.key} className="ndma-card resources-stat-card">
+          <div 
+            key={card.key} 
+            className={`ndma-card ndma-stat-card-glow resources-stat-card ${card.borderClass} ${card.glowClass}`}
+          >
             {/* Header with icon and label */}
             <div className="resources-stat-header">
               <div className={card.iconClass}>

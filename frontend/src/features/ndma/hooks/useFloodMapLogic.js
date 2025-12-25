@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
+import { useBadge } from '@shared/contexts/BadgeContext';
 import { 
   PROVINCE_STATUS_DATA, 
   CRITICAL_AREAS, 
@@ -15,6 +16,9 @@ import {
  * Manages all business logic for the NDMA Flood Map page
  */
 export const useFloodMapLogic = () => {
+  // Get badge counts from context for global visibility
+  const { activeStatusCount, provincialRequestsCount } = useBadge();
+
   // Data state
   const [provinces, setProvinces] = useState(PROVINCE_STATUS_DATA);
   const [criticalAreas, setCriticalAreas] = useState(CRITICAL_AREAS);
@@ -189,8 +193,8 @@ export const useFloodMapLogic = () => {
     return criticalAreas.filter(a => a.location === location);
   }, [criticalAreas]);
 
-  // Menu items for NDMA role
-  const menuItems = useMemo(() => getMenuItemsByRole('ndma', 0), []);
+  // Menu items for NDMA role - uses context badge counts for consistency across all pages
+  const menuItems = useMemo(() => getMenuItemsByRole('ndma', activeStatusCount, provincialRequestsCount), [activeStatusCount, provincialRequestsCount]);
   const roleConfig = ROLE_CONFIG.ndma;
 
   return {
