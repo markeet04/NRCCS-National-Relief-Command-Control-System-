@@ -1206,8 +1206,9 @@ body[data-theme="light"] {
    SIDEBAR - LIGHT MODE
    ========================= */
 [data-theme="light"] .sidebar-container {
-  background-color: #059669 !important;
+  background-color: #076e51 !important;
   border-right-color: rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1) !important;
 }
 
 [data-theme="light"] .sidebar-logo-section {
@@ -1219,13 +1220,16 @@ body[data-theme="light"] {
 }
 
 [data-theme="light"] .sidebar-toggle-btn {
-  background-color: #047857 !important;
+  background-color: #065F46 !important;
   border-color: rgba(255, 255, 255, 0.3) !important;
   color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
 }
 
 [data-theme="light"] .sidebar-toggle-btn:hover {
-  background-color: #065f46 !important;
+  background-color: #047857 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  transform: scale(1.05);
 }
 
 [data-theme="light"] .sidebar-nav-btn {

@@ -57,7 +57,7 @@ const MainGauge = ({ percentage, size = 160 }) => {
         <path
           d={`M ${strokeWidth / 2} ${centerY} A ${radius} ${radius} 0 0 1 ${size - strokeWidth / 2} ${centerY}`}
           fill="none"
-          stroke="rgba(45, 50, 56, 0.5)"
+          className="main-gauge-track"
           strokeWidth={strokeWidth}
           strokeLinecap="round"
         />
