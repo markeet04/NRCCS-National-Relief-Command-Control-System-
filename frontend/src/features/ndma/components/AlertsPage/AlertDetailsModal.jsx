@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import { X, AlertTriangle, CheckCircle } from 'lucide-react';
 
-// Dark theme colors matching CreateAlertModal
-const DARK_THEME_COLORS = {
+// Default dark theme colors (fallback)
+const DEFAULT_COLORS = {
   modalBg: '#0f1114',
   elevatedBg: '#151719',
   inputBg: '#1a1d21',
@@ -15,8 +15,11 @@ const DARK_THEME_COLORS = {
  * AlertDetailsModal Component
  * Modal for viewing detailed alert information
  */
-const AlertDetailsModal = ({ alert, onClose, onResolve }) => {
+const AlertDetailsModal = ({ alert, onClose, onResolve, colors: propColors, isLight = false }) => {
   if (!alert) return null;
+
+  // Use provided colors or fall back to defaults
+  const colors = propColors || DEFAULT_COLORS;
 
   const getSeverityStyle = (severity) => {
     const styles = {
@@ -67,7 +70,7 @@ const AlertDetailsModal = ({ alert, onClose, onResolve }) => {
     <div
       className="fixed inset-0 flex items-center justify-center"
       style={{
-        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+        backgroundColor: isLight ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.85)',
         zIndex: 9999,
         padding: '1rem',
       }}
@@ -76,12 +79,15 @@ const AlertDetailsModal = ({ alert, onClose, onResolve }) => {
         className="w-full"
         style={{
           maxWidth: '600px',
-          backgroundColor: DARK_THEME_COLORS.modalBg,
+          backgroundColor: colors.modalBg || colors.cardBg,
           borderRadius: '12px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+          boxShadow: isLight 
+            ? '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+            : '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
           maxHeight: '90vh',
           display: 'flex',
           flexDirection: 'column',
+          border: isLight ? `1px solid ${colors.border}` : 'none',
         }}
       >
         {/* Header */}
@@ -89,20 +95,20 @@ const AlertDetailsModal = ({ alert, onClose, onResolve }) => {
           className="flex items-center justify-between"
           style={{
             padding: '16px 20px',
-            borderBottom: `1px solid ${DARK_THEME_COLORS.border}`,
+            borderBottom: `1px solid ${colors.border}`,
             flexShrink: 0,
           }}
         >
           <h3
             className="text-lg font-semibold"
-            style={{ color: DARK_THEME_COLORS.textPrimary, margin: 0 }}
+            style={{ color: colors.textPrimary, margin: 0 }}
           >
             Alert Details
           </h3>
           <button
             className="p-1.5 rounded transition-colors"
             style={{
-              color: DARK_THEME_COLORS.textSecondary,
+              color: colors.textSecondary,
               backgroundColor: 'transparent',
               border: 'none',
               cursor: 'pointer',
@@ -110,7 +116,7 @@ const AlertDetailsModal = ({ alert, onClose, onResolve }) => {
             onClick={onClose}
             aria-label="Close alert details"
             onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = DARK_THEME_COLORS.elevatedBg)
+              (e.currentTarget.style.backgroundColor = isLight ? '#f1f5f9' : (colors.elevatedBg || '#151719'))
             }
             onMouseLeave={(e) =>
               (e.currentTarget.style.backgroundColor = 'transparent')
@@ -132,7 +138,7 @@ const AlertDetailsModal = ({ alert, onClose, onResolve }) => {
             <h4
               className="text-lg font-semibold alert-details-title"
               style={{
-                color: DARK_THEME_COLORS.textPrimary,
+                color: colors.textPrimary,
               }}
             >
               {alert.title}
@@ -170,20 +176,20 @@ const AlertDetailsModal = ({ alert, onClose, onResolve }) => {
             <div className="alert-details-field">
               <label
                 className="alert-details-label"
-                style={{ color: DARK_THEME_COLORS.textSecondary }}
+                style={{ color: colors.textSecondary }}
               >
                 Description
               </label>
               <div
                 className="alert-details-value"
                 style={{
-                  backgroundColor: DARK_THEME_COLORS.inputBg,
-                  border: `1px solid ${DARK_THEME_COLORS.border}`,
+                  backgroundColor: colors.inputBg || (isLight ? '#f8fafc' : '#1a1d21'),
+                  border: `1px solid ${colors.border}`,
                 }}
               >
                 <p
                   style={{
-                    color: DARK_THEME_COLORS.textPrimary,
+                    color: colors.textPrimary,
                     lineHeight: '1.6',
                     fontSize: '14px',
                     margin: 0,
@@ -199,18 +205,18 @@ const AlertDetailsModal = ({ alert, onClose, onResolve }) => {
               <div className="alert-details-field">
                 <label
                   className="alert-details-label"
-                  style={{ color: DARK_THEME_COLORS.textSecondary }}
+                  style={{ color: colors.textSecondary }}
                 >
                   Alert Type
                 </label>
                 <div
                   className="alert-details-value"
                   style={{
-                    backgroundColor: DARK_THEME_COLORS.inputBg,
-                    border: `1px solid ${DARK_THEME_COLORS.border}`,
+                    backgroundColor: colors.inputBg || (isLight ? '#f8fafc' : '#1a1d21'),
+                    border: `1px solid ${colors.border}`,
                   }}
                 >
-                  <p style={{ color: DARK_THEME_COLORS.textPrimary, fontSize: '14px', margin: 0 }}>
+                  <p style={{ color: colors.textPrimary, fontSize: '14px', margin: 0 }}>
                     {alert.type}
                   </p>
                 </div>
@@ -222,18 +228,18 @@ const AlertDetailsModal = ({ alert, onClose, onResolve }) => {
               <div className="alert-details-field">
                 <label
                   className="alert-details-label"
-                  style={{ color: DARK_THEME_COLORS.textSecondary }}
+                  style={{ color: colors.textSecondary }}
                 >
                   Location
                 </label>
                 <div
                   className="alert-details-value"
                   style={{
-                    backgroundColor: DARK_THEME_COLORS.inputBg,
-                    border: `1px solid ${DARK_THEME_COLORS.border}`,
+                    backgroundColor: colors.inputBg || (isLight ? '#f8fafc' : '#1a1d21'),
+                    border: `1px solid ${colors.border}`,
                   }}
                 >
-                  <p style={{ color: DARK_THEME_COLORS.textPrimary, fontSize: '14px', margin: 0 }}>
+                  <p style={{ color: colors.textPrimary, fontSize: '14px', margin: 0 }}>
                     {alert.location}
                   </p>
                 </div>
@@ -245,18 +251,18 @@ const AlertDetailsModal = ({ alert, onClose, onResolve }) => {
               <div className="alert-details-field">
                 <label
                   className="alert-details-label"
-                  style={{ color: DARK_THEME_COLORS.textSecondary }}
+                  style={{ color: colors.textSecondary }}
                 >
                   Source
                 </label>
                 <div
                   className="alert-details-value"
                   style={{
-                    backgroundColor: DARK_THEME_COLORS.inputBg,
-                    border: `1px solid ${DARK_THEME_COLORS.border}`,
+                    backgroundColor: colors.inputBg || (isLight ? '#f8fafc' : '#1a1d21'),
+                    border: `1px solid ${colors.border}`,
                   }}
                 >
-                  <p style={{ color: DARK_THEME_COLORS.textPrimary, fontSize: '14px', margin: 0 }}>
+                  <p style={{ color: colors.textPrimary, fontSize: '14px', margin: 0 }}>
                     {alert.source}
                   </p>
                 </div>
@@ -286,7 +292,7 @@ const AlertDetailsModal = ({ alert, onClose, onResolve }) => {
                     </h5>
                     <p
                       className="text-xs"
-                      style={{ color: DARK_THEME_COLORS.textSecondary, lineHeight: '1.5', margin: 0 }}
+                      style={{ color: colors.textSecondary, lineHeight: '1.5', margin: 0 }}
                     >
                       This alert is currently active and requires attention.
                     </p>
@@ -301,7 +307,7 @@ const AlertDetailsModal = ({ alert, onClose, onResolve }) => {
         <div
           style={{
             padding: '16px 20px',
-            borderTop: `1px solid ${DARK_THEME_COLORS.border}`,
+            borderTop: `1px solid ${colors.border}`,
             flexShrink: 0,
           }}
         >
@@ -310,8 +316,8 @@ const AlertDetailsModal = ({ alert, onClose, onResolve }) => {
               type="button"
               className="flex-1 rounded-md font-medium transition-colors focus:outline-none"
               style={{
-                backgroundColor: 'rgba(148, 163, 184, 0.12)',
-                color: DARK_THEME_COLORS.textPrimary,
+                backgroundColor: isLight ? '#f1f5f9' : 'rgba(148, 163, 184, 0.12)',
+                color: colors.textPrimary,
                 padding: '10px 16px',
                 border: 'none',
                 cursor: 'pointer',
@@ -319,10 +325,10 @@ const AlertDetailsModal = ({ alert, onClose, onResolve }) => {
               }}
               onClick={onClose}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = 'rgba(148, 163, 184, 0.2)')
+                (e.currentTarget.style.backgroundColor = isLight ? '#e2e8f0' : 'rgba(148, 163, 184, 0.2)')
               }
               onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = 'rgba(148, 163, 184, 0.12)')
+                (e.currentTarget.style.backgroundColor = isLight ? '#f1f5f9' : 'rgba(148, 163, 184, 0.12)')
               }
             >
               Close
@@ -375,11 +381,15 @@ AlertDetailsModal.propTypes = {
   }),
   onClose: PropTypes.func.isRequired,
   onResolve: PropTypes.func,
+  colors: PropTypes.object,
+  isLight: PropTypes.bool,
 };
 
 AlertDetailsModal.defaultProps = {
   alert: null,
   onResolve: null,
+  colors: null,
+  isLight: false,
 };
 
 export default AlertDetailsModal;

@@ -1,5 +1,7 @@
 import { Plus, AlertTriangle, CheckCircle, Clock, MapPin, User } from 'lucide-react';
 import { DashboardLayout } from '@shared/components/layout';
+import { useSettings } from '@app/providers/ThemeProvider';
+import { getThemeColors } from '@shared/utils';
 
 // Import modular components
 import {
@@ -14,25 +16,17 @@ import { useAlertsLogic } from '../../hooks';
 import '../../styles/nationwide-alerts.css';
 import '../../styles/global-ndma.css';
 
-// Dark theme colors for modals
-const DARK_THEME_COLORS = {
-  modalBg: '#0f1114',
-  elevatedBg: '#151719',
-  inputBg: '#1a1d21',
-  textPrimary: '#ffffff',
-  textSecondary: '#94a3b8',
-  border: '#2d3238',
-  borderMedium: '#3d4248',
-  buttonSecondary: '#2d3238',
-  buttonSecondaryHover: '#3d4248',
-};
-
 /**
  * AlertsPage Component
  * Nationwide alert management interface with summary stats and alert card list
  * Matches District dashboard alert style
  */
 const AlertsPage = () => {
+  // Get theme from settings
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
+
   // Use custom hook for all alert logic
   const {
     // State
@@ -288,8 +282,8 @@ const AlertsPage = () => {
         onProvinceChange={handleProvinceChange}
         onSubmit={handleSubmitNewAlert}
         loading={loading}
-        colors={DARK_THEME_COLORS}
-        isLight={false}
+        colors={colors}
+        isLight={isLight}
         validationErrors={validationErrors}
       />
 
@@ -298,6 +292,8 @@ const AlertsPage = () => {
         alert={alertToView}
         onClose={handleCloseViewAlert}
         onResolve={handleResolveAlert}
+        colors={colors}
+        isLight={isLight}
       />
     </>
   );

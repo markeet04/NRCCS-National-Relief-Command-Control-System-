@@ -81,3 +81,37 @@
 .user-table__action-btn--delete {
   color: #ef4444;
 }
+
+/* ============================================================================
+   LIGHT MODE OVERRIDES - User Table
+   ============================================================================ */
+
+[data-theme="light"] .user-table-container {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .user-table thead tr {
+  background-color: #f1f5f9 !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .user-table th {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .user-table tbody tr {
+  border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .user-table tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+[data-theme="light"] .user-table td {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .user-table__role-badge {
+  background: rgba(59, 130, 246, 0.1) !important;
+}

@@ -68,7 +68,7 @@ const CircularResourceGauge = ({
           cy={center}
           r={radius}
           fill="none"
-          stroke="rgba(45, 50, 56, 0.6)"
+          className="circular-gauge-track"
           strokeWidth={strokeWidth}
         />
         {/* Progress arc */}

@@ -5,26 +5,32 @@
  */
 
 /* ============================================================================
-   BASE & BACKGROUNDS
+   BASE & BACKGROUNDS - DARK MODE (DEFAULT)
    ============================================================================ */
    
-/* Pitch black background for entire page */
+/* Pitch black background for entire page - DARK MODE ONLY */
 body {
-  background-color: #000000 !important;
+  background-color: var(--bg-secondary, #000000);
+}
+
+/* Light mode body override */
+[data-theme="light"] body,
+body[data-theme="light"] {
+  background-color: var(--bg-secondary, #f1f5f9) !important;
 }
 
 .ndma-page {
-  background-color: #000000;
+  background-color: var(--bg-primary, #000000);
   min-height: 100vh;
-  color: #e2e8f0;
+  color: var(--text-primary, #e2e8f0);
 }
 
 .ndma-bg-primary {
-  background-color: #000000;
+  background-color: var(--bg-primary, #000000);
 }
 
 .ndma-bg-card {
-  background-color: #0f1114;
+  background-color: var(--elevated-bg, #0f1114);
 }
 
 .ndma-bg-elevated {
@@ -1159,4 +1165,666 @@ body {
 
 .alert-details-warning p {
   margin: 0;
+}
+
+/* ============================================================================
+   LIGHT MODE OVERRIDES - COMPREHENSIVE FIX
+   All light mode styles for NDMA, PDMA, District, Superadmin dashboards
+   ============================================================================ */
+
+/* =========================
+   LIGHT MODE CSS VARIABLES
+   ========================= */
+[data-theme="light"] {
+  /* Background colors - warm off-whites */
+  --light-bg-primary: #f8f9fb;
+  --light-bg-secondary: #f1f4f8;
+  --light-bg-card: #ffffff;
+  --light-bg-card-hover: #fafbfd;
+  --light-bg-elevated: #fefefe;
+  --light-bg-header: #f5f7fa;
+  --light-bg-accent: #f0f7f4;
+  
+  /* Text colors */
+  --light-text-primary: #1a202c;
+  --light-text-secondary: #4a5568;
+  --light-text-muted: #718096;
+  --light-text-accent: #2d6a4f;
+  
+  /* Border colors */
+  --light-border: #e2e8f0;
+  --light-border-subtle: #edf2f7;
+  --light-border-accent: #c6f6d5;
+  
+  /* Accent colors - softer versions */
+  --light-accent-green: #48bb78;
+  --light-accent-green-soft: rgba(72, 187, 120, 0.08);
+  --light-accent-blue: #4299e1;
+  --light-accent-blue-soft: rgba(66, 153, 225, 0.08);
+  --light-accent-red: #fc8181;
+  --light-accent-red-soft: rgba(252, 129, 129, 0.08);
+  --light-accent-yellow: #ecc94b;
+  --light-accent-yellow-soft: rgba(236, 201, 75, 0.08);
+  --light-accent-purple: #9f7aea;
+  --light-accent-purple-soft: rgba(159, 122, 234, 0.08);
+  --light-accent-orange: #ed8936;
+  --light-accent-orange-soft: rgba(237, 137, 54, 0.08);
+  --light-accent-cyan: #38b2ac;
+  --light-accent-cyan-soft: rgba(56, 178, 172, 0.08);
+  
+  /* Shadows */
+  --light-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --light-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --light-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --light-shadow-colored: 0 4px 14px rgba(72, 187, 120, 0.12);
+}
+
+/* =========================
+   BASE BACKGROUNDS - LIGHT
+   ========================= */
+[data-theme="light"] .ndma-page,
+[data-theme="light"] .pdma-page,
+[data-theme="light"] .district-page,
+[data-theme="light"] .superadmin-page {
+  background-color: var(--light-bg-secondary) !important;
+  background-image: linear-gradient(135deg, #f8f9fb 0%, #f1f4f8 100%) !important;
+  color: var(--light-text-primary) !important;
+}
+
+[data-theme="light"] .ndma-bg-primary,
+[data-theme="light"] .pdma-bg-primary {
+  background-color: var(--light-bg-primary) !important;
+}
+
+[data-theme="light"] .ndma-bg-card,
+[data-theme="light"] .pdma-bg-card {
+  background-color: var(--light-bg-card) !important;
+}
+
+[data-theme="light"] .ndma-bg-elevated,
+[data-theme="light"] .pdma-bg-elevated {
+  background-color: var(--light-bg-elevated) !important;
+}
+
+[data-theme="light"] .ndma-bg-header {
+  background-color: var(--light-bg-header) !important;
+  border-bottom: 1px solid var(--light-border-subtle) !important;
+}
+
+/* =========================
+   SIDEBAR - LIGHT MODE
+   ========================= */
+[data-theme="light"] .sidebar-container {
+  background-color: #065F46 !important;
+  border-right-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .sidebar-logo-section {
+  border-bottom-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+[data-theme="light"] .sidebar-logo-icon {
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+[data-theme="light"] .sidebar-toggle-btn {
+  background-color: #065F46 !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+[data-theme="light"] .sidebar-toggle-btn:hover {
+  background-color: #047857 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  transform: scale(1.05);
+}
+
+[data-theme="light"] .sidebar-nav-btn {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .sidebar-nav-btn:hover,
+[data-theme="light"] .sidebar-nav-btn.sidebar-nav-item-hovered {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+[data-theme="light"] .sidebar-nav-btn.sidebar-nav-item-active {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+[data-theme="light"] .sidebar-nav-icon {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .sidebar-nav-item-active .sidebar-nav-icon {
+  color: #86efac !important;
+}
+
+[data-theme="light"] .sidebar-user-section {
+  border-top-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-theme="light"] .sidebar-user-avatar {
+  background-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+[data-theme="light"] .sidebar-logout-btn {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+[data-theme="light"] .sidebar-logout-btn:hover {
+  color: #ffffff !important;
+}
+
+/* =========================
+   CARDS - LIGHT MODE (Enhanced)
+   ========================= */
+[data-theme="light"] .ndma-card,
+[data-theme="light"] .pdma-card,
+[data-theme="light"] .national-stat-card,
+[data-theme="light"] .national-map-card,
+[data-theme="light"] .national-resource-card,
+[data-theme="light"] .national-weather-card,
+[data-theme="light"] .ndma-stat-card {
+  background-color: var(--light-bg-card) !important;
+  background-image: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%) !important;
+  border: 1px solid var(--light-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--light-shadow-md) !important;
+  transition: all 0.25s ease !important;
+}
+
+[data-theme="light"] .ndma-card:hover,
+[data-theme="light"] .pdma-card:hover,
+[data-theme="light"] .national-stat-card:hover {
+  background-color: var(--light-bg-card-hover) !important;
+  box-shadow: var(--light-shadow-lg) !important;
+  transform: translateY(-2px) !important;
+  border-color: var(--light-border-accent) !important;
+}
+
+[data-theme="light"] .ndma-card-inner,
+[data-theme="light"] .ndma-stat-card-inner {
+  background-color: var(--light-bg-accent) !important;
+  border: 1px solid var(--light-border-subtle) !important;
+}
+
+/* Card headers in light mode */
+[data-theme="light"] .pdma-card-header {
+  border-bottom: 1px solid var(--light-border) !important;
+  background-color: var(--light-bg-header) !important;
+  padding: 1rem 1.25rem !important;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+/* Left border accents - softer, more vibrant for light mode */
+[data-theme="light"] .border-left-red {
+  border-left: 4px solid #e53e3e !important;
+  box-shadow: var(--light-shadow-md), -3px 0 12px -2px rgba(229, 62, 62, 0.15) !important;
+}
+
+[data-theme="light"] .border-left-green {
+  border-left: 4px solid var(--light-accent-green) !important;
+  box-shadow: var(--light-shadow-md), -3px 0 12px -2px rgba(72, 187, 120, 0.15) !important;
+}
+
+[data-theme="light"] .border-left-blue {
+  border-left: 4px solid var(--light-accent-blue) !important;
+  box-shadow: var(--light-shadow-md), -3px 0 12px -2px rgba(66, 153, 225, 0.15) !important;
+}
+
+[data-theme="light"] .border-left-purple {
+  border-left: 4px solid var(--light-accent-purple) !important;
+  box-shadow: var(--light-shadow-md), -3px 0 12px -2px rgba(159, 122, 234, 0.15) !important;
+}
+
+[data-theme="light"] .border-left-cyan {
+  border-left: 4px solid var(--light-accent-cyan) !important;
+  box-shadow: var(--light-shadow-md), -3px 0 12px -2px rgba(56, 178, 172, 0.15) !important;
+}
+
+[data-theme="light"] .border-left-orange {
+  border-left: 4px solid var(--light-accent-orange) !important;
+  box-shadow: var(--light-shadow-md), -3px 0 12px -2px rgba(237, 137, 54, 0.15) !important;
+}
+
+[data-theme="light"] .border-left-yellow {
+  border-left: 4px solid var(--light-accent-yellow) !important;
+  box-shadow: var(--light-shadow-md), -3px 0 12px -2px rgba(236, 201, 75, 0.15) !important;
+}
+
+/* =========================
+   TYPOGRAPHY - LIGHT MODE (Enhanced)
+   ========================= */
+[data-theme="light"] .ndma-text-primary,
+[data-theme="light"] .national-page-title,
+[data-theme="light"] .national-stat-card-value,
+[data-theme="light"] .national-map-title,
+[data-theme="light"] .national-resource-title,
+[data-theme="light"] .ndma-heading-lg,
+[data-theme="light"] .ndma-heading-md,
+[data-theme="light"] .ndma-heading-sm,
+[data-theme="light"] .ndma-stat-value,
+[data-theme="light"] .ndma-stat-value-lg {
+  color: var(--light-text-primary) !important;
+}
+
+/* Page titles with subtle accent */
+[data-theme="light"] .national-page-title,
+[data-theme="light"] .ndma-heading-lg {
+  color: #1a365d !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+[data-theme="light"] .sidebar-logo-title,
+[data-theme="light"] .sidebar-user-name {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .ndma-text-secondary,
+[data-theme="light"] .national-page-subtitle,
+[data-theme="light"] .national-map-subtitle,
+[data-theme="light"] .ndma-table-cell-secondary {
+  color: var(--light-text-secondary) !important;
+}
+
+[data-theme="light"] .ndma-text-muted,
+[data-theme="light"] .national-stat-card-label,
+[data-theme="light"] .national-stat-card-trend.neutral,
+[data-theme="light"] .national-map-legend-label,
+[data-theme="light"] .national-resource-timestamp,
+[data-theme="light"] .ndma-text-label,
+[data-theme="light"] .ndma-label {
+  color: var(--light-text-muted) !important;
+}
+
+/* =========================
+   TABLES - LIGHT MODE (Enhanced)
+   ========================= */
+[data-theme="light"] .ndma-table-container {
+  background-color: var(--light-bg-card) !important;
+  border: 1px solid var(--light-border) !important;
+  box-shadow: var(--light-shadow-md) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+[data-theme="light"] .ndma-table-header {
+  background: linear-gradient(180deg, #f7f9fc 0%, #edf2f7 100%) !important;
+  border-bottom: 2px solid var(--light-border) !important;
+}
+
+[data-theme="light"] .ndma-table-header th {
+  color: var(--light-text-secondary) !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+[data-theme="light"] .ndma-table-body tr {
+  border-top: 1px solid var(--light-border-subtle) !important;
+  transition: background-color 0.15s ease !important;
+}
+
+[data-theme="light"] .ndma-table-body tr:nth-child(even) {
+  background-color: #fafbfc !important;
+}
+
+[data-theme="light"] .ndma-table-body tr:hover {
+  background-color: var(--light-accent-green-soft) !important;
+}
+
+[data-theme="light"] .ndma-table-cell-primary {
+  color: var(--light-text-primary) !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="light"] .ndma-table-empty {
+  color: var(--light-text-muted) !important;
+  background-color: var(--light-bg-accent) !important;
+}
+
+/* =========================
+   MODALS - LIGHT MODE (Enhanced)
+   ========================= */
+[data-theme="light"] .ndma-modal-overlay {
+  background-color: rgba(26, 32, 44, 0.4) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+[data-theme="light"] .ndma-modal {
+  background-color: var(--light-bg-card) !important;
+  background-image: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%) !important;
+  border: 1px solid var(--light-border) !important;
+  box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+  border-radius: 16px !important;
+}
+
+[data-theme="light"] .ndma-modal-header {
+  border-bottom: 1px solid var(--light-border) !important;
+  background: linear-gradient(180deg, #f0f7f4 0%, #ffffff 100%) !important;
+  border-radius: 16px 16px 0 0 !important;
+}
+
+[data-theme="light"] .ndma-modal-header h2,
+[data-theme="light"] .ndma-modal-header h3 {
+  color: #1a365d !important;
+}
+
+[data-theme="light"] .ndma-modal-footer {
+  border-top: 1px solid var(--light-border) !important;
+  background-color: var(--light-bg-header) !important;
+  border-radius: 0 0 16px 16px !important;
+}
+
+/* =========================
+   FORMS & INPUTS - LIGHT MODE (Enhanced)
+   ========================= */
+[data-theme="light"] .ndma-input {
+  background-color: var(--light-bg-card) !important;
+  border: 1px solid var(--light-border) !important;
+  color: var(--light-text-primary) !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .ndma-input:focus {
+  border-color: var(--light-accent-green) !important;
+  box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  outline: none !important;
+}
+
+[data-theme="light"] .ndma-input:hover:not(:focus) {
+  border-color: #cbd5e0 !important;
+}
+
+[data-theme="light"] .ndma-input::placeholder {
+  color: #a0aec0 !important;
+}
+
+/* =========================
+   BUTTONS - LIGHT MODE (Enhanced)
+   ========================= */
+[data-theme="light"] .ndma-btn-primary {
+  background: linear-gradient(180deg, #48bb78 0%, #38a169 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 2px 4px rgba(72, 187, 120, 0.25), 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="light"] .ndma-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #68d391 0%, #48bb78 100%) !important;
+  box-shadow: 0 4px 12px rgba(72, 187, 120, 0.35), 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-1px) !important;
+}
+
+[data-theme="light"] .ndma-btn-primary:active:not(:disabled) {
+  background: linear-gradient(180deg, #38a169 0%, #2f855a 100%) !important;
+  transform: translateY(0) !important;
+}
+
+[data-theme="light"] .ndma-btn-secondary {
+  background-color: var(--light-bg-header) !important;
+  color: var(--light-text-primary) !important;
+  border: 1px solid var(--light-border) !important;
+  box-shadow: var(--light-shadow-sm) !important;
+}
+
+[data-theme="light"] .ndma-btn-secondary:hover:not(:disabled) {
+  background-color: #edf2f7 !important;
+  border-color: #cbd5e0 !important;
+  box-shadow: var(--light-shadow-md) !important;
+}
+
+[data-theme="light"] .ndma-btn-ghost {
+  color: var(--light-text-secondary) !important;
+}
+
+[data-theme="light"] .ndma-btn-ghost:hover:not(:disabled) {
+  background-color: var(--light-accent-green-soft) !important;
+  color: var(--light-accent-green) !important;
+}
+
+[data-theme="light"] .ndma-btn-outline {
+  background-color: transparent !important;
+  color: var(--light-accent-green) !important;
+  border: 1px solid var(--light-accent-green) !important;
+}
+
+[data-theme="light"] .ndma-btn-outline:hover:not(:disabled) {
+  background-color: var(--light-accent-green-soft) !important;
+  box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1) !important;
+}
+
+[data-theme="light"] .national-map-btn {
+  background-color: var(--light-bg-header) !important;
+  color: var(--light-text-secondary) !important;
+  border: 1px solid var(--light-border) !important;
+  box-shadow: var(--light-shadow-sm) !important;
+}
+
+[data-theme="light"] .national-map-btn:hover {
+  background-color: #edf2f7 !important;
+  color: var(--light-text-primary) !important;
+  box-shadow: var(--light-shadow-md) !important;
+}
+
+/* =========================
+   TABS - LIGHT MODE (Enhanced)
+   ========================= */
+[data-theme="light"] .ndma-tabs {
+  border-bottom: 2px solid var(--light-border) !important;
+  background-color: var(--light-bg-header) !important;
+  padding: 0 0.5rem !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+[data-theme="light"] .ndma-tab {
+  color: var(--light-text-muted) !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+  border-radius: 6px 6px 0 0 !important;
+  margin-bottom: -2px !important;
+}
+
+[data-theme="light"] .ndma-tab:hover {
+  color: var(--light-text-secondary) !important;
+  background-color: rgba(72, 187, 120, 0.05) !important;
+}
+
+[data-theme="light"] .ndma-tab-active {
+  color: var(--light-accent-green) !important;
+  border-bottom: 2px solid var(--light-accent-green) !important;
+  background-color: var(--light-bg-card) !important;
+  font-weight: 600 !important;
+}
+
+/* =========================
+   PROGRESS BARS - LIGHT MODE (Enhanced)
+   ========================= */
+[data-theme="light"] .ndma-progress {
+  background-color: #edf2f7 !important;
+  border-radius: 9999px !important;
+  overflow: hidden !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="light"] .ndma-progress-bar {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .ndma-progress-green {
+  background: linear-gradient(90deg, #48bb78 0%, #68d391 100%) !important;
+}
+
+[data-theme="light"] .ndma-progress-yellow {
+  background: linear-gradient(90deg, #ecc94b 0%, #f6e05e 100%) !important;
+}
+
+[data-theme="light"] .ndma-progress-orange {
+  background: linear-gradient(90deg, #ed8936 0%, #f6ad55 100%) !important;
+}
+
+[data-theme="light"] .ndma-progress-red {
+  background: linear-gradient(90deg, #fc8181 0%, #feb2b2 100%) !important;
+}
+
+/* =========================
+   BADGES - LIGHT MODE (Enhanced)
+   ========================= */
+[data-theme="light"] .ndma-badge-adequate {
+  background-color: var(--light-accent-green-soft) !important;
+  color: #276749 !important;
+  border: 1px solid rgba(72, 187, 120, 0.2) !important;
+}
+
+[data-theme="light"] .ndma-badge-moderate {
+  background-color: var(--light-accent-yellow-soft) !important;
+  color: #975a16 !important;
+  border: 1px solid rgba(236, 201, 75, 0.2) !important;
+}
+
+[data-theme="light"] .ndma-badge-low {
+  background-color: var(--light-accent-orange-soft) !important;
+  color: #c05621 !important;
+  border: 1px solid rgba(237, 137, 54, 0.2) !important;
+}
+
+[data-theme="light"] .ndma-badge-critical {
+  background-color: var(--light-accent-red-soft) !important;
+  color: #c53030 !important;
+  border: 1px solid rgba(252, 129, 129, 0.2) !important;
+}
+
+/* =========================
+   UTILITIES - LIGHT MODE (Enhanced)
+   ========================= */
+[data-theme="light"] .ndma-border,
+[data-theme="light"] .ndma-border-top,
+[data-theme="light"] .ndma-border-bottom {
+  border-color: var(--light-border) !important;
+}
+
+[data-theme="light"] .ndma-shadow {
+  box-shadow: var(--light-shadow-lg) !important;
+}
+
+[data-theme="light"] .ndma-summary-box {
+  background-color: var(--light-accent-green-soft) !important;
+  border: 1px solid rgba(72, 187, 120, 0.2) !important;
+  box-shadow: var(--light-shadow-sm) !important;
+}
+
+/* =========================
+   ALERT DETAILS - LIGHT MODE (Enhanced)
+   ========================= */
+[data-theme="light"] .alert-details-value {
+  background-color: var(--light-bg-header) !important;
+  border: 1px solid var(--light-border-subtle) !important;
+  border-radius: 8px !important;
+}
+
+[data-theme="light"] .alert-details-value p {
+  color: var(--light-text-primary) !important;
+}
+
+[data-theme="light"] .alert-details-label {
+  color: var(--light-text-secondary) !important;
+}
+
+/* =========================
+   STAT ICONS - LIGHT MODE (Enhanced)
+   ========================= */
+[data-theme="light"] .ndma-stat-icon-blue {
+  background: linear-gradient(135deg, rgba(66, 153, 225, 0.12) 0%, rgba(66, 153, 225, 0.08) 100%) !important;
+  color: #3182ce !important;
+  border: 1px solid rgba(66, 153, 225, 0.15) !important;
+}
+
+[data-theme="light"] .ndma-stat-icon-green {
+  background: linear-gradient(135deg, rgba(72, 187, 120, 0.12) 0%, rgba(72, 187, 120, 0.08) 100%) !important;
+  color: #38a169 !important;
+  border: 1px solid rgba(72, 187, 120, 0.15) !important;
+}
+
+[data-theme="light"] .ndma-stat-icon-yellow {
+  background: linear-gradient(135deg, rgba(236, 201, 75, 0.12) 0%, rgba(236, 201, 75, 0.08) 100%) !important;
+  color: #d69e2e !important;
+  border: 1px solid rgba(236, 201, 75, 0.15) !important;
+}
+
+[data-theme="light"] .ndma-stat-icon-purple {
+  background: linear-gradient(135deg, rgba(159, 122, 234, 0.12) 0%, rgba(159, 122, 234, 0.08) 100%) !important;
+  color: #805ad5 !important;
+  border: 1px solid rgba(159, 122, 234, 0.15) !important;
+}
+
+/* =========================
+   SCROLLBAR - LIGHT MODE (Enhanced)
+   ========================= */
+[data-theme="light"] ::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+  border-radius: 4px !important;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #cbd5e0 0%, #a0aec0 100%) !important;
+  border-radius: 4px !important;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #a0aec0 0%, #718096 100%) !important;
+}
+
+/* =========================
+   HOVER GLOW EFFECTS - LIGHT MODE
+   ========================= */
+[data-theme="light"] .ndma-stat-card-glow.glow-blue:hover {
+  box-shadow: var(--light-shadow-md), 0 0 20px rgba(66, 153, 225, 0.12) !important;
+}
+
+[data-theme="light"] .ndma-stat-card-glow.glow-green:hover {
+  box-shadow: var(--light-shadow-md), 0 0 20px rgba(72, 187, 120, 0.12) !important;
+}
+
+[data-theme="light"] .ndma-stat-card-glow.glow-yellow:hover {
+  box-shadow: var(--light-shadow-md), 0 0 20px rgba(236, 201, 75, 0.12) !important;
+}
+
+[data-theme="light"] .ndma-stat-card-glow.glow-purple:hover {
+  box-shadow: var(--light-shadow-md), 0 0 20px rgba(159, 122, 234, 0.12) !important;
+}
+
+[data-theme="light"] .ndma-stat-card-glow.glow-red:hover {
+  box-shadow: var(--light-shadow-md), 0 0 20px rgba(252, 129, 129, 0.12) !important;
+}
+
+[data-theme="light"] .ndma-stat-card-glow.glow-orange:hover {
+  box-shadow: var(--light-shadow-md), 0 0 20px rgba(237, 137, 54, 0.12) !important;
+}
+
+[data-theme="light"] .ndma-stat-card-glow.glow-cyan:hover {
+  box-shadow: var(--light-shadow-md), 0 0 20px rgba(56, 178, 172, 0.12) !important;
+}
+
+/* =========================
+   NAV ACTIVE INDICATOR - LIGHT MODE
+   ========================= */
+[data-theme="light"] .sidebar-active-dot {
+  background-color: #86efac !important;
+  box-shadow: 0 0 6px rgba(134, 239, 172, 0.8) !important;
+}
+
+[data-theme="light"] .sidebar-nav-item-active .sidebar-nav-icon {
+  filter: drop-shadow(0 0 4px rgba(134, 239, 172, 0.5)) !important;
 }
