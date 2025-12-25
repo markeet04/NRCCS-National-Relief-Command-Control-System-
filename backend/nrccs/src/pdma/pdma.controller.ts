@@ -27,7 +27,7 @@ import { AssignTeamDto } from './dtos/sos.dto';
 @UseGuards(SessionAuthGuard, RolesGuard)
 @Roles(UserRole.PDMA)
 export class PdmaController {
-  constructor(private readonly pdmaService: PdmaService) {}
+  constructor(private readonly pdmaService: PdmaService) { }
 
   // ==================== DASHBOARD ====================
 

@@ -36,20 +36,20 @@ const AppRoutes = () => {
     <Routes>
       {/* Landing Page */}
       <Route path="/" element={<LandingPage />} />
-      
+
       {/* NDMA Dashboard Routes - Protected */}
       <Route path="/ndma" element={<ProtectedRoute allowedRoles={['ndma']}><NDMADashboard /></ProtectedRoute>} />
       <Route path="/ndma/alerts" element={<ProtectedRoute allowedRoles={['ndma']}><AlertsPage /></ProtectedRoute>} />
       <Route path="/ndma/resources" element={<ProtectedRoute allowedRoles={['ndma']}><ResourcesPage /></ProtectedRoute>} />
       <Route path="/ndma/map" element={<ProtectedRoute allowedRoles={['ndma']}><FloodMapPage /></ProtectedRoute>} />
-      
+
       {/* PDMA Dashboard Routes - Protected */}
       <Route path="/pdma" element={<ProtectedRoute allowedRoles={['pdma']}><PDMADashboard /></ProtectedRoute>} />
       <Route path="/pdma/resources" element={<ProtectedRoute allowedRoles={['pdma']}><React.Suspense fallback={<>Loading...</>}><ResourceDistribution /></React.Suspense></ProtectedRoute>} />
       <Route path="/pdma/shelters" element={<ProtectedRoute allowedRoles={['pdma']}><React.Suspense fallback={<>Loading...</>}><ShelterManagement /></React.Suspense></ProtectedRoute>} />
       <Route path="/pdma/districts" element={<ProtectedRoute allowedRoles={['pdma']}><React.Suspense fallback={<>Loading...</>}><DistrictCoordination /></React.Suspense></ProtectedRoute>} />
       <Route path="/pdma/map" element={<ProtectedRoute allowedRoles={['pdma']}><React.Suspense fallback={<>Loading...</>}><ProvincialMap /></React.Suspense></ProtectedRoute>} />
-      
+
       {/* District Dashboard Routes - Protected */}
       <Route path="/district" element={<ProtectedRoute allowedRoles={['district']}><DistrictDashboard /></ProtectedRoute>} />
       <Route path="/district/sos" element={<ProtectedRoute allowedRoles={['district']}><React.Suspense fallback={<>Loading...</>}><SOSRequests /></React.Suspense></ProtectedRoute>} />
@@ -64,7 +64,7 @@ const AppRoutes = () => {
 
       {/* Super Admin Portal - Protected (SuperAdmin only) */}
       <Route path="/superadmin/*" element={<ProtectedRoute allowedRoles={['superadmin']}><React.Suspense fallback={<>Loading...</>}><SuperAdminPortalRoutes /></React.Suspense></ProtectedRoute>} />
-      
+
       {/* Redirect unknown routes to landing */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGPSLocation, useSOSForm } from './';
+import civilianApi from '../services/civilianApi';
 
 const useSOSLogic = () => {
   const { gpsStatus, location } = useGPSLocation();
@@ -30,32 +31,60 @@ const useSOSLogic = () => {
     setIsSubmitting(true);
     setShowConfirmModal(false);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // Mock success response
-    const mockRequestData = {
-      id: 'SOS-2024-' + Math.floor(Math.random() * 1000),
-      timestamp: new Date().toLocaleTimeString(),
-      eta: '8-12 minutes',
-      teamInfo: {
-        name: 'Emergency Response Team Alpha',
-        contact: '+92-300-1234567',
-        distance: '3.2 km away',
-      },
-      location: location,
-      submittedBy: {
+    try {
+      // Submit SOS to backend API - clean phone and CNIC
+      const payload = {
         name: formData.fullName,
-        cnic: formData.cnic,
-        phone: formData.phoneNumber,
-      },
-      type: formData.emergencyType || 'general',
-      details: formData.details,
-    };
+        phone: formData.phoneNumber.replace(/-/g, ''), // Remove dashes
+        cnic: formData.cnic.replace(/-/g, ''), // Remove dashes  
+        locationLat: location.latitude,
+        locationLng: location.longitude,
+        location: `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`,
+        peopleCount: 1,
+        emergencyType: formData.emergencyType || 'other',
+        description: formData.details || 'Emergency assistance needed',
+      };
 
-    setRequestData(mockRequestData);
-    setIsSubmitting(false);
-    setShowSuccessScreen(true);
+      const response = await civilianApi.submitSos(payload);
+
+      // Success - prepare display data
+      const mockRequestData = {
+        id: response.id || 'SOS-XXXX',
+        timestamp: new Date().toLocaleTimeString(),
+        eta: response.estimatedResponse || '15-20 minutes',
+        teamInfo: {
+          name: 'Emergency Response Team (Pending Assignment)',
+          contact: '115',
+          distance: 'Calculating...',
+        },
+        location: location,
+        submittedBy: {
+          name: formData.fullName,
+          cnic: formData.cnic,
+          phone: formData.phoneNumber,
+        },
+        type: formData.emergencyType || 'other',
+        details: formData.details,
+      };
+
+      setRequestData(mockRequestData);
+      setShowSuccessScreen(true);
+    } catch (error) {
+      console.error('SOS submission failed:', error);
+
+      // Show error to user
+      let errorMessage = 'Failed to submit SOS request. Please try again.';
+
+      if (error.response?.status === 429) {
+        errorMessage = 'Rate limit exceeded. You can only submit 3 SOS requests per hour. Please wait and try again.';
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+
+      alert(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCancel = () => {

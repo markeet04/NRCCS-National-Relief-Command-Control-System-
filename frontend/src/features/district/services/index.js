@@ -45,4 +45,34 @@ export const DamageReportService = {
   getStats: districtApi.getDamageReportStats,
 };
 
+/**
+ * Missing Person Service
+ */
+export const MissingPersonService = {
+  /**
+   * Get all missing persons for district
+   * @param {Object} filters - Optional filters { status, search }
+   * @returns {Promise<Array>} Missing persons list
+   */
+  async getAll(filters = {}) {
+    // TODO: Implement actual API call
+    // const params = new URLSearchParams(filters);
+    // return api.get(`${API_BASE}/missing-persons?${params}`);
+    throw new Error('Not implemented - replace with API call');
+  },
+
+  /**
+   * Update missing person status
+   * @param {number} personId 
+   * @param {string} status - New status (active, found, dead, closed)
+   * @param {string} notes - Optional notes
+   * @returns {Promise<Object>} Updated person
+   */
+  async updateStatus(personId, status, notes = '') {
+    // TODO: Implement actual API call
+    // return api.put(`${API_BASE}/missing-persons/${personId}/status`, { status, notes });
+    throw new Error('Not implemented - replace with API call');
+  },
+};
+
 export default districtApi;

@@ -5,7 +5,6 @@ import EmergencySOS from './EmergencySOS';
 import FindShelters from './FindShelters';
 import MissingPersons from './MissingPersons';
 import AlertsNotices from './AlertsNotices';
-import TrackStatus from './TrackStatus';
 import Help from './Help';
 
 // Placeholder components for pages we'll create
@@ -21,28 +20,25 @@ const CivilianPortalRoutes = () => {
       <Routes>
         {/* Home */}
         <Route index element={<CivilianHome />} />
-        
+
         {/* Emergency SOS */}
         <Route path="sos" element={<EmergencySOS />} />
-        
+
         {/* Find Shelters */}
         <Route path="shelters" element={<FindShelters />} />
-        
+
         {/* Alerts & Notices */}
         <Route path="alerts" element={<AlertsNotices />} />
-        
+
         {/* Missing Persons */}
         <Route path="missing" element={<MissingPersons />} />
-        
-        {/* Track Status */}
-        <Route path="track" element={<TrackStatus />} />
-        
+
         {/* Profile */}
         <Route path="profile" element={<Profile />} />
-        
+
         {/* Help */}
         <Route path="help" element={<Help />} />
-        
+
         {/* Redirect unknown civilian routes to home */}
         <Route path="*" element={<Navigate to="/civilian" replace />} />
       </Routes>

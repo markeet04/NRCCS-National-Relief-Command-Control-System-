@@ -387,6 +387,7 @@ const districtApi = {
       throw new Error(error.response?.data?.message || 'Failed to reset shelter supplies');
     }
   },
+// ...existing code...
 };
 
 export default districtApi;

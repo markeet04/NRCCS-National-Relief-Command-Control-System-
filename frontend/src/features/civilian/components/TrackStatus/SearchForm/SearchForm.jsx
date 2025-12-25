@@ -28,9 +28,8 @@ export const SearchForm = ({
             <span>Search by CNIC</span>
           </button>
           <button
-            className={`search-tab ${
-              searchType === 'tracking' ? 'active' : ''
-            }`}
+            className={`search-tab ${searchType === 'tracking' ? 'active' : ''
+              }`}
             onClick={() => setSearchType('tracking')}
           >
             <Hash size={20} />
@@ -60,17 +59,17 @@ export const SearchForm = ({
               <label>Enter Tracking ID</label>
               <input
                 type="text"
-                placeholder="SOS-2025-1543"
+                placeholder="SOS-2025-1543 or MP-2025-001"
                 value={searchValue}
                 onChange={handleSearchValueChange}
-                maxLength={13}
+                maxLength={20}
                 className={searchError ? 'error' : ''}
               />
               {searchError && (
                 <span className="error-message">{searchError}</span>
               )}
               <p className="input-hint">
-                Format: XXX-XXXX-XXXX (e.g., SOS-2025-1543)
+                Supports SOS tracking IDs (SOS-XXXX-XXXX) or Missing Person case numbers (MP-XXXX or similar)
               </p>
             </div>
           )}
