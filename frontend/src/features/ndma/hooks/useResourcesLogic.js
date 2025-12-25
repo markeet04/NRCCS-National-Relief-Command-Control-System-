@@ -1,5 +1,6 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
+import { useBadge } from '@shared/contexts/BadgeContext';
 import { NotificationService } from '@services/NotificationService';
 import { 
   INITIAL_NATIONAL_STOCK, 
@@ -319,8 +320,17 @@ export const useResourcesLogic = () => {
     NotificationService.showInfo(`Request from ${request.province} rejected`);
   }, [provincialRequests]);
 
-  // Menu items for NDMA role
-  const menuItems = useMemo(() => getMenuItemsByRole('ndma', 0), []);
+  // Get badge counts from context for global visibility
+  const { activeStatusCount, provincialRequestsCount, updateProvincialRequestsCount } = useBadge();
+
+  // Calculate and update pending provincial requests count
+  useEffect(() => {
+    const pendingCount = provincialRequests.filter(req => req.status === 'pending').length;
+    updateProvincialRequestsCount(pendingCount);
+  }, [provincialRequests, updateProvincialRequestsCount]);
+
+  // Menu items for NDMA role - uses context badge counts for consistency across all pages
+  const menuItems = useMemo(() => getMenuItemsByRole('ndma', activeStatusCount, provincialRequestsCount), [activeStatusCount, provincialRequestsCount]);
   const roleConfig = ROLE_CONFIG.ndma;
 
   return {

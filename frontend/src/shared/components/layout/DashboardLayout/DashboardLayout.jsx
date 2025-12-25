@@ -1,16 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Sidebar from '../Sidebar';
 import Header from '../Header';
 import Footer from '../Footer/Footer';
+import { useSidebar } from '@shared/contexts/SidebarContext';
+import { useBadge } from '@shared/contexts/BadgeContext';
+import { getMenuItemsByRole } from '@shared/constants/dashboardConfig';
 
 /**
  * DashboardLayout Component
  * Main layout wrapper for all dashboard pages
  * Provides consistent sidebar, header, and content area structure
+ * Uses SidebarContext for persistent collapse state across pages
  * @param {Object} props - Component props
  * @param {React.ReactNode} props.children - Page content
- * @param {Array} props.menuItems - Sidebar navigation items
+ * @param {Array} props.menuItems - Sidebar navigation items (optional - can be auto-generated)
  * @param {string} props.activeRoute - Current active route
  * @param {Function} props.onNavigate - Navigation handler
  * @param {string} props.userRole - User role
@@ -23,7 +27,7 @@ import Footer from '../Footer/Footer';
  */
 const DashboardLayout = ({
   children,
-  menuItems,
+  menuItems: propMenuItems,
   activeRoute,
   onNavigate,
   userRole,
@@ -34,19 +38,42 @@ const DashboardLayout = ({
   pageIconColor,
   notificationCount = 0,
 }) => {
+  // Use SidebarContext for persistent collapse state
+  const { isCollapsed, toggleCollapse } = useSidebar();
+  
+  // Get badge counts from BadgeContext for global badge visibility
+  const { activeStatusCount, provincialRequestsCount } = useBadge();
+
+  // Generate menu items with current badge counts if not provided
+  // This ensures badges are always visible on all pages
+  const menuItems = propMenuItems || [];
+  
+  // Enhance menu items with current badge counts
+  const enhancedMenuItems = menuItems.map(item => {
+    if (item.route === 'alerts' && activeStatusCount > 0) {
+      return { ...item, badge: activeStatusCount };
+    }
+    if (item.route === 'resources' && provincialRequestsCount > 0) {
+      return { ...item, badge: provincialRequestsCount };
+    }
+    return item;
+  });
+
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+    <div className="min-h-screen dashboard-layout" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Sidebar */}
       <Sidebar
-        menuItems={menuItems}
+        menuItems={enhancedMenuItems}
         activeRoute={activeRoute}
         onNavigate={onNavigate}
         userRole={userRole}
         userName={userName}
+        isCollapsed={isCollapsed}
+        onToggleCollapse={toggleCollapse}
       />
 
       {/* Main Content Area - uses CSS margin to account for sidebar */}
-      <div style={{ marginLeft: '260px', transition: 'margin-left 0.3s ease' }} className="sidebar-content">
+      <div className={`sidebar-content ${isCollapsed ? 'sidebar-content-collapsed' : ''}`}>
         {/* Header */}
         <Header
           title={pageTitle}

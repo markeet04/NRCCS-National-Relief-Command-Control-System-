@@ -12,7 +12,7 @@ import { INITIAL_ALERT_FORM } from '../constants';
  * Manages all business logic for the NDMA Alerts page
  */
 export const useAlertsLogic = () => {
-  const { updateActiveStatusCount } = useBadge();
+  const { updateActiveStatusCount, activeStatusCount, provincialRequestsCount } = useBadge();
   
   // UI State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -288,7 +288,8 @@ export const useAlertsLogic = () => {
 
   // Get role configuration
   const roleConfig = ROLE_CONFIG.ndma;
-  const menuItems = useMemo(() => getMenuItemsByRole('ndma', 0), []);
+  // Menu items with badge counts from context for consistency across all pages
+  const menuItems = useMemo(() => getMenuItemsByRole('ndma', activeStatusCount, provincialRequestsCount), [activeStatusCount, provincialRequestsCount]);
 
   return {
     // State

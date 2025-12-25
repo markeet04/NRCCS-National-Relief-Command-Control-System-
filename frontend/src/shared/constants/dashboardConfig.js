@@ -38,11 +38,17 @@ export const SUPERADMIN_MENU_ITEMS = [
 ];
 
 // Get menu items by role
-export const getMenuItemsByRole = (role, badgeCount = 0) => {
+export const getMenuItemsByRole = (role, badgeCount = 0, provincialRequestsCount = 0) => {
   const menuMap = {
-    ndma: NDMA_MENU_ITEMS.map(item => 
-      item.route === 'alerts' ? { ...item, badge: badgeCount } : item
-    ),
+    ndma: NDMA_MENU_ITEMS.map(item => {
+      if (item.route === 'alerts') {
+        return { ...item, badge: badgeCount || undefined };
+      }
+      if (item.route === 'resources') {
+        return { ...item, badge: provincialRequestsCount || undefined };
+      }
+      return item;
+    }),
     pdma: PDMA_MENU_ITEMS,
     district: DISTRICT_MENU_ITEMS,
     superadmin: SUPERADMIN_MENU_ITEMS,

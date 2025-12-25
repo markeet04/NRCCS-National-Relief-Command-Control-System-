@@ -224,6 +224,28 @@
   border: none;
   border-radius: 12px;
   overflow: hidden;
+  /* Ensure only left-side glow from border-left-* class */
+  box-shadow: none !important;
+}
+
+/* Apply left-only glow when combined with border accent classes */
+.national-map-card.border-left-blue {
+  box-shadow: -2px 0 10px 0 rgba(33, 150, 243, 0.4) !important;
+}
+
+/* Ultra-specific override - force remove all-side shadows */
+.national-main-grid .national-map-card,
+.national-main-grid > .national-map-card,
+div.national-map-card {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.national-main-grid .national-map-card.border-left-blue,
+.national-main-grid > .national-map-card.border-left-blue,
+div.national-map-card.border-left-blue {
+  box-shadow: -2px 0 10px 0 rgba(33, 150, 243, 0.4) !important;
+  filter: none !important;
 }
 
 .national-map-header {
@@ -337,6 +359,28 @@
   border: none;
   border-radius: 12px;
   padding: 20px 20px 20px 24px;
+  /* Ensure only left-side glow from border-left-* class */
+  box-shadow: none !important;
+}
+
+/* Apply left-only glow when combined with border accent classes */
+.national-resource-card.border-left-green {
+  box-shadow: -2px 0 10px 0 rgba(76, 175, 80, 0.4) !important;
+}
+
+/* Ultra-specific override - force remove all-side shadows */
+.national-sidebar .national-resource-card,
+.national-sidebar > .national-resource-card,
+div.national-resource-card {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.national-sidebar .national-resource-card.border-left-green,
+.national-sidebar > .national-resource-card.border-left-green,
+div.national-resource-card.border-left-green {
+  box-shadow: -2px 0 10px 0 rgba(76, 175, 80, 0.4) !important;
+  filter: none !important;
 }
 
 .national-resource-header {
@@ -465,6 +509,28 @@
   border: none;
   border-radius: 12px;
   padding: 20px 20px 20px 24px;
+  /* Ensure only left-side glow from border-left-* class */
+  box-shadow: none !important;
+}
+
+/* Apply left-only glow when combined with border accent classes */
+.national-weather-card.border-left-cyan {
+  box-shadow: -2px 0 10px 0 rgba(6, 182, 212, 0.4) !important;
+}
+
+/* Ultra-specific override - force remove all-side shadows */
+.national-sidebar .national-weather-card,
+.national-sidebar > .national-weather-card,
+div.national-weather-card {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.national-sidebar .national-weather-card.border-left-cyan,
+.national-sidebar > .national-weather-card.border-left-cyan,
+div.national-weather-card.border-left-cyan {
+  box-shadow: -2px 0 10px 0 rgba(6, 182, 212, 0.4) !important;
+  filter: none !important;
 }
 
 .national-weather-title {

@@ -6,14 +6,14 @@ import { DASHBOARD_STATS, RESOURCE_STATUS, QUICK_ACTIONS } from '../constants';
  * useDashboardLogic Hook
  * Manages business logic and state for the NDMA Dashboard page
  */
-export const useDashboardLogic = (activeAlertsCount = 0) => {
+export const useDashboardLogic = (activeAlertsCount = 0, provincialRequestsCount = 0) => {
   // Get role configuration from shared config
   const roleConfig = ROLE_CONFIG.ndma;
 
   // Menu items for NDMA role from shared config with badge count
   const menuItems = useMemo(
-    () => getMenuItemsByRole('ndma', activeAlertsCount),
-    [activeAlertsCount]
+    () => getMenuItemsByRole('ndma', activeAlertsCount, provincialRequestsCount),
+    [activeAlertsCount, provincialRequestsCount]
   );
 
   // Dashboard statistics - can be enhanced with real-time data
