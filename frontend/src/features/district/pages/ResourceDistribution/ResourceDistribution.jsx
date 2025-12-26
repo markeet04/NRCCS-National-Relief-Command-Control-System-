@@ -1,395 +1,282 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Package, Home, Users, TrendingUp, AlertCircle, Plus, RefreshCw, Send } from 'lucide-react';
-import DashboardLayout from '@/shared/components/dashboard/DashboardLayout';
-import { DISTRICT_MENU_ITEMS } from '@/shared/constants/dashboardConfig';
-import { useDistrictContext } from '../../../app/providers/AuthProvider';
-import { useShelterData } from '../../hooks/useShelterData';
-import { useRescueTeamData } from '../../hooks/useRescueTeamData';
-import { useResourceDistributionState } from '../../hooks/useResourceDistributionState';
-import AllocateToShelterForm from './AllocateToShelterForm';
-import AllocateByTypeForm from './AllocateByTypeForm';
-
 /**
- * ResourceDistribution - District Resource Distribution Page
- * Manage and distribute resources to shelters and rescue teams
+ * ResourceDistribution Page (Modular, Visual Parity)
+ * Matches the original design from screenshot
  */
+
+import { useState, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Package, Send, Home, MapPin } from 'lucide-react';
+import { DashboardLayout } from '@shared/components/layout';
+import { getMenuItemsByRole } from '@shared/constants/dashboardConfig';
+import {
+  useDistrictData,
+  useShelterData,
+  useResourceDistributionState
+} from '../../hooks';
+import {
+  AllocateToShelterForm,
+  AllocateByTypeForm,
+  RequestResourceModal
+} from '../../components/ResourceDistribution';
+import '../../components/ResourceDistribution/ResourceDistribution.css';
+import '@styles/css/main.css';
+
+// Status filter options
+const FILTER_OPTIONS = ['All', 'Available', 'Allocated', 'Low', 'Critical'];
+
+// Status color mapping
+const STATUS_COLORS = {
+  available: { bg: '#22c55e', light: 'rgba(34, 197, 94, 0.15)' },
+  allocated: { bg: '#3b82f6', light: 'rgba(59, 130, 246, 0.15)' },
+  low: { bg: '#f59e0b', light: 'rgba(245, 158, 11, 0.15)' },
+  critical: { bg: '#ef4444', light: 'rgba(239, 68, 68, 0.15)' }
+};
+
+const getResourceStatus = (resource) => {
+  const available = resource.quantity - (resource.allocated || 0);
+  const usagePercent = resource.quantity > 0 ? (resource.allocated / resource.quantity) * 100 : 0;
+
+  if (available <= 0) return 'allocated';
+  if (usagePercent >= 90) return 'critical';
+  if (usagePercent >= 70) return 'low';
+  return 'available';
+};
+
+const formatTimeAgo = (date) => {
+  if (!date) return 'N/A';
+  const d = new Date(date);
+  const seconds = Math.floor((new Date() - d) / 1000);
+  if (seconds < 60) return `${seconds} secs ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} mins ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hours ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} days ago`;
+};
+
 const ResourceDistribution = () => {
   const navigate = useNavigate();
-  const { districtInfo, stats: districtStats } = useDistrictContext();
-  const { shelters, loading: sheltersLoading } = useShelterData();
-  const { teams, loading: teamsLoading } = useRescueTeamData();
-  const { 
-    resources, 
-    loading: resourcesLoading,
-    addResource,
-    updateResource,
-    allocateToShelter,
-    allocateToTeam,
-    handleAllocateByType
-  } = useResourceDistributionState();
-
   const [activeRoute, setActiveRoute] = useState('resources');
+  const [selectedFilter, setSelectedFilter] = useState('All');
   const [isAllocateModalOpen, setIsAllocateModalOpen] = useState(false);
-  const [isAllocateByTypeOpen, setIsAllocateByTypeOpen] = useState(false);
-  const [allocateByTypeLoading, setAllocateByTypeLoading] = useState(false);
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [selectedResource, setSelectedResource] = useState(null);
-  const [filterCategory, setFilterCategory] = useState('All');
 
-  const handleNavigate = (route) => {
+  // Hooks
+  const { districtInfo, rawStats: districtStats } = useDistrictData();
+  const { shelters } = useShelterData();
+  const { resources, allocateToShelter } = useResourceDistributionState();
+
+  // Navigation
+  const handleNavigate = useCallback((route) => {
     setActiveRoute(route);
-    if (route === 'dashboard') {
-      navigate('/district');
-    } else {
-      navigate(`/district/${route}`);
-    }
-  };
+    navigate(route === 'dashboard' ? '/district' : `/district/${route}`);
+  }, [navigate]);
 
+  // Filter resources
+  const filteredResources = useMemo(() => {
+    if (selectedFilter === 'All') return resources;
+    return resources.filter(r => {
+      const status = getResourceStatus(r);
+      return status === selectedFilter.toLowerCase();
+    });
+  }, [resources, selectedFilter]);
+
+  // Stats
+  const stats = useMemo(() => {
+    const total = resources.reduce((sum, r) => sum + r.quantity, 0);
+    const allocated = resources.reduce((sum, r) => sum + (r.allocated || 0), 0);
+    return {
+      resourceTypes: resources.length,
+      totalQuantity: total,
+      distributed: total > 0 ? Math.round((allocated / total) * 100) : 0,
+      available: total - allocated
+    };
+  }, [resources]);
+
+  // Handlers
   const handleAllocateClick = (resource) => {
     setSelectedResource(resource);
     setIsAllocateModalOpen(true);
   };
 
-  const handleAllocateSubmit = async (allocationData) => {
+  const handleAllocateSubmit = async (data) => {
     try {
-      await allocateToShelter(allocationData);
+      await allocateToShelter(data);
       setIsAllocateModalOpen(false);
       setSelectedResource(null);
     } catch (error) {
-      console.error('Failed to allocate resource:', error);
+      console.error('Allocation failed:', error);
     }
   };
 
-  // Handle allocate by type submission
-  const handleAllocateByTypeSubmit = async (allocationData) => {
-    try {
-      setAllocateByTypeLoading(true);
-      await handleAllocateByType(allocationData);
-      setIsAllocateByTypeOpen(false);
-    } catch (error) {
-      console.error('Failed to allocate by type:', error);
-    } finally {
-      setAllocateByTypeLoading(false);
-    }
+  const handleRequestSubmit = (data) => {
+    console.log('Request submitted:', data);
+    setIsRequestModalOpen(false);
   };
 
-  // Calculate stats
-  const stats = {
-    totalResources: resources.length,
-    totalQuantity: resources.reduce((sum, r) => sum + r.quantity, 0),
-    distributedQuantity: resources.reduce((sum, r) => sum + (r.allocated || 0), 0),
-    availableQuantity: resources.reduce((sum, r) => sum + (r.quantity - (r.allocated || 0)), 0),
-  };
-
-  const distributionRate = stats.totalQuantity > 0 
-    ? Math.round((stats.distributedQuantity / stats.totalQuantity) * 100) 
-    : 0;
-
-  // Filter resources
-  const filteredResources = filterCategory === 'All' 
-    ? resources 
-    : resources.filter(r => r.category === filterCategory);
-
-  const categories = ['All', ...new Set(resources.map(r => r.category))];
-
-  const colors = {
-    background: '#0a0a0a',
-    cardBg: '#111111',
-    border: 'rgba(255, 255, 255, 0.1)',
-    textPrimary: '#ffffff',
-    textSecondary: '#9ca3af',
-    textMuted: '#6b7280',
+  const formatQuantity = (qty) => {
+    if (qty >= 1000) return `${(qty / 1000).toFixed(1)}K`;
+    return qty.toString();
   };
 
   return (
     <DashboardLayout
-      menuItems={DISTRICT_MENU_ITEMS}
+      menuItems={getMenuItemsByRole('district')}
       activeRoute={activeRoute}
       onNavigate={handleNavigate}
       pageTitle="Resource Distribution"
-      pageSubtitle="Manage and distribute resources to shelters and teams"
-      userRole={`District ${districtInfo?.name || 'Loading...'}`}
+      pageSubtitle="Allocate district resources to shelters"
+      userRole={`District ${districtInfo?.name || ''}`}
       userName="District Officer"
       notificationCount={districtStats?.pendingSOS || 0}
     >
-      {/* Stats Row */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-        gap: '20px',
-        marginBottom: '24px'
-      }}>
-        {/* Total Resources */}
-        <div style={{
-          background: colors.cardBg,
-          border: `1px solid ${colors.border}`,
-          borderRadius: '16px',
-          padding: '24px',
-          borderLeft: '4px solid #3b82f6'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <Package size={32} style={{ color: '#3b82f6' }} />
-            <div>
-              <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Total Resources</p>
-              <p style={{ color: colors.textPrimary, fontSize: '32px', fontWeight: '700' }}>{stats.totalResources}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Total Quantity */}
-        <div style={{
-          background: colors.cardBg,
-          border: `1px solid ${colors.border}`,
-          borderRadius: '16px',
-          padding: '24px',
-          borderLeft: '4px solid #8b5cf6'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <TrendingUp size={32} style={{ color: '#8b5cf6' }} />
-            <div>
-              <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Total Stock</p>
-              <p style={{ color: colors.textPrimary, fontSize: '32px', fontWeight: '700' }}>{stats.totalQuantity.toLocaleString()}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Distributed */}
-        <div style={{
-          background: colors.cardBg,
-          border: `1px solid ${colors.border}`,
-          borderRadius: '16px',
-          padding: '24px',
-          borderLeft: '4px solid #10b981'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <Home size={32} style={{ color: '#10b981' }} />
-            <div>
-              <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Distributed</p>
-              <p style={{ color: colors.textPrimary, fontSize: '32px', fontWeight: '700' }}>{stats.distributedQuantity.toLocaleString()}</p>
-              <p style={{ color: colors.textMuted, fontSize: '11px' }}>{distributionRate}% of total</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Available */}
-        <div style={{
-          background: colors.cardBg,
-          border: `1px solid ${colors.border}`,
-          borderRadius: '16px',
-          padding: '24px',
-          borderLeft: '4px solid #f59e0b'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <Package size={32} style={{ color: '#f59e0b' }} />
-            <div>
-              <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Available</p>
-              <p style={{ color: colors.textPrimary, fontSize: '32px', fontWeight: '700' }}>{stats.availableQuantity.toLocaleString()}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters and Actions */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginBottom: '20px',
-        gap: '16px',
-        flexWrap: 'wrap'
-      }}>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setFilterCategory(cat)}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
-                border: filterCategory === cat ? 'none' : `1px solid ${colors.border}`,
-                background: filterCategory === cat ? '#3b82f6' : colors.cardBg,
-                color: filterCategory === cat ? '#ffffff' : colors.textSecondary,
-                fontSize: '14px',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button
-            onClick={() => setIsAllocateByTypeOpen(true)}
-            style={{
-              padding: '10px 18px',
-              borderRadius: '8px',
-              border: 'none',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-              color: '#ffffff',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-          >
-            <Send size={16} />
-            Allocate to Shelter
-          </button>
-
-          <button
-            onClick={() => window.location.reload()}
-            style={{
-              padding: '10px 18px',
-              borderRadius: '8px',
-              border: `1px solid ${colors.border}`,
-              background: colors.cardBg,
-              color: colors.textPrimary,
-              fontSize: '14px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-          >
-            <RefreshCw size={16} />
-            Refresh
-          </button>
-        </div>
-      </div>
-
-      {/* Resources List */}
-      {resourcesLoading ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: colors.textMuted }}>
-          Loading resources...
-        </div>
-      ) : filteredResources.length === 0 ? (
-        <div style={{
-          background: colors.cardBg,
-          border: `1px solid ${colors.border}`,
-          borderRadius: '12px',
-          padding: '40px',
-          textAlign: 'center'
-        }}>
-          <AlertCircle size={48} style={{ color: colors.textMuted, marginBottom: '16px' }} />
-          <p style={{ color: colors.textSecondary, fontSize: '16px' }}>
-            No resources found in this category
-          </p>
-        </div>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
-          {filteredResources.map(resource => {
-            const available = resource.quantity - (resource.allocated || 0);
-            const allocationPercent = Math.round(((resource.allocated || 0) / resource.quantity) * 100);
-            
-            return (
-              <div
-                key={resource.id}
-                style={{
-                  background: colors.cardBg,
-                  border: `1px solid ${colors.border}`,
-                  borderRadius: '12px',
-                  padding: '20px',
-                  transition: 'all 0.3s'
-                }}
-                className="hover:scale-[1.02]"
+      <div className="p-6">
+        {/* Filter Tabs + Request Button */}
+        <div className="resource-filters">
+          <div className="resource-filters__tabs">
+            {FILTER_OPTIONS.map(filter => (
+              <button
+                key={filter}
+                onClick={() => setSelectedFilter(filter)}
+                className={`resource-filters__tab ${selectedFilter === filter ? 'resource-filters__tab--active' : ''}`}
               >
-                <div style={{ marginBottom: '16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
-                    <h3 style={{ color: colors.textPrimary, fontSize: '18px', fontWeight: '600', margin: 0 }}>
-                      {resource.name}
-                    </h3>
-                    <span style={{
-                      padding: '4px 10px',
-                      borderRadius: '12px',
-                      background: 'rgba(59, 130, 246, 0.15)',
-                      color: '#3b82f6',
-                      fontSize: '12px',
-                      fontWeight: '500'
-                    }}>
-                      {resource.category}
-                    </span>
+                {filter}
+              </button>
+            ))}
+          </div>
+          <div className="resource-filters__actions">
+            <button
+              onClick={() => setIsRequestModalOpen(true)}
+              className="btn btn--primary"
+              style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}
+            >
+              <Send size={16} />
+              Request from PDMA
+            </button>
+            <div className="flex items-center gap-2 text-sm text-secondary">
+              <Home size={16} />
+              <span>Resources allocated by PDMA</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Row */}
+        <div className="resource-stats-grid">
+          <div className="resource-stat-card" style={{ borderLeftColor: '#3b82f6' }}>
+            <p className="resource-stat-card__title">Resource Types</p>
+            <p className="resource-stat-card__value" style={{ color: '#3b82f6' }}>{stats.resourceTypes}</p>
+            <p className="resource-stat-card__subtitle">Different types</p>
+          </div>
+          <div className="resource-stat-card" style={{ borderLeftColor: '#10b981' }}>
+            <p className="resource-stat-card__title">Total Quantity</p>
+            <p className="resource-stat-card__value" style={{ color: '#10b981' }}>{formatQuantity(stats.totalQuantity)}</p>
+            <p className="resource-stat-card__subtitle">Units available</p>
+          </div>
+          <div className="resource-stat-card" style={{ borderLeftColor: '#f59e0b' }}>
+            <p className="resource-stat-card__title">Distributed</p>
+            <p className="resource-stat-card__value" style={{ color: '#f59e0b' }}>{stats.distributed}%</p>
+            <p className="resource-stat-card__subtitle">To shelters</p>
+          </div>
+          <div className="resource-stat-card" style={{ borderLeftColor: '#ef4444' }}>
+            <p className="resource-stat-card__title">Available</p>
+            <p className="resource-stat-card__value" style={{ color: '#ef4444' }}>{formatQuantity(stats.available)}</p>
+            <p className="resource-stat-card__subtitle">For allocation</p>
+          </div>
+        </div>
+
+        {/* Resource Cards Grid */}
+        <div className="resource-grid">
+          {filteredResources.map(resource => {
+            const status = getResourceStatus(resource);
+            const statusColor = STATUS_COLORS[status] || STATUS_COLORS.available;
+            const available = resource.quantity - (resource.allocated || 0);
+            const usagePercent = resource.quantity > 0
+              ? Math.round((resource.allocated / resource.quantity) * 100)
+              : 0;
+
+            return (
+              <div key={resource.id} className="resource-card">
+                {/* Header */}
+                <div className="resource-card__header">
+                  <div className="resource-card__info">
+                    <div className="resource-card__icon" style={{ background: statusColor.light }}>
+                      <Package size={20} style={{ color: statusColor.bg }} />
+                    </div>
+                    <div>
+                      <h3 className="resource-card__title">{resource.name}</h3>
+                      <p className="resource-card__unit">{resource.unit || 'units'}</p>
+                    </div>
                   </div>
-                  {resource.description && (
-                    <p style={{ color: colors.textMuted, fontSize: '13px', margin: '8px 0 0 0' }}>
-                      {resource.description}
-                    </p>
-                  )}
+                  <span
+                    className="resource-card__status"
+                    style={{ background: statusColor.light, color: statusColor.bg }}
+                  >
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                  </span>
                 </div>
 
-                <div style={{ marginBottom: '16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <span style={{ color: colors.textMuted, fontSize: '13px' }}>Stock Status</span>
-                    <span style={{ color: colors.textSecondary, fontSize: '13px', fontWeight: '500' }}>
-                      {available} / {resource.quantity} {resource.unit}
-                    </span>
+                {/* Progress */}
+                <div className="resource-card__progress">
+                  <div className="resource-card__progress-header">
+                    <span className="resource-card__progress-label">Usage</span>
+                    <span className="resource-card__progress-value">{resource.allocated || 0}/{resource.quantity}</span>
                   </div>
-                  <div style={{
-                    width: '100%',
-                    height: '6px',
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    borderRadius: '3px',
-                    overflow: 'hidden'
-                  }}>
-                    <div style={{
-                      width: `${allocationPercent}%`,
-                      height: '100%',
-                      background: allocationPercent >= 90 ? '#ef4444' : allocationPercent >= 70 ? '#f59e0b' : '#10b981',
-                      transition: 'width 0.3s'
-                    }} />
+                  <div className="resource-card__progress-bar">
+                    <div
+                      className="resource-card__progress-fill"
+                      style={{
+                        width: `${usagePercent}%`,
+                        background: statusColor.bg
+                      }}
+                    />
                   </div>
-                  <p style={{ color: colors.textMuted, fontSize: '11px', marginTop: '4px' }}>
-                    {allocationPercent}% allocated
-                  </p>
                 </div>
 
+                {/* Meta */}
+                <div className="resource-card__meta">
+                  <div className="resource-card__location">
+                    <MapPin size={12} />
+                    <span>{resource.location || `District ${districtInfo?.id || ''} Warehouse`}</span>
+                  </div>
+                  <div>Updated: {formatTimeAgo(resource.lastUpdate)}</div>
+                </div>
+
+                {/* Allocate Button */}
                 <button
                   onClick={() => handleAllocateClick(resource)}
-                  disabled={available === 0}
+                  disabled={available <= 0}
+                  className="resource-card__allocate-btn"
                   style={{
-                    width: '100%',
-                    padding: '10px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    background: available === 0 ? colors.border : '#3b82f6',
-                    color: '#ffffff',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    cursor: available === 0 ? 'not-allowed' : 'pointer',
-                    opacity: available === 0 ? 0.5 : 1,
-                    transition: 'all 0.2s'
+                    background: available <= 0 ? '#4b5563' : statusColor.light,
+                    color: available <= 0 ? '#9ca3af' : statusColor.bg,
+                    border: `1px solid ${available <= 0 ? '#4b5563' : statusColor.light}`,
+                    cursor: available <= 0 ? 'not-allowed' : 'pointer',
+                    opacity: available <= 0 ? 0.6 : 1
                   }}
                 >
-                  {available === 0 ? 'Out of Stock' : 'Allocate to Shelter'}
+                  {available <= 0 ? 'Fully Allocated' : 'Allocate to Shelter'}
                 </button>
               </div>
             );
           })}
         </div>
-      )}
+      </div>
 
-      {/* Allocate to Shelter Modal */}
+      {/* Modals */}
       <AllocateToShelterForm
         isOpen={isAllocateModalOpen}
-        onClose={() => {
-          setIsAllocateModalOpen(false);
-          setSelectedResource(null);
-        }}
+        onClose={() => { setIsAllocateModalOpen(false); setSelectedResource(null); }}
         onSubmit={handleAllocateSubmit}
         resource={selectedResource}
         shelters={shelters}
       />
 
-      {/* Allocate by Type Modal (4-level hierarchy) */}
-      <AllocateByTypeForm
-        isOpen={isAllocateByTypeOpen}
-        onClose={() => setIsAllocateByTypeOpen(false)}
-        onSubmit={handleAllocateByTypeSubmit}
-        shelters={shelters}
-        loading={allocateByTypeLoading}
+      <RequestResourceModal
+        isOpen={isRequestModalOpen}
+        onClose={() => setIsRequestModalOpen(false)}
+        onSubmit={handleRequestSubmit}
       />
     </DashboardLayout>
   );

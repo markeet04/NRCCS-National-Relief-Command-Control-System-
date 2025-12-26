@@ -1,0 +1,236 @@
+/**
+ * ResourceDistribution Component-Specific Styles
+ */
+
+/* Resource Stats Grid */
+.resource-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.resource-stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 16px;
+    border-left-width: 4px;
+    border-left-style: solid;
+}
+
+.resource-stat-card__title {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.resource-stat-card__value {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.resource-stat-card__subtitle {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* Resource Filters */
+.resource-filters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.resource-filters__tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.resource-filters__tab {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.resource-filters__tab--active {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: white;
+}
+
+.resource-filters__actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Resource Grid */
+.resource-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+/* Resource Card - Using CSS Grid for perfect alignment */
+.resource-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 16px;
+    transition: all 0.2s ease;
+    display: grid;
+    grid-template-rows: 60px 50px 60px auto;
+    gap: 8px;
+    min-height: 260px;
+}
+
+.resource-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.resource-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.resource-card__info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.resource-card__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.resource-card__title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+}
+
+.resource-card__unit {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.resource-card__status {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: capitalize;
+    flex-shrink: 0;
+}
+
+.resource-card__progress {
+    margin-top: 8px;
+}
+
+.resource-card__progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 12px;
+}
+
+.resource-card__progress-label {
+    color: var(--text-secondary);
+}
+
+.resource-card__progress-value {
+    color: var(--text-primary);
+}
+
+.resource-card__progress-bar {
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.resource-card__progress-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.resource-card__meta {
+    padding: 14px 0;
+    border-top: 1px solid var(--card-border);
+    border-bottom: 1px solid var(--card-border);
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.resource-card__location {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.resource-card__allocate-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: auto;
+}
+
+.resource-card__allocate-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Empty State */
+.resource-empty-state {
+    padding: 48px;
+    text-align: center;
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+}
+
+.resource-empty-state__icon {
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+.resource-empty-state__title {
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.resource-empty-state__description {
+    color: var(--text-secondary);
+}
