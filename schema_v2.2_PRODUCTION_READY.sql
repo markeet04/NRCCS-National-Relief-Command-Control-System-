@@ -11,7 +11,174 @@
 -- 4. DISTRICT - District level officers
 -- 5. CIVILIAN - Public users
 -- =====================================================
+  -- Add district_id column to resource_requests table
+  ALTER TABLE resource_requests 
+  ADD COLUMN IF NOT EXISTS district_id INTEGER NULL REFERENCES districts(id) ON DELETE CASCADE;
+  
+  -- Make province_id nullable (since district requests won't have province_id directly)
+  ALTER TABLE resource_requests 
+  ALTER COLUMN province_id DROP NOT NULL;
 
+
+
+-- =====================================================
+  -- NRCCS Resource Allocation Flow Migration
+  -- Adds tables for NDMA -> Province resource allocation
+  -- =====================================================
+  
+  -- Resource Request Status Type
+  DO $$ BEGIN
+      CREATE TYPE resource_request_status AS ENUM ('pending', 'approved', 'rejected', 'partially_approved', 'fulfilled');
+  EXCEPTION
+      WHEN duplicate_object THEN null;
+  END $$;
+  
+  -- Resource Request Priority Type
+  DO $$ BEGIN
+      CREATE TYPE resource_request_priority AS ENUM ('low', 'medium', 'high', 'urgent');
+  EXCEPTION
+      WHEN duplicate_object THEN null;
+  END $$;
+  
+  -- NDMA Allocation Status Type
+  DO $$ BEGIN
+      CREATE TYPE ndma_allocation_status AS ENUM ('pending', 'in_transit', 'delivered', 'received', 'cancelled');
+  EXCEPTION
+      WHEN duplicate_object THEN null;
+  END $$;
+  
+  -- =====================================================
+  -- TABLE: RESOURCE_REQUESTS
+  -- Tracks requests from PDMA (Province) to NDMA (National)
+  -- =====================================================
+  CREATE TABLE IF NOT EXISTS resource_requests (
+      id SERIAL PRIMARY KEY,
+      province_id INTEGER NOT NULL REFERENCES provinces(id) ON DELETE CASCADE,
+      requested_by_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      requested_by_name VARCHAR(150),
+      
+      status resource_request_status DEFAULT 'pending',
+      priority resource_request_priority DEFAULT 'medium',
+      
+      reason TEXT,
+      notes TEXT,
+      
+      requested_items JSONB DEFAULT '[]'::jsonb,
+      approved_items JSONB DEFAULT '[]'::jsonb,
+      
+      processed_by_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      processed_by_name VARCHAR(150),
+      processed_at TIMESTAMPTZ,
+      
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+  );
+  
+  CREATE INDEX IF NOT EXISTS idx_resource_requests_province ON resource_requests(province_id);
+  CREATE INDEX IF NOT EXISTS idx_resource_requests_status ON resource_requests(status);
+  CREATE INDEX IF NOT EXISTS idx_resource_requests_priority ON resource_requests(priority);
+  CREATE INDEX IF NOT EXISTS idx_resource_requests_created ON resource_requests(created_at DESC);
+  
+  -- =====================================================
+  -- TABLE: NDMA_RESOURCE_ALLOCATIONS
+  -- =====================================================
+  CREATE TABLE IF NOT EXISTS ndma_resource_allocations (
+      id SERIAL PRIMARY KEY,
+      resource_id INTEGER REFERENCES resources(id) ON DELETE SET NULL,
+      resource_type VARCHAR(50) NOT NULL,
+      resource_name VARCHAR(200) NOT NULL,
+      
+      province_id INTEGER NOT NULL REFERENCES provinces(id) ON DELETE CASCADE,
+      
+      quantity INTEGER NOT NULL CHECK (quantity > 0),
+      unit VARCHAR(50),
+      
+      status ndma_allocation_status DEFAULT 'pending',
+      priority VARCHAR(20) DEFAULT 'normal',
+      
+      purpose TEXT,
+      notes TEXT,
+      
+      request_id INTEGER REFERENCES resource_requests(id) ON DELETE SET NULL,
+      
+      allocated_by_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      allocated_by_name VARCHAR(150),
+      allocated_at TIMESTAMPTZ DEFAULT NOW(),
+      
+      received_at TIMESTAMPTZ,
+      received_by_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      received_by_name VARCHAR(150)
+  );
+  
+  CREATE INDEX IF NOT EXISTS idx_ndma_allocations_province ON ndma_resource_allocations(province_id);
+  CREATE INDEX IF NOT EXISTS idx_ndma_allocations_resource ON ndma_resource_allocations(resource_id);
+  CREATE INDEX IF NOT EXISTS idx_ndma_allocations_status ON ndma_resource_allocations(status);
+  CREATE INDEX IF NOT EXISTS idx_ndma_allocations_allocated_at ON ndma_resource_allocations(allocated_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_ndma_allocations_type ON ndma_resource_allocations(resource_type);
+  
+  -- =====================================================
+  -- SEED DATA: National Level Resources
+  -- =====================================================
+  INSERT INTO resources (name, icon, type, category, quantity, unit, location, province_id, district_id, status, allocated, description)
+  VALUES 
+      ('Food Supplies', 'package', 'food', 'essential', 50000, 'tons', 'National Warehouse Islamabad', NULL, NULL, 'available', 0, 'National food reserve for disaster relief'),
+      ('Drinking Water', 'droplets', 'water', 'essential', 500000, 'liters', 'National Warehouse Islamabad', NULL, NULL, 'available', 0, 'Potable water for emergency distribution'),
+      ('Medical Kits', 'stethoscope', 'medical', 'healthcare', 25000, 'kits', 'National Medical Reserve', NULL, NULL, 'available', 0, 'First aid and emergency medical supplies'),
+      ('Emergency Tents', 'home', 'shelter', 'housing', 10000, 'units', 'National Warehouse Islamabad', NULL, NULL, 'available', 0, 'Emergency shelter tents for displaced persons'),
+      ('Blankets', 'blanket', 'clothing', 'essential', 100000, 'units', 'National Warehouse Islamabad', NULL, NULL, 'available', 0, 'Thermal blankets for cold weather relief'),
+      ('Water Purification Tablets', 'droplets', 'water', 'essential', 1000000, 'tablets', 'National Medical Reserve', NULL, NULL, 'available', 0, 'Water purification supplies')
+  ON CONFLICT DO NOTHING;
+  
+  -- =====================================================
+  -- VIEW: National Resource Summary
+  -- =====================================================
+  CREATE OR REPLACE VIEW v_national_resource_summary AS
+  SELECT 
+      type,
+      COUNT(*) as resource_count,
+      COALESCE(SUM(quantity), 0) as total_quantity,
+      COALESCE(SUM(allocated), 0) as total_allocated,
+      COALESCE(SUM(quantity - allocated), 0) as available_quantity,
+      CASE 
+          WHEN SUM(quantity) > 0 THEN ROUND((SUM(allocated)::numeric / SUM(quantity)) * 100, 2)
+          ELSE 0
+      END as allocation_percentage
+  FROM resources
+  WHERE province_id IS NULL AND district_id IS NULL
+  GROUP BY type;
+  
+  -- =====================================================
+  -- VIEW: Provincial Allocation Summary
+  -- =====================================================
+  CREATE OR REPLACE VIEW v_provincial_allocation_summary AS
+  SELECT 
+      p.id as province_id,
+      p.name as province_name,
+      COUNT(DISTINCT nra.id) as total_allocations,
+      COALESCE(SUM(nra.quantity), 0) as total_received,
+      COUNT(DISTINCT CASE WHEN nra.status = 'delivered' THEN nra.id END) as delivered_count,
+      COUNT(DISTINCT CASE WHEN nra.status = 'pending' THEN nra.id END) as pending_count
+  FROM provinces p
+  LEFT JOIN ndma_resource_allocations nra ON p.id = nra.province_id
+  GROUP BY p.id, p.name
+  ORDER BY p.name;
+  
+  -- =====================================================
+  -- VIEW: Pending Resource Requests Summary
+  -- =====================================================
+  CREATE OR REPLACE VIEW v_pending_requests_summary AS
+  SELECT 
+      p.id as province_id,
+      p.name as province_name,
+      COUNT(*) as pending_requests,
+      COUNT(CASE WHEN rr.priority = 'urgent' THEN 1 END) as urgent_count,
+      COUNT(CASE WHEN rr.priority = 'high' THEN 1 END) as high_priority_count,
+      MIN(rr.created_at) as oldest_request_date
+  FROM resource_requests rr
+  JOIN provinces p ON rr.province_id = p.id
+  WHERE rr.status = 'pending'
+  GROUP BY p.id, p.name
+  ORDER BY urgent_count DESC, high_priority_count DESC;
 -- Drop existing types if they exist (for clean re-run)
 DROP TYPE IF EXISTS user_role CASCADE;
 DROP TYPE IF EXISTS user_level CASCADE;
