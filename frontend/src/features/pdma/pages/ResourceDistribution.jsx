@@ -3,18 +3,20 @@ import { DashboardLayout } from '@shared/components/layout';
 import DemoModal from '@shared/components/DemoModal/DemoModal';
 import ResourceForm from '@shared/components/DemoModal/ResourceForm';
 import AllocateResourceForm from '@shared/components/DemoModal/AllocateResourceForm';
-import { Package, Loader2 } from 'lucide-react';
+import { Package, Loader2, Send } from 'lucide-react';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
 import {
   ResourceFilters,
   ResourceStats,
-  ResourceGrid
+  ResourceGrid,
+  RequestResourceModal,
+  DistrictRequestsSection
 } from '../components';
 import { useResourceDistributionState } from '../hooks';
-import { 
-  transformResourcesForUI, 
+import {
+  transformResourcesForUI,
   filterResourcesByStatus,
   calculateTotalQuantity,
   calculateTotalAllocated
@@ -44,6 +46,11 @@ const ResourceDistribution = () => {
     districts,
     loading,
     error,
+    // Request from NDMA
+    isRequestModalOpen,
+    setIsRequestModalOpen,
+    requestLoading,
+    handleRequestFromNdma,
   } = useResourceDistributionState();
 
   const { theme } = useSettings();
@@ -121,15 +128,38 @@ const ResourceDistribution = () => {
     >
       <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary }}>
         {/* Resource Filters Component */}
-        <ResourceFilters 
+        <ResourceFilters
           selectedFilter={selectedFilter}
           onFilterChange={setSelectedFilter}
           onAddResource={() => setIsResourceFormOpen(true)}
           colors={colors}
         />
 
+        {/* Request from NDMA Button */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+          <button
+            onClick={() => setIsRequestModalOpen(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '12px 20px',
+              background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+              border: 'none',
+              borderRadius: '10px',
+              color: 'white',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            <Send size={18} />
+            Request Resources from NDMA
+          </button>
+        </div>
+
         {/* Resource Stats Component */}
-        <ResourceStats 
+        <ResourceStats
           totalResources={resources.length}
           totalQuantity={totalQuantity}
           allocatedPercent={totalQuantity > 0 ? Math.round((totalAllocated / totalQuantity) * 100) : 0}
@@ -139,13 +169,16 @@ const ResourceDistribution = () => {
 
         {/* Resource Grid Component */}
         <div className="pdma-section">
-          <ResourceGrid 
+          <ResourceGrid
             resources={filteredResources}
             colors={colors}
             onAllocate={handleOpenAllocateForm}
             selectedFilter={selectedFilter}
           />
         </div>
+
+        {/* District Resource Requests Section */}
+        <DistrictRequestsSection />
       </div>
 
       {/* Demo Modal */}
@@ -173,6 +206,14 @@ const ResourceDistribution = () => {
         onSubmit={handleAllocateResource}
         resource={selectedResource}
         districts={districts}
+      />
+
+      {/* Request Resource from NDMA Modal */}
+      <RequestResourceModal
+        isOpen={isRequestModalOpen}
+        onClose={() => setIsRequestModalOpen(false)}
+        onSubmit={handleRequestFromNdma}
+        loading={requestLoading}
       />
     </DashboardLayout>
   );

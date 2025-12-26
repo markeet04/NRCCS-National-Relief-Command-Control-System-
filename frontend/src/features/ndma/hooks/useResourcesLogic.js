@@ -11,64 +11,10 @@ import {
 } from '../constants';
 
 /**
- * Initial mock data for provincial requests - kept as fallback
- * TODO: Add backend endpoint for provincial requests if needed
+ * Initial mock data for provincial requests - fallback only
+ * Real data fetched from backend via NdmaApiService.getResourceRequests()
  */
-const INITIAL_PROVINCIAL_REQUESTS = [
-  {
-    id: 'req-001',
-    province: 'Punjab',
-    requestDate: '2025-01-15T10:30:00Z',
-    status: 'pending',
-    priority: 'high',
-    items: [
-      { name: 'Food Supplies', quantity: 5000, unit: 'kg' },
-      { name: 'Medical Kits', quantity: 200, unit: 'units' },
-      { name: 'Water Bottles', quantity: 10000, unit: 'liters' },
-    ],
-    reason: 'Flood relief operations in southern districts',
-    requestedBy: 'PDMA Punjab',
-  },
-  {
-    id: 'req-002',
-    province: 'Sindh',
-    requestDate: '2025-01-14T14:15:00Z',
-    status: 'pending',
-    priority: 'medium',
-    items: [
-      { name: 'Shelter Tents', quantity: 150, unit: 'units' },
-      { name: 'Blankets', quantity: 500, unit: 'units' },
-    ],
-    reason: 'Displacement camp expansion',
-    requestedBy: 'PDMA Sindh',
-  },
-  {
-    id: 'req-003',
-    province: 'KPK',
-    requestDate: '2025-01-13T09:00:00Z',
-    status: 'pending',
-    priority: 'high',
-    items: [
-      { name: 'Medical Kits', quantity: 300, unit: 'units' },
-      { name: 'Emergency Medicine', quantity: 100, unit: 'boxes' },
-    ],
-    reason: 'Emergency medical response in remote areas',
-    requestedBy: 'PDMA KPK',
-  },
-  {
-    id: 'req-004',
-    province: 'Balochistan',
-    requestDate: '2025-01-12T16:45:00Z',
-    status: 'pending',
-    priority: 'low',
-    items: [
-      { name: 'Food Supplies', quantity: 2000, unit: 'kg' },
-      { name: 'Water Bottles', quantity: 5000, unit: 'liters' },
-    ],
-    reason: 'Routine stock replenishment',
-    requestedBy: 'PDMA Balochistan',
-  },
-];
+const INITIAL_PROVINCIAL_REQUESTS = [];
 
 /**
  * Initial allocation history by province
@@ -106,6 +52,8 @@ export const useResourcesLogic = () => {
   const [nationalStock, setNationalStock] = useState(INITIAL_NATIONAL_STOCK);
   const [provincialAllocations, setProvincialAllocations] = useState([]);
   const [backendResourceStats, setBackendResourceStats] = useState(null);
+  const [provinces, setProvinces] = useState([]);
+  const [nationalResourcesList, setNationalResourcesList] = useState([]);
 
   // Provincial Requests state
   const [provincialRequests, setProvincialRequests] = useState(INITIAL_PROVINCIAL_REQUESTS);
@@ -134,13 +82,20 @@ export const useResourcesLogic = () => {
       setError(null);
 
       // Fetch resource stats and resources by province in parallel
-      const [resourceStats, resourcesByProvince, allResources] = await Promise.all([
+      const [resourceStats, resourcesByProvince, allResources, resourceRequests, provincesData, nationalResources] = await Promise.all([
         NdmaApiService.getResourceStats(),
         NdmaApiService.getResourcesByProvince(),
-        NdmaApiService.getAllResources()
+        NdmaApiService.getAllResources(),
+        NdmaApiService.getResourceRequests().catch(() => []), // Graceful fallback
+        NdmaApiService.getAllProvinces().catch(() => []),
+        NdmaApiService.getNationalResources().catch(() => [])
       ]);
 
-      console.log('📦 Resources data loaded:', { resourceStats, resourcesByProvince, allResources });
+      console.log('📦 Resources data loaded:', { resourceStats, resourcesByProvince, allResources, resourceRequests, provincesData, nationalResources });
+
+      // Store provinces and national resources
+      setProvinces(provincesData || []);
+      setNationalResourcesList(nationalResources || []);
 
       // Store backend resource stats
       setBackendResourceStats(resourceStats);
@@ -162,18 +117,75 @@ export const useResourcesLogic = () => {
         setProvincialAllocations(allocations.length > 0 ? allocations : INITIAL_PROVINCIAL_ALLOCATIONS);
       }
 
-      // Update national stock from backend stats
+      // Update national stock from backend stats - use byType array for proper aggregation
       if (resourceStats) {
+        // Normalize database types to 4 standard categories
+        const normalizeType = (type) => {
+          const t = (type || 'other').toLowerCase();
+          // Map various database types to standard 4 categories
+          if (['water', 'drinking', 'purification'].some(k => t.includes(k))) return 'water';
+          if (['food', 'supplies', 'essential'].some(k => t.includes(k))) return 'food';
+          if (['medical', 'medicine', 'health', 'healthcare'].some(k => t.includes(k))) return 'medical';
+          if (['shelter', 'housing', 'tent', 'blanket', 'clothing'].some(k => t.includes(k))) return 'shelter';
+          // Default unrecognized types to food
+          return 'food';
+        };
+
+        // Create aggregated map - sum all database types into 4 standard categories
+        const typeMap = {
+          food: { quantity: 0, allocated: 0 },
+          medical: { quantity: 0, allocated: 0 },
+          shelter: { quantity: 0, allocated: 0 },
+          water: { quantity: 0, allocated: 0 },
+        };
+
+        if (resourceStats.byType && Array.isArray(resourceStats.byType)) {
+          resourceStats.byType.forEach(item => {
+            const normalizedType = normalizeType(item.type);
+            typeMap[normalizedType].quantity += parseInt(item.quantity) || 0;
+            typeMap[normalizedType].allocated += parseInt(item.allocated) || 0;
+          });
+        }
+
+        console.log('📊 Normalized resource types from backend:', typeMap);
+
         setNationalStock({
           food: {
-            available: resourceStats.totalQuantity || 0,
-            allocated: resourceStats.totalAllocated || 0,
+            available: typeMap.food.quantity,
+            allocated: typeMap.food.allocated,
             unit: 'units'
           },
-          medical: { available: 0, allocated: 0, unit: 'kits' },
-          shelter: { available: 0, allocated: 0, unit: 'units' },
-          water: { available: 0, allocated: 0, unit: 'liters' },
+          medical: {
+            available: typeMap.medical.quantity,
+            allocated: typeMap.medical.allocated,
+            unit: 'kits'
+          },
+          shelter: {
+            available: typeMap.shelter.quantity,
+            allocated: typeMap.shelter.allocated,
+            unit: 'units'
+          },
+          water: {
+            available: typeMap.water.quantity,
+            allocated: typeMap.water.allocated,
+            unit: 'liters'
+          },
         });
+      }
+
+      // Update provincial requests from backend
+      if (Array.isArray(resourceRequests) && resourceRequests.length > 0) {
+        const transformedRequests = resourceRequests.map(req => ({
+          id: req.id,
+          province: req.province?.name || 'Unknown',
+          requestDate: req.createdAt,
+          status: req.status,
+          priority: req.priority,
+          items: req.requestedItems || [],
+          reason: req.reason,
+          requestedBy: req.requestedByName,
+        }));
+        setProvincialRequests(transformedRequests);
       }
 
     } catch (err) {
@@ -322,47 +334,67 @@ export const useResourcesLogic = () => {
   }, []);
 
   /**
-   * Handle approving a provincial request
+   * Handle approving a provincial request - uses real backend
    */
-  const handleApproveRequest = useCallback((requestId) => {
+  const handleApproveRequest = useCallback(async (requestId) => {
     const request = provincialRequests.find(r => r.id === requestId);
     if (!request) return;
 
-    // Update request status
-    setProvincialRequests(prev =>
-      prev.map(r => r.id === requestId ? { ...r, status: 'approved' } : r)
-    );
+    try {
+      setLoading(true);
 
-    // Add to allocation history
-    setAllocationHistory(prev => ({
-      ...prev,
-      [request.province]: [
-        {
-          date: new Date().toISOString().split('T')[0],
-          items: request.items,
-          status: 'approved',
-          approvedBy: 'NDMA Admin',
-        },
-        ...(prev[request.province] || []),
-      ],
-    }));
+      // Call backend to approve
+      await NdmaApiService.reviewResourceRequest(requestId, {
+        status: 'approved',
+        approvedItems: request.items,
+        notes: 'Approved via NDMA dashboard'
+      });
 
-    NotificationService.showSuccess(`Request from ${request.province} approved`);
-  }, [provincialRequests]);
+      // Update local state
+      setProvincialRequests(prev =>
+        prev.map(r => r.id === requestId ? { ...r, status: 'approved' } : r)
+      );
+
+      NotificationService.showSuccess(`Request from ${request.province} approved`);
+
+      // Refresh data
+      fetchResourcesData();
+    } catch (err) {
+      console.error('Error approving request:', err);
+      NotificationService.showError('Failed to approve request');
+    } finally {
+      setLoading(false);
+    }
+  }, [provincialRequests, fetchResourcesData]);
 
   /**
-   * Handle rejecting a provincial request
+   * Handle rejecting a provincial request - uses real backend
    */
-  const handleRejectRequest = useCallback((requestId) => {
+  const handleRejectRequest = useCallback(async (requestId) => {
     const request = provincialRequests.find(r => r.id === requestId);
     if (!request) return;
 
-    // Update request status
-    setProvincialRequests(prev =>
-      prev.map(r => r.id === requestId ? { ...r, status: 'rejected' } : r)
-    );
+    try {
+      setLoading(true);
 
-    NotificationService.showInfo(`Request from ${request.province} rejected`);
+      // Call backend to reject
+      await NdmaApiService.reviewResourceRequest(requestId, {
+        status: 'rejected',
+        notes: 'Rejected via NDMA dashboard'
+      });
+
+      // Update local state
+      setProvincialRequests(prev =>
+        prev.map(r => r.id === requestId ? { ...r, status: 'rejected' } : r)
+      );
+
+      NotificationService.showInfo(`Request from ${request.province} rejected`);
+    } catch (err) {
+      console.error('Error rejecting request:', err);
+      NotificationService.showError('Failed to reject request');
+    } finally {
+      setLoading(false);
+    }
   }, [provincialRequests]);
 
   // Get badge counts from context for global visibility
@@ -389,6 +421,8 @@ export const useResourcesLogic = () => {
     loading,
     provincialRequests,
     allocationHistory,
+    provinces,
+    nationalResourcesList,
 
     // Computed
     resourceStats,
@@ -406,6 +440,7 @@ export const useResourcesLogic = () => {
     getStatusConfig,
     handleApproveRequest,
     handleRejectRequest,
+    refetchData: fetchResourcesData,
   };
 };
 

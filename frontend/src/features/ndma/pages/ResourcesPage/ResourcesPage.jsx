@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Send, Package, Droplets, Home, Stethoscope, ChevronDown } from 'lucide-react';
 import { DashboardLayout } from '@shared/components/layout';
+import NdmaApiService from '@shared/services/NdmaApiService';
+import { NotificationService } from '@services/NotificationService';
 
 // Import modular components
 import {
@@ -51,6 +53,8 @@ const ResourcesPage = () => {
     provincialRequests,
     allocationHistory,
     nationalStock,
+    provinces: hookProvinces,
+    nationalResourcesList: hookNationalResources,
     
     // Computed
     resourceStats,
@@ -65,6 +69,7 @@ const ResourcesPage = () => {
     getStatusConfig,
     handleApproveRequest,
     handleRejectRequest,
+    refetchData,
   } = useResourcesLogic();
 
   // Handle view history for a province
@@ -97,24 +102,102 @@ const ResourcesPage = () => {
     setAllocateForm(prev => ({ ...prev, [field]: value }));
   };
 
+  // Use provinces and national resources from hook, with local state as fallback
+  const provinces = hookProvinces || [];
+  const nationalResources = hookNationalResources || [];
+  const [allocating, setAllocating] = useState(false);
+
   // Handle allocation submission
-  const handleAllocateSubmit = (e) => {
+  const handleAllocateSubmit = async (e) => {
     e.preventDefault();
     if (!allocateForm.targetProvince || !allocateForm.resourceType || !allocateForm.quantity) {
-      alert('Please fill in all required fields');
+      NotificationService.showError('Please fill in all required fields');
       return;
     }
-    // Process allocation
-    console.log('Allocating resources:', allocateForm);
-    alert(`Successfully allocated ${allocateForm.quantity} units of ${allocateForm.resourceType} to ${allocateForm.targetProvince}`);
-    // Reset form
-    setAllocateForm({
-      targetProvince: '',
-      resourceType: '',
-      quantity: '',
-      priority: 'normal',
-      notes: ''
-    });
+
+    setAllocating(true);
+    try {
+      console.log('🔍 Looking for province:', allocateForm.targetProvince);
+      console.log('📍 Available provinces:', provinces);
+      
+      // Find the province ID from the selected province name (case-insensitive)
+      const selectedProvince = provinces.find(p => 
+        p.name?.toLowerCase().trim() === allocateForm.targetProvince?.toLowerCase().trim()
+      );
+      
+      if (!selectedProvince) {
+        // Try to find by partial match or from provincialAllocations
+        const matchFromAllocations = provincialAllocations.find(a => 
+          a.province?.toLowerCase().trim() === allocateForm.targetProvince?.toLowerCase().trim()
+        );
+        
+        if (matchFromAllocations) {
+          // Find the actual province from the provinces list that matches
+          const provinceFromName = provinces.find(p =>
+            p.name?.toLowerCase().includes(allocateForm.targetProvince?.toLowerCase()) ||
+            allocateForm.targetProvince?.toLowerCase().includes(p.name?.toLowerCase())
+          );
+          
+          if (provinceFromName) {
+            console.log('✅ Found province via partial match:', provinceFromName);
+          } else {
+            NotificationService.showError(`Province "${allocateForm.targetProvince}" not found. Please refresh the page and try again.`);
+            setAllocating(false);
+            return;
+          }
+        } else {
+          NotificationService.showError(`Province "${allocateForm.targetProvince}" not found. Available: ${provinces.map(p => p.name).join(', ')}`);
+          setAllocating(false);
+          return;
+        }
+      }
+
+      const provinceToUse = selectedProvince || provinces.find(p =>
+        p.name?.toLowerCase().includes(allocateForm.targetProvince?.toLowerCase()) ||
+        allocateForm.targetProvince?.toLowerCase().includes(p.name?.toLowerCase())
+      );
+
+      if (!provinceToUse) {
+        NotificationService.showError('Could not resolve province. Please refresh and try again.');
+        setAllocating(false);
+        return;
+      }
+
+      console.log('✅ Using province:', provinceToUse);
+      console.log('🔍 Allocating resource type:', allocateForm.resourceType);
+
+      // Use the new allocate-by-type endpoint which auto-creates national resources if needed
+      await NdmaApiService.allocateResourceByType({
+        resourceType: allocateForm.resourceType,
+        provinceId: provinceToUse.id,
+        quantity: parseInt(allocateForm.quantity, 10),
+        priority: allocateForm.priority,
+        notes: allocateForm.notes
+      });
+
+      NotificationService.showSuccess(
+        `Successfully allocated ${allocateForm.quantity} units of ${allocateForm.resourceType} to ${allocateForm.targetProvince}`
+      );
+
+      // Reset form
+      setAllocateForm({
+        targetProvince: '',
+        resourceType: '',
+        quantity: '',
+        priority: 'normal',
+        notes: ''
+      });
+
+      // Refresh data from hook
+      if (refetchData) {
+        await refetchData();
+      }
+    } catch (err) {
+      console.error('Allocation failed:', err);
+      NotificationService.showError(err.response?.data?.message || err.message || 'Failed to allocate resources');
+    } finally {
+      setAllocating(false);
+    }
   };
 
   // Resource types for allocation
@@ -227,11 +310,19 @@ const ResourcesPage = () => {
                           required
                         >
                           <option value="">Select Province</option>
-                          {provincialAllocations.map((alloc) => (
-                            <option key={alloc.province} value={alloc.province}>
-                              {alloc.province}
-                            </option>
-                          ))}
+                          {provinces.length > 0 ? (
+                            provinces.map((province) => (
+                              <option key={province.id} value={province.name}>
+                                {province.name}
+                              </option>
+                            ))
+                          ) : (
+                            provincialAllocations.map((alloc) => (
+                              <option key={alloc.province} value={alloc.province}>
+                                {alloc.province}
+                              </option>
+                            ))
+                          )}
                         </select>
                         <ChevronDown className="allocate-select-icon" />
                       </div>
@@ -304,9 +395,9 @@ const ResourcesPage = () => {
                     </div>
 
                     {/* Submit Button */}
-                    <button type="submit" className="allocate-submit-btn">
+                    <button type="submit" className="allocate-submit-btn" disabled={allocating}>
                       <Send className="allocate-submit-icon" />
-                      Allocate Resources
+                      {allocating ? 'Allocating...' : 'Allocate Resources'}
                     </button>
                   </form>
                 </div>

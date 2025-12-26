@@ -9,7 +9,7 @@ import { STAT_GRADIENT_KEYS } from '@shared/constants/dashboardConfig';
  */
 export const transformStatsForUI = (apiStats) => {
   if (!apiStats) return [];
-  
+
   return [
     {
       title: 'PENDING SOS',
@@ -73,7 +73,7 @@ export const transformStatsForUI = (apiStats) => {
  */
 export const transformAlertsForUI = (apiAlerts) => {
   if (!apiAlerts || !Array.isArray(apiAlerts)) return [];
-  
+
   return apiAlerts.map(alert => {
     // Build location string from available fields
     let location = '';
@@ -109,7 +109,7 @@ export const transformAlertsForUI = (apiAlerts) => {
  */
 export const transformDistrictsForDashboard = (apiDistricts) => {
   if (!apiDistricts || !Array.isArray(apiDistricts)) return [];
-  
+
   const getSeverityColor = (riskLevel) => {
     const colors = {
       critical: '#ef4444',
@@ -146,7 +146,7 @@ export const transformDistrictsForDashboard = (apiDistricts) => {
  */
 export const transformDistrictsForCoordination = (apiDistricts) => {
   if (!apiDistricts || !Array.isArray(apiDistricts)) return [];
-  
+
   const getStatusFromRisk = (riskLevel) => {
     const statusMap = {
       critical: 'critical',
@@ -176,7 +176,7 @@ export const transformDistrictsForCoordination = (apiDistricts) => {
  */
 export const transformSheltersForUI = (apiShelters) => {
   if (!apiShelters || !Array.isArray(apiShelters)) return [];
-  
+
   return apiShelters.map(shelter => ({
     id: shelter.id,
     name: shelter.name,
@@ -194,42 +194,89 @@ export const transformSheltersForUI = (apiShelters) => {
 };
 
 /**
+ * Normalize database type to one of 4 standard categories
+ */
+const normalizeResourceType = (type) => {
+  const t = (type || 'other').toLowerCase();
+  if (['water', 'drinking', 'purification'].some(k => t.includes(k))) return 'water';
+  if (['food', 'supplies', 'essential'].some(k => t.includes(k))) return 'food';
+  if (['medical', 'medicine', 'health', 'healthcare'].some(k => t.includes(k))) return 'medical';
+  if (['shelter', 'housing', 'tent', 'blanket', 'clothing'].some(k => t.includes(k))) return 'shelter';
+  return 'food'; // Default
+};
+
+/**
  * Transform resources from API to UI format
+ * AGGREGATES by type into 4 categories: food, water, medical, shelter
  */
 export const transformResourcesForUI = (apiResources) => {
   if (!apiResources || !Array.isArray(apiResources)) return [];
-  
-  return apiResources.map(resource => {
+
+  // Aggregate resources by normalized type
+  const typeAggregation = {
+    food: { quantity: 0, allocated: 0, location: 'Provincial Warehouse', lastUpdate: null },
+    water: { quantity: 0, allocated: 0, location: 'Provincial Warehouse', lastUpdate: null },
+    medical: { quantity: 0, allocated: 0, location: 'Provincial Warehouse', lastUpdate: null },
+    shelter: { quantity: 0, allocated: 0, location: 'Provincial Warehouse', lastUpdate: null },
+  };
+
+  apiResources.forEach(resource => {
+    const normalizedType = normalizeResourceType(resource.type || resource.name);
     const quantity = resource.quantity || 0;
     const allocated = resource.allocated || resource.allocatedQuantity || 0;
+
+    typeAggregation[normalizedType].quantity += quantity;
+    typeAggregation[normalizedType].allocated += allocated;
+
+    // Keep track of most recent update
+    if (resource.lastUpdate) {
+      const resourceDate = new Date(resource.lastUpdate);
+      if (!typeAggregation[normalizedType].lastUpdate ||
+        resourceDate > typeAggregation[normalizedType].lastUpdate) {
+        typeAggregation[normalizedType].lastUpdate = resourceDate;
+      }
+    }
+
+    // Use first non-default location found
+    if (resource.location && resource.location !== 'Provincial Warehouse') {
+      typeAggregation[normalizedType].location = resource.location;
+    }
+  });
+
+  const typeConfig = {
+    food: { name: 'Food Supplies', unit: 'units' },
+    water: { name: 'Water Supply', unit: 'liters' },
+    medical: { name: 'Medical Kits', unit: 'kits' },
+    shelter: { name: 'Shelter Units', unit: 'units' },
+  };
+
+  // Convert to array of 4 aggregated resource cards
+  return Object.entries(typeAggregation).map(([type, data], index) => {
+    const quantity = data.quantity;
+    const allocated = data.allocated;
     const available = quantity - allocated;
     const usagePercentage = quantity > 0 ? (allocated / quantity) * 100 : 0;
-    
-    // Compute status if not provided or needs recalculation
-    let status = resource.status || 'available';
-    
-    // Override status calculation based on actual allocation data
+
+    let status = 'available';
     if (available <= 0) {
       status = 'allocated';
     } else if (usagePercentage >= 90) {
       status = 'critical';
     } else if (usagePercentage >= 70) {
       status = 'low';
-    } else if (usagePercentage > 0) {
-      status = 'available';
     }
-    
+
     return {
-      id: resource.id,
-      name: resource.name,
+      id: type, // Use type as ID
+      name: typeConfig[type].name,
       icon: Package,
       status: status,
       quantity: quantity,
-      unit: resource.unit || 'units',
-      location: resource.location || 'Provincial Warehouse',
+      unit: typeConfig[type].unit,
+      location: data.location,
       allocated: allocated,
-      trend: resource.trend || 0,
-      lastUpdated: resource.lastUpdate ? formatTimeAgo(new Date(resource.lastUpdate)) : 'N/A',
+      trend: 0,
+      lastUpdated: data.lastUpdate ? formatTimeAgo(data.lastUpdate) : 'N/A',
     };
   });
 };
@@ -239,15 +286,15 @@ export const transformResourcesForUI = (apiResources) => {
  */
 const formatTimeAgo = (date) => {
   const seconds = Math.floor((new Date() - date) / 1000);
-  
+
   if (seconds < 60) return `${seconds} secs ago`;
-  
+
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes} mins ago`;
-  
+
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours} hours ago`;
-  
+
   const days = Math.floor(hours / 24);
   return `${days} days ago`;
 };
@@ -259,23 +306,23 @@ const formatTimeAgo = (date) => {
 export const filterResourcesByStatus = (resources, status) => {
   if (!resources || !Array.isArray(resources)) return [];
   if (status === 'all' || !status) return resources;
-  
+
   const normalizedStatus = status.toLowerCase();
-  
+
   return resources.filter(resource => {
     const availableQty = (resource.quantity || 0) - (resource.allocated || 0);
-    
+
     // Semantic filters based on allocation
     if (normalizedStatus === 'available') {
       // Show resources that have available quantity > 0
       return availableQty > 0;
     }
-    
+
     if (normalizedStatus === 'allocated') {
       // Show resources that have been allocated (any amount)
       return (resource.allocated || 0) > 0;
     }
-    
+
     // Status-based filters (low, critical, etc.)
     const resourceStatus = (resource.status || 'available').toLowerCase();
     return resourceStatus === normalizedStatus;

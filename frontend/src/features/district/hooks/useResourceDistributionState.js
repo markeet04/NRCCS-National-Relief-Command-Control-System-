@@ -9,8 +9,10 @@ const useResourceDistributionState = () => {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [demoModal, setDemoModal] = useState({ isOpen: false, title: '', message: '', type: 'info' });
   const [isAllocateFormOpen, setIsAllocateFormOpen] = useState(false);
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+  const [requestLoading, setRequestLoading] = useState(false);
   const [selectedResource, setSelectedResource] = useState(null);
-  
+
   // Data states
   const [resources, setResources] = useState([]);
   const [resourceStats, setResourceStats] = useState(null);
@@ -25,13 +27,13 @@ const useResourceDistributionState = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const [resourcesData, statsData, sheltersData] = await Promise.all([
         districtApi.getAllResources(),
         districtApi.getResourceStats(),
         districtApi.getSheltersForAllocation(),
       ]);
-      
+
       setResources(resourcesData);
       setResourceStats(statsData);
       setShelters(sheltersData);
@@ -68,11 +70,25 @@ const useResourceDistributionState = () => {
       notification.success(`Successfully allocated ${allocationData.quantity} units to shelter`);
       setIsAllocateFormOpen(false);
       setSelectedResource(null);
-      
+
       // Refresh data
       await fetchResourceData();
     } catch (err) {
       notification.error(err.message);
+    }
+  };
+
+  // Handle requesting resources from PDMA
+  const handleRequestFromPdma = async (requestData) => {
+    try {
+      setRequestLoading(true);
+      await districtApi.createResourceRequest(requestData);
+      notification.success('Resource request submitted to PDMA successfully');
+      setIsRequestModalOpen(false);
+    } catch (err) {
+      notification.error(err.message || 'Failed to submit request');
+    } finally {
+      setRequestLoading(false);
     }
   };
 
@@ -97,6 +113,11 @@ const useResourceDistributionState = () => {
     loading,
     error,
     refetch: fetchResourceData,
+    // Request from PDMA
+    isRequestModalOpen,
+    setIsRequestModalOpen,
+    requestLoading,
+    handleRequestFromPdma,
   };
 };
 

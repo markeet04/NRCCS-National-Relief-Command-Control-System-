@@ -16,6 +16,8 @@ import { WeatherData } from '../common/entities/weather-data.entity';
 import { ResourceAllocation } from '../common/entities/resource-allocation.entity';
 import { MissingPerson, MissingPersonStatus } from '../common/entities/missing-person.entity';
 import { UpdateMissingPersonStatusDto } from './dtos/update-missing-person-status.dto';
+import { ResourceRequest, ResourceRequestStatus, ResourceRequestPriority } from '../common/entities/resource-request.entity';
+import { CreateDistrictResourceRequestDto } from './dtos/resource-request.dto';
 import {
   UpdateSosStatusDto,
   AssignTeamDto,
@@ -65,7 +67,9 @@ export class DistrictService {
     private resourceAllocationRepository: Repository<ResourceAllocation>,
     @InjectRepository(MissingPerson)
     private missingPersonRepository: Repository<MissingPerson>,
-  ) {}
+    @InjectRepository(ResourceRequest)
+    private resourceRequestRepository: Repository<ResourceRequest>,
+  ) { }
 
   // ==================== HELPER METHODS ====================
 
@@ -409,11 +413,11 @@ export class DistrictService {
       districtId,
     );
 
-      // Return updated SOS request with rescueTeam relation
-      return await this.sosRepository.findOne({
-        where: { id },
-        relations: ['rescueTeam'],
-      });
+    // Return updated SOS request with rescueTeam relation
+    return await this.sosRepository.findOne({
+      where: { id },
+      relations: ['rescueTeam'],
+    });
   }
 
   async addTimelineEntry(id: string, dto: AddTimelineEntryDto, user: User) {
@@ -1134,7 +1138,7 @@ export class DistrictService {
     // Update shelter supply levels based on resource type
     const resourceType = (resource.type || resource.resourceType || '').toLowerCase();
     const supplyIncrease = Math.min(10, dto.quantity); // Each unit increases supply by up to 10%
-    
+
     if (resourceType.includes('food')) {
       shelter.supplyFood = Math.min(100, (shelter.supplyFood || 0) + supplyIncrease);
     } else if (resourceType.includes('water')) {
@@ -1151,7 +1155,7 @@ export class DistrictService {
       shelter.supplyMedical = Math.min(100, (shelter.supplyMedical || 0) + distributedIncrease);
       shelter.supplyTents = Math.min(100, (shelter.supplyTents || 0) + distributedIncrease);
     }
-    
+
     await this.shelterRepository.save(shelter);
 
     // Create allocation record for audit trail
@@ -1229,10 +1233,10 @@ export class DistrictService {
     const now = new Date();
     return persons.map(person => {
       const lastSeenDate = person.lastSeenDate ? new Date(person.lastSeenDate) : null;
-      const daysMissing = lastSeenDate 
+      const daysMissing = lastSeenDate
         ? Math.floor((now.getTime() - lastSeenDate.getTime()) / (1000 * 60 * 60 * 24))
         : null;
-      
+
       return {
         ...person,
         daysMissing,
@@ -1258,7 +1262,7 @@ export class DistrictService {
     // Count critical cases (17+ days but < 20)
     const criticalDate = new Date();
     criticalDate.setDate(criticalDate.getDate() - 17);
-    
+
     const critical = await this.missingPersonRepository
       .createQueryBuilder('mp')
       .where('mp.districtId = :districtId', { districtId })
@@ -1331,7 +1335,7 @@ export class DistrictService {
 
     const now = new Date();
     const lastSeenDate = person.lastSeenDate ? new Date(person.lastSeenDate) : null;
-    const daysMissing = lastSeenDate 
+    const daysMissing = lastSeenDate
       ? Math.floor((now.getTime() - lastSeenDate.getTime()) / (1000 * 60 * 60 * 24))
       : null;
 
@@ -1350,7 +1354,7 @@ export class DistrictService {
   @Cron(CronExpression.EVERY_DAY_AT_2AM)
   async checkAndMarkDeadPersons() {
     console.log('[CRON] Running auto-dead check for missing persons...');
-    
+
     const twentyDaysAgo = new Date();
     twentyDaysAgo.setDate(twentyDaysAgo.getDate() - 20);
 
@@ -1363,7 +1367,86 @@ export class DistrictService {
       .execute();
 
     console.log(`[CRON] Auto-marked ${result.affected || 0} missing persons as deceased (20+ days missing)`);
-    
+
     return { affected: result.affected || 0 };
+  }
+
+  // ==================== RESOURCE REQUESTS ====================
+
+  /**
+   * Create a resource request from District to PDMA
+   */
+  async createResourceRequest(createDto: CreateDistrictResourceRequestDto, user: User) {
+    const districtId = this.verifyDistrictAccess(user);
+
+    // Get district to find province
+    const district = await this.districtRepository.findOne({
+      where: { id: districtId },
+    });
+
+    if (!district) {
+      throw new NotFoundException('District not found');
+    }
+
+    // Create request targeting the province
+    const request = this.resourceRequestRepository.create({
+      provinceId: district.provinceId,
+      districtId: districtId,  // Add district ID so PDMA can see this request
+      requestedByUserId: user.id,
+      requestedByName: user.name,
+      priority: createDto.priority as unknown as ResourceRequestPriority,
+      reason: createDto.justification,
+      notes: createDto.notes,
+      requestedItems: [{
+        resourceType: createDto.resourceType,
+        resourceName: createDto.resourceName,
+        quantity: createDto.quantity,
+        unit: createDto.unit,
+      }],
+      status: ResourceRequestStatus.PENDING,
+    });
+
+    const saved = await this.resourceRequestRepository.save(request);
+
+    await this.logActivity(
+      'resource_request_created',
+      'Resource Request Submitted to PDMA',
+      `${user.name} requested ${createDto.quantity} ${createDto.unit} of ${createDto.resourceName} from PDMA`,
+      user.id,
+      districtId,
+    );
+
+    return saved;
+  }
+
+  /**
+   * Get own resource requests (District → PDMA)
+   */
+  async getOwnResourceRequests(user: User, status?: string) {
+    const districtId = this.verifyDistrictAccess(user);
+
+    // Get district to find province
+    const district = await this.districtRepository.findOne({
+      where: { id: districtId },
+    });
+
+    if (!district) {
+      throw new NotFoundException('District not found');
+    }
+
+    const where: any = {
+      // Requests by this user from their province
+      requestedByUserId: user.id,
+      provinceId: district.provinceId,
+    };
+
+    if (status) {
+      where.status = status;
+    }
+
+    return await this.resourceRequestRepository.find({
+      where,
+      order: { createdAt: 'DESC' },
+    });
   }
 }

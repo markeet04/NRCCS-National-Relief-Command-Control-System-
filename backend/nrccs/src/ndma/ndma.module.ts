@@ -13,6 +13,9 @@ import { SosRequest } from '../common/entities/sos-request.entity';
 import { RescueTeam } from '../common/entities/rescue-team.entity';
 import { ActivityLog } from '../common/entities/activity-log.entity';
 import { AuditLog } from '../common/entities/audit-log.entity';
+import { ResourceRequest } from '../common/entities/resource-request.entity';
+import { NdmaResourceAllocation } from '../common/entities/ndma-resource-allocation.entity';
+import { ResourceAllocation } from '../common/entities/resource-allocation.entity';
 
 @Module({
     imports: [
@@ -27,6 +30,9 @@ import { AuditLog } from '../common/entities/audit-log.entity';
             RescueTeam,
             ActivityLog,
             AuditLog,
+            ResourceRequest,
+            NdmaResourceAllocation,
+            ResourceAllocation,
         ]),
     ],
     controllers: [NdmaController],

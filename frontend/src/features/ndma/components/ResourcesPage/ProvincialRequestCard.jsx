@@ -5,7 +5,8 @@ import { Check, X, Clock, AlertTriangle, Package, Droplets, Home, Stethoscope } 
  * Get icon for resource type
  */
 const getResourceIcon = (name) => {
-  const nameLower = name.toLowerCase();
+  if (!name) return Package;
+  const nameLower = String(name).toLowerCase();
   if (nameLower.includes('food')) return Package;
   if (nameLower.includes('water')) return Droplets;
   if (nameLower.includes('shelter') || nameLower.includes('tent') || nameLower.includes('blanket')) return Home;
@@ -41,25 +42,25 @@ const formatDate = (dateString) => {
  * ProvincialRequestCard Component
  * Displays a resource request from a province with accept/reject actions
  */
-const ProvincialRequestCard = ({ 
-  request, 
-  onApprove, 
-  onReject, 
+const ProvincialRequestCard = ({
+  request,
+  onApprove,
+  onReject,
   onViewDetails,
-  nationalStock 
+  nationalStock
 }) => {
-  const { 
-    id, 
-    province, 
-    requestDate, 
-    status, 
-    priority, 
-    items, 
-    reason 
+  const {
+    id,
+    province,
+    requestDate,
+    status,
+    priority,
+    items,
+    reason
   } = request;
 
   const isPending = status === 'pending';
-  
+
   // Check if we have sufficient stock for all items
   const checkSufficientStock = () => {
     // This is a simplified check - in production, map items to stock categories
@@ -87,16 +88,17 @@ const ProvincialRequestCard = ({
 
       {/* Requested Items */}
       <div className="request-items-list">
-        {items.map((item, index) => {
-          const Icon = getResourceIcon(item.name);
+        {items && items.map((item, index) => {
+          const itemName = item.name || item.resourceName || item.resourceType || 'Resource';
+          const Icon = getResourceIcon(itemName);
           return (
             <div key={index} className="request-item">
               <div className="request-item-icon">
                 <Icon className="w-4 h-4" />
               </div>
-              <span className="request-item-name">{item.name}</span>
+              <span className="request-item-name">{itemName}</span>
               <span className="request-item-quantity">
-                {item.quantity.toLocaleString()} {item.unit}
+                {(item.quantity || 0).toLocaleString()} {item.unit || 'units'}
               </span>
             </div>
           );

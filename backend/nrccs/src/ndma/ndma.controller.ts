@@ -21,6 +21,12 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserRole, User } from '../common/entities/user.entity';
 import { CreateAlertDto } from './dtos/alert.dto';
 import { FloodPredictionDto } from './dtos/flood-prediction.dto';
+import {
+    CreateNationalResourceDto,
+    AllocateResourceToProvinceDto,
+    ReviewResourceRequestDto,
+    IncreaseNationalStockDto
+} from './dtos/resource.dto';
 
 @Controller('ndma')
 @UseGuards(SessionAuthGuard, RolesGuard)
@@ -160,6 +166,72 @@ export class NdmaController {
     @Get('resources/by-province')
     async getResourcesByProvince(@CurrentUser() user: User) {
         return await this.ndmaService.getResourcesByProvince(user);
+    }
+
+    @Get('resources/national')
+    async getNationalResources(@CurrentUser() user: User) {
+        return await this.ndmaService.getNationalResources(user);
+    }
+
+    @Post('resources')
+    @HttpCode(HttpStatus.CREATED)
+    async createNationalResource(
+        @Body() createDto: CreateNationalResourceDto,
+        @CurrentUser() user: User,
+    ) {
+        return await this.ndmaService.createNationalResource(createDto, user);
+    }
+
+    @Post('resources/:id/increase-stock')
+    async increaseNationalStock(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() increaseDto: IncreaseNationalStockDto,
+        @CurrentUser() user: User,
+    ) {
+        return await this.ndmaService.increaseNationalStock(id, increaseDto, user);
+    }
+
+    @Post('resources/:id/allocate')
+    async allocateResourceToProvince(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() allocateDto: AllocateResourceToProvinceDto,
+        @CurrentUser() user: User,
+    ) {
+        return await this.ndmaService.allocateResourceToProvince(id, allocateDto, user);
+    }
+
+    @Post('allocate-by-type')
+    async allocateResourceByType(
+        @Body() allocateDto: AllocateResourceToProvinceDto & { resourceType: string },
+        @CurrentUser() user: User,
+    ) {
+        return await this.ndmaService.allocateResourceByType(allocateDto, user);
+    }
+
+    @Get('resource-requests')
+    async getResourceRequests(
+        @CurrentUser() user: User,
+        @Query('status') status?: string,
+    ) {
+        return await this.ndmaService.getResourceRequests(user, status);
+    }
+
+    @Put('resource-requests/:id/review')
+    async reviewResourceRequest(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() reviewDto: ReviewResourceRequestDto,
+        @CurrentUser() user: User,
+    ) {
+        return await this.ndmaService.reviewResourceRequest(id, reviewDto, user);
+    }
+
+    @Get('allocations/history')
+    async getAllocationHistory(
+        @CurrentUser() user: User,
+        @Query('provinceId') provinceId?: string,
+    ) {
+        const parsedProvinceId = provinceId ? parseInt(provinceId, 10) : undefined;
+        return await this.ndmaService.getNdmaAllocationHistory(user, parsedProvinceId);
     }
 
     // ==================== SOS REQUESTS ====================

@@ -5,14 +5,14 @@ import apiClient from '../../../shared/services/api/apiClient';
 
 const pdmaApi = {
   // ==================== DASHBOARD ====================
-  
+
   async getDashboardStats() {
     const response = await apiClient.get('/pdma/dashboard/stats');
     return response.data;
   },
 
   // ==================== DISTRICTS ====================
-  
+
   async getAllDistricts() {
     const response = await apiClient.get('/pdma/districts');
     return response.data;
@@ -29,7 +29,7 @@ const pdmaApi = {
   },
 
   // ==================== ALERTS ====================
-  
+
   async getAllAlerts(params = {}) {
     const response = await apiClient.get('/pdma/alerts', { params });
     return response.data;
@@ -51,7 +51,7 @@ const pdmaApi = {
   },
 
   // ==================== SHELTERS ====================
-  
+
   async getAllShelters(params = {}) {
     const response = await apiClient.get('/pdma/shelters', { params });
     return response.data;
@@ -83,7 +83,7 @@ const pdmaApi = {
   },
 
   // ==================== RESOURCES ====================
-  
+
   async getAllResources(params = {}) {
     const response = await apiClient.get('/pdma/resources', { params });
     return response.data;
@@ -109,8 +109,54 @@ const pdmaApi = {
     return response.data;
   },
 
+  async allocateResourceByType(data) {
+    const response = await apiClient.post('/pdma/allocate-by-type', data);
+    return response.data;
+  },
+
+  // ==================== RESOURCE REQUESTS (PDMA → NDMA) ====================
+
+  /**
+   * Create a resource request to NDMA
+   * @param {Object} data - { requestedItems: [{resourceType, quantity, unit}], priority, reason, notes? }
+   */
+  async createResourceRequest(data) {
+    const response = await apiClient.post('/pdma/resource-requests', data);
+    return response.data;
+  },
+
+  /**
+   * Get own resource requests (submitted to NDMA)
+   * @param {Object} params - { status? }
+   */
+  async getOwnResourceRequests(params = {}) {
+    const response = await apiClient.get('/pdma/resource-requests', { params });
+    return response.data;
+  },
+
+  // ==================== DISTRICT REQUESTS ====================
+
+  /**
+   * Get resource requests from districts (District → PDMA)
+   * @param {Object} params - { status? }
+   */
+  async getDistrictRequests(params = {}) {
+    const response = await apiClient.get('/pdma/district-requests', { params });
+    return response.data;
+  },
+
+  /**
+   * Review a district's resource request
+   * @param {number} requestId 
+   * @param {Object} reviewDto - { status: 'approved'|'rejected', notes? }
+   */
+  async reviewDistrictRequest(requestId, reviewDto) {
+    const response = await apiClient.put(`/pdma/district-requests/${requestId}/review`, reviewDto);
+    return response.data;
+  },
+
   // ==================== SOS REQUESTS ====================
-  
+
   async getAllSosRequests(params = {}) {
     const response = await apiClient.get('/pdma/sos-requests', { params });
     return response.data;
@@ -127,7 +173,7 @@ const pdmaApi = {
   },
 
   // ==================== RESCUE TEAMS ====================
-  
+
   async getAllRescueTeams(params = {}) {
     const response = await apiClient.get('/pdma/rescue-teams', { params });
     return response.data;
@@ -139,7 +185,7 @@ const pdmaApi = {
   },
 
   // ==================== ACTIVITY LOGS ====================
-  
+
   async getActivityLogs(limit = 50) {
     const response = await apiClient.get('/pdma/activity-logs', { params: { limit } });
     return response.data;
@@ -152,7 +198,7 @@ const pdmaApi = {
   },
 
   // Alias for convenience
-  getDistricts: async function() {
+  getDistricts: async function () {
     return this.getAllDistricts();
   },
 };

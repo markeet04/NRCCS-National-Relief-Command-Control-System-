@@ -12,6 +12,7 @@ import { SosRequest } from '../common/entities/sos-request.entity';
 import { RescueTeam } from '../common/entities/rescue-team.entity';
 import { ActivityLog } from '../common/entities/activity-log.entity';
 import { AuditLog } from '../common/entities/audit-log.entity';
+import { ResourceRequest } from '../common/entities/resource-request.entity';
 
 @Module({
   imports: [
@@ -26,10 +27,11 @@ import { AuditLog } from '../common/entities/audit-log.entity';
       RescueTeam,
       ActivityLog,
       AuditLog,
+      ResourceRequest,
     ]),
   ],
   controllers: [PdmaController],
   providers: [PdmaService],
   exports: [PdmaService],
 })
-export class PdmaModule {}
+export class PdmaModule { }

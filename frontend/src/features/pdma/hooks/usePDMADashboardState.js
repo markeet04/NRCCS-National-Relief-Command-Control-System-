@@ -70,9 +70,9 @@ const usePDMADashboardState = () => {
     }
   };
 
-  const handleAllocateResource = async (resourceId, districtId, quantity) => {
+  const handleAllocateResource = async (resourceId, districtId, quantity, purpose) => {
     try {
-      await pdmaApi.allocateResource(resourceId, { districtId, quantity });
+      await pdmaApi.allocateResource(resourceId, { districtId, quantity, purpose });
       notification.success('Resource allocated successfully');
       
       // Refresh resources

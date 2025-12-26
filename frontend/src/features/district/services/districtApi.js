@@ -4,7 +4,7 @@ import apiClient from '../../../shared/services/api/apiClient';
 
 const districtApi = {
   // ==================== DASHBOARD ====================
-  
+
   async getDashboardStats() {
     try {
       const response = await apiClient.get('/district/dashboard/stats');
@@ -33,7 +33,7 @@ const districtApi = {
   },
 
   // ==================== SOS REQUESTS ====================
-  
+
   async getAllSosRequests(status) {
     try {
       const params = status && status !== 'All' ? { status } : {};
@@ -90,7 +90,7 @@ const districtApi = {
   },
 
   // ==================== RESCUE TEAMS ====================
-  
+
   async getAllRescueTeams(status) {
     try {
       const params = status && status !== 'all' ? { status } : {};
@@ -149,7 +149,7 @@ const districtApi = {
   },
 
   // ==================== SHELTERS ====================
-  
+
   async getAllShelters(status) {
     try {
       const params = status && status !== 'all' ? { status } : {};
@@ -226,7 +226,7 @@ const districtApi = {
   },
 
   // ==================== DAMAGE REPORTS ====================
-  
+
   async getAllDamageReports(status) {
     try {
       const params = status && status !== 'all' ? { status } : {};
@@ -310,7 +310,7 @@ const districtApi = {
   },
 
   // ==================== ALERTS ====================
-  
+
   async getAlerts(status) {
     try {
       const params = status ? { status } : {};
@@ -322,7 +322,7 @@ const districtApi = {
   },
 
   // ==================== ACTIVITY LOGS ====================
-  
+
   async getActivityLogs(limit = 20) {
     try {
       const response = await apiClient.get('/district/activity', { params: { limit } });
@@ -388,6 +388,34 @@ const districtApi = {
     }
   },
 
+  // ==================== RESOURCE REQUESTS (District → PDMA) ====================
+
+  /**
+   * Create a resource request to PDMA
+   * @param {Object} data - { resourceType, resourceName, quantity, unit, justification, priority, notes? }
+   */
+  async createResourceRequest(data) {
+    try {
+      const response = await apiClient.post('/district/resource-requests', data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to submit resource request');
+    }
+  },
+
+  /**
+   * Get own resource requests (submitted to PDMA)
+   * @param {Object} params - { status? }
+   */
+  async getOwnResourceRequests(params = {}) {
+    try {
+      const response = await apiClient.get('/district/resource-requests', { params });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch resource requests');
+    }
+  },
+
   // ==================== MISSING PERSONS ====================
 
   async getMissingPersons(params = {}) {
@@ -434,7 +462,7 @@ const districtApi = {
       throw new Error(error.response?.data?.message || 'Failed to trigger auto-dead check');
     }
   },
-// ...existing code...
+  // ...existing code...
 };
 
 export default districtApi;
