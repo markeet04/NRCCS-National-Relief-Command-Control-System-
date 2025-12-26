@@ -3,6 +3,8 @@
  * 
  * Defines all ArcGIS layers with REST endpoints and role-based visibility.
  * Uses ArcGIS Living Atlas and public data sources.
+ * 
+ * IMPORTANT: These are public Esri layers that don't require authentication.
  */
 
 // ============================================================================
@@ -10,37 +12,48 @@
 // ============================================================================
 
 export const GIS_LAYERS = {
-    // Administrative Boundaries (Living Atlas)
+    // Administrative Boundaries - Pakistan Specific
+    // Using Esri World Administrative Divisions (PUBLIC - no auth required)
     adminBoundaries: {
+        // Pakistan Country Boundary
+        // World Countries (Generalized) - Field: COUNTRY (name) or ISO (2-letter code)
+        country: {
+            url: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/World_Countries_(Generalized)/FeatureServer/0',
+            title: 'Pakistan Boundary',
+            type: 'FeatureLayer',
+            visible: true,
+            opacity: 0.9,
+            // Use COUNTRY field with country name
+            definitionExpression: "COUNTRY = 'Pakistan'",
+            outlineColor: [59, 130, 246],  // Blue
+            outlineWidth: 4
+        },
+        // Province Boundaries (Admin Level 1)
+        // World Administrative Divisions - Fields: NAME (province), COUNTRY (country name)
         provinces: {
             url: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/World_Administrative_Divisions/FeatureServer/0',
             title: 'Province Boundaries',
             type: 'FeatureLayer',
-            visible: false,
-            opacity: 0.7,
-            renderer: {
-                type: 'simple',
-                symbol: {
-                    type: 'simple-fill',
-                    color: [0, 0, 0, 0],
-                    outline: { color: [255, 255, 255, 0.8], width: 2 }
-                }
-            }
+            visible: true,
+            opacity: 0.8,
+            // COUNTRY is the country name field (not ADM0_NAME)
+            definitionExpression: "COUNTRY = 'Pakistan'",
+            outlineColor: [16, 185, 129],  // Green
+            outlineWidth: 2.5
         },
+        // District/Subdivisions Boundaries - Note: Layer 1 doesn't exist in free service
+        // Using Layer 0 which shows admin level 1 (provinces) boundaries
+        // For actual district-level detail, would need premium Living Atlas subscription
         districts: {
-            url: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/World_Administrative_Divisions/FeatureServer/1',
-            title: 'District Boundaries',
+            url: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/World_Administrative_Divisions/FeatureServer/0',
+            title: 'Administrative Divisions',
             type: 'FeatureLayer',
-            visible: false,
-            opacity: 0.6,
-            renderer: {
-                type: 'simple',
-                symbol: {
-                    type: 'simple-fill',
-                    color: [0, 0, 0, 0],
-                    outline: { color: [100, 200, 255, 0.6], width: 1 }
-                }
-            }
+            visible: true,
+            opacity: 0.7,
+            // COUNTRY is the correct field name
+            definitionExpression: "COUNTRY = 'Pakistan'",
+            outlineColor: [239, 68, 68],  // Red
+            outlineWidth: 1.5
         }
     },
 
@@ -135,8 +148,15 @@ export const ROLE_LAYER_CONFIG = {
 };
 
 // ============================================================================
-// MOCK DATA FOR SHELTERS, HOSPITALS, EVACUATION ROUTES
-// (Replace with real API endpoints when available)
+// FALLBACK DATA FOR EMERGENCY FACILITIES
+// 
+// DATA SOURCES BY TYPE:
+// - Shelters: Fetched from DISTRICT BACKEND API (this is fallback only)
+// - Hospitals: Can be fetched from OSM Overpass API for public data
+// - Evacuation Routes: Maintained by district administration
+//
+// IMPORTANT: Shelters are ONLY displayed at DISTRICT level per role-based design
+// NDMA and PDMA maps should NOT include shelter data
 // ============================================================================
 
 export const EMERGENCY_FACILITIES = {

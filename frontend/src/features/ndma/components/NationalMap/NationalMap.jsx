@@ -708,7 +708,7 @@ const NationalMap = ({ height = '450px' }) => {
           console.log('✓ ArcGIS API Key configured');
         }
 
-        // Pakistan boundary
+        // Pakistan boundary (simple envelope for view constraints)
         const pakistanBoundary = new Polygon({
           rings: [[
             [PAKISTAN_CONFIG.bounds.minLon, PAKISTAN_CONFIG.bounds.minLat],
@@ -730,7 +730,9 @@ const NationalMap = ({ height = '450px' }) => {
         locationMarkerRef.current = locationLayer;
 
         // ============================================================
-        // GIS LAYERS - Terrain, Hydrology, Emergency Services
+        // GIS LAYERS - NDMA NATIONAL LEVEL ONLY
+        // Strategic layers: Terrain, Rivers, Flood Zones, Province Boundaries
+        // NO shelters, NO evacuation routes (those are DISTRICT level)
         // ============================================================
 
         // Hillshade Terrain Layer (public TileLayer)
@@ -749,82 +751,53 @@ const NationalMap = ({ height = '450px' }) => {
           opacity: 0.7
         }) : null;
 
-        // Emergency Facilities Layers (GraphicsLayer - local data)
-        const hospitalsLayer = new GraphicsLayer({ title: 'Hospitals', visible: false });
-        const sheltersLayer = new GraphicsLayer({ title: 'Shelters', visible: false });
-        const evacuationLayer = new GraphicsLayer({ title: 'Evacuation Routes', visible: false });
-        const floodZonesLayer = new GraphicsLayer({ title: 'Flood Zones', visible: false });
-
-        // Add hospital markers
-        EMERGENCY_FACILITIES.hospitals.forEach(hospital => {
-          hospitalsLayer.add(new Graphic({
-            geometry: new Point({ longitude: hospital.lon, latitude: hospital.lat }),
-            symbol: new SimpleMarkerSymbol({
-              style: 'cross',
-              color: LAYER_SYMBOLS.hospital.color,
-              size: LAYER_SYMBOLS.hospital.size,
-              outline: { color: [255, 255, 255], width: 2 }
-            }),
-            attributes: hospital,
-            popupTemplate: {
-              title: '{name}',
-              content: 'Emergency: {emergency}<br>Beds: {beds}'
+        // REAL Pakistan Country Boundary (FeatureLayer from Living Atlas)
+        const pakistanCountryLayer = new FeatureLayer({
+          url: GIS_LAYERS.adminBoundaries.country.url,
+          title: '🇵🇰 Pakistan Boundary',
+          visible: true,
+          opacity: 0.9,
+          definitionExpression: GIS_LAYERS.adminBoundaries.country.definitionExpression,
+          renderer: {
+            type: 'simple',
+            symbol: {
+              type: 'simple-fill',
+              color: [0, 0, 0, 0],
+              outline: { color: [59, 130, 246], width: 3 }
             }
-          }));
+          }
         });
 
-        // Add shelter markers
-        EMERGENCY_FACILITIES.shelters.forEach(shelter => {
-          const symbolConfig = LAYER_SYMBOLS.shelter[shelter.status] || LAYER_SYMBOLS.shelter.available;
-          sheltersLayer.add(new Graphic({
-            geometry: new Point({ longitude: shelter.lon, latitude: shelter.lat }),
-            symbol: new SimpleMarkerSymbol({
-              style: 'square',
-              color: symbolConfig.color,
-              size: symbolConfig.size,
-              outline: { color: [255, 255, 255], width: 2 }
-            }),
-            attributes: shelter,
-            popupTemplate: {
-              title: '{name}',
-              content: 'Capacity: {capacity}<br>Status: {status}'
+        // REAL Province Boundaries (FeatureLayer from Living Atlas - filtered for Pakistan)
+        const provinceBoundaryLayer = new FeatureLayer({
+          url: GIS_LAYERS.adminBoundaries.provinces.url,
+          title: 'Province Boundaries',
+          visible: true,
+          opacity: 0.8,
+          definitionExpression: GIS_LAYERS.adminBoundaries.provinces.definitionExpression,
+          renderer: {
+            type: 'simple',
+            symbol: {
+              type: 'simple-fill',
+              color: [0, 0, 0, 0],
+              outline: { color: [16, 185, 129], width: 2 }
             }
-          }));
+          }
         });
 
-        // Add evacuation routes
-        EMERGENCY_FACILITIES.evacuationRoutes.forEach(route => {
-          const symbolConfig = LAYER_SYMBOLS.evacuationRoute[route.status] || LAYER_SYMBOLS.evacuationRoute.clear;
-          evacuationLayer.add(new Graphic({
-            geometry: new Polyline({
-              paths: [route.paths],
-              spatialReference: { wkid: 4326 }
-            }),
-            symbol: new SimpleLineSymbol({
-              color: symbolConfig.color,
-              width: symbolConfig.width,
-              style: 'solid'
-            }),
-            attributes: route,
-            popupTemplate: {
-              title: '{name}',
-              content: 'Status: {status}'
-            }
-          }));
-        });
+        // Flood zones layer (GraphicsLayer for dynamic data)
+        const floodZonesLayer = new GraphicsLayer({ title: 'Flood Forecast Zones', visible: false });
 
-        // Build layers array - CORRECT ORDERING for visual clarity:
-        // Bottom: Terrain/Hillshade → Rivers → Flood zones → Evacuation → Weather (raster) → Points
-        // Raster weather layers (precip, wind) should be semi-transparent and ABOVE polygons but not obscuring roads
+        // Build layers array - NDMA STRATEGIC LAYERS ONLY
+        // NO shelters, NO evacuation routes, NO hospitals (tactical level)
         const mapLayers = [
-          hillshadeLayer,          // Bottom - terrain
-          floodZonesLayer,         // Flood polygon layers
-          evacuationLayer,         // Evacuation routes (vector)
-          sheltersLayer,           // Shelter points
-          hospitalsLayer,          // Hospital points
-          precipLayer,             // Weather raster (semi-transparent)
-          windLayer,               // Wind animation layer
-          locationLayer            // Top - user location marker
+          hillshadeLayer,           // Bottom - terrain
+          pakistanCountryLayer,     // Pakistan country boundary (REAL shape)
+          provinceBoundaryLayer,    // Province boundaries (REAL shapes)
+          floodZonesLayer,          // Flood forecast zones
+          precipLayer,              // Weather precipitation zones
+          windLayer,                // Wind animation layer
+          locationLayer             // Top - user location marker
         ];
         if (riversLayer) mapLayers.splice(1, 0, riversLayer);
 
@@ -835,7 +808,7 @@ const NationalMap = ({ height = '450px' }) => {
         });
         mapInstanceRef.current = map;
 
-        // MapView
+        // MapView with HiDPI support for crisp rendering
         const view = new MapView({
           container: mapContainerRef.current,
           map: map,
@@ -847,9 +820,13 @@ const NationalMap = ({ height = '450px' }) => {
             maxZoom: PAKISTAN_CONFIG.maxZoom,
             rotationEnabled: false
           },
-          ui: { components: ['zoom', 'compass'] }
+          ui: { components: ['zoom', 'compass'] },
+          // FIX BLURRINESS: Force high DPI rendering
+          pixelRatio: window.devicePixelRatio || 1,
+          qualityProfile: 'high'
         });
         viewRef.current = view;
+
 
         await view.when();
 
@@ -908,9 +885,11 @@ const NationalMap = ({ height = '450px' }) => {
             const modeInfo = weatherAnimationService.getMode();
             setAnimationMode(modeInfo);
 
-            // Start auto-refresh for weather data
+            // Start auto-refresh for weather data (throttled)
             weatherAnimationService.startAutoRefresh(() => {
-              fetchWeatherForMapCenter(view);
+              if (view?.center) {
+                loadWeatherData(view.center.latitude, view.center.longitude);
+              }
             });
 
             console.log(`✓ Animation Mode: ${modeInfo.label}`);
@@ -945,7 +924,7 @@ const NationalMap = ({ height = '450px' }) => {
                   precipLayerRef.current?.addMany(zones);
                 }
               }
-            }, 1000); // 1 second debounce
+            }, 2000); // 2 second debounce for better performance
           }
         );
 
@@ -998,6 +977,19 @@ const NationalMap = ({ height = '450px' }) => {
       mapInstanceRef.current?.destroy();
     };
   }, [loadWeatherData, stopRainAnimation, stopWindAnimation]);
+
+  // ============================================================================
+  // THEME-REACTIVE BASEMAP SWITCHING
+  // Updates basemap when user toggles dark/light mode without reloading map
+  // ============================================================================
+
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      const newBasemap = getBasemapByTheme(theme);
+      mapInstanceRef.current.basemap = newBasemap;
+      console.log(`✓ Basemap switched to: ${newBasemap}`);
+    }
+  }, [theme]);
 
   // ============================================================================
   // TOGGLE HANDLERS

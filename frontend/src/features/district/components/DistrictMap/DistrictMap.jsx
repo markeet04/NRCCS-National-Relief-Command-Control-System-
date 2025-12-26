@@ -48,6 +48,9 @@ import { GIS_LAYERS, EMERGENCY_FACILITIES, LAYER_SYMBOLS } from '@config/gisLaye
 // Weather Animation Service
 import weatherAnimationService from '@shared/services/weatherAnimationService';
 
+// District API for backend shelter data
+import districtApi from '../../services/districtApi';
+
 // Theme
 import { useSettings } from '../../../../app/providers/ThemeProvider';
 import { getThemeColors } from '../../../../shared/utils/themeColors';
@@ -767,7 +770,9 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
         precipLayerRef.current = precipLayer;
 
         // ============================================================
-        // GIS LAYERS - Rivers, Shelters, Evacuation Routes
+        // GIS LAYERS - DISTRICT TACTICAL LEVEL
+        // This is the ONLY level with: Shelters, Evacuation Routes, Local Facilities
+        // NDMA and PDMA do NOT have these layers
         // ============================================================
 
         // Rivers (TileLayer - public, no auth)
@@ -778,10 +783,29 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
           opacity: 0.7
         }) : null;
 
-        // Emergency Facilities
-        const hospitalsLayer = new GraphicsLayer({ title: 'Hospitals', visible: false });
-        const sheltersLayer = new GraphicsLayer({ title: 'Shelters', visible: true });
-        const evacuationLayer = new GraphicsLayer({ title: 'Evacuation Routes', visible: false });
+        // DISTRICT-SPECIFIC LAYERS (Tactical Level)
+        // REAL District/Tehsil Boundary (FeatureLayer from Living Atlas)
+        const tehsilBoundariesLayer = new FeatureLayer({
+          url: GIS_LAYERS.adminBoundaries.districts.url,
+          title: `${districtName} District Boundary`,
+          visible: true,
+          opacity: 0.9,
+          // Filter for this specific district 
+          definitionExpression: `(${GIS_LAYERS.adminBoundaries.districts.definitionExpression}) AND (NAME LIKE '%${districtName}%' OR ADM2_NAME LIKE '%${districtName}%')`,
+          renderer: {
+            type: 'simple',
+            symbol: {
+              type: 'simple-fill',
+              color: [0, 0, 0, 0],
+              outline: { color: [239, 68, 68], width: 3 }
+            }
+          }
+        });
+
+        const hospitalsLayer = new GraphicsLayer({ title: '🏥 Hospitals', visible: true });
+        const sheltersLayer = new GraphicsLayer({ title: '🏠 Shelters & Camps', visible: true });
+        const evacuationLayer = new GraphicsLayer({ title: '🚗 Evacuation Routes', visible: true });
+        const rescueAssetsLayer = new GraphicsLayer({ title: 'Rescue Assets', visible: false });
 
         // Add hospital markers
         EMERGENCY_FACILITIES.hospitals.forEach(h => {
@@ -792,42 +816,98 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
               outline: { color: [255, 255, 255], width: 2 }
             }),
             attributes: h,
-            popupTemplate: { title: '{name}', content: 'Emergency: {emergency}<br>Beds: {beds}' }
+            popupTemplate: { title: '🏥 {name}', content: 'Emergency: {emergency}<br>Beds: {beds}' }
           }));
         });
 
-        // Add shelter markers
-        EMERGENCY_FACILITIES.shelters.forEach(s => {
-          const sym = LAYER_SYMBOLS.shelter[s.status] || LAYER_SYMBOLS.shelter.available;
-          sheltersLayer.add(new Graphic({
-            geometry: new Point({ longitude: s.lon, latitude: s.lat }),
-            symbol: new SimpleMarkerSymbol({
-              style: 'square', color: sym.color, size: sym.size,
-              outline: { color: [255, 255, 255], width: 2 }
-            }),
-            attributes: s,
-            popupTemplate: { title: '{name}', content: 'Capacity: {capacity}<br>Status: {status}' }
-          }));
-        });
+        // Add shelter markers (DISTRICT ONLY FEATURE)
+        // Load shelters from backend API instead of mock data
+        const loadSheltersFromBackend = async () => {
+          try {
+            const response = await districtApi.getAllShelters();
+            const sheltersData = response.data || response || [];
 
-        // Add evacuation routes
+            sheltersData.forEach(s => {
+              // Get coordinates from shelter data
+              const lon = s.coordinates?.lng || s.lng || s.longitude || 71.5;
+              const lat = s.coordinates?.lat || s.lat || s.latitude || 34.0;
+
+              // Determine status for symbology
+              const occupancyPercent = (s.occupancy / s.capacity) * 100;
+              let status = 'available';
+              if (occupancyPercent >= 100) status = 'full';
+              else if (occupancyPercent >= 90) status = 'near-full';
+
+              const sym = LAYER_SYMBOLS.shelter[status] || LAYER_SYMBOLS.shelter.available;
+
+              sheltersLayer.add(new Graphic({
+                geometry: new Point({ longitude: lon, latitude: lat }),
+                symbol: new SimpleMarkerSymbol({
+                  style: 'square', color: sym.color, size: sym.size + 4,
+                  outline: { color: [255, 255, 255], width: 2 }
+                }),
+                attributes: {
+                  ...s,
+                  status,
+                  occupancyPercent: Math.round(occupancyPercent)
+                },
+                popupTemplate: {
+                  title: '🏠 {name}',
+                  content: `<b>Capacity:</b> {capacity} people<br>
+                           <b>Occupancy:</b> {occupancy} ({occupancyPercent}%)<br>
+                           <b>Status:</b> {status}<br>
+                           <b>Address:</b> {address}`
+                }
+              }));
+            });
+            console.log(`✓ Loaded ${sheltersData.length} shelters from backend`);
+          } catch (error) {
+            console.warn('⚠️ Failed to load shelters from backend, using fallback:', error);
+            // Fallback to mock data if API fails
+            EMERGENCY_FACILITIES.shelters?.forEach(s => {
+              const sym = LAYER_SYMBOLS.shelter[s.status] || LAYER_SYMBOLS.shelter.available;
+              sheltersLayer.add(new Graphic({
+                geometry: new Point({ longitude: s.lon, latitude: s.lat }),
+                symbol: new SimpleMarkerSymbol({
+                  style: 'square', color: sym.color, size: sym.size + 4,
+                  outline: { color: [255, 255, 255], width: 2 }
+                }),
+                attributes: s,
+                popupTemplate: {
+                  title: '🏠 {name}',
+                  content: '<b>Capacity:</b> {capacity} people<br><b>Status:</b> {status}'
+                }
+              }));
+            });
+          }
+        };
+        loadSheltersFromBackend();
+
+        // Add evacuation routes (DISTRICT ONLY FEATURE)
         EMERGENCY_FACILITIES.evacuationRoutes.forEach(route => {
           const sym = LAYER_SYMBOLS.evacuationRoute[route.status] || LAYER_SYMBOLS.evacuationRoute.clear;
           evacuationLayer.add(new Graphic({
             geometry: new Polyline({ paths: [route.paths], spatialReference: { wkid: 4326 } }),
-            symbol: new SimpleLineSymbol({ color: sym.color, width: sym.width, style: 'solid' }),
+            symbol: new SimpleLineSymbol({
+              color: sym.color,
+              width: sym.width + 1, // Thicker for visibility
+              style: 'solid'
+            }),
             attributes: route,
-            popupTemplate: { title: '{name}', content: 'Status: {status}' }
+            popupTemplate: { title: '🚗 {name}', content: 'Route Status: {status}' }
           }));
         });
 
-        // Build layers - correct ordering: vector first, then raster weather on top
+        // Build layers - DISTRICT TACTICAL ORDERING
+        // Shows: Shelters, Hospitals, Evacuation Routes (unique to district)
         const mapLayers = [
-          evacuationLayer,   // Evacuation routes (vector)
-          sheltersLayer,     // Shelter markers
-          hospitalsLayer,    // Hospital markers  
-          precipLayer,       // Weather raster (semi-transparent)
-          windLayer          // Wind animation layer (top)
+          tehsilBoundariesLayer,  // Tehsil/UC boundaries
+          evacuationLayer,        // Evacuation routes (DISTRICT ONLY)
+          sheltersLayer,          // Shelter markers (DISTRICT ONLY)
+          hospitalsLayer,         // Hospital markers
+          rescueAssetsLayer,      // Rescue teams/vehicles
+          precipLayer,            // Weather raster
+          windLayer               // Wind animation
         ];
         if (riversLayer) mapLayers.unshift(riversLayer);
 
@@ -838,7 +918,7 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
         });
         mapInstanceRef.current = map;
 
-        // Create MapView
+        // Create MapView with HiDPI support for crisp rendering
         const view = new MapView({
           container: mapContainerRef.current,
           map: map,
@@ -850,9 +930,13 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
             maxZoom: DISTRICT_CONFIG.maxZoom,
             rotationEnabled: false
           },
-          ui: { components: ['zoom', 'compass'] }
+          ui: { components: ['zoom', 'compass'] },
+          // FIX BLURRINESS: Force high DPI rendering for crisp visuals
+          pixelRatio: window.devicePixelRatio || 1,
+          qualityProfile: 'high'
         });
         viewRef.current = view;
+
 
         await view.when();
 
@@ -899,6 +983,19 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
       mapInstanceRef.current?.destroy();
     };
   }, [districtName, stopRainAnimation, stopWindAnimation]);
+
+  // ============================================================================
+  // THEME-REACTIVE BASEMAP SWITCHING
+  // Updates basemap when user toggles dark/light mode without reloading map
+  // ============================================================================
+
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      const newBasemap = getBasemapByTheme(theme);
+      mapInstanceRef.current.basemap = newBasemap;
+      console.log(`✓ District Basemap switched to: ${newBasemap}`);
+    }
+  }, [theme]);
 
   // ============================================================================
   // TOGGLE HANDLERS

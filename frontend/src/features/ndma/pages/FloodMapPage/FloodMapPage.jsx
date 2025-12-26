@@ -7,6 +7,9 @@ import { useFloodMapLogic } from '../../hooks';
 // Import constants
 import { MAP_TYPE_OPTIONS, MAP_LAYERS } from '../../constants';
 
+// Import NdmaFloodMap component
+import { NdmaFloodMap } from '../../components/FloodMapPage';
+
 // Import styles
 import '../../styles/flood-map.css';
 import '../../styles/global-ndma.css';
@@ -26,12 +29,12 @@ const FloodMapPage = () => {
     isModalOpen,
     extraMaps,
     activeLayers,
-    
+
     // Data
     provinces,
     menuItems,
     defaultMaps,
-    
+
     // Actions
     setSelectedProvince,
     setMapView,
@@ -77,7 +80,7 @@ const FloodMapPage = () => {
           <div className="flood-modal">
             <div className="flood-modal-header">
               <h3>Manage Map Sections</h3>
-              <button 
+              <button
                 className="flood-modal-close"
                 onClick={closeModal}
                 aria-label="Close modal"
@@ -85,7 +88,7 @@ const FloodMapPage = () => {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="flood-modal-body">
               <div className="flood-modal-section">
                 <div className="flood-modal-section-title">Default Maps</div>
@@ -98,7 +101,7 @@ const FloodMapPage = () => {
                   ))}
                 </ul>
               </div>
-              
+
               {extraMaps.length > 0 && (
                 <div className="flood-modal-section">
                   <div className="flood-modal-section-title">Custom Maps</div>
@@ -119,7 +122,7 @@ const FloodMapPage = () => {
                 </div>
               )}
             </div>
-            
+
             <div className="flood-modal-footer">
               <button
                 className="flood-modal-btn flood-modal-btn-secondary"
@@ -148,7 +151,7 @@ const FloodMapPage = () => {
                   <p className="flood-map-title-subtitle">Real-time flood monitoring</p>
                 </div>
               </div>
-              
+
               <div className="flood-map-controls">
                 {/* Search */}
                 <div className="flood-map-search">
@@ -161,7 +164,7 @@ const FloodMapPage = () => {
                     placeholder="Search location..."
                   />
                 </div>
-                
+
                 {/* Map Type Selector */}
                 <select
                   className="flood-map-select"
@@ -179,7 +182,7 @@ const FloodMapPage = () => {
                     </option>
                   ))}
                 </select>
-                
+
                 {/* Manage Maps Button */}
                 <button
                   className="flood-action-btn-ghost"
@@ -190,20 +193,29 @@ const FloodMapPage = () => {
                 </button>
               </div>
             </div>
-            
-            {/* Map Content */}
-            <div className="flood-map-content">
-              <div className="flood-map-placeholder">
-                <MapPin className="flood-map-placeholder-icon" />
-                <h3>Interactive Pakistan Map</h3>
-                <p>
-                  Real-time visualization of all provinces, districts, flood zones, 
-                  evacuation routes, and rescue team positions.
-                </p>
-              </div>
-              
-              {/* Map Legend */}
-              <div className="flood-map-legend">
+
+            {/* Map Content - Interactive ArcGIS Map */}
+            <div className="flood-map-content" style={{ position: 'relative', minHeight: '500px' }}>
+              {/* NdmaFloodMap Component - Real Interactive Map */}
+              <NdmaFloodMap
+                height="500px"
+                provinces={provinces}
+                floodZones={[]}
+                onProvinceClick={(province) => setSelectedProvince(province)}
+                activeLayers={activeLayers}
+                searchTerm={searchTerm}
+              />
+
+              {/* Map Legend - Positioned over the map */}
+              <div className="flood-map-legend" style={{
+                position: 'absolute',
+                bottom: '60px',
+                left: '12px',
+                zIndex: 10,
+                backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                borderRadius: '10px',
+                padding: '14px'
+              }}>
                 <div className="flood-map-legend-title">Flood Risk Legend</div>
                 <div className="flood-map-legend-items">
                   <div className="flood-map-legend-item">
@@ -224,21 +236,6 @@ const FloodMapPage = () => {
                   </div>
                 </div>
               </div>
-              
-              {/* Layer Controls */}
-              <div className="flood-map-layers">
-                <div className="flood-map-layers-title">Map Layers</div>
-                {MAP_LAYERS.slice(0, 4).map(layer => (
-                  <label key={layer.id} className="flood-map-layer-toggle">
-                    <input
-                      type="checkbox"
-                      checked={isLayerActive(layer.id)}
-                      onChange={() => toggleLayer(layer.id)}
-                    />
-                    <span>{layer.label}</span>
-                  </label>
-                ))}
-              </div>
             </div>
           </div>
         </div>
@@ -250,12 +247,12 @@ const FloodMapPage = () => {
               <h3>Province Status</h3>
               <span className="flood-province-count">{provinces.length} regions</span>
             </div>
-            
+
             <div className="flood-province-list">
               {provinces.map(province => {
                 const riskLevel = getRiskLevel(province.waterLevel);
                 const isSelected = selectedProvince?.id === province.id;
-                
+
                 return (
                   <div
                     key={province.id}
@@ -269,7 +266,7 @@ const FloodMapPage = () => {
                         {province.floodRisk}
                       </span>
                     </div>
-                    
+
                     {/* Water Level Progress Bar */}
                     <div className="flood-water-level">
                       <div className="flood-water-level-header">
@@ -282,13 +279,13 @@ const FloodMapPage = () => {
                         </span>
                       </div>
                       <div className="flood-progress-bar">
-                        <div 
+                        <div
                           className={`flood-progress-fill ${riskLevel}`}
                           style={{ width: `${province.waterLevel}%` }}
                         ></div>
                       </div>
                     </div>
-                    
+
                     {/* Stats Row */}
                     <div className="flood-province-stats">
                       <div className="flood-province-stat">

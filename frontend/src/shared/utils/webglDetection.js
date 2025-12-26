@@ -151,6 +151,21 @@ export const runPerformanceBenchmark = async () => {
 export const getAnimationMode = async () => {
     const webglInfo = detectWebGLSupport();
 
+    // Check for cached result (avoid repeated benchmarks)
+    const cached = sessionStorage.getItem('webgl_mode_cache');
+    if (cached) {
+        try {
+            const cachedData = JSON.parse(cached);
+            // Cache valid for 1 hour
+            if (Date.now() - cachedData.timestamp < 60 * 60 * 1000) {
+                console.log('🎮 Using cached animation mode:', cachedData.mode);
+                return { ...webglInfo, recommendedMode: cachedData.mode, cached: true };
+            }
+        } catch (e) {
+            // Invalid cache, continue with detection
+        }
+    }
+
     // If WebGL looks good, run a quick benchmark to confirm
     if (webglInfo.recommendedMode === 'webgl' || webglInfo.recommendedMode === 'webgl-lite') {
         const benchmark = await runPerformanceBenchmark();
@@ -163,12 +178,84 @@ export const getAnimationMode = async () => {
         webglInfo.benchmark = benchmark;
     }
 
+    // Cache the result
+    try {
+        sessionStorage.setItem('webgl_mode_cache', JSON.stringify({
+            mode: webglInfo.recommendedMode,
+            timestamp: Date.now()
+        }));
+    } catch (e) {
+        // sessionStorage may be unavailable in some contexts
+    }
+
     console.log('🎮 Animation Mode Detection:', webglInfo);
     return webglInfo;
+};
+
+/**
+ * Add WebGL context loss event handlers
+ * Automatically recovers from context loss or falls back to TimeSlider
+ * @param {HTMLCanvasElement} canvas - Canvas element to monitor
+ * @param {Function} onLost - Callback when context is lost
+ * @param {Function} onRestored - Callback when context is restored
+ */
+export const addWebGLContextHandlers = (canvas, onLost, onRestored) => {
+    if (!canvas) return;
+
+    canvas.addEventListener('webglcontextlost', (e) => {
+        e.preventDefault();
+        console.warn('⚠️ WebGL context lost - falling back to TimeSlider mode');
+        if (onLost) onLost(e);
+    }, false);
+
+    canvas.addEventListener('webglcontextrestored', () => {
+        console.log('✅ WebGL context restored');
+        if (onRestored) onRestored();
+    }, false);
+};
+
+/**
+ * Initialize canvas with HiDPI support for crisp rendering on retina displays
+ * @param {HTMLCanvasElement} canvas - Canvas element to initialize
+ * @param {HTMLElement} container - Parent container for size reference
+ * @returns {CanvasRenderingContext2D} Properly scaled 2D context
+ */
+export const initHiDPICanvas = (canvas, container) => {
+    if (!canvas || !container) return null;
+
+    const dpr = window.devicePixelRatio || 1;
+    const rect = container.getBoundingClientRect();
+
+    // Set actual canvas size (physical pixels)
+    canvas.width = Math.floor(rect.width * dpr);
+    canvas.height = Math.floor(rect.height * dpr);
+
+    // Set display size (CSS pixels)
+    canvas.style.width = `${rect.width}px`;
+    canvas.style.height = `${rect.height}px`;
+
+    // Scale context for HiDPI - all drawing will be in CSS pixels
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+        ctx.scale(dpr, dpr);
+    }
+
+    return ctx;
+};
+
+/**
+ * Get device pixel ratio for HiDPI calculations
+ * @returns {number} Device pixel ratio (1 for standard, 2+ for retina)
+ */
+export const getDevicePixelRatio = () => {
+    return window.devicePixelRatio || 1;
 };
 
 export default {
     detectWebGLSupport,
     runPerformanceBenchmark,
-    getAnimationMode
+    getAnimationMode,
+    addWebGLContextHandlers,
+    initHiDPICanvas,
+    getDevicePixelRatio
 };

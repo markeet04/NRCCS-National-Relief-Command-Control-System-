@@ -4,6 +4,8 @@ import { Repository, LessThan } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from '../common/entities/user.entity';
 import { UserSession } from '../common/entities/user-session.entity';
+import { Province } from '../common/entities/province.entity';
+import { District } from '../common/entities/district.entity';
 
 @Injectable()
 export class AuthService {
@@ -12,10 +14,15 @@ export class AuthService {
     private userRepository: Repository<User>,
     @InjectRepository(UserSession)
     private sessionRepository: Repository<UserSession>,
-  ) {}
+    @InjectRepository(Province)
+    private provinceRepository: Repository<Province>,
+    @InjectRepository(District)
+    private districtRepository: Repository<District>,
+  ) { }
 
   /**
    * Validate user credentials (used by LocalStrategy)
+   * Returns user with province and district NAMES for frontend map scoping
    */
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userRepository.findOne({
@@ -37,7 +44,25 @@ export class AuthService {
       throw new UnauthorizedException('User account is inactive');
     }
 
-    // Return user without password
+    // Fetch province and district names for map scoping
+    let provinceName: string | null = null;
+    let districtName: string | null = null;
+
+    if (user.provinceId) {
+      const province = await this.provinceRepository.findOne({
+        where: { id: user.provinceId }
+      });
+      provinceName = province?.name || null;
+    }
+
+    if (user.districtId) {
+      const district = await this.districtRepository.findOne({
+        where: { id: user.districtId }
+      });
+      districtName = district?.name || null;
+    }
+
+    // Return user with province and district NAMES for frontend map scoping
     return {
       id: user.id,
       email: user.email,
@@ -46,11 +71,14 @@ export class AuthService {
       level: user.level,
       provinceId: user.provinceId,
       districtId: user.districtId,
+      province: provinceName,   // Province NAME for map scoping
+      district: districtName,   // District NAME for map scoping
     };
   }
 
+
   /**
-   * Get user by ID
+   * Get user by ID (with province and district names for map scoping)
    */
   async getUserById(userId: number): Promise<any> {
     const user = await this.userRepository.findOne({
@@ -61,6 +89,24 @@ export class AuthService {
       return null;
     }
 
+    // Fetch province and district names for map scoping
+    let provinceName: string | null = null;
+    let districtName: string | null = null;
+
+    if (user.provinceId) {
+      const province = await this.provinceRepository.findOne({
+        where: { id: user.provinceId }
+      });
+      provinceName = province?.name || null;
+    }
+
+    if (user.districtId) {
+      const district = await this.districtRepository.findOne({
+        where: { id: user.districtId }
+      });
+      districtName = district?.name || null;
+    }
+
     return {
       id: user.id,
       email: user.email,
@@ -69,7 +115,10 @@ export class AuthService {
       level: user.level,
       provinceId: user.provinceId,
       districtId: user.districtId,
+      province: provinceName,
+      district: districtName,
     };
+
   }
 
   /**

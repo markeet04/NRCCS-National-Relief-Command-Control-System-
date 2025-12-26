@@ -7,14 +7,17 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { SessionSerializer } from './strategies/session.serializer';
 import { User } from '../common/entities/user.entity';
 import { UserSession } from '../common/entities/user-session.entity';
+import { Province } from '../common/entities/province.entity';
+import { District } from '../common/entities/district.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserSession]),
+    TypeOrmModule.forFeature([User, UserSession, Province, District]),
     PassportModule.register({ session: true }),
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, SessionSerializer],
   exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule { }
+

@@ -32,6 +32,9 @@ const ANIMATION_CONFIG = {
     // Auto-refresh interval (ms)
     autoRefreshInterval: 10 * 60 * 1000, // 10 minutes
 
+    // Weather fetch throttling (ms) - minimum time between API calls
+    weatherFetchCooldown: 30 * 1000, // 30 seconds
+
     // Weather raster layer URLs (for TimeSlider fallback)
     rasterLayers: {
         precipitation: 'https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0q.cgi',
@@ -39,6 +42,9 @@ const ANIMATION_CONFIG = {
         temperature: 'https://nowcoast.noaa.gov/arcgis/services/nowcoast/forecast_meteoceanhydro_sfc_ndfd_temp_offsets/MapServer/WMSServer'
     }
 };
+
+// Global throttling tracker
+let lastWeatherFetchTime = 0;
 
 // ============================================================================
 // ANIMATION STATE
@@ -413,14 +419,21 @@ class WeatherAnimationService {
     }
 
     /**
-     * Start auto-refresh timer
+     * Start auto-refresh timer with throttling
      * @param {Function} refreshCallback - Function to call on refresh
      */
     startAutoRefresh(refreshCallback) {
         this.stopAutoRefresh();
         this.autoRefreshTimer = setInterval(() => {
-            console.log('🔄 Auto-refreshing weather data...');
-            if (refreshCallback) refreshCallback();
+            const now = Date.now();
+            // Respect throttle cooldown
+            if (now - lastWeatherFetchTime >= ANIMATION_CONFIG.weatherFetchCooldown) {
+                console.log('🔄 Auto-refreshing weather data...');
+                lastWeatherFetchTime = now;
+                if (refreshCallback) refreshCallback();
+            } else {
+                console.log('⏳ Weather refresh skipped (throttled)');
+            }
         }, ANIMATION_CONFIG.autoRefreshInterval);
     }
 

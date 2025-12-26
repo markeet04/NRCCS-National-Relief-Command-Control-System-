@@ -23,6 +23,7 @@ import MapView from '@arcgis/core/views/MapView';
 import Graphic from '@arcgis/core/Graphic';
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
 import TileLayer from '@arcgis/core/layers/TileLayer';
+import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import Point from '@arcgis/core/geometry/Point';
 import Polygon from '@arcgis/core/geometry/Polygon';
 import Polyline from '@arcgis/core/geometry/Polyline';
@@ -41,7 +42,7 @@ import * as reactiveUtils from '@arcgis/core/core/reactiveUtils';
 import '@arcgis/core/assets/esri/themes/dark/main.css';
 
 // Shared Config
-import { getBasemapByTheme, PROVINCE_CONFIG, getProvinceConfig } from '@shared/config/mapConfig';
+import { getBasemapByTheme, PROVINCE_CONFIG, getProvinceConfig, getMapConfigForUser, normalizeProvinceName } from '@shared/config/mapConfig';
 import { GIS_LAYERS, EMERGENCY_FACILITIES, LAYER_SYMBOLS } from '@config/gisLayerConfig';
 
 // Weather Animation Service
@@ -51,9 +52,13 @@ import weatherAnimationService from '@shared/services/weatherAnimationService';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 
+// Auth - for login-based province scoping
+import { useAuth } from '@app/providers/AuthProvider';
+
 // Layout
 import { DashboardLayout } from '@shared/components/layout';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
+
 
 // Open-Meteo API URL
 const WEATHER_API_URL = 'https://api.open-meteo.com/v1/forecast';
@@ -121,10 +126,23 @@ const getWeatherDescription = (code) => {
 // ============================================================================
 
 const ProvincialWeatherMap = ({
-  provinceName = 'Punjab',
+  provinceName: propProvinceName,  // Optional prop override
   height = '500px',
   showDashboardLayout = true
 }) => {
+  // Get logged-in user for province scoping
+  const { user } = useAuth();
+
+  // Debug: Log user object to verify province is returned from backend
+  console.log('🔐 PDMA User from auth:', user);
+  console.log('📍 User province field:', user?.province);
+  console.log('📍 User provinceId field:', user?.provinceId);
+
+  // Use user's province from auth, fallback to prop, then to Punjab
+  const provinceName = user?.province || propProvinceName || 'Punjab';
+  console.log(`🗺️ Using province: "${provinceName}" (from ${user?.province ? 'auth' : propProvinceName ? 'prop' : 'default'})`);
+
+
   // Refs
   const mapContainerRef = useRef(null);
   const rainCanvasRef = useRef(null);
@@ -135,10 +153,12 @@ const ProvincialWeatherMap = ({
   const rainAnimationRef = useRef(null);
   const viewMoveTimeoutRef = useRef(null);
 
-  // Province config
+  // Province config - uses user's assigned province for correct map bounds
   const provinceConfig = useMemo(() => {
-    const key = provinceName.toLowerCase().replace(/\s+/g, '');
-    return getProvinceConfig(key) || PROVINCE_CONFIG.punjab;
+    const key = normalizeProvinceName(provinceName);
+    const config = PROVINCE_CONFIG[key] || PROVINCE_CONFIG.punjab;
+    console.log(`📍 PDMA Map: Loading ${provinceName} → config key: ${key}`, config);
+    return config;
   }, [provinceName]);
 
   // State
@@ -158,6 +178,7 @@ const ProvincialWeatherMap = ({
   const [activeRoute, setActiveRoute] = useState('map');
 
   // Theme
+
   const { theme } = useSettings();
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
@@ -282,27 +303,99 @@ const ProvincialWeatherMap = ({
           ]],
           spatialReference: { wkid: 4326 }
         });
+        // ============================================================
+        // GIS LAYERS - PDMA PROVINCIAL LEVEL ONLY
+        // Coordination layers: District Boundaries, Rivers, Gauging Stations, Dams
+        // NO shelters (those are DISTRICT level only)
+        // ============================================================
 
-        // Layers
         const windLayer = new GraphicsLayer({ title: 'Wind Flow', visible: false });
         const precipLayer = new GraphicsLayer({ title: 'Precipitation Zones', visible: false });
-        const sheltersLayer = new GraphicsLayer({ title: 'Shelters', visible: true });
-        const hospitalsLayer = new GraphicsLayer({ title: 'Hospitals', visible: false });
+
+        // PDMA-specific layers (provincial coordination level)
+        const floodZonesLayer = new GraphicsLayer({ title: 'Flood Risk Zones', visible: true });
+        const gaugingStationsLayer = new GraphicsLayer({ title: 'Gauging Stations', visible: true });
+        const damsLayer = new GraphicsLayer({ title: 'Dams & Reservoirs', visible: false });
+
+        // REAL District Boundaries (FeatureLayer from Living Atlas - filtered for Pakistan)
+        const districtBoundariesLayer = new FeatureLayer({
+          url: GIS_LAYERS.adminBoundaries.districts.url,
+          title: 'District Boundaries',
+          visible: true,
+          opacity: 0.8,
+          definitionExpression: GIS_LAYERS.adminBoundaries.districts.definitionExpression,
+          renderer: {
+            type: 'simple',
+            symbol: {
+              type: 'simple-fill',
+              color: [0, 0, 0, 0],
+              outline: { color: [239, 68, 68, 0.8], width: 1.5 }
+            }
+          }
+        });
+
+        // REAL Province Boundary (FeatureLayer - for the specific province)
+        // Living Atlas World Administrative Divisions uses NAME field for admin unit names
+        // Map Pakistan province names to Living Atlas NAME field values
+        const provinceNameMapping = {
+          'punjab': 'Punjab',
+          'sindh': 'Sindh',
+          'kpk': 'Khyber Pakhtunkhwa',
+          'khyber pakhtunkhwa': 'Khyber Pakhtunkhwa',
+          'balochistan': 'Balochistan',
+          'gilgit-baltistan': 'Gilgit-Baltistan',
+          'gilgit baltistan': 'Gilgit-Baltistan',
+          'azad kashmir': 'Azad Kashmir',
+          'ajk': 'Azad Kashmir',
+          'islamabad': 'Islamabad'
+        };
+        const searchName = provinceNameMapping[provinceName.toLowerCase()] || provinceName;
+
+        const provinceBoundaryLayer = new FeatureLayer({
+          url: GIS_LAYERS.adminBoundaries.provinces.url,
+          title: `${provinceName} Boundary`,
+          visible: true,
+          opacity: 0.9,
+          // Use only NAME field - ADM1_NAME doesn't exist in Living Atlas
+          definitionExpression: `COUNTRY = 'Pakistan' AND NAME = '${searchName}'`,
+          renderer: {
+            type: 'simple',
+            symbol: {
+              type: 'simple-fill',
+              color: [0, 0, 0, 0],
+              outline: { color: [16, 185, 129], width: 3 }
+            }
+          }
+        });
+
 
         windLayerRef.current = windLayer;
         precipLayerRef.current = precipLayer;
 
-        // Add shelter markers
-        EMERGENCY_FACILITIES.shelters?.forEach(shelter => {
-          const sym = LAYER_SYMBOLS.shelter[shelter.status] || LAYER_SYMBOLS.shelter.available;
-          sheltersLayer.add(new Graphic({
-            geometry: new Point({ longitude: shelter.lon, latitude: shelter.lat }),
+        // Add sample gauging stations (PDMA level feature)
+        // These would be fetched from openDataService.fetchGaugingStations() in production
+        const sampleGaugingStations = [
+          { id: 1, name: 'Indus at Attock', lat: 33.7738, lon: 72.3609, status: 'normal' },
+          { id: 2, name: 'Jhelum at Mangla', lat: 33.1458, lon: 73.6469, status: 'warning' },
+          { id: 3, name: 'Chenab at Marala', lat: 32.6833, lon: 74.4667, status: 'normal' },
+          { id: 4, name: 'Ravi at Balloki', lat: 31.2167, lon: 73.8500, status: 'normal' }
+        ];
+
+        sampleGaugingStations.forEach(station => {
+          const color = station.status === 'warning' ? [239, 68, 68, 255] : [16, 185, 129, 255];
+          gaugingStationsLayer.add(new Graphic({
+            geometry: new Point({ longitude: station.lon, latitude: station.lat }),
             symbol: new SimpleMarkerSymbol({
-              style: 'square', color: sym.color, size: sym.size,
+              style: 'diamond',
+              color: color,
+              size: 12,
               outline: { color: [255, 255, 255], width: 2 }
             }),
-            attributes: shelter,
-            popupTemplate: { title: '{name}', content: 'Capacity: {capacity}<br>Status: {status}' }
+            attributes: station,
+            popupTemplate: {
+              title: '📊 {name}',
+              content: 'Status: {status}<br>Type: River Gauge'
+            }
           }));
         });
 
@@ -314,7 +407,16 @@ const ProvincialWeatherMap = ({
           opacity: 0.7
         }) : null;
 
-        const mapLayers = [precipLayer, windLayer, sheltersLayer, hospitalsLayer];
+        // Layer order: Rivers -> Province Boundary -> District Boundaries -> Flood zones -> Gauging Stations -> Weather
+        const mapLayers = [
+          provinceBoundaryLayer,     // Province boundary (REAL shape from Living Atlas)
+          districtBoundariesLayer,   // District boundaries (REAL shapes)
+          floodZonesLayer,           // Flood risk areas
+          gaugingStationsLayer,      // Gauging stations (PDMA specific)
+          damsLayer,                 // Dams & reservoirs
+          precipLayer,               // Weather precipitation
+          windLayer                  // Wind animation
+        ];
         if (riversLayer) mapLayers.unshift(riversLayer);
 
         // Create map with theme-aware basemap
@@ -324,7 +426,7 @@ const ProvincialWeatherMap = ({
         });
         mapInstanceRef.current = map;
 
-        // Create view
+        // Create view with HiDPI support for crisp rendering
         const view = new MapView({
           container: mapContainerRef.current,
           map: map,
@@ -336,9 +438,13 @@ const ProvincialWeatherMap = ({
             maxZoom: 16,
             rotationEnabled: false
           },
-          ui: { components: ['zoom', 'compass'] }
+          ui: { components: ['zoom', 'compass'] },
+          // FIX BLURRINESS: Force high DPI rendering
+          pixelRatio: window.devicePixelRatio || 1,
+          qualityProfile: 'high'
         });
         viewRef.current = view;
+
 
         await view.when();
 
@@ -375,7 +481,7 @@ const ProvincialWeatherMap = ({
               if (center) {
                 loadWeatherData(center.latitude, center.longitude);
               }
-            }, 1000);
+            }, 2000); // 2 second debounce for better performance
           }
         );
 
@@ -402,7 +508,20 @@ const ProvincialWeatherMap = ({
       viewRef.current?.destroy();
       mapInstanceRef.current?.destroy();
     };
-  }, [theme, provinceName, provinceConfig, loadWeatherData, stopRainAnimation]);
+  }, [provinceName, provinceConfig, loadWeatherData, stopRainAnimation]);
+
+  // ============================================================================
+  // THEME-REACTIVE BASEMAP SWITCHING
+  // Updates basemap when user toggles dark/light mode without reloading map
+  // ============================================================================
+
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      const newBasemap = getBasemapByTheme(theme);
+      mapInstanceRef.current.basemap = newBasemap;
+      console.log(`✓ PDMA Basemap switched to: ${newBasemap}`);
+    }
+  }, [theme]);
 
   // Toggle handlers
   const toggleRain = useCallback(() => {

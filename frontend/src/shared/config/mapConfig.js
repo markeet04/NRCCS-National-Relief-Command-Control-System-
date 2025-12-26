@@ -27,21 +27,27 @@ export const getBasemapByTheme = (theme) => {
 
 /**
  * Alternative basemaps if primary fails
+ * STRICT: Only arcgis/night and arcgis/navigation allowed
  */
 export const FALLBACK_BASEMAPS = {
-    dark: ['arcgis/night', 'dark-gray-vector', 'gray-vector'],
-    light: ['arcgis/navigation', 'streets-navigation-vector', 'streets-vector']
+    dark: ['arcgis/night'],
+    light: ['arcgis/navigation']
 };
 
 // ============================================================================
 // ROLE-BASED MAP CONFIGURATION
 // Zoom constraints designed to prevent raster upscaling and pixelation
+// 
+// LAYER VISIBILITY RULES (STRICT):
+// - NDMA: Country/province boundaries, rivers, national rainfall, flood forecast, NO shelters
+// - PDMA: District boundaries, rivers, gauging stations, dams, flood extent, NO shelters
+// - DISTRICT: All local features INCLUDING shelters (from backend)
 // ============================================================================
 
 export const ROLE_MAP_CONFIG = {
     ndma: {
         name: 'NDMA - National Map',
-        description: 'Full Pakistan coverage for national disaster management',
+        description: 'Strategic awareness & forecasting for national disaster management',
         center: [69.3451, 30.3753], // Pakistan center (lon, lat)
         zoom: 5,
         minZoom: 4,
@@ -52,17 +58,31 @@ export const ROLE_MAP_CONFIG = {
             maxLon: 77.8,
             maxLat: 37.1
         },
-        features: {
-            weather: true,
-            webglAnimations: true,
-            allProvinces: true,
-            nationalAlerts: true
+        // NDMA Layer Rules
+        layers: {
+            provinceBoundaries: true,
+            majorRiverBasins: true,
+            nationalRainfall: true,        // NASA GPM / NOAA via Open-Meteo
+            rainAccumulation: true,        // 24-72h accumulation
+            floodForecastZones: true,
+            provinceAlerts: true,
+            populationExposure: true,      // Coarse level
+            // EXPLICITLY DISABLED for NDMA
+            shelters: false,               // District only
+            localRoads: false,             // District only
+            windParticles: false           // Per spec: no particles at NDMA
+        },
+        animations: {
+            timeSliderRainfall: true,      // Time-slider based
+            floodForecastProgression: true,
+            alertPulse: true,              // Subtle
+            windParticles: false           // Disabled per spec
         }
     },
 
     pdma: {
         name: 'PDMA - Provincial Map',
-        description: 'Province-level flood and disaster monitoring',
+        description: 'Coordination & planning for province-level flood monitoring',
         center: [74.3436, 31.5497], // Lahore, Punjab
         zoom: 7,
         minZoom: 5,
@@ -73,17 +93,31 @@ export const ROLE_MAP_CONFIG = {
             maxLon: 76.0,
             maxLat: 34.0
         },
-        features: {
-            weather: true,
-            webglAnimations: true,
-            provincialShelters: true,
-            floodZones: true
+        // PDMA Layer Rules
+        layers: {
+            districtBoundaries: true,
+            riverNetwork: true,
+            gaugingStations: true,         // From OSM Overpass API
+            damsReservoirs: true,          // From OSM Overpass API
+            provincialRainfall: true,
+            floodExtent: true,             // Observed + short-term forecast
+            majorRoads: true,
+            districtAlerts: true,
+            // EXPLICITLY DISABLED for PDMA
+            shelters: false,               // District only
+            windParticles: false           // Per spec: no particles at PDMA
+        },
+        animations: {
+            riverLevelTransitions: true,   // Color changes based on level
+            floodExpansion: true,          // Over time
+            gaugeAlertPulse: true,
+            windParticles: false           // Disabled per spec
         }
     },
 
     district: {
         name: 'District - Local Map',
-        description: 'District-level detailed monitoring',
+        description: 'Tactical response & evacuation for district-level operations',
         center: [71.57, 34.0], // Peshawar
         zoom: 11,
         minZoom: 9,
@@ -94,11 +128,27 @@ export const ROLE_MAP_CONFIG = {
             maxLon: 71.85,
             maxLat: 34.25
         },
-        features: {
-            weather: true,
-            webglAnimations: false, // Lighter rendering for district level
-            localShelters: true,
-            evacuationRoutes: true
+        // DISTRICT Layer Rules - INCLUDES SHELTERS
+        layers: {
+            tehsilBoundaries: true,
+            localFloodExtent: true,
+            localRainfall: true,           // Optional
+            shelters: true,                // ✅ ENABLED - from backend API
+            shelterCapacity: true,
+            roadsBridges: true,
+            rescueAssets: true,
+            populationClusters: true,
+            localAlerts: true
+        },
+        animations: {
+            shelterIconPulse: true,        // Active shelter
+            capacityColorChange: true,     // Threshold indication
+            shelterFloodFlash: true,       // Near flood warning
+            roadAccessibility: true,       // Color-based
+            floodEdgeSpread: true,         // Monitoring
+            // Explicitly no decorative motion or particles
+            windParticles: false,
+            decorativeMotion: false
         }
     }
 };
@@ -232,15 +282,219 @@ export const createBoundaryRings = (bounds) => {
     ]];
 };
 
+// ============================================================================
+// LOGIN-BASED GEOGRAPHIC SCOPING
+// ============================================================================
+
+/**
+ * Normalize province name from backend to config key
+ * Handles various formats from /auth/me response
+ */
+export const normalizeProvinceName = (provinceName) => {
+    if (!provinceName) return 'punjab';
+
+    const mapping = {
+        // Full names
+        'punjab': 'punjab',
+        'sindh': 'sindh',
+        'khyber pakhtunkhwa': 'kpk',
+        'balochistan': 'balochistan',
+        'gilgit-baltistan': 'gilgitBaltistan',
+        'gilgit baltistan': 'gilgitBaltistan',
+        'azad jammu & kashmir': 'azadKashmir',
+        'azad jammu and kashmir': 'azadKashmir',
+        'azad kashmir': 'azadKashmir',
+        // Short codes
+        'kp': 'kpk',
+        'kpk': 'kpk',
+        'gb': 'gilgitBaltistan',
+        'ajk': 'azadKashmir',
+        'ict': 'islamabad',
+        'islamabad': 'islamabad'
+    };
+
+    const normalized = provinceName.toLowerCase().trim();
+    return mapping[normalized] || 'punjab';
+};
+
+/**
+ * District configurations (sample for major districts)
+ * In production, these should come from backend or GeoJSON
+ */
+export const DISTRICT_CONFIG = {
+    // KPK Districts
+    peshawar: {
+        name: 'Peshawar',
+        province: 'kpk',
+        center: [71.57, 34.0],
+        zoom: 11,
+        minZoom: 9,
+        maxZoom: 14,
+        bounds: { minLon: 71.3, minLat: 33.8, maxLon: 71.85, maxLat: 34.25 }
+    },
+    nowshera: {
+        name: 'Nowshera',
+        province: 'kpk',
+        center: [71.98, 34.02],
+        zoom: 11,
+        minZoom: 9,
+        maxZoom: 14,
+        bounds: { minLon: 71.7, minLat: 33.8, maxLon: 72.3, maxLat: 34.3 }
+    },
+    // Punjab Districts
+    lahore: {
+        name: 'Lahore',
+        province: 'punjab',
+        center: [74.35, 31.55],
+        zoom: 11,
+        minZoom: 9,
+        maxZoom: 14,
+        bounds: { minLon: 74.1, minLat: 31.3, maxLon: 74.6, maxLat: 31.8 }
+    },
+    rawalpindi: {
+        name: 'Rawalpindi',
+        province: 'punjab',
+        center: [73.07, 33.6],
+        zoom: 11,
+        minZoom: 9,
+        maxZoom: 14,
+        bounds: { minLon: 72.8, minLat: 33.3, maxLon: 73.4, maxLat: 33.9 }
+    },
+    // Sindh Districts
+    karachi: {
+        name: 'Karachi',
+        province: 'sindh',
+        center: [67.0, 24.86],
+        zoom: 10,
+        minZoom: 9,
+        maxZoom: 14,
+        bounds: { minLon: 66.7, minLat: 24.5, maxLon: 67.5, maxLat: 25.3 }
+    },
+    hyderabad: {
+        name: 'Hyderabad',
+        province: 'sindh',
+        center: [68.37, 25.4],
+        zoom: 11,
+        minZoom: 9,
+        maxZoom: 14,
+        bounds: { minLon: 68.1, minLat: 25.1, maxLon: 68.7, maxLat: 25.7 }
+    },
+    dadu: {
+        name: 'Dadu',
+        province: 'sindh',
+        center: [67.77, 26.73],
+        zoom: 10,
+        minZoom: 9,
+        maxZoom: 14,
+        bounds: { minLon: 67.2, minLat: 26.2, maxLon: 68.3, maxLat: 27.3 }
+    },
+    // Balochistan Districts
+    quetta: {
+        name: 'Quetta',
+        province: 'balochistan',
+        center: [67.0, 30.2],
+        zoom: 10,
+        minZoom: 9,
+        maxZoom: 14,
+        bounds: { minLon: 66.5, minLat: 29.8, maxLon: 67.5, maxLat: 30.7 }
+    }
+};
+
+/**
+ * Get district config by name
+ */
+export const getDistrictConfig = (districtName) => {
+    if (!districtName) return DISTRICT_CONFIG.peshawar;
+    const normalized = districtName.toLowerCase().trim().replace(/[^a-z]/g, '');
+    return DISTRICT_CONFIG[normalized] || DISTRICT_CONFIG.peshawar;
+};
+
+/**
+ * Get complete map configuration based on logged-in user
+ * This is the PRIMARY function for login-based geographic scoping
+ * 
+ * @param {Object} user - User object from /auth/me
+ * @param {string} user.role - 'ndma', 'pdma', or 'district'
+ * @param {string} [user.province] - Province name (required for PDMA/District)
+ * @param {string} [user.district] - District name (required for District role)
+ * @returns {Object} Complete map configuration with bounds, center, zoom, layers
+ */
+export const getMapConfigForUser = (user) => {
+    if (!user) {
+        console.warn('getMapConfigForUser: No user provided, using district defaults');
+        return {
+            ...ROLE_MAP_CONFIG.district,
+            ...DISTRICT_CONFIG.peshawar
+        };
+    }
+
+    const role = user.role?.toLowerCase() || 'district';
+
+    switch (role) {
+        case 'ndma':
+        case 'superadmin':
+            // National level - full Pakistan view, no restrictions
+            return {
+                ...ROLE_MAP_CONFIG.ndma,
+                roleName: 'NDMA',
+                level: 'National',
+                restrictedToProvince: null,
+                restrictedToDistrict: null
+            };
+
+        case 'pdma':
+            // Provincial level - restricted to assigned province
+            const provinceKey = normalizeProvinceName(user.province);
+            const provinceConfig = PROVINCE_CONFIG[provinceKey];
+
+            if (!provinceConfig) {
+                console.warn(`getMapConfigForUser: Unknown province "${user.province}", using Punjab`);
+            }
+
+            return {
+                ...ROLE_MAP_CONFIG.pdma,
+                ...provinceConfig,
+                roleName: 'PDMA',
+                level: 'Provincial',
+                restrictedToProvince: user.province,
+                restrictedToDistrict: null,
+                provinceName: provinceConfig?.name || user.province
+            };
+
+        case 'district':
+        default:
+            // District level - restricted to assigned district
+            const districtConfig = getDistrictConfig(user.district);
+
+            if (!districtConfig) {
+                console.warn(`getMapConfigForUser: Unknown district "${user.district}", using Peshawar`);
+            }
+
+            return {
+                ...ROLE_MAP_CONFIG.district,
+                ...districtConfig,
+                roleName: 'District',
+                level: 'District',
+                restrictedToProvince: user.province,
+                restrictedToDistrict: user.district,
+                districtName: districtConfig?.name || user.district
+            };
+    }
+};
+
 export default {
     getBasemapByTheme,
     FALLBACK_BASEMAPS,
     ROLE_MAP_CONFIG,
     PROVINCE_CONFIG,
+    DISTRICT_CONFIG,
     WEATHER_LAYER_CONFIG,
     LAYER_TOGGLES,
     ANIMATION_MODE_LABELS,
     getMapConfigByRole,
     getProvinceConfig,
-    createBoundaryRings
+    getDistrictConfig,
+    createBoundaryRings,
+    normalizeProvinceName,
+    getMapConfigForUser
 };
