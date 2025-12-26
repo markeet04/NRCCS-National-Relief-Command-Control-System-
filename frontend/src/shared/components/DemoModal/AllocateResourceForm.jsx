@@ -88,6 +88,7 @@ const AllocateResourceForm = ({ isOpen, onClose, onSubmit, resource, districts =
     // Submit with parsed values
     onSubmit({
       resourceId: resource?.id,
+      resourceType: resource?.type || resource?.resourceType || resource?.category,
       districtId: parseInt(formData.districtId, 10),
       quantity: parseInt(formData.quantity, 10),
       purpose: formData.notes?.trim() || undefined

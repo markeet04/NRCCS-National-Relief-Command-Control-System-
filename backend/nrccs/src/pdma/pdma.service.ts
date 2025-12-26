@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository, In, IsNull } from 'typeorm';
 import { User } from '../common/entities/user.entity';
 import { District } from '../common/entities/district.entity';
+import { Province } from '../common/entities/province.entity';
 import { Shelter, ShelterStatus } from '../common/entities/shelter.entity';
 import { Alert, AlertStatus, AlertSeverity } from '../common/entities/alert.entity';
 import { Resource, ResourceStatus } from '../common/entities/resource.entity';
@@ -21,6 +22,8 @@ export class PdmaService {
   constructor(
     @InjectRepository(District)
     private districtRepository: Repository<District>,
+    @InjectRepository(Province)
+    private provinceRepository: Repository<Province>,
     @InjectRepository(Shelter)
     private shelterRepository: Repository<Shelter>,
     @InjectRepository(Alert)
@@ -678,6 +681,84 @@ export class PdmaService {
       districtResource: savedDistrictResource,
       message: `Successfully allocated ${allocateDto.quantity} ${provinceResource.unit} of ${provinceResource.name} to district`,
     };
+  }
+
+  /**
+   * Allocate resource by type (auto-creates province resource if needed)
+   * This is used for manual allocation from the UI when selecting resource types
+   */
+  async allocateResourceByType(allocateDto: AllocateResourceDto & { resourceType: string }, user: User) {
+    console.log('🔍 PDMA allocateResourceByType called with:', {
+      resourceType: allocateDto.resourceType,
+      districtId: allocateDto.districtId,
+      quantity: allocateDto.quantity,
+      purpose: allocateDto.purpose,
+      userId: user.id,
+      provinceId: user.provinceId
+    });
+
+    if (!user.provinceId) {
+      throw new BadRequestException('User must be associated with a province');
+    }
+
+    // Find or create province resource by type
+    let provinceResource = await this.resourceRepository.findOne({
+      where: {
+        type: allocateDto.resourceType,
+        provinceId: user.provinceId,
+        districtId: IsNull(),
+      },
+    });
+
+    // If province resource doesn't exist, create it with default values
+    if (!provinceResource) {
+      const resourceDefaults = {
+        food: { name: 'Food Supplies', unit: 'tons', quantity: 50000, icon: 'package' },
+        water: { name: 'Water', unit: 'liters', quantity: 250000, icon: 'droplets' },
+        medical: { name: 'Medical Supplies', unit: 'kits', quantity: 25000, icon: 'stethoscope' },
+        shelter: { name: 'Shelter Materials', unit: 'units', quantity: 10000, icon: 'home' },
+      };
+
+      const defaults = resourceDefaults[allocateDto.resourceType.toLowerCase()] || {
+        name: `${allocateDto.resourceType} Resources`,
+        unit: 'units',
+        quantity: 5000,
+        icon: 'package'
+      };
+
+      const province = await this.provinceRepository.findOne({
+        where: { id: user.provinceId }
+      });
+
+      const newResource = this.resourceRepository.create({
+        name: defaults.name,
+        type: allocateDto.resourceType,
+        category: allocateDto.resourceType,
+        resourceType: allocateDto.resourceType,
+        quantity: defaults.quantity,
+        unit: defaults.unit,
+        icon: defaults.icon,
+        location: `${province?.name || 'Province'} Central Warehouse`,
+        provinceId: user.provinceId,
+        status: ResourceStatus.AVAILABLE,
+        allocated: 0,
+        allocatedQuantity: 0,
+        description: `Auto-created province ${allocateDto.resourceType} stock`,
+      });
+
+      provinceResource = await this.resourceRepository.save(newResource);
+
+      await this.logActivity(
+        'resource_created',
+        'Province Resource Auto-Created',
+        `System auto-created province resource: ${provinceResource.name} for allocation`,
+        user.id,
+        user.provinceId,
+      );
+    }
+
+    // Now allocate using the existing method
+    return await this.allocateResource(provinceResource.id, allocateDto, user);
   }
 
   // ==================== SOS REQUESTS ====================

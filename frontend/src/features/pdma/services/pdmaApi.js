@@ -109,6 +109,11 @@ const pdmaApi = {
     return response.data;
   },
 
+  async allocateResourceByType(data) {
+    const response = await apiClient.post('/pdma/allocate-by-type', data);
+    return response.data;
+  },
+
   // ==================== RESOURCE REQUESTS (PDMA → NDMA) ====================
 
   /**

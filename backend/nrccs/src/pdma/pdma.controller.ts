@@ -187,6 +187,14 @@ export class PdmaController {
     return await this.pdmaService.allocateResource(id, allocateDto, user);
   }
 
+  @Post('allocate-by-type')
+  async allocateResourceByType(
+    @Body() allocateDto: AllocateResourceDto & { resourceType: string },
+    @CurrentUser() user: User,
+  ) {
+    return await this.pdmaService.allocateResourceByType(allocateDto, user);
+  }
+
   @Post('resource-requests')
   @HttpCode(HttpStatus.CREATED)
   async createResourceRequest(

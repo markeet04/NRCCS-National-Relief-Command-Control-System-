@@ -210,6 +210,15 @@ export const allocateResourceToProvince = async (resourceId, data) => {
 };
 
 /**
+ * Allocate resource by type (auto-creates if needed)
+ * @param {Object} data - { resourceType, provinceId, quantity, priority?, notes? }
+ */
+export const allocateResourceByType = async (data) => {
+    const response = await apiClient.post('/ndma/allocate-by-type', data);
+    return response.data;
+};
+
+/**
  * Get resource requests from provinces
  * @param {string} status - Optional filter: 'pending', 'approved', 'rejected'
  */
@@ -407,6 +416,7 @@ export default {
     createNationalResource,
     increaseNationalStock,
     allocateResourceToProvince,
+    allocateResourceByType,
     getResourceRequests,
     reviewResourceRequest,
     getAllocationHistory,

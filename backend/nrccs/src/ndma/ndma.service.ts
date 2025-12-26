@@ -1,3 +1,4 @@
+// NDMA Service - National Disaster Management Authority
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, IsNull } from 'typeorm';
@@ -956,6 +957,65 @@ export class NdmaService {
             allocation,
             message: `Successfully allocated ${allocateDto.quantity} ${nationalResource.unit} of ${nationalResource.name} to ${province.name}`,
         };
+    }
+
+    /**
+     * Allocate resource by type (auto-creates national resource if needed)
+     * This is used for manual allocation from the UI when selecting resource types
+     */
+    async allocateResourceByType(allocateDto: AllocateResourceToProvinceDto & { resourceType: string }, user: User) {
+        // Find or create national resource by type
+        let nationalResource = await this.resourceRepository.findOne({
+            where: {
+                type: allocateDto.resourceType,
+                provinceId: IsNull(),
+                districtId: IsNull(),
+            },
+        });
+
+        // If national resource doesn't exist, create it with default values
+        if (!nationalResource) {
+            const resourceDefaults = {
+                food: { name: 'Food Supplies', unit: 'tons', quantity: 100000, icon: 'package' },
+                water: { name: 'Water', unit: 'liters', quantity: 500000, icon: 'droplets' },
+                medical: { name: 'Medical Supplies', unit: 'kits', quantity: 50000, icon: 'stethoscope' },
+                shelter: { name: 'Shelter Materials', unit: 'units', quantity: 20000, icon: 'home' },
+            };
+
+            const defaults = resourceDefaults[allocateDto.resourceType.toLowerCase()] || {
+                name: `${allocateDto.resourceType} Resources`,
+                unit: 'units',
+                quantity: 10000,
+                icon: 'package'
+            };
+
+            const newResource = this.resourceRepository.create({
+                name: defaults.name,
+                type: allocateDto.resourceType,
+                category: allocateDto.resourceType,
+                resourceType: allocateDto.resourceType,
+                quantity: defaults.quantity,
+                unit: defaults.unit,
+                icon: defaults.icon,
+                location: 'National Warehouse Islamabad',
+                status: ResourceStatus.AVAILABLE,
+                allocated: 0,
+                allocatedQuantity: 0,
+                description: `Auto-created national ${allocateDto.resourceType} stock`,
+            });
+
+            nationalResource = await this.resourceRepository.save(newResource);
+
+            await this.logActivity(
+                'resource_created',
+                'National Resource Auto-Created',
+                `System auto-created national resource: ${nationalResource.name} for allocation`,
+                user.id,
+            );
+        }
+
+        // Now allocate using the existing method
+        return await this.allocateResourceToProvince(nationalResource.id, allocateDto, user);
     }
 
     /**

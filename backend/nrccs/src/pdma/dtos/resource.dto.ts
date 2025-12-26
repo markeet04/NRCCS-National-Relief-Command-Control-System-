@@ -71,4 +71,8 @@ export class AllocateResourceDto {
   @IsOptional()
   @IsString()
   purpose?: string;
+
+  @IsOptional()
+  @IsString()
+  resourceType?: string;
 }

@@ -200,6 +200,14 @@ export class NdmaController {
         return await this.ndmaService.allocateResourceToProvince(id, allocateDto, user);
     }
 
+    @Post('allocate-by-type')
+    async allocateResourceByType(
+        @Body() allocateDto: AllocateResourceToProvinceDto & { resourceType: string },
+        @CurrentUser() user: User,
+    ) {
+        return await this.ndmaService.allocateResourceByType(allocateDto, user);
+    }
+
     @Get('resource-requests')
     async getResourceRequests(
         @CurrentUser() user: User,

@@ -52,6 +52,8 @@ export const useResourcesLogic = () => {
   const [nationalStock, setNationalStock] = useState(INITIAL_NATIONAL_STOCK);
   const [provincialAllocations, setProvincialAllocations] = useState([]);
   const [backendResourceStats, setBackendResourceStats] = useState(null);
+  const [provinces, setProvinces] = useState([]);
+  const [nationalResourcesList, setNationalResourcesList] = useState([]);
 
   // Provincial Requests state
   const [provincialRequests, setProvincialRequests] = useState(INITIAL_PROVINCIAL_REQUESTS);
@@ -80,14 +82,20 @@ export const useResourcesLogic = () => {
       setError(null);
 
       // Fetch resource stats and resources by province in parallel
-      const [resourceStats, resourcesByProvince, allResources, resourceRequests] = await Promise.all([
+      const [resourceStats, resourcesByProvince, allResources, resourceRequests, provincesData, nationalResources] = await Promise.all([
         NdmaApiService.getResourceStats(),
         NdmaApiService.getResourcesByProvince(),
         NdmaApiService.getAllResources(),
-        NdmaApiService.getResourceRequests().catch(() => []) // Graceful fallback
+        NdmaApiService.getResourceRequests().catch(() => []), // Graceful fallback
+        NdmaApiService.getAllProvinces().catch(() => []),
+        NdmaApiService.getNationalResources().catch(() => [])
       ]);
 
-      console.log('📦 Resources data loaded:', { resourceStats, resourcesByProvince, allResources, resourceRequests });
+      console.log('📦 Resources data loaded:', { resourceStats, resourcesByProvince, allResources, resourceRequests, provincesData, nationalResources });
+
+      // Store provinces and national resources
+      setProvinces(provincesData || []);
+      setNationalResourcesList(nationalResources || []);
 
       // Store backend resource stats
       setBackendResourceStats(resourceStats);
@@ -413,6 +421,8 @@ export const useResourcesLogic = () => {
     loading,
     provincialRequests,
     allocationHistory,
+    provinces,
+    nationalResourcesList,
 
     // Computed
     resourceStats,
@@ -430,6 +440,7 @@ export const useResourcesLogic = () => {
     getStatusConfig,
     handleApproveRequest,
     handleRejectRequest,
+    refetchData: fetchResourcesData,
   };
 };
 

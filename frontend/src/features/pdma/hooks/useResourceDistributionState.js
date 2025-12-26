@@ -64,10 +64,27 @@ const useResourceDistributionState = () => {
   // Handle resource allocation
   const handleAllocateResource = async (allocationData) => {
     try {
-      await pdmaApi.allocateResource(allocationData.resourceId, {
+      console.log('🚀 Attempting to allocate resource:', allocationData);
+      
+      // Ensure resourceType is set from the allocationData
+      const resourceType = allocationData.resourceType || 
+                          selectedResource?.type || 
+                          selectedResource?.resourceType || 
+                          selectedResource?.category ||
+                          selectedResource?.name?.toLowerCase();
+      
+      if (!resourceType) {
+        notification.error('Unable to determine resource type');
+        console.error('❌ No resource type found in:', { allocationData, selectedResource });
+        return;
+      }
+      
+      // Use allocateResourceByType which auto-creates province resources if needed
+      await pdmaApi.allocateResourceByType({
+        resourceType: resourceType,
         districtId: allocationData.districtId,
         quantity: allocationData.quantity,
-        notes: allocationData.notes
+        purpose: allocationData.purpose || allocationData.notes
       });
       notification.success(`Successfully allocated ${allocationData.quantity} units`);
       setIsAllocateFormOpen(false);
@@ -76,7 +93,9 @@ const useResourceDistributionState = () => {
       // Refresh data
       await fetchResourceData();
     } catch (err) {
-      notification.error(err.message);
+      console.error('❌ Allocation error:', err);
+      console.error('❌ Error response:', err.response?.data);
+      notification.error(err.response?.data?.message || 'Failed to allocate resource');
     }
   };
 
