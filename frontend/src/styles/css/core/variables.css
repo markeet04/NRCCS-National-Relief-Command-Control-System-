@@ -1,0 +1,294 @@
+/**
+ * NRCCS Design System - CSS Custom Properties
+ * 
+ * Theme tokens extracted from themeColors.js for CSS-based theming
+ * Supports light/dark mode via data-theme attribute
+ * 
+ * Usage: Set data-theme="light" or data-theme="dark" on <html> or <body>
+ */
+
+/* ============================================================================
+   LIGHT THEME (Default)
+   ============================================================================ */
+:root,
+[data-theme="light"] {
+  /* -- Backgrounds -- */
+  --page-bg: #f8fafc;
+  --background: #f1f5f9;
+  --card-bg: #ffffff;
+  --card-bg-hover: #fafbfc;
+  --card-border: #e2e8f0;
+  --border: #e2e8f0;
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --card-hover-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+
+  /* -- Text Colors -- */
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-placeholder: #94a3b8;
+
+  /* -- Primary Colors -- */
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-light: rgba(37, 99, 235, 0.08);
+
+  /* -- Status Colors -- */
+  --success: #059669;
+  --success-light: rgba(5, 150, 105, 0.08);
+  --success-border: rgba(5, 150, 105, 0.2);
+
+  --warning: #d97706;
+  --warning-light: rgba(217, 119, 6, 0.08);
+  --warning-border: rgba(217, 119, 6, 0.2);
+
+  --danger: #dc2626;
+  --danger-light: rgba(220, 38, 38, 0.08);
+  --danger-border: rgba(220, 38, 38, 0.2);
+
+  --info: #0284c7;
+  --info-light: rgba(2, 132, 199, 0.08);
+  --info-border: rgba(2, 132, 199, 0.2);
+
+  /* -- Critical -- */
+  --critical: #dc2626;
+  --critical-bg: rgba(220, 38, 38, 0.08);
+  --critical-text: #dc2626;
+
+  /* -- Icon Styles -- */
+  --icon-bg: rgba(37, 99, 235, 0.08);
+  --icon-color: #2563eb;
+  --icon-muted: #94a3b8;
+
+  /* -- Input/Form Styles -- */
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --input-focus-border: #2563eb;
+  --input-focus-ring: rgba(37, 99, 235, 0.15);
+
+  /* -- Table Styles -- */
+  --table-header-bg: #f8fafc;
+  --table-row-hover-bg: #f1f5f9;
+  --table-border: #e5e7eb;
+
+  /* -- Modal Styles -- */
+  --modal-overlay: rgba(15, 23, 42, 0.6);
+  --modal-bg: #ffffff;
+  --modal-border: #e2e8f0;
+  --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+  /* -- Button Styles -- */
+  --btn-primary-bg: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  --btn-primary-color: #ffffff;
+  --btn-primary-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+  --btn-primary-hover-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+
+  --btn-secondary-bg: #f1f5f9;
+  --btn-secondary-color: #475569;
+  --btn-secondary-border: #e2e8f0;
+
+  --btn-success-bg: linear-gradient(135deg, #059669 0%, #047857 100%);
+  --btn-success-color: #ffffff;
+  --btn-success-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+
+  --btn-danger-bg: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  --btn-danger-color: #ffffff;
+  --btn-danger-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+
+  /* -- Dropdown Styles -- */
+  --dropdown-bg: #ffffff;
+  --dropdown-border: #e2e8f0;
+  --dropdown-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --dropdown-hover-bg: #f1f5f9;
+
+  /* -- Progress Bar -- */
+  --progress-bg: #e2e8f0;
+  --progress-fill: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+
+  /* -- Scrollbar -- */
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-thumb-hover: #94a3b8;
+
+  /* -- Sidebar -- */
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e2e8f0;
+  --sidebar-item-hover: #f1f5f9;
+  --sidebar-item-active: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  --sidebar-item-active-text: #ffffff;
+  --sidebar-item-text: #334155;
+
+  /* -- Header -- */
+  --header-bg: #ffffff;
+  --header-border: #e2e8f0;
+  --header-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  /* -- Border Radius -- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+
+  /* -- Spacing -- */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+
+  /* -- Font Sizes -- */
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-lg: 17px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --text-4xl: 36px;
+
+  /* -- Font Weights -- */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* -- Gradient Accent Colors -- */
+  --gradient-rose-border: #fb7185;
+  --gradient-emerald-border: #34d399;
+  --gradient-violet-border: #a78bfa;
+  --gradient-blue-border: #60a5fa;
+  --gradient-amber-border: #fbbf24;
+  --gradient-cyan-border: #22d3ee;
+
+  /* -- Left Border Colors (Dark mode accent) -- */
+  --left-border-danger: transparent;
+  --left-border-success: transparent;
+  --left-border-warning: transparent;
+  --left-border-info: transparent;
+  --left-border-default: transparent;
+}
+
+/* ============================================================================
+   DARK THEME
+   ============================================================================ */
+[data-theme="dark"] {
+  /* -- Backgrounds -- */
+  --page-bg: #0a0a0a;
+  --background: #0a0a0a;
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --card-bg-hover: rgba(255, 255, 255, 0.08);
+  --card-bg-solid: #1a1a1a;
+  --card-border: rgba(255, 255, 255, 0.1);
+  --border: rgba(255, 255, 255, 0.1);
+  --card-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.45);
+  --card-hover-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.55);
+
+  /* -- Text Colors -- */
+  --text-primary: #ffffff;
+  --text-secondary: #d1d5db;
+  --text-muted: #6b7280;
+  --text-placeholder: #6b7280;
+
+  /* -- Primary Colors -- */
+  --primary: #047857;
+  --primary-hover: #065f46;
+  --primary-light: rgba(4, 120, 87, 0.15);
+
+  /* -- Status Colors -- */
+  --success: #10b981;
+  --success-light: rgba(16, 185, 129, 0.2);
+  --success-text: #34d399;
+
+  --warning: #f59e0b;
+  --warning-light: rgba(245, 158, 11, 0.2);
+
+  --danger: #ef4444;
+  --danger-light: rgba(239, 68, 68, 0.2);
+
+  --info: #3b82f6;
+  --info-light: rgba(59, 130, 246, 0.2);
+
+  /* -- Critical -- */
+  --critical: #ef4444;
+  --critical-bg: rgba(239, 68, 68, 0.2);
+  --critical-text: #fca5a5;
+
+  /* -- Icon Styles -- */
+  --icon-bg: rgba(4, 120, 87, 0.15);
+  --icon-color: #10b981;
+  --icon-muted: #6b7280;
+
+  /* -- Input/Form Styles -- */
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --input-border: rgba(255, 255, 255, 0.1);
+  --input-focus-border: #3b82f6;
+  --input-focus-ring: rgba(59, 130, 246, 0.2);
+
+  /* -- Table Styles -- */
+  --table-header-bg: rgba(255, 255, 255, 0.02);
+  --table-row-hover-bg: rgba(255, 255, 255, 0.04);
+  --table-border: rgba(255, 255, 255, 0.1);
+
+  /* -- Modal Styles -- */
+  --modal-overlay: rgba(0, 0, 0, 0.8);
+  --modal-bg: #1a1a1a;
+  --modal-border: rgba(255, 255, 255, 0.1);
+  --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+
+  /* -- Button Styles -- */
+  --btn-primary-bg: #047857;
+  --btn-primary-color: #ffffff;
+  --btn-primary-shadow: 0 4px 14px rgba(4, 120, 87, 0.35);
+  --btn-primary-hover-shadow: 0 6px 20px rgba(4, 120, 87, 0.45);
+
+  --btn-secondary-bg: rgba(255, 255, 255, 0.05);
+  --btn-secondary-color: #d1d5db;
+  --btn-secondary-border: rgba(255, 255, 255, 0.1);
+
+  /* -- Dropdown Styles -- */
+  --dropdown-bg: #1a1a1a;
+  --dropdown-border: rgba(255, 255, 255, 0.1);
+  --dropdown-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  --dropdown-hover-bg: rgba(255, 255, 255, 0.05);
+
+  /* -- Progress Bar -- */
+  --progress-bg: rgba(255, 255, 255, 0.1);
+  --progress-fill: linear-gradient(90deg, #047857 0%, #10b981 100%);
+
+  /* -- Scrollbar -- */
+  --scrollbar-track: #1a1a1a;
+  --scrollbar-thumb: #374151;
+  --scrollbar-thumb-hover: #4b5563;
+
+  /* -- Sidebar -- */
+  --sidebar-bg: #0a0a0a;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-item-hover: rgba(255, 255, 255, 0.05);
+  --sidebar-item-active: #047857;
+  --sidebar-item-active-text: #ffffff;
+  --sidebar-item-text: #9ca3af;
+
+  /* -- Header -- */
+  --header-bg: rgba(10, 10, 10, 0.95);
+  --header-border: rgba(255, 255, 255, 0.1);
+  --header-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+
+  /* -- Left Border Colors (Dark mode accent) -- */
+  --left-border-danger: #ef4444;
+  --left-border-success: #10b981;
+  --left-border-warning: #f59e0b;
+  --left-border-info: #3b82f6;
+  --left-border-default: #6b7280;
+
+  /* -- Glow Effects -- */
+  --glow-danger: 0 0 20px rgba(239, 68, 68, 0.5);
+  --glow-success: 0 0 15px rgba(16, 185, 129, 0.3);
+  --glow-warning: 0 0 15px rgba(245, 158, 11, 0.3);
+  --glow-info: 0 0 15px rgba(59, 130, 246, 0.3);
+}

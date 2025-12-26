@@ -1,0 +1,249 @@
+/**
+ * NRCCS Design System - Form Components
+ * 
+ * Input, select, textarea, and form layout styles
+ * Uses CSS custom properties from variables.css
+ */
+
+/* ============================================================================
+   BASE INPUT
+   ============================================================================ */
+.input {
+    width: 100%;
+    padding: var(--spacing-2) var(--spacing-3);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: var(--text-sm);
+    transition: all 0.2s ease;
+}
+
+.input::placeholder {
+    color: var(--text-placeholder);
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 3px var(--input-focus-ring);
+}
+
+.input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================================================
+   INPUT SIZES
+   ============================================================================ */
+.input--sm {
+    padding: var(--spacing-1) var(--spacing-2);
+    font-size: var(--text-xs);
+}
+
+.input--lg {
+    padding: var(--spacing-3) var(--spacing-4);
+    font-size: var(--text-base);
+}
+
+/* ============================================================================
+   SELECT
+   ============================================================================ */
+.select {
+    width: 100%;
+    padding: var(--spacing-2) var(--spacing-3);
+    padding-right: var(--spacing-8);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.select:focus {
+    outline: none;
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 3px var(--input-focus-ring);
+}
+
+/* ============================================================================
+   TEXTAREA
+   ============================================================================ */
+.textarea {
+    width: 100%;
+    padding: var(--spacing-3);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: var(--text-sm);
+    resize: vertical;
+    min-height: 100px;
+    transition: all 0.2s ease;
+}
+
+.textarea:focus {
+    outline: none;
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 3px var(--input-focus-ring);
+}
+
+/* ============================================================================
+   CHECKBOX & RADIO
+   ============================================================================ */
+.checkbox,
+.radio {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+.checkbox-label,
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    cursor: pointer;
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+}
+
+/* ============================================================================
+   FORM GROUP
+   ============================================================================ */
+.form-group {
+    margin-bottom: var(--spacing-4);
+}
+
+.form-label {
+    display: block;
+    margin-bottom: var(--spacing-2);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-secondary);
+}
+
+.form-label--required::after {
+    content: " *";
+    color: var(--danger);
+}
+
+.form-hint {
+    margin-top: var(--spacing-1);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+
+.form-error {
+    margin-top: var(--spacing-1);
+    font-size: var(--text-xs);
+    color: var(--danger);
+}
+
+/* ============================================================================
+   SEARCH INPUT
+   ============================================================================ */
+.search-input {
+    position: relative;
+}
+
+.search-input__icon {
+    position: absolute;
+    left: var(--spacing-3);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.search-input .input {
+    padding-left: var(--spacing-10);
+}
+
+/* ============================================================================
+   INPUT WITH ICON
+   ============================================================================ */
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+}
+
+.input-group__prepend,
+.input-group__append {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing-3);
+    background: var(--btn-secondary-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+}
+
+.input-group__prepend {
+    border-right: none;
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+.input-group__append {
+    border-left: none;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.input-group .input {
+    border-radius: 0;
+}
+
+.input-group .input:first-child {
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+.input-group .input:last-child {
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+/* ============================================================================
+   FORM ROW (Inline form elements)
+   ============================================================================ */
+.form-row {
+    display: flex;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-4);
+}
+
+.form-row>* {
+    flex: 1;
+}
+
+/* ============================================================================
+   FILTER BAR
+   ============================================================================ */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-6);
+}
+
+.filter-bar__search {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filter-bar__filters {
+    display: flex;
+    gap: var(--spacing-2);
+}

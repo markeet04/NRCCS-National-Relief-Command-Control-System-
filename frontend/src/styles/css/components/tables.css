@@ -1,0 +1,312 @@
+/**
+ * NRCCS Design System - Table Components
+ * 
+ * Table styles for data display
+ * Uses CSS custom properties from variables.css
+ */
+
+/* ============================================================================
+   BASE TABLE
+   ============================================================================ */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+}
+
+.table th,
+.table td {
+    padding: var(--spacing-3) var(--spacing-4);
+    text-align: left;
+    border-bottom: 1px solid var(--table-border);
+}
+
+.table th {
+    background: var(--table-header-bg);
+    color: var(--text-muted);
+    font-weight: var(--font-semibold);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.table td {
+    color: var(--text-primary);
+}
+
+.table tbody tr {
+    transition: background 0.15s ease;
+}
+
+.table tbody tr:hover {
+    background: var(--table-row-hover-bg);
+}
+
+/* ============================================================================
+   TABLE VARIANTS
+   ============================================================================ */
+.table--striped tbody tr:nth-child(even) {
+    background: var(--table-header-bg);
+}
+
+.table--striped tbody tr:nth-child(even):hover {
+    background: var(--table-row-hover-bg);
+}
+
+.table--bordered {
+    border: 1px solid var(--table-border);
+}
+
+.table--bordered th,
+.table--bordered td {
+    border: 1px solid var(--table-border);
+}
+
+.table--compact th,
+.table--compact td {
+    padding: var(--spacing-2) var(--spacing-3);
+}
+
+/* ============================================================================
+   TABLE CELL VARIANTS
+   ============================================================================ */
+.table__cell--truncate {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.table__cell--nowrap {
+    white-space: nowrap;
+}
+
+.table__cell--center {
+    text-align: center;
+}
+
+.table__cell--right {
+    text-align: right;
+}
+
+.table__cell--actions {
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* ============================================================================
+   TABLE RESPONSIVE WRAPPER
+   ============================================================================ */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================================================
+   EMPTY STATE
+   ============================================================================ */
+.table__empty {
+    text-align: center;
+    padding: var(--spacing-8);
+    color: var(--text-muted);
+}
+
+.table__empty-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto var(--spacing-4);
+    color: var(--text-placeholder);
+}
+
+.table__empty-title {
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
+    margin-bottom: var(--spacing-2);
+}
+
+.table__empty-message {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+}
+
+/* ============================================================================
+   LOADING STATE
+   ============================================================================ */
+.table__loading {
+    text-align: center;
+    padding: var(--spacing-8);
+}
+
+.table__loading-spinner {
+    width: 32px;
+    height: 32px;
+    margin: 0 auto var(--spacing-4);
+    border: 3px solid var(--card-border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================================================
+   SORTABLE COLUMNS
+   ============================================================================ */
+.table__header--sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.table__header--sortable:hover {
+    background: var(--dropdown-hover-bg);
+}
+
+.table__sort-icon {
+    display: inline-block;
+    margin-left: var(--spacing-1);
+    opacity: 0.5;
+}
+
+.table__header--sorted .table__sort-icon {
+    opacity: 1;
+    color: var(--primary);
+}
+
+/* ============================================================================
+   PAGINATION
+   ============================================================================ */
+.table-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-4);
+    border-top: 1px solid var(--table-border);
+}
+
+.table-pagination__info {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+}
+
+.table-pagination__controls {
+    display: flex;
+    gap: var(--spacing-1);
+}
+
+.table-pagination__btn {
+    padding: var(--spacing-1) var(--spacing-2);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-sm);
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.table-pagination__btn:hover:not(:disabled) {
+    background: var(--dropdown-hover-bg);
+    border-color: var(--primary);
+}
+
+.table-pagination__btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.table-pagination__btn--active {
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+}
+
+/* ============================================================================
+   GRID-BASED TABLE (SOS Table Style)
+   ============================================================================ */
+.table__header {
+    display: grid;
+    grid-template-columns: 100px 200px 1fr 100px 130px 150px 150px;
+    gap: var(--spacing-4);
+    padding: var(--spacing-4) var(--spacing-5);
+    background: var(--table-header-bg);
+    border-bottom: 2px solid var(--table-border);
+    font-size: var(--text-xs);
+    font-weight: var(--font-semibold);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.table__header>div {
+    display: flex;
+    align-items: center;
+}
+
+.table__row {
+    border-bottom: 1px solid var(--table-border);
+    transition: background 0.15s ease;
+}
+
+.table__row:hover {
+    background: var(--table-row-hover-bg);
+}
+
+.table__row--alt {
+    background: var(--table-header-bg);
+}
+
+.table__row-content {
+    display: grid;
+    grid-template-columns: 100px 200px 1fr 100px 130px 150px 150px;
+    gap: var(--spacing-4);
+    padding: var(--spacing-4) var(--spacing-5);
+    align-items: center;
+}
+
+.table__row-expanded {
+    padding: var(--spacing-4) var(--spacing-5);
+    padding-left: 140px;
+    background: var(--card-bg-hover);
+    border-top: 1px solid var(--table-border);
+}
+
+.table__body {
+    max-height: 600px;
+}
+
+/* ============================================================================
+   MT-5 and MB-5 Utilities
+   ============================================================================ */
+.mt-5 {
+    margin-top: var(--spacing-5);
+}
+
+.mb-5 {
+    margin-bottom: var(--spacing-5);
+}
+
+/* ============================================================================
+   SELECT-NONE Utility
+   ============================================================================ */
+.select-none {
+    user-select: none;
+}
+
+/* ============================================================================
+   PAGE TITLE Styles
+   ============================================================================ */
+.page-title {
+    font-size: 28px;
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-2);
+}
+
+.page-subtitle {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+}

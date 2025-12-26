@@ -2,28 +2,19 @@
  * SOSVirtualTable Component  
  * High-performance table for handling SOS requests with pagination
  * Native scrolling implementation - no external dependencies
+ * 
+ * CSS Migration: Now uses external CSS classes from design system
  */
 
 import { useState, useMemo } from 'react';
 import { Eye, Users, MapPin, Phone, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import '@styles/css/main.css';
 
-const SOSVirtualTable = ({ 
-  requests = [], 
-  onViewDetails, 
-  onAssign,
-  colors, 
-  isLight 
+const SOSVirtualTable = ({
+  requests = [],
+  onViewDetails,
+  onAssign
 }) => {
-  // Default colors fallback
-  const safeColors = colors || {
-    cardBg: '#ffffff',
-    border: '#e5e7eb',
-    textPrimary: '#1f2937',
-    textSecondary: '#6b7280',
-    textMuted: '#9ca3af',
-    inputBg: '#f3f4f6'
-  };
-
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [expandedRows, setExpandedRows] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,7 +37,7 @@ const SOSVirtualTable = ({
   // Sorting
   const sortedRequests = useMemo(() => {
     if (!sortConfig.key) return safeRequests;
-    
+
     return [...safeRequests].sort((a, b) => {
       const aVal = a[sortConfig.key];
       const bVal = b[sortConfig.key];
@@ -88,69 +79,37 @@ const SOSVirtualTable = ({
     return sortConfig.direction === 'asc' ? ' ↑' : ' ↓';
   };
 
-  const tableHeaderStyle = {
-    display: 'grid',
-    gridTemplateColumns: '100px 1fr 1fr 100px 120px 150px 180px',
-    gap: '16px',
-    padding: '16px 20px',
-    background: safeColors.cardBg,
-    borderBottom: `2px solid ${safeColors.border}`,
-    position: 'sticky',
-    top: 0,
-    zIndex: 10,
-    fontSize: '13px',
-    fontWeight: '600',
-    color: safeColors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: '0.05em'
-  };
-
   // If no requests, show empty state
   if (safeRequests.length === 0) {
     return (
-      <div style={{
-        background: safeColors.cardBg,
-        border: `1px solid ${safeColors.border}`,
-        borderRadius: '16px',
-        padding: '60px 20px',
-        textAlign: 'center'
-      }}>
-        <p style={{ fontSize: '16px', color: safeColors.textMuted, marginBottom: '8px' }}>
-          No SOS requests found
-        </p>
-        <p style={{ fontSize: '14px', color: safeColors.textMuted }}>
-          Try adjusting your search or filter criteria
-        </p>
+      <div className="card card-body table__empty">
+        <p className="text-base text-muted mb-2">No SOS requests found</p>
+        <p className="text-sm text-muted">Try adjusting your search or filter criteria</p>
       </div>
     );
   }
 
   return (
     <div>
-      <div style={{
-        background: safeColors.cardBg,
-        border: `1px solid ${safeColors.border}`,
-        borderRadius: '16px',
-        overflow: 'hidden'
-      }}>
+      <div className="card overflow-hidden">
         {/* Table Header */}
-        <div style={tableHeaderStyle}>
-          <div 
-            onClick={() => handleSort('id')} 
-            style={{ cursor: 'pointer', userSelect: 'none' }}
+        <div className="table__header">
+          <div
+            onClick={() => handleSort('id')}
+            className="cursor-pointer select-none"
           >
             ID<SortIcon columnKey="id" />
           </div>
-          <div onClick={() => handleSort('name')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+          <div onClick={() => handleSort('name')} className="cursor-pointer select-none">
             Name<SortIcon columnKey="name" />
           </div>
-          <div onClick={() => handleSort('location')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+          <div onClick={() => handleSort('location')} className="cursor-pointer select-none">
             Location<SortIcon columnKey="location" />
           </div>
-          <div onClick={() => handleSort('time')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+          <div onClick={() => handleSort('time')} className="cursor-pointer select-none">
             Time<SortIcon columnKey="time" />
           </div>
-          <div onClick={() => handleSort('status')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+          <div onClick={() => handleSort('status')} className="cursor-pointer select-none">
             Status<SortIcon columnKey="status" />
           </div>
           <div>Assigned Team</div>
@@ -158,59 +117,34 @@ const SOSVirtualTable = ({
         </div>
 
         {/* Table Body with native scrolling */}
-        <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
+        <div className="table__body overflow-y-auto">
           {paginatedRequests.map((request, index) => {
             const isExpanded = expandedRows.has(request.id);
             const statusStyle = getStatusStyle(request.status);
             const isEven = index % 2 === 0;
 
             return (
-              <div 
+              <div
                 key={request.id}
-                style={{
-                  background: isEven 
-                    ? safeColors.cardBg 
-                    : (isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)'),
-                  borderBottom: `1px solid ${safeColors.border}`,
-                  transition: 'background 0.2s ease'
-                }}
+                className={`table__row ${isEven ? '' : 'table__row--alt'}`}
               >
                 {/* Row Content */}
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: '100px 1fr 1fr 100px 120px 150px 180px',
-                  gap: '16px',
-                  alignItems: 'center',
-                  padding: '16px 20px',
-                  fontSize: '14px'
-                }}>
+                <div className="table__row-content">
                   {/* ID with expand button */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div className="flex items-center gap-2">
                     <button
                       onClick={() => toggleExpand(request.id)}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                        color: safeColors.textMuted,
-                        display: 'flex',
-                        alignItems: 'center',
-                        padding: '4px'
-                      }}
+                      className="btn btn--icon"
                     >
                       {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </button>
-                    <span style={{ color: safeColors.textPrimary, fontWeight: '600' }}>
-                      {request.id}
-                    </span>
+                    <span className="font-semibold text-primary">{request.id}</span>
                   </div>
 
                   {/* Name & Phone */}
                   <div>
-                    <div style={{ color: safeColors.textPrimary, fontWeight: '500', marginBottom: '4px' }}>
-                      {request.name}
-                    </div>
-                    <div style={{ color: safeColors.textMuted, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div className="font-medium text-primary mb-1">{request.name}</div>
+                    <div className="text-xs text-muted flex items-center gap-1">
                       <Phone size={12} />
                       {request.phone}
                     </div>
@@ -218,63 +152,46 @@ const SOSVirtualTable = ({
 
                   {/* Location & People */}
                   <div>
-                    <div style={{ color: safeColors.textPrimary, marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <MapPin size={14} color={safeColors.textMuted} />
+                    <div className="text-primary mb-1 flex items-center gap-1">
+                      <MapPin size={14} className="text-muted" />
                       {request.location}
                     </div>
-                    <div style={{ color: safeColors.textMuted, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div className="text-xs text-muted flex items-center gap-1">
                       <Users size={12} />
                       {request.people} people
                     </div>
                   </div>
 
                   {/* Time */}
-                  <div style={{ color: safeColors.textMuted, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <div className="text-xs text-muted flex items-center gap-1">
                     <Clock size={12} />
                     {new Date(request.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
 
                   {/* Status */}
                   <div>
-                    <span style={{
-                      display: 'inline-block',
-                      padding: '6px 12px',
-                      borderRadius: '20px',
-                      background: statusStyle.bg,
-                      color: statusStyle.color,
-                      border: `1px solid ${statusStyle.border}30`,
-                      fontSize: '12px',
-                      fontWeight: '600'
-                    }}>
+                    <span
+                      className="badge"
+                      style={{
+                        background: statusStyle.bg,
+                        color: statusStyle.color,
+                        border: `1px solid ${statusStyle.border}30`
+                      }}
+                    >
                       {request.status}
                     </span>
                   </div>
 
                   {/* Assigned Team */}
-                  <div style={{ color: safeColors.textSecondary, fontSize: '13px' }}>
+                  <div className="text-sm text-secondary">
                     {request.assignedTeam || '—'}
                   </div>
 
                   {/* Actions */}
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div className="flex gap-2">
                     <button
                       onClick={() => onViewDetails && onViewDetails(request)}
-                      style={{
-                        flex: 1,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '6px',
-                        padding: '8px 12px',
-                        background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                        color: '#ffffff',
-                        border: 'none',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        transition: 'transform 0.2s'
-                      }}
+                      className="btn btn--primary btn--sm flex-1"
                     >
                       <Eye size={14} />
                       View
@@ -282,18 +199,7 @@ const SOSVirtualTable = ({
                     {request.status === 'Pending' && (
                       <button
                         onClick={() => onAssign && onAssign(request)}
-                        style={{
-                          flex: 1,
-                          padding: '8px 12px',
-                          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                          color: '#ffffff',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          transition: 'transform 0.2s'
-                        }}
+                        className="btn btn--success btn--sm flex-1"
                       >
                         Assign
                       </button>
@@ -303,15 +209,9 @@ const SOSVirtualTable = ({
 
                 {/* Expanded Details */}
                 {isExpanded && (
-                  <div style={{
-                    padding: '16px 20px',
-                    background: isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.03)',
-                    borderTop: `1px solid ${safeColors.border}`
-                  }}>
-                    <p style={{ color: safeColors.textSecondary, fontSize: '13px', marginBottom: '8px', fontWeight: '600' }}>
-                      Description:
-                    </p>
-                    <p style={{ color: safeColors.textPrimary, fontSize: '14px', lineHeight: '1.6' }}>
+                  <div className="table__row-expanded">
+                    <p className="text-sm text-secondary font-semibold mb-2">Description:</p>
+                    <p className="text-sm text-primary" style={{ lineHeight: '1.6' }}>
                       {request.description || 'No description available.'}
                     </p>
                   </div>
@@ -323,58 +223,25 @@ const SOSVirtualTable = ({
       </div>
 
       {/* Pagination */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: '20px',
-        padding: '16px',
-        background: safeColors.cardBg,
-        border: `1px solid ${safeColors.border}`,
-        borderRadius: '12px'
-      }}>
-        <div style={{ color: safeColors.textSecondary, fontSize: '14px' }}>
+      <div className="card card-body mt-5 flex justify-between items-center">
+        <div className="text-sm text-secondary">
           Showing {((currentPage - 1) * rowsPerPage) + 1} to {Math.min(currentPage * rowsPerPage, sortedRequests.length)} of {sortedRequests.length} requests
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="flex gap-2">
           <button
             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            style={{
-              padding: '8px 16px',
-              background: currentPage === 1 ? safeColors.inputBg : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-              color: currentPage === 1 ? safeColors.textMuted : '#ffffff',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
-            }}
+            className={`btn ${currentPage === 1 ? 'btn--disabled' : 'btn--primary'}`}
           >
             Previous
           </button>
-          <span style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            padding: '0 16px',
-            color: safeColors.textPrimary,
-            fontWeight: '600'
-          }}>
+          <span className="flex items-center px-4 font-semibold text-primary">
             Page {currentPage} of {totalPages}
           </span>
           <button
             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-            style={{
-              padding: '8px 16px',
-              background: currentPage === totalPages ? safeColors.inputBg : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-              color: currentPage === totalPages ? safeColors.textMuted : '#ffffff',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
-            }}
+            className={`btn ${currentPage === totalPages ? 'btn--disabled' : 'btn--primary'}`}
           >
             Next
           </button>
@@ -385,3 +252,4 @@ const SOSVirtualTable = ({
 };
 
 export default SOSVirtualTable;
+

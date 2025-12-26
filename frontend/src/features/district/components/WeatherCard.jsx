@@ -1,62 +1,48 @@
 /**
  * WeatherCard Component
  * Displays weather summary for district
+ * 
+ * CSS Migration: Now uses external CSS classes from design system
  */
 
 import PropTypes from 'prop-types';
 import { Cloud } from 'lucide-react';
-import { useSettings } from '@app/providers/ThemeProvider';
-import { getThemeColors } from '@shared/utils/themeColors';
+import '@styles/css/main.css';
 
 const WeatherCard = ({ weather }) => {
-  const { theme } = useSettings();
-  const isLight = theme === 'light';
-  const colors = getThemeColors(isLight);
-
   if (!weather) return null;
 
   return (
-    <div 
-      className="rounded-xl transition-all duration-300"
-      style={{ 
-        background: colors.cardBg,
-        border: `1px solid ${colors.cardBorder}`,
-        padding: '20px',
-        boxShadow: isLight ? colors.cardShadow : 'none'
-      }}
-    >
-      <div className="flex items-center gap-2" style={{ marginBottom: '16px' }}>
-        <Cloud style={{ color: colors.textMuted, width: '18px', height: '18px' }} />
-        <h3 
-          className="font-semibold"
-          style={{ color: colors.textPrimary, fontSize: '15px' }}
-        >
+    <div className="card card-body">
+      <div className="flex items-center gap-2 mb-4">
+        <Cloud className="text-muted" style={{ width: '18px', height: '18px' }} />
+        <h3 className="text-base font-semibold text-primary">
           Weather Summary
         </h3>
       </div>
-      
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+      <div className="flex flex-col gap-4">
         <div>
-          <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>
+          <p className="text-xs text-muted mb-1">
             Current Conditions
           </p>
-          <p className="font-semibold" style={{ color: colors.textPrimary, fontSize: '14px' }}>
+          <p className="text-sm font-semibold text-primary">
             {weather.conditions}
           </p>
         </div>
         <div>
-          <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>
+          <p className="text-xs text-muted mb-1">
             Temperature
           </p>
-          <p className="font-bold" style={{ color: colors.textPrimary, fontSize: '24px' }}>
+          <p className="text-2xl font-bold text-primary">
             {weather.temperature}
           </p>
         </div>
         <div>
-          <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>
+          <p className="text-xs text-muted mb-1">
             Forecast
           </p>
-          <p style={{ color: colors.primary, fontSize: '13px', lineHeight: '1.4' }}>
+          <p className="text-sm" style={{ color: 'var(--primary)', lineHeight: '1.4' }}>
             {weather.forecast}
           </p>
         </div>
@@ -74,3 +60,4 @@ WeatherCard.propTypes = {
 };
 
 export default WeatherCard;
+

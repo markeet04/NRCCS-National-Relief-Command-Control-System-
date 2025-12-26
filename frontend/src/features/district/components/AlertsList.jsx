@@ -1,57 +1,42 @@
 /**
  * AlertsList Component
  * Displays today's alerts for district
+ * 
+ * CSS Migration: Now uses external CSS classes from design system
  */
 
 import PropTypes from 'prop-types';
 import { AlertTriangle } from 'lucide-react';
-import { useSettings } from '@app/providers/ThemeProvider';
-import { getThemeColors } from '@shared/utils/themeColors';
+import '@styles/css/main.css';
 
 const AlertsList = ({ alerts, title = "Today's Alerts" }) => {
-  const { theme } = useSettings();
-  const isLight = theme === 'light';
-  const colors = getThemeColors(isLight);
-
   return (
-    <div 
-      className="rounded-xl transition-all duration-300"
-      style={{ 
-        background: colors.cardBg,
-        border: `1px solid ${colors.cardBorder}`,
-        padding: '20px',
-        boxShadow: isLight ? colors.cardShadow : 'none'
-      }}
-    >
-      <h3 
-        className="font-semibold"
-        style={{ color: colors.textPrimary, fontSize: '15px', marginBottom: '16px' }}
-      >
+    <div className="card card-body">
+      <h3 className="text-base font-semibold text-primary mb-4">
         {title}
       </h3>
-      
+
       {alerts.length === 0 ? (
-        <p style={{ color: colors.textMuted, fontSize: '14px' }}>
+        <p className="text-sm text-muted">
           No alerts at this time
         </p>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="flex flex-col gap-4">
           {alerts.map((alert) => (
             <div key={alert.id} className="flex items-start gap-3">
-              <AlertTriangle 
-                style={{ 
-                  color: alert.color, 
-                  width: '18px', 
-                  height: '18px', 
-                  marginTop: '2px',
-                  flexShrink: 0
-                }} 
+              <AlertTriangle
+                className="flex-shrink-0 mt-0.5"
+                style={{
+                  color: alert.color,
+                  width: '18px',
+                  height: '18px'
+                }}
               />
               <div>
-                <p className="font-medium" style={{ color: colors.textPrimary, fontSize: '14px' }}>
+                <p className="text-sm font-medium text-primary">
                   {alert.type}
                 </p>
-                <p style={{ color: colors.textMuted, fontSize: '12px', marginTop: '2px' }}>
+                <p className="text-xs text-muted mt-0.5">
                   {alert.description}
                 </p>
               </div>
@@ -74,3 +59,4 @@ AlertsList.propTypes = {
 };
 
 export default AlertsList;
+

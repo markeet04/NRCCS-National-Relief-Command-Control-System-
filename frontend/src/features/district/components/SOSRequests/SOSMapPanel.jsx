@@ -1,12 +1,15 @@
 /**
  * SOSMapPanel Component
  * Leaflet map showing SOS request locations with clustered pins
+ * 
+ * CSS Migration: Now uses external CSS classes from design system
  */
 
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { MapPin, AlertCircle } from 'lucide-react';
+import { MapPin } from 'lucide-react';
+import '@styles/css/main.css';
 
 // Fix for default marker icons in Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -16,7 +19,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-const SOSMapPanel = ({ requests, onMarkerClick, colors, isLight }) => {
+const SOSMapPanel = ({ requests, onMarkerClick }) => {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
@@ -27,7 +30,7 @@ const SOSMapPanel = ({ requests, onMarkerClick, colors, isLight }) => {
     // Initialize map
     if (!mapInstanceRef.current) {
       mapInstanceRef.current = L.map(mapRef.current).setView([30.3753, 69.3451], 7); // Pakistan center
-      
+
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
         maxZoom: 19
@@ -158,51 +161,28 @@ const SOSMapPanel = ({ requests, onMarkerClick, colors, isLight }) => {
   }, []);
 
   return (
-    <div style={{
-      background: colors.cardBg,
-      border: `1px solid ${colors.border}`,
-      borderRadius: '16px',
-      overflow: 'hidden',
-      height: '500px'
-    }}>
-      <div style={{
-        padding: '16px 20px',
-        borderBottom: `1px solid ${colors.border}`,
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        background: colors.cardBg
-      }}>
+    <div className="card" style={{ height: '500px', overflow: 'hidden' }}>
+      <div className="card-header flex items-center gap-3">
         <MapPin size={20} color="#ef4444" />
-        <h3 style={{ 
-          color: colors.textPrimary, 
-          fontSize: '16px', 
-          fontWeight: '600',
-          margin: 0
-        }}>
+        <h3 className="text-base font-semibold text-primary m-0">
           SOS Locations Map
         </h3>
-        <div style={{
-          marginLeft: 'auto',
-          display: 'flex',
-          gap: '16px',
-          fontSize: '12px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ef4444' }}></div>
-            <span style={{ color: colors.textSecondary }}>Pending</span>
+        <div className="ml-auto flex gap-4 text-xs">
+          <div className="flex items-center gap-1.5">
+            <div className="rounded-full" style={{ width: '12px', height: '12px', background: '#ef4444' }}></div>
+            <span className="text-secondary">Pending</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#3b82f6' }}></div>
-            <span style={{ color: colors.textSecondary }}>Assigned</span>
+          <div className="flex items-center gap-1.5">
+            <div className="rounded-full" style={{ width: '12px', height: '12px', background: '#3b82f6' }}></div>
+            <span className="text-secondary">Assigned</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#f59e0b' }}></div>
-            <span style={{ color: colors.textSecondary }}>En-route</span>
+          <div className="flex items-center gap-1.5">
+            <div className="rounded-full" style={{ width: '12px', height: '12px', background: '#f59e0b' }}></div>
+            <span className="text-secondary">En-route</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#10b981' }}></div>
-            <span style={{ color: colors.textSecondary }}>Rescued</span>
+          <div className="flex items-center gap-1.5">
+            <div className="rounded-full" style={{ width: '12px', height: '12px', background: '#10b981' }}></div>
+            <span className="text-secondary">Rescued</span>
           </div>
         </div>
       </div>
@@ -212,3 +192,4 @@ const SOSMapPanel = ({ requests, onMarkerClick, colors, isLight }) => {
 };
 
 export default SOSMapPanel;
+

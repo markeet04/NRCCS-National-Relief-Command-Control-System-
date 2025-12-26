@@ -2,13 +2,14 @@
  * SOSRequests Page (Enhanced Production-Ready Version)
  * Production-ready SOS management with virtual scrolling, advanced filters, and mapping
  * Features: Virtual scrolling, sortable columns, expandable rows, Leaflet map integration
+ * 
+ * CSS Migration: Now uses external CSS classes from design system
  */
 
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '../../../shared/components/layout';
-import { useSettings } from '../../../app/providers/ThemeProvider';
-import { getThemeColors } from '../../../shared/utils/themeColors';
+import '@styles/css/main.css';
 
 // Hooks
 import { useSOSRequests } from '../hooks/useSOSRequests';
@@ -33,12 +34,10 @@ import {
  */
 const SOSRequests = () => {
   const navigate = useNavigate();
-  const { isLight } = useSettings();
-  const colors = getThemeColors(isLight);
-  
+
   // Route state
   const [activeRoute, setActiveRoute] = useState('sos');
-  
+
   // Modal states
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -63,7 +62,7 @@ const SOSRequests = () => {
     assignTeam
   } = useSOSRequests();
 
-  const { teams, filteredTeams } = useRescueTeamData();
+  const { filteredTeams } = useRescueTeamData();
 
   // Handlers
   const handleViewDetails = useCallback((request) => {
@@ -118,18 +117,11 @@ const SOSRequests = () => {
       userName="District Officer"
       notificationCount={pendingCount}
     >
-      <div style={{ padding: '24px' }}>
+      <div className="p-6">
         {/* Page Header */}
-        <div style={{ marginBottom: '24px' }}>
-          <h1 style={{ 
-            fontSize: '28px', 
-            fontWeight: '700', 
-            color: colors.textPrimary,
-            marginBottom: '8px'
-          }}>
-            SOS Requests Management
-          </h1>
-          <p style={{ color: colors.textMuted, fontSize: '15px' }}>
+        <div className="mb-6">
+          <h1 className="page-title">SOS Requests Management</h1>
+          <p className="page-subtitle">
             Monitor and manage emergency SOS requests in real-time
           </p>
         </div>
@@ -141,58 +133,29 @@ const SOSRequests = () => {
           assignedCount={assignedCount}
           enrouteCount={enrouteCount}
           rescuedCount={rescuedCount}
-          colors={colors}
-          isLight={isLight}
         />
 
         {/* Filters */}
-        <div style={{ marginTop: '24px' }}>
+        <div className="mt-6">
           <SOSFilters
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             statusFilter={statusFilter}
             onStatusChange={setStatusFilter}
-            colors={colors}
-            isLight={isLight}
           />
         </div>
 
         {/* Toggle Map/Table View */}
-        <div style={{ 
-          marginTop: '20px', 
-          marginBottom: '20px',
-          display: 'flex',
-          gap: '12px'
-        }}>
+        <div className="mt-5 mb-5 flex gap-3">
           <button
             onClick={() => setShowMap(false)}
-            style={{
-              padding: '10px 20px',
-              background: !showMap ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' : colors.inputBg,
-              color: !showMap ? '#ffffff' : colors.textPrimary,
-              border: 'none',
-              borderRadius: '10px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
+            className={`btn ${!showMap ? 'btn--primary' : 'btn--secondary'}`}
           >
             Table View
           </button>
           <button
             onClick={() => setShowMap(true)}
-            style={{
-              padding: '10px 20px',
-              background: showMap ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' : colors.inputBg,
-              color: showMap ? '#ffffff' : colors.textPrimary,
-              border: 'none',
-              borderRadius: '10px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
+            className={`btn ${showMap ? 'btn--primary' : 'btn--secondary'}`}
           >
             Map View
           </button>
@@ -203,16 +166,12 @@ const SOSRequests = () => {
           <SOSMapPanel
             requests={filteredRequests}
             onMarkerClick={handleMarkerClick}
-            colors={colors}
-            isLight={isLight}
           />
         ) : (
           <SOSVirtualTable
             requests={filteredRequests}
             onViewDetails={handleViewDetails}
             onAssign={handleAssign}
-            colors={colors}
-            isLight={isLight}
           />
         )}
       </div>
@@ -222,8 +181,6 @@ const SOSRequests = () => {
         <SOSDetailsModal
           request={selectedRequest}
           onClose={handleCloseDetails}
-          colors={colors}
-          isLight={isLight}
         />
       )}
 
@@ -233,8 +190,6 @@ const SOSRequests = () => {
           teams={filteredTeams}
           onAssign={handleTeamAssignment}
           onClose={handleCloseAssign}
-          colors={colors}
-          isLight={isLight}
         />
       )}
     </DashboardLayout>
@@ -242,3 +197,4 @@ const SOSRequests = () => {
 };
 
 export default SOSRequests;
+

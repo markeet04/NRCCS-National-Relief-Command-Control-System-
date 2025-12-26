@@ -1,0 +1,261 @@
+/**
+ * NRCCS Design System - Button Components
+ * 
+ * Reusable button styles for all roles
+ * Uses CSS custom properties from variables.css
+ */
+
+/* ============================================================================
+   BASE BUTTON
+   ============================================================================ */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    outline: none;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* ============================================================================
+   BUTTON SIZES
+   ============================================================================ */
+.btn--sm {
+    padding: var(--spacing-1) var(--spacing-2);
+    font-size: var(--text-xs);
+}
+
+.btn--md {
+    padding: var(--spacing-2) var(--spacing-4);
+    font-size: var(--text-sm);
+}
+
+.btn--lg {
+    padding: var(--spacing-3) var(--spacing-6);
+    font-size: var(--text-base);
+}
+
+/* ============================================================================
+   PRIMARY BUTTON
+   ============================================================================ */
+.btn--primary {
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-color);
+    box-shadow: var(--btn-primary-shadow);
+}
+
+.btn--primary:hover:not(:disabled) {
+    box-shadow: var(--btn-primary-hover-shadow);
+    transform: translateY(-1px);
+}
+
+.btn--primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* ============================================================================
+   SECONDARY BUTTON
+   ============================================================================ */
+.btn--secondary {
+    background: var(--btn-secondary-bg);
+    color: var(--btn-secondary-color);
+    border: 1px solid var(--btn-secondary-border);
+}
+
+.btn--secondary:hover:not(:disabled) {
+    background: var(--dropdown-hover-bg);
+}
+
+/* ============================================================================
+   SUCCESS BUTTON
+   ============================================================================ */
+.btn--success {
+    background: var(--btn-success-bg);
+    color: var(--btn-success-color);
+    box-shadow: var(--btn-success-shadow);
+}
+
+.btn--success:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* ============================================================================
+   DANGER BUTTON
+   ============================================================================ */
+.btn--danger {
+    background: var(--btn-danger-bg);
+    color: var(--btn-danger-color);
+    box-shadow: var(--btn-danger-shadow);
+}
+
+.btn--danger:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* ============================================================================
+   WARNING BUTTON
+   ============================================================================ */
+.btn--warning {
+    background: linear-gradient(135deg, var(--warning) 0%, #c2410c 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.35);
+}
+
+.btn--warning:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* ============================================================================
+   GHOST BUTTON
+   ============================================================================ */
+.btn--ghost {
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+.btn--ghost:hover:not(:disabled) {
+    background: var(--dropdown-hover-bg);
+    color: var(--text-primary);
+}
+
+/* ============================================================================
+   OUTLINE BUTTON
+   ============================================================================ */
+.btn--outline {
+    background: transparent;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.btn--outline:hover:not(:disabled) {
+    background: var(--primary-light);
+}
+
+.btn--outline-danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid var(--danger);
+}
+
+.btn--outline-danger:hover:not(:disabled) {
+    background: var(--danger-light);
+}
+
+/* ============================================================================
+   ICON BUTTON
+   ============================================================================ */
+.btn--icon {
+    padding: var(--spacing-2);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-muted);
+    border: none;
+}
+
+.btn--icon:hover:not(:disabled) {
+    background: var(--dropdown-hover-bg);
+    color: var(--text-primary);
+}
+
+.btn--icon-round {
+    padding: var(--spacing-2);
+    border-radius: var(--radius-full);
+}
+
+.btn--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ============================================================================
+   BUTTON GROUP
+   ============================================================================ */
+.btn-group {
+    display: flex;
+    gap: var(--spacing-2);
+}
+
+.btn-group--attached {
+    gap: 0;
+}
+
+.btn-group--attached .btn:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.btn-group--attached .btn:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+}
+
+/* ============================================================================
+   SPECIAL BUTTONS (District Operations)
+   ============================================================================ */
+.btn--deploy {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.btn--deploy:hover:not(:disabled) {
+    background: #3b82f6;
+}
+
+.btn--evacuate {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.btn--evacuate:hover:not(:disabled) {
+    background: #ef4444;
+}
+
+.btn--broadcast {
+    background: #ea580c;
+    color: #ffffff;
+}
+
+.btn--broadcast:hover:not(:disabled) {
+    background: #f59e0b;
+}
+
+.btn--assign {
+    background: var(--primary);
+    color: #ffffff;
+}
+
+.btn--assign:hover:not(:disabled) {
+    background: var(--primary-hover);
+}
+
+.btn--close {
+    background: #374151;
+    color: #ffffff;
+}
+
+.btn--close:hover:not(:disabled) {
+    background: #4b5563;
+}

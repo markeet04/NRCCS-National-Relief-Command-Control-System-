@@ -1,26 +1,26 @@
 /**
  * StatCard Component
  * Reusable stat card for district dashboard
- * Uses shared theme colors
+ * 
+ * CSS Migration: Now uses external CSS classes from design system
  */
 
 import PropTypes from 'prop-types';
-import { useSettings } from '@app/providers/ThemeProvider';
-import { getThemeColors } from '@shared/utils/themeColors';
-import { 
-  Radio, 
-  Home, 
-  Users, 
-  Package, 
-  FileText, 
-  AlertTriangle, 
-  Truck, 
+import {
+  Radio,
+  Home,
+  Users,
+  Package,
+  FileText,
+  AlertTriangle,
+  Truck,
   Activity,
   Shield,
   Heart,
   MapPin,
   Bell
 } from 'lucide-react';
+import '@styles/css/main.css';
 
 // Icon mapping for string icon names
 const ICON_MAP = {
@@ -38,171 +38,79 @@ const ICON_MAP = {
   bell: Bell,
 };
 
-const StatCard = ({ 
-  title, 
-  value, 
-  icon, 
-  trend, 
-  trendLabel, 
-  trendDirection, 
-  gradientKey 
+// Gradient configurations for different stat types
+const GRADIENTS = {
+  rose: { bg: 'linear-gradient(135deg, #fda4af 0%, #fb7185 100%)', borderColor: '#ef4444', iconBg: 'rgba(255,255,255,0.2)' },
+  red: { bg: 'linear-gradient(135deg, #fda4af 0%, #fb7185 100%)', borderColor: '#ef4444', iconBg: 'rgba(255,255,255,0.2)' },
+  danger: { bg: 'linear-gradient(135deg, #fda4af 0%, #fb7185 100%)', borderColor: '#ef4444', iconBg: 'rgba(255,255,255,0.2)' },
+  amber: { bg: 'linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%)', borderColor: '#f59e0b', iconBg: 'rgba(255,255,255,0.2)' },
+  orange: { bg: 'linear-gradient(135deg, #fdba74 0%, #fb923c 100%)', borderColor: '#f97316', iconBg: 'rgba(255,255,255,0.2)' },
+  warning: { bg: 'linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%)', borderColor: '#f59e0b', iconBg: 'rgba(255,255,255,0.2)' },
+  blue: { bg: 'linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%)', borderColor: '#3b82f6', iconBg: 'rgba(255,255,255,0.2)' },
+  info: { bg: 'linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%)', borderColor: '#3b82f6', iconBg: 'rgba(255,255,255,0.2)' },
+  violet: { bg: 'linear-gradient(135deg, #c4b5fd 0%, #a78bfa 100%)', borderColor: '#8b5cf6', iconBg: 'rgba(255,255,255,0.2)' },
+  emerald: { bg: 'linear-gradient(135deg, #6ee7b7 0%, #34d399 100%)', borderColor: '#10b981', iconBg: 'rgba(255,255,255,0.2)' },
+  green: { bg: 'linear-gradient(135deg, #86efac 0%, #4ade80 100%)', borderColor: '#22c55e', iconBg: 'rgba(255,255,255,0.2)' },
+  success: { bg: 'linear-gradient(135deg, #6ee7b7 0%, #34d399 100%)', borderColor: '#10b981', iconBg: 'rgba(255,255,255,0.2)' },
+  cyan: { bg: 'linear-gradient(135deg, #67e8f9 0%, #22d3ee 100%)', borderColor: '#06b6d4', iconBg: 'rgba(255,255,255,0.2)' },
+  teal: { bg: 'linear-gradient(135deg, #5eead4 0%, #2dd4bf 100%)', borderColor: '#14b8a6', iconBg: 'rgba(255,255,255,0.2)' },
+  indigo: { bg: 'linear-gradient(135deg, #a5b4fc 0%, #818cf8 100%)', borderColor: '#6366f1', iconBg: 'rgba(255,255,255,0.2)' },
+  purple: { bg: 'linear-gradient(135deg, #d8b4fe 0%, #c084fc 100%)', borderColor: '#a855f7', iconBg: 'rgba(255,255,255,0.2)' },
+};
+
+const StatCard = ({
+  title,
+  value,
+  icon,
+  trend,
+  trendLabel,
+  trendDirection,
+  gradientKey = 'blue'
 }) => {
-  const { theme } = useSettings();
-  const isLight = theme === 'light';
-  const colors = getThemeColors(isLight);
-  
-  const gradient = isLight && colors.gradients ? colors.gradients[gradientKey] : null;
-  const isWhiteText = gradient && gradient.textColor === '#ffffff';
-  
   // Resolve icon - can be a component or a string key
   const IconComponent = typeof icon === 'string' ? ICON_MAP[icon] : icon;
+  const gradient = GRADIENTS[gradientKey] || GRADIENTS.blue;
 
-  // Get left border color based on gradientKey - bright colors for dark mode (matches NDMA style)
-  const getLeftBorderColor = () => {
-    if (isLight) return 'transparent';
-    const borderColors = {
-      rose: '#ef4444',
-      red: '#ef4444',
-      danger: '#ef4444',
-      amber: '#f59e0b',
-      orange: '#f97316',
-      warning: '#f59e0b',
-      blue: '#3b82f6',
-      info: '#3b82f6',
-      violet: '#8b5cf6',
-      emerald: '#10b981',
-      green: '#22c55e',
-      success: '#10b981',
-      cyan: '#06b6d4',
-      teal: '#14b8a6',
-      indigo: '#6366f1',
-      purple: '#a855f7',
-      default: '#6b7280',
-    };
-    return borderColors[gradientKey] || borderColors.default;
-  };
-
-  // Get glow shadow color for dark mode - matches NDMA style
-  const getGlowShadow = () => {
-    if (isLight) return gradient ? gradient.shadow : colors.cardShadow;
-    
-    const glowColors = {
-      rose: 'rgba(239, 68, 68, 0.4)',
-      red: 'rgba(239, 68, 68, 0.4)',
-      danger: 'rgba(239, 68, 68, 0.4)',
-      amber: 'rgba(245, 158, 11, 0.4)',
-      orange: 'rgba(249, 115, 22, 0.4)',
-      warning: 'rgba(245, 158, 11, 0.4)',
-      blue: 'rgba(59, 130, 246, 0.4)',
-      info: 'rgba(59, 130, 246, 0.4)',
-      violet: 'rgba(139, 92, 246, 0.4)',
-      emerald: 'rgba(16, 185, 129, 0.4)',
-      green: 'rgba(34, 197, 94, 0.4)',
-      success: 'rgba(16, 185, 129, 0.4)',
-      cyan: 'rgba(6, 182, 212, 0.4)',
-      teal: 'rgba(20, 184, 166, 0.4)',
-      indigo: 'rgba(99, 102, 241, 0.4)',
-      purple: 'rgba(168, 85, 247, 0.4)',
-      default: 'rgba(107, 114, 128, 0.3)',
-    };
-    
-    const glowColor = glowColors[gradientKey] || glowColors.default;
-    return `-2px 0 10px 0 ${glowColor}`;
-  };
-  
   return (
-    <div 
-      className="stat-card-unified rounded-xl transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 overflow-hidden"
-      style={{ 
-        background: gradient ? gradient.bg : colors.cardBg,
-        border: gradient ? 'none' : `1px solid ${colors.cardBorder}`,
-        borderTop: gradient ? `4px solid ${gradient.borderTop}` : `1px solid ${colors.cardBorder}`,
-        borderLeft: !isLight ? `4px solid ${getLeftBorderColor()}` : (gradient ? 'none' : `1px solid ${colors.cardBorder}`),
-        padding: '24px',
-        boxShadow: getGlowShadow()
+    <div
+      className="stat-card transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1"
+      style={{
+        borderLeftColor: gradient.borderColor,
+        borderLeftWidth: '4px'
       }}
     >
-      <div className="flex items-start justify-between">
-        {/* Icon in top-left for light mode with gradients */}
-        {IconComponent && gradient && (
-          <div 
-            className="rounded-xl flex items-center justify-center"
-            style={{ 
-              background: gradient.iconBg,
-              width: '48px',
-              height: '48px',
-              marginRight: '16px'
-            }}
+      <div className="flex items-center gap-4">
+        {/* Icon */}
+        {IconComponent && (
+          <div
+            className="stat-card__icon"
+            style={{ background: `${gradient.borderColor}20` }}
           >
-            <IconComponent style={{ color: '#ffffff', width: '24px', height: '24px' }} />
+            <IconComponent style={{ color: gradient.borderColor, width: '24px', height: '24px' }} />
           </div>
         )}
-        
+
         <div className="flex-1">
-          <p 
-            className="font-semibold uppercase tracking-wider"
-            style={{ 
-              color: gradient ? gradient.textColor : colors.textMuted,
-              fontSize: '11px',
-              marginBottom: '12px',
-              opacity: isWhiteText ? 0.9 : 1,
-              textAlign: gradient ? 'right' : 'left'
-            }}
-          >
-            {title}
-          </p>
-          <p 
-            className="font-bold"
-            style={{ 
-              color: gradient ? gradient.textColor : colors.textPrimary,
-              fontSize: '36px',
-              lineHeight: '1',
-              marginBottom: '8px',
-              textAlign: gradient ? 'left' : 'left'
-            }}
-          >
-            {value}
-          </p>
+          <p className="stat-card__title">{title}</p>
+          <p className="stat-card__value">{value}</p>
           {(trend !== null || trendLabel) && (
-            <div className="flex items-center gap-1" style={{ marginTop: '8px' }}>
-              <span 
-                style={{ 
-                  color: isWhiteText 
-                    ? 'rgba(255, 255, 255, 0.9)' 
-                    : (trendDirection === 'up' ? '#059669' : trendDirection === 'down' ? '#dc2626' : colors.textMuted),
-                  fontSize: '13px',
-                  fontWeight: '500'
+            <div className="flex items-center gap-1 mt-2">
+              <span
+                className="text-sm font-medium"
+                style={{
+                  color: trendDirection === 'up' ? '#059669' : trendDirection === 'down' ? '#dc2626' : 'var(--text-muted)'
                 }}
               >
                 {trendDirection === 'up' && '↗'}
                 {trendDirection === 'down' && '↘'}
                 {trend !== null && ` ${Math.abs(trend)}%`}
                 {trendLabel && (
-                  <span style={{ 
-                    color: gradient ? gradient.textColor : colors.textMuted, 
-                    opacity: isWhiteText ? 0.85 : 0.7 
-                  }}>
-                    {' '}{trendLabel}
-                  </span>
+                  <span className="text-muted ml-1">{trendLabel}</span>
                 )}
               </span>
             </div>
           )}
         </div>
-        
-        {/* Icon in top-right for dark mode (no gradient) */}
-        {IconComponent && !gradient && (
-          <div 
-            className="rounded-xl flex items-center justify-center"
-            style={{ 
-              background: colors.iconBg,
-              width: '48px',
-              height: '48px'
-            }}
-          >
-            <IconComponent style={{ color: '#ffffff', width: '24px', height: '24px' }} />
-          </div>
-        )}
       </div>
     </div>
   );
@@ -227,3 +135,4 @@ StatCard.defaultProps = {
 };
 
 export default StatCard;
+

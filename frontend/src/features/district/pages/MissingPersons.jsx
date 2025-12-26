@@ -1,22 +1,27 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '../../../shared/components/layout';
-import { useSettings } from '../../../app/providers/ThemeProvider';
-import { getThemeColors } from '../../../shared/utils/themeColors';
 import { DISTRICT_MENU_ITEMS } from '../constants';
 import useMissingPersonsLogic from '../hooks/useMissingPersonsLogic';
 import StatusUpdateModal from '../components/MissingPersons/StatusUpdateModal';
 import { ToastContainer } from '../../../shared/components/ui';
 import { Search, Users, UserCheck, UserX, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../../app/providers/AuthProvider';
+import { useSettings } from '../../../app/providers/ThemeProvider';
+import { getThemeColors } from '../../../shared/utils/themeColors';
 import districtApi from '../services/districtApi';
+import '@styles/css/main.css';
 
+/**
+ * MissingPersons Page
+ * CSS Migration: Now uses external CSS classes from design system
+ */
 const MissingPersons = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const { theme } = useSettings();
     const isLight = theme === 'light';
     const colors = getThemeColors(isLight);
-    const { user } = useAuth();
 
     const [activeRoute, setActiveRoute] = useState('missing-persons');
     const [districtName, setDistrictName] = useState('Loading...');
@@ -25,7 +30,7 @@ const MissingPersons = () => {
     // Fetch only district info on mount - lightweight call
     useEffect(() => {
         console.log('[MissingPersons] Component mounted, user:', user);
-        
+
         const fetchDistrictName = async () => {
             try {
                 console.log('[MissingPersons] Fetching district info...');
@@ -119,29 +124,15 @@ const MissingPersons = () => {
             userName="District Officer"
             notificationCount={pendingSosCount || activeCases || 0}
         >
-            <div style={{ padding: '24px' }}>
+            <div className="p-6">
                 {/* Page Header */}
-                <div style={{ marginBottom: '24px' }}>
-                    <h1 style={{
-                        fontSize: '28px',
-                        fontWeight: '700',
-                        color: colors.textPrimary,
-                        marginBottom: '8px'
-                    }}>
-                        Missing Persons Management
-                    </h1>
-                    <p style={{ color: colors.textMuted, fontSize: '15px' }}>
-                        Track and manage missing person reports with status updates
-                    </p>
+                <div className="mb-6">
+                    <h1 className="page-title">Missing Persons Management</h1>
+                    <p className="page-subtitle">Track and manage missing person reports with status updates</p>
                 </div>
 
                 {/* KPI Cards */}
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                    gap: '20px',
-                    marginBottom: '24px'
-                }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
                     {/* Total Cases */}
                     <div style={{
                         background: colors.cardBg,

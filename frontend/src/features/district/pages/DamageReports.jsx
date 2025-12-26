@@ -7,22 +7,27 @@ import { getThemeColors } from '../../../shared/utils/themeColors';
 import { DISTRICT_MENU_ITEMS } from '../constants';
 import { useDamageReports, REPORT_STATUS_OPTIONS, useDistrictData } from '../hooks';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import '@styles/css/main.css';
 
+/**
+ * DamageReports Page
+ * CSS Migration: Now uses external CSS classes from design system
+ */
 const DamageReports = () => {
   const [activeRoute, setActiveRoute] = useState('reports');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewingReport, setViewingReport] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { theme } = useSettings();
-  const isLight = theme === 'light';
-  const colors = getThemeColors(isLight);
   const [formData, setFormData] = useState({
     location: '',
     description: '',
     photos: []
   });
-  
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+  const colors = getThemeColors(isLight);
+
   // Use the damage reports hook
   const {
     reports,
@@ -39,7 +44,7 @@ const DamageReports = () => {
 
   // District info for layout
   const { districtInfo, rawStats } = useDistrictData();
-  
+
   const navigate = useNavigate();
 
   const statusOptions = REPORT_STATUS_OPTIONS;
@@ -55,7 +60,7 @@ const DamageReports = () => {
 
     // Create CSV headers
     const headers = ['Report ID', 'Location', 'Submitted By', 'Date', 'Status', 'Description'];
-    
+
     // Create CSV rows
     const rows = filteredReports.map(report => [
       report.id,
@@ -168,9 +173,9 @@ const DamageReports = () => {
       <div style={{ padding: '24px' }}>
         {/* Page Header */}
         <div style={{ marginBottom: '24px' }}>
-          <h1 style={{ 
-            fontSize: '28px', 
-            fontWeight: '700', 
+          <h1 style={{
+            fontSize: '28px',
+            fontWeight: '700',
             color: colors.textPrimary,
             marginBottom: '8px'
           }}>
@@ -182,16 +187,16 @@ const DamageReports = () => {
         </div>
 
         {/* KPI Cards */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
           gap: '20px',
           marginBottom: '24px'
         }}>
           {/* Total Reports Card */}
-          <div 
+          <div
             className="hover:scale-[1.02] hover:-translate-y-1"
-            style={{ 
+            style={{
               background: colors.cardBg,
               border: `2px solid ${colors.border}`,
               borderLeft: `4px solid #3b82f6`,
@@ -225,9 +230,9 @@ const DamageReports = () => {
           </div>
 
           {/* Pending Card with Ring Chart */}
-          <div 
+          <div
             className="hover:scale-[1.02] hover:-translate-y-1"
-            style={{ 
+            style={{
               background: colors.cardBg,
               border: `2px solid ${colors.border}`,
               borderLeft: `4px solid #f59e0b`,
@@ -292,9 +297,9 @@ const DamageReports = () => {
           </div>
 
           {/* Verified Card */}
-          <div 
+          <div
             className="hover:scale-[1.02] hover:-translate-y-1"
-            style={{ 
+            style={{
               background: colors.cardBg,
               border: `2px solid ${colors.border}`,
               borderLeft: `4px solid #10b981`,
@@ -339,283 +344,261 @@ const DamageReports = () => {
           padding: '20px',
           marginBottom: '24px'
         }}>
-          <div 
-            style={{ 
-              display: 'flex', 
+          <div
+            style={{
+              display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
               gap: '16px',
               flexWrap: 'wrap'
             }}
           >
-        {/* Search and Filter */}
-        <div style={{ display: 'flex', gap: '12px', flex: 1 }}>
-          {/* Search Input */}
-          <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
-            <Search 
-              style={{ 
-                position: 'absolute', 
-                left: '16px', 
-                top: '50%', 
-                transform: 'translateY(-50%)',
-                color: colors.textMuted,
-                width: '18px',
-                height: '18px'
-              }} 
-            />
-            <input
-              type="text"
-              placeholder="Search reports by ID, location..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '14px 16px 14px 48px',
-                background: colors.inputBg,
-                border: `2px solid ${colors.border}`,
-                borderRadius: '12px',
-                color: colors.textPrimary,
-                fontSize: '14px',
-                outline: 'none',
-                boxSizing: 'border-box',
-                transition: 'border-color 0.2s'
-              }}
-            />
-          </div>
+            {/* Search and Filter */}
+            <div style={{ display: 'flex', gap: '12px', flex: 1 }}>
+              {/* Search Input */}
+              <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
+                <Search
+                  style={{
+                    position: 'absolute',
+                    left: '16px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: colors.textMuted,
+                    width: '18px',
+                    height: '18px'
+                  }}
+                />
+                <input
+                  type="text"
+                  placeholder="Search reports by ID, location..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '14px 16px 14px 48px',
+                    background: colors.inputBg,
+                    border: `2px solid ${colors.border}`,
+                    borderRadius: '12px',
+                    color: colors.textPrimary,
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    transition: 'border-color 0.2s'
+                  }}
+                />
+              </div>
 
-          {/* Status Filter Dropdown */}
-          <div style={{ position: 'relative' }}>
-            <button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '14px 18px',
-                background: colors.inputBg,
-                border: `2px solid ${colors.border}`,
-                borderRadius: '12px',
-                color: colors.textPrimary,
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                minWidth: '160px',
-                justifyContent: 'space-between',
-                transition: 'border-color 0.2s'
-              }}
-            >
-              <span>{statusOptions.find(opt => opt.value === statusFilter)?.label}</span>
-              <ChevronDown style={{ width: '16px', height: '16px', opacity: 0.6 }} />
-            </button>
-            
-            {isDropdownOpen && (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: 0,
-                  right: 0,
-                  marginTop: '8px',
-                  background: colors.cardBg,
-                  border: `2px solid ${colors.border}`,
-                  borderRadius: '12px',
-                  overflow: 'hidden',
-                  zIndex: 100,
-                  boxShadow: '0 10px 40px rgba(0,0,0,0.15)'
-                }}
-              >
-                {statusOptions.map(option => (
-                  <button
-                    key={option.value}
-                    onClick={() => {
-                      setStatusFilter(option.value);
-                      setIsDropdownOpen(false);
-                    }}
+              {/* Status Filter Dropdown */}
+              <div style={{ position: 'relative' }}>
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '14px 18px',
+                    background: colors.inputBg,
+                    border: `2px solid ${colors.border}`,
+                    borderRadius: '12px',
+                    color: colors.textPrimary,
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    minWidth: '160px',
+                    justifyContent: 'space-between',
+                    transition: 'border-color 0.2s'
+                  }}
+                >
+                  <span>{statusOptions.find(opt => opt.value === statusFilter)?.label}</span>
+                  <ChevronDown style={{ width: '16px', height: '16px', opacity: 0.6 }} />
+                </button>
+
+                {isDropdownOpen && (
+                  <div
                     style={{
-                      width: '100%',
-                      padding: '12px 18px',
-                      background: statusFilter === option.value ? (isLight ? 'rgba(59,130,246,0.1)' : 'rgba(59,130,246,0.2)') : 'transparent',
-                      border: 'none',
-                      color: statusFilter === option.value ? '#3b82f6' : colors.textPrimary,
-                      fontSize: '14px',
-                      textAlign: 'left',
-                      cursor: 'pointer',
-                      fontWeight: statusFilter === option.value ? '600' : '400',
-                      transition: 'background 0.2s'
+                      position: 'absolute',
+                      top: '100%',
+                      left: 0,
+                      right: 0,
+                      marginTop: '8px',
+                      background: colors.cardBg,
+                      border: `2px solid ${colors.border}`,
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                      zIndex: 100,
+                      boxShadow: '0 10px 40px rgba(0,0,0,0.15)'
                     }}
                   >
-                    {option.label}
-                  </button>
-                ))}
+                    {statusOptions.map(option => (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          setStatusFilter(option.value);
+                          setIsDropdownOpen(false);
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '12px 18px',
+                          background: statusFilter === option.value ? (isLight ? 'rgba(59,130,246,0.1)' : 'rgba(59,130,246,0.2)') : 'transparent',
+                          border: 'none',
+                          color: statusFilter === option.value ? '#3b82f6' : colors.textPrimary,
+                          fontSize: '14px',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          fontWeight: statusFilter === option.value ? '600' : '400',
+                          transition: 'background 0.2s'
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </div>
+            </div>
 
-        {/* Action Buttons */}
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <button
-            onClick={handleOpenCreateModal}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '14px 24px',
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'transform 0.2s, box-shadow 0.2s',
-              boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
-            }}
-          >
-            <Plus style={{ width: '18px', height: '18px' }} />
-            Create Report
-          </button>
-          <button
-            onClick={handleExportCSV}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '14px 24px',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'transform 0.2s',
-              boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)'
-            }}
-          >
-            <Download style={{ width: '18px', height: '18px' }} />
-            Export CSV
-          </button>
-        </div>
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={handleOpenCreateModal}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '14px 24px',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
+                }}
+              >
+                <Plus style={{ width: '18px', height: '18px' }} />
+                Create Report
+              </button>
+              <button
+                onClick={handleExportCSV}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '14px 24px',
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s',
+                  boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)'
+                }}
+              >
+                <Download style={{ width: '18px', height: '18px' }} />
+                Export CSV
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Reports Table */}
       <div style={{ padding: '0 24px 24px 24px' }}>
-      <div 
-        style={{ 
-          background: colors.cardBg,
-          border: `2px solid ${colors.border}`,
-          borderRadius: '16px',
-          overflow: 'hidden'
-        }}
-      >
-        {/* Table Header */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '100px 1fr 1fr 120px 130px 150px',
-          gap: '16px',
-          padding: '18px 24px',
-          background: colors.cardBg,
-          borderBottom: `2px solid ${colors.border}`,
-          fontSize: '13px',
-          fontWeight: '600',
-          color: colors.textSecondary,
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em'
-        }}>
-          <div style={{ cursor: 'pointer', userSelect: 'none' }}>Report ID</div>
-          <div style={{ cursor: 'pointer', userSelect: 'none' }}>Location</div>
-          <div style={{ cursor: 'pointer', userSelect: 'none' }}>Submitted By</div>
-          <div style={{ cursor: 'pointer', userSelect: 'none' }}>Date</div>
-          <div style={{ cursor: 'pointer', userSelect: 'none' }}>Status</div>
-          <div>Actions</div>
-        </div>
+        <div
+          style={{
+            background: colors.cardBg,
+            border: `2px solid ${colors.border}`,
+            borderRadius: '16px',
+            overflow: 'hidden'
+          }}
+        >
+          {/* Table Header */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '100px 1fr 1fr 120px 130px 150px',
+            gap: '16px',
+            padding: '18px 24px',
+            background: colors.cardBg,
+            borderBottom: `2px solid ${colors.border}`,
+            fontSize: '13px',
+            fontWeight: '600',
+            color: colors.textSecondary,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em'
+          }}>
+            <div style={{ cursor: 'pointer', userSelect: 'none' }}>Report ID</div>
+            <div style={{ cursor: 'pointer', userSelect: 'none' }}>Location</div>
+            <div style={{ cursor: 'pointer', userSelect: 'none' }}>Submitted By</div>
+            <div style={{ cursor: 'pointer', userSelect: 'none' }}>Date</div>
+            <div style={{ cursor: 'pointer', userSelect: 'none' }}>Status</div>
+            <div>Actions</div>
+          </div>
 
-        {/* Table Body */}
-        <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
-          {filteredReports.length > 0 ? (
-            filteredReports.map((report, index) => {
-              const statusInfo = getStatusInfo(report.status);
-              const isEven = index % 2 === 0;
+          {/* Table Body */}
+          <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+            {filteredReports.length > 0 ? (
+              filteredReports.map((report, index) => {
+                const statusInfo = getStatusInfo(report.status);
+                const isEven = index % 2 === 0;
 
-              return (
-                <div 
-                  key={report.id}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '100px 1fr 1fr 120px 130px 150px',
-                    gap: '16px',
-                    padding: '18px 24px',
-                    alignItems: 'center',
-                    background: isEven 
-                      ? colors.cardBg 
-                      : (isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)'),
-                    borderBottom: `1px solid ${colors.border}`,
-                    transition: 'background 0.2s'
-                  }}
-                >
-                  <div style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>
-                    {report.id}
-                  </div>
-                  <div style={{ color: colors.textPrimary, fontSize: '14px' }}>
-                    {report.location}
-                  </div>
-                  <div style={{ color: colors.textSecondary, fontSize: '14px' }}>
-                    {report.submittedBy}
-                  </div>
-                  <div style={{ color: colors.textMuted, fontSize: '13px' }}>
-                    {report.date}
-                  </div>
-                  <div>
-                    <span 
-                      style={{ 
-                        backgroundColor: statusInfo.bgColor,
-                        color: statusInfo.color,
-                        fontSize: '12px',
-                        padding: '6px 14px',
-                        borderRadius: '20px',
-                        display: 'inline-block',
-                        fontWeight: '600',
-                        border: `1px solid ${statusInfo.color}30`
-                      }}
-                    >
-                      {statusInfo.label}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button
-                      onClick={() => handleOpenViewModal(report)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '6px',
-                        padding: '10px 16px',
-                        background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                        color: '#ffffff',
-                        border: 'none',
-                        borderRadius: '10px',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        transition: 'transform 0.2s'
-                      }}
-                    >
-                      <Eye style={{ width: '14px', height: '14px' }} />
-                      View
-                    </button>
-                    {report.status === 'pending' && (
+                return (
+                  <div
+                    key={report.id}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '100px 1fr 1fr 120px 130px 150px',
+                      gap: '16px',
+                      padding: '18px 24px',
+                      alignItems: 'center',
+                      background: isEven
+                        ? colors.cardBg
+                        : (isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)'),
+                      borderBottom: `1px solid ${colors.border}`,
+                      transition: 'background 0.2s'
+                    }}
+                  >
+                    <div style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600' }}>
+                      {report.id}
+                    </div>
+                    <div style={{ color: colors.textPrimary, fontSize: '14px' }}>
+                      {report.location}
+                    </div>
+                    <div style={{ color: colors.textSecondary, fontSize: '14px' }}>
+                      {report.submittedBy}
+                    </div>
+                    <div style={{ color: colors.textMuted, fontSize: '13px' }}>
+                      {report.date}
+                    </div>
+                    <div>
+                      <span
+                        style={{
+                          backgroundColor: statusInfo.bgColor,
+                          color: statusInfo.color,
+                          fontSize: '12px',
+                          padding: '6px 14px',
+                          borderRadius: '20px',
+                          display: 'inline-block',
+                          fontWeight: '600',
+                          border: `1px solid ${statusInfo.color}30`
+                        }}
+                      >
+                        {statusInfo.label}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
                       <button
-                        onClick={() => handleVerifyReport(report.id)}
+                        onClick={() => handleOpenViewModal(report)}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           gap: '6px',
                           padding: '10px 16px',
-                          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                          background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                           color: '#ffffff',
                           border: 'none',
                           borderRadius: '10px',
@@ -625,88 +608,110 @@ const DamageReports = () => {
                           transition: 'transform 0.2s'
                         }}
                       >
-                        <Check style={{ width: '14px', height: '14px' }} />
-                        Verify
+                        <Eye style={{ width: '14px', height: '14px' }} />
+                        View
                       </button>
-                    )}
+                      {report.status === 'pending' && (
+                        <button
+                          onClick={() => handleVerifyReport(report.id)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            padding: '10px 16px',
+                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '10px',
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            transition: 'transform 0.2s'
+                          }}
+                        >
+                          <Check style={{ width: '14px', height: '14px' }} />
+                          Verify
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })
-          ) : (
-            <div style={{
-              padding: '60px 20px',
-              textAlign: 'center',
-              color: colors.textMuted
-            }}>
-              <p style={{ fontSize: '16px', marginBottom: '8px' }}>No damage reports found</p>
-              <p style={{ fontSize: '14px' }}>Try adjusting your search or filter criteria</p>
-            </div>
-          )}
+                );
+              })
+            ) : (
+              <div style={{
+                padding: '60px 20px',
+                textAlign: 'center',
+                color: colors.textMuted
+              }}>
+                <p style={{ fontSize: '16px', marginBottom: '8px' }}>No damage reports found</p>
+                <p style={{ fontSize: '14px' }}>Try adjusting your search or filter criteria</p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Pagination */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: '20px',
-        padding: '16px',
-        background: colors.cardBg,
-        border: `1px solid ${colors.border}`,
-        borderRadius: '12px'
-      }}>
-        <div style={{ color: colors.textSecondary, fontSize: '14px' }}>
-          Showing {filteredReports.length} of {totalReports} reports
+        {/* Pagination */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: '20px',
+          padding: '16px',
+          background: colors.cardBg,
+          border: `1px solid ${colors.border}`,
+          borderRadius: '12px'
+        }}>
+          <div style={{ color: colors.textSecondary, fontSize: '14px' }}>
+            Showing {filteredReports.length} of {totalReports} reports
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              disabled
+              style={{
+                padding: '8px 16px',
+                background: colors.inputBg,
+                color: colors.textMuted,
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'not-allowed'
+              }}
+            >
+              Previous
+            </button>
+            <span style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0 16px',
+              color: colors.textPrimary,
+              fontWeight: '600'
+            }}>
+              Page 1 of 1
+            </span>
+            <button
+              disabled
+              style={{
+                padding: '8px 16px',
+                background: colors.inputBg,
+                color: colors.textMuted,
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'not-allowed'
+              }}
+            >
+              Next
+            </button>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            disabled
-            style={{
-              padding: '8px 16px',
-              background: colors.inputBg,
-              color: colors.textMuted,
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'not-allowed'
-            }}
-          >
-            Previous
-          </button>
-          <span style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            padding: '0 16px',
-            color: colors.textPrimary,
-            fontWeight: '600'
-          }}>
-            Page 1 of 1
-          </span>
-          <button
-            disabled
-            style={{
-              padding: '8px 16px',
-              background: colors.inputBg,
-              color: colors.textMuted,
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'not-allowed'
-            }}
-          >
-            Next
-          </button>
-        </div>
-      </div>
       </div>
 
       {/* Create Report Modal */}
       {isCreateModalOpen && (
-        <div 
+        <div
           style={{
             position: 'fixed',
             top: 0,
@@ -722,7 +727,7 @@ const DamageReports = () => {
           }}
           onClick={handleCloseCreateModal}
         >
-          <div 
+          <div
             style={{
               background: colors.cardBg,
               borderRadius: '20px',
@@ -758,9 +763,9 @@ const DamageReports = () => {
 
             {/* Modal Title */}
             <div style={{ marginBottom: '28px' }}>
-              <h2 style={{ 
-                fontSize: '24px', 
-                fontWeight: '700', 
+              <h2 style={{
+                fontSize: '24px',
+                fontWeight: '700',
                 color: colors.textPrimary,
                 marginBottom: '8px'
               }}>
@@ -860,7 +865,7 @@ const DamageReports = () => {
                             const canvas = document.createElement('canvas');
                             let width = img.width;
                             let height = img.height;
-                            
+
                             // Resize if too large (max 800px)
                             const maxSize = 800;
                             if (width > height && width > maxSize) {
@@ -870,12 +875,12 @@ const DamageReports = () => {
                               width = (width * maxSize) / height;
                               height = maxSize;
                             }
-                            
+
                             canvas.width = width;
                             canvas.height = height;
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(img, 0, 0, width, height);
-                            
+
                             // Convert to base64 with compression (0.7 quality)
                             resolve(canvas.toDataURL('image/jpeg', 0.7));
                           };
@@ -952,7 +957,7 @@ const DamageReports = () => {
 
       {/* View Report Details Modal */}
       {isViewModalOpen && viewingReport && (
-        <div 
+        <div
           style={{
             position: 'fixed',
             top: 0,
@@ -968,7 +973,7 @@ const DamageReports = () => {
           }}
           onClick={handleCloseViewModal}
         >
-          <div 
+          <div
             style={{
               background: colors.cardBg,
               borderRadius: '20px',
@@ -1005,9 +1010,9 @@ const DamageReports = () => {
 
             {/* Modal Title */}
             <div style={{ marginBottom: '28px' }}>
-              <h2 style={{ 
-                fontSize: '24px', 
-                fontWeight: '700', 
+              <h2 style={{
+                fontSize: '24px',
+                fontWeight: '700',
                 color: colors.textPrimary,
                 marginBottom: '8px'
               }}>
@@ -1019,10 +1024,10 @@ const DamageReports = () => {
             </div>
 
             {/* Report Info Grid */}
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: '1fr 1fr', 
-              gap: '20px', 
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '20px',
               marginBottom: '24px',
               background: colors.inputBg,
               padding: '20px',
@@ -1035,8 +1040,8 @@ const DamageReports = () => {
               </div>
               <div>
                 <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</p>
-                <span 
-                  style={{ 
+                <span
+                  style={{
                     backgroundColor: getStatusInfo(viewingReport.status).bgColor,
                     color: getStatusInfo(viewingReport.status).color,
                     fontSize: '12px',
@@ -1077,7 +1082,7 @@ const DamageReports = () => {
               <p style={{ color: colors.textSecondary, fontSize: '13px', marginBottom: '14px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Evidence Photos</p>
               <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
                 {viewingReport.photos.map((photo, idx) => (
-                  <img 
+                  <img
                     key={idx}
                     src={photo}
                     alt={`Evidence ${idx + 1}`}

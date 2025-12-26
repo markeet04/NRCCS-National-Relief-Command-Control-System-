@@ -1,10 +1,13 @@
 /**
  * StatusBadge Component
  * Reusable badge for displaying various status types
+ * 
+ * CSS Migration: Now uses external CSS classes from design system
  */
 
 import PropTypes from 'prop-types';
 import { STATUS_COLORS, TEAM_STATUS, SHELTER_STATUS, DAMAGE_SEVERITY } from '../constants';
+import '@styles/css/main.css';
 
 const StatusBadge = ({ status, type = 'sos', size = 'sm' }) => {
   // Get color configuration based on type and status
@@ -47,7 +50,7 @@ const StatusBadge = ({ status, type = 'sos', size = 'sm' }) => {
   };
 
   const colorConfig = getColorConfig();
-  
+
   const sizeClasses = {
     xs: 'px-1.5 py-0.5 text-[10px]',
     sm: 'px-2 py-0.5 text-xs',

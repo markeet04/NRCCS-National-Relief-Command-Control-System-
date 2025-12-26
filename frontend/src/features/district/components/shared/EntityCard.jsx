@@ -1,9 +1,12 @@
 /**
  * EntityCard Component
  * Reusable card for displaying entity information (shelters, teams, reports, etc.)
+ * 
+ * CSS Migration: Now uses external CSS classes from design system
  */
 
 import { MapPin, Eye, Edit, Trash2 } from 'lucide-react';
+import '@styles/css/main.css';
 
 const EntityCard = ({
   title,
@@ -11,111 +14,47 @@ const EntityCard = ({
   location,
   status,
   statusColor,
-  statusBg,
   headerRight,
   children,
   onView,
   onEdit,
   onDelete,
-  colors,
-  isLight = false,
   borderColor,
-  style: customStyle = {}
+  className = ''
 }) => {
-  const cardStyle = {
-    background: colors?.cardBg || (isLight ? '#ffffff' : '#1f2937'),
-    borderRadius: '20px',
-    border: `2px solid ${borderColor || colors?.border || (isLight ? '#e5e7eb' : '#374151')}`,
-    padding: '24px',
-    position: 'relative',
-    overflow: 'hidden',
-    transition: 'all 0.3s ease',
-    ...customStyle
-  };
-
-  const headerStyle = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: '16px'
-  };
-
-  const titleStyle = {
-    fontSize: '18px',
-    fontWeight: '700',
-    color: colors?.textPrimary || (isLight ? '#111827' : '#f9fafb'),
-    marginBottom: '4px'
-  };
-
-  const subtitleStyle = {
-    fontSize: '14px',
-    color: colors?.textMuted || (isLight ? '#6b7280' : '#9ca3af'),
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px'
-  };
-
-  const badgeStyle = {
-    padding: '6px 14px',
-    borderRadius: '20px',
-    fontSize: '12px',
-    fontWeight: '600',
-    background: statusBg || 'rgba(59, 130, 246, 0.2)',
-    color: statusColor || '#3b82f6',
-    border: `1px solid ${statusColor || '#3b82f6'}30`
-  };
-
-  const actionsStyle = {
-    display: 'flex',
-    gap: '12px',
-    marginTop: '20px',
-    paddingTop: '20px',
-    borderTop: `1px solid ${colors?.border || (isLight ? '#e5e7eb' : '#374151')}30`
-  };
-
-  const actionButtonStyle = (bgColor, textColor) => ({
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '10px 16px',
-    borderRadius: '10px',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '13px',
-    fontWeight: '600',
-    background: bgColor,
-    color: textColor,
-    transition: 'all 0.2s ease',
-    flex: 1,
-    justifyContent: 'center'
-  });
-
   return (
-    <div 
-      style={cardStyle}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-4px)';
-        e.currentTarget.style.boxShadow = `0 12px 24px ${isLight ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.3)'}`;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = 'none';
+    <div
+      className={`card card-body transition-all hover:scale-[1.02] hover:-translate-y-1 ${className}`}
+      style={{
+        borderLeftColor: borderColor || 'var(--card-border)',
+        borderLeftWidth: borderColor ? '4px' : '1px'
       }}
     >
       {/* Header */}
-      <div style={headerStyle}>
+      <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 style={titleStyle}>{title}</h3>
-          {subtitle && <p style={subtitleStyle}>{subtitle}</p>}
+          <h3 className="text-lg font-bold text-primary mb-1">{title}</h3>
+          {subtitle && <p className="text-sm text-muted">{subtitle}</p>}
           {location && (
-            <p style={{ ...subtitleStyle, marginTop: '4px' }}>
+            <p className="text-sm text-muted flex items-center gap-1 mt-1">
               <MapPin style={{ width: '14px', height: '14px' }} />
               {location}
             </p>
           )}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {status && <span style={badgeStyle}>{status}</span>}
+        <div className="flex items-center gap-3">
+          {status && (
+            <span
+              className="badge"
+              style={{
+                backgroundColor: statusColor ? `${statusColor}20` : 'var(--info-light)',
+                color: statusColor || 'var(--info)',
+                border: `1px solid ${statusColor || 'var(--info)'}30`
+              }}
+            >
+              {status}
+            </span>
+          )}
           {headerRight}
         </div>
       </div>
@@ -125,39 +64,21 @@ const EntityCard = ({
 
       {/* Actions */}
       {(onView || onEdit || onDelete) && (
-        <div style={actionsStyle}>
+        <div className="flex gap-3 mt-5 pt-5" style={{ borderTop: '1px solid var(--card-border)' }}>
           {onView && (
-            <button
-              onClick={onView}
-              style={actionButtonStyle(
-                'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                '#ffffff'
-              )}
-            >
+            <button onClick={onView} className="btn btn--primary flex-1">
               <Eye style={{ width: '14px', height: '14px' }} />
               View
             </button>
           )}
           {onEdit && (
-            <button
-              onClick={onEdit}
-              style={actionButtonStyle(
-                isLight ? 'rgba(107, 114, 128, 0.1)' : 'rgba(75, 85, 99, 0.3)',
-                colors?.textPrimary || (isLight ? '#374151' : '#f9fafb')
-              )}
-            >
+            <button onClick={onEdit} className="btn btn--secondary flex-1">
               <Edit style={{ width: '14px', height: '14px' }} />
               Edit
             </button>
           )}
           {onDelete && (
-            <button
-              onClick={onDelete}
-              style={actionButtonStyle(
-                'rgba(239, 68, 68, 0.1)',
-                '#ef4444'
-              )}
-            >
+            <button onClick={onDelete} className="btn btn--outline-danger flex-1">
               <Trash2 style={{ width: '14px', height: '14px' }} />
               Delete
             </button>
@@ -169,3 +90,4 @@ const EntityCard = ({
 };
 
 export default EntityCard;
+

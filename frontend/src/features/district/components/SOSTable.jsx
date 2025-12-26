@@ -1,25 +1,22 @@
 /**
  * SOSTable Component
  * Displays SOS requests in a table format
+ * 
+ * CSS Migration: Now uses external CSS classes from design system
  */
 
 import PropTypes from 'prop-types';
-import { useSettings } from '@app/providers/ThemeProvider';
-import { getThemeColors } from '@shared/utils/themeColors';
 import { STATUS_COLORS } from '../constants';
+import '@styles/css/main.css';
 
-const SOSTable = ({ 
-  requests, 
+const SOSTable = ({
+  requests,
   columns = ['id', 'location', 'time', 'status'],
   showActions = false,
   onView,
   onAssign,
-  compact = false 
+  compact = false
 }) => {
-  const { theme } = useSettings();
-  const isLight = theme === 'light';
-  const colors = getThemeColors(isLight);
-
   const getStatusColor = (status) => STATUS_COLORS[status] || STATUS_COLORS.default;
 
   const columnLabels = {
@@ -32,32 +29,26 @@ const SOSTable = ({
     phone: 'Phone',
   };
 
+  const cellPadding = compact ? '12px 16px' : '16px 20px';
+
   return (
     <div className="overflow-x-auto">
-      <table className="w-full">
+      <table className="table w-full">
         <thead>
-          <tr style={{ 
-            borderBottom: `1px solid ${colors.tableBorder}`, 
-            background: colors.tableHeaderBg 
-          }}>
+          <tr>
             {columns.map((col) => (
-              <th 
+              <th
                 key={col}
-                className="text-left font-medium"
-                style={{ 
-                  color: col === 'time' ? '#f59e0b' : colors.textMuted, 
-                  fontSize: '13px', 
-                  padding: compact ? '12px 16px' : '16px 20px' 
+                style={{
+                  color: col === 'time' ? '#f59e0b' : 'var(--text-muted)',
+                  padding: cellPadding
                 }}
               >
                 {columnLabels[col] || col}
               </th>
             ))}
             {showActions && (
-              <th 
-                className="text-left font-medium"
-                style={{ color: colors.textMuted, fontSize: '13px', padding: compact ? '12px 16px' : '16px 20px' }}
-              >
+              <th style={{ padding: cellPadding }}>
                 Actions
               </th>
             )}
@@ -65,31 +56,22 @@ const SOSTable = ({
         </thead>
         <tbody>
           {requests.map((sos) => (
-            <tr 
-              key={sos.id} 
-              className="transition-colors duration-200"
-              style={{ borderBottom: `1px solid ${colors.tableBorder}` }}
-            >
+            <tr key={sos.id}>
               {columns.map((col) => (
-                <td 
+                <td
                   key={col}
-                  style={{ 
-                    color: col === 'location' ? colors.primary : colors.textPrimary, 
-                    fontSize: '14px', 
+                  style={{
+                    color: col === 'location' ? 'var(--primary)' : 'var(--text-primary)',
                     padding: compact ? '14px 16px' : '20px',
                     fontWeight: col === 'id' ? '500' : '400'
                   }}
                 >
                   {col === 'status' ? (
-                    <span 
-                      className="rounded font-medium"
-                      style={{ 
+                    <span
+                      className="badge"
+                      style={{
                         backgroundColor: `${getStatusColor(sos.status)}20`,
                         color: getStatusColor(sos.status),
-                        fontSize: '12px',
-                        padding: '6px 12px',
-                        display: 'inline-block',
-                        borderRadius: '20px'
                       }}
                     >
                       {sos.status}
@@ -101,34 +83,26 @@ const SOSTable = ({
               ))}
               {showActions && (
                 <td style={{ padding: compact ? '14px 16px' : '20px' }}>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div className="flex gap-2">
                     {onView && (
-                      <button 
+                      <button
                         onClick={() => onView(sos)}
-                        className="rounded font-medium transition-all duration-200"
-                        style={{ 
-                          background: isLight ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.2)',
+                        className="btn btn--sm"
+                        style={{
+                          background: 'var(--info-light)',
                           color: '#3b82f6',
-                          fontSize: '13px',
-                          padding: '6px 14px',
-                          border: 'none',
-                          cursor: 'pointer',
                         }}
                       >
                         View
                       </button>
                     )}
                     {onAssign && sos.status === 'Pending' && (
-                      <button 
+                      <button
                         onClick={() => onAssign(sos)}
-                        className="rounded font-medium transition-all duration-200"
-                        style={{ 
-                          background: isLight ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.2)',
+                        className="btn btn--sm"
+                        style={{
+                          background: 'var(--success-light)',
                           color: '#10b981',
-                          fontSize: '13px',
-                          padding: '6px 14px',
-                          border: 'none',
-                          cursor: 'pointer',
                         }}
                       >
                         Assign
@@ -141,13 +115,9 @@ const SOSTable = ({
           ))}
         </tbody>
       </table>
-      
+
       {requests.length === 0 && (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '40px 20px',
-          color: colors.textMuted 
-        }}>
+        <div className="table__empty">
           No SOS requests found
         </div>
       )}
@@ -170,3 +140,4 @@ SOSTable.propTypes = {
 };
 
 export default SOSTable;
+

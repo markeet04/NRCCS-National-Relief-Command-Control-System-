@@ -6,16 +6,21 @@ import { useSettings } from '../../../app/providers/ThemeProvider';
 import { getThemeColors } from '../../../shared/utils/themeColors';
 import { DISTRICT_MENU_ITEMS } from '../constants';
 import { useRescueTeamData, TEAM_STATUS_OPTIONS, useDistrictData } from '../hooks';
-import { 
-  PieChart, 
-  Pie, 
-  Cell, 
-  RadialBarChart, 
-  RadialBar, 
-  Tooltip, 
-  ResponsiveContainer 
+import {
+  PieChart,
+  Pie,
+  Cell,
+  RadialBarChart,
+  RadialBar,
+  Tooltip,
+  ResponsiveContainer
 } from 'recharts';
+import '@styles/css/main.css';
 
+/**
+ * RescueTeams Page
+ * CSS Migration: Now uses external CSS classes from design system
+ */
 const RescueTeams = () => {
   const [activeRoute, setActiveRoute] = useState('rescue');
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -31,7 +36,7 @@ const RescueTeams = () => {
 
   // District info for layout
   const { districtInfo, rawStats: districtStats } = useDistrictData();
-  
+
   // Use the rescue team data hook
   const {
     teams,
@@ -48,7 +53,7 @@ const RescueTeams = () => {
     getStatusInfo,
     getCompositionData
   } = useRescueTeamData();
-  
+
   const [formData, setFormData] = useState({
     name: '',
     leader: '',
@@ -180,18 +185,18 @@ const RescueTeams = () => {
       notificationCount={districtStats?.pendingSOS || 0}
     >
       {/* KPI Summary Cards Row */}
-      <div 
-        style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
           gap: '20px',
           marginBottom: '24px'
         }}
       >
         {/* Total Teams */}
-        <div 
+        <div
           className="hover:scale-[1.02] hover:-translate-y-1"
-          style={{ 
+          style={{
             ...cardBaseStyle,
             padding: '24px',
             display: 'flex',
@@ -222,9 +227,9 @@ const RescueTeams = () => {
         </div>
 
         {/* Available Ring Gauge */}
-        <div 
+        <div
           className="hover:scale-[1.02] hover:-translate-y-1"
-          style={{ 
+          style={{
             ...cardBaseStyle,
             padding: '20px 24px',
             display: 'flex',
@@ -280,9 +285,9 @@ const RescueTeams = () => {
         </div>
 
         {/* Deployed/On Mission Pie */}
-        <div 
+        <div
           className="hover:scale-[1.02] hover:-translate-y-1"
-          style={{ 
+          style={{
             ...cardBaseStyle,
             padding: '20px 24px',
             display: 'flex',
@@ -326,9 +331,9 @@ const RescueTeams = () => {
         </div>
 
         {/* Unavailable */}
-        <div 
+        <div
           className="hover:scale-[1.02] hover:-translate-y-1"
-          style={{ 
+          style={{
             ...cardBaseStyle,
             padding: '24px',
             display: 'flex',
@@ -360,9 +365,9 @@ const RescueTeams = () => {
       </div>
 
       {/* Search, Filter and Add Button */}
-      <div 
-        style={{ 
-          display: 'flex', 
+      <div
+        style={{
+          display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: '24px',
@@ -372,16 +377,16 @@ const RescueTeams = () => {
       >
         <div style={{ display: 'flex', gap: '12px', flex: 1 }}>
           <div style={{ position: 'relative', flex: 1, maxWidth: '350px' }}>
-            <Search 
-              style={{ 
-                position: 'absolute', 
-                left: '14px', 
-                top: '50%', 
+            <Search
+              style={{
+                position: 'absolute',
+                left: '14px',
+                top: '50%',
                 transform: 'translateY(-50%)',
                 color: colors.textMuted,
                 width: '18px',
                 height: '18px'
-              }} 
+              }}
             />
             <input
               type="text"
@@ -423,7 +428,7 @@ const RescueTeams = () => {
               <span>{statusOptions.find(opt => opt.value === statusFilter)?.label}</span>
               <ChevronDown style={{ width: '16px', height: '16px', opacity: 0.6, transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }} />
             </button>
-            
+
             {isDropdownOpen && (
               <div
                 style={{
@@ -493,10 +498,10 @@ const RescueTeams = () => {
       {/* Main Content Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '24px' }}>
         {/* Team Cards Grid */}
-        <div 
-          style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', 
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))',
             gap: '24px'
           }}
         >
@@ -515,32 +520,32 @@ const RescueTeams = () => {
                 }}
               >
                 {/* Header */}
-                <div style={{ 
+                <div style={{
                   padding: '20px 24px 16px',
                   borderBottom: `1px solid ${colors.border}`
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                     <div style={{ flex: 1 }}>
-                      <h3 style={{ 
-                        color: colors.textPrimary, 
-                        fontSize: '18px', 
+                      <h3 style={{
+                        color: colors.textPrimary,
+                        fontSize: '18px',
                         fontWeight: '700',
                         marginBottom: '4px'
                       }}>
                         {team.name}
                       </h3>
-                      <span style={{ 
-                        color: colors.textMuted, 
+                      <span style={{
+                        color: colors.textMuted,
                         fontSize: '13px',
                         fontWeight: '500'
                       }}>
                         {team.type}
                       </span>
                     </div>
-                    
+
                     {/* Status Badge */}
-                    <div 
-                      style={{ 
+                    <div
+                      style={{
                         display: 'flex',
                         alignItems: 'center',
                         gap: '6px',
@@ -551,7 +556,7 @@ const RescueTeams = () => {
                       }}
                     >
                       {team.status === 'on-mission' && (
-                        <span 
+                        <span
                           style={{
                             width: '8px',
                             height: '8px',
@@ -561,9 +566,9 @@ const RescueTeams = () => {
                           }}
                         />
                       )}
-                      <span style={{ 
-                        color: statusInfo.color, 
-                        fontSize: '12px', 
+                      <span style={{
+                        color: statusInfo.color,
+                        fontSize: '12px',
                         fontWeight: '600',
                         textTransform: 'uppercase'
                       }}>
@@ -608,7 +613,7 @@ const RescueTeams = () => {
                             <Cell key={`cell-${index}`} fill={entry.fill} />
                           ))}
                         </Pie>
-                        <Tooltip 
+                        <Tooltip
                           content={({ active, payload }) => {
                             if (active && payload && payload.length) {
                               return (
@@ -654,7 +659,7 @@ const RescueTeams = () => {
                 </div>
 
                 {/* Location */}
-                <div style={{ 
+                <div style={{
                   padding: '16px 24px',
                   background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)',
                   borderTop: `1px solid ${colors.border}`
@@ -674,7 +679,7 @@ const RescueTeams = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div style={{ 
+                <div style={{
                   padding: '16px 24px',
                   display: 'flex',
                   gap: '12px',
@@ -739,7 +744,7 @@ const RescueTeams = () => {
         </div>
 
         {/* Live Team Locations Sidebar */}
-        <div 
+        <div
           style={{
             ...cardBaseStyle,
             padding: '24px',
@@ -748,10 +753,10 @@ const RescueTeams = () => {
             overflowY: 'auto'
           }}
         >
-          <h3 style={{ 
-            color: colors.textPrimary, 
-            fontSize: '16px', 
-            fontWeight: '600', 
+          <h3 style={{
+            color: colors.textPrimary,
+            fontSize: '16px',
+            fontWeight: '600',
             marginBottom: '20px',
             display: 'flex',
             alignItems: 'center',
@@ -765,7 +770,7 @@ const RescueTeams = () => {
             {teams.map((team) => {
               const statusInfo = getStatusInfo(team.status);
               return (
-                <div 
+                <div
                   key={team.id}
                   style={{
                     padding: '12px 16px',
@@ -776,7 +781,7 @@ const RescueTeams = () => {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                    <div 
+                    <div
                       style={{
                         width: '10px',
                         height: '10px',
@@ -826,7 +831,7 @@ const RescueTeams = () => {
 
       {/* View Modal */}
       {isViewModalOpen && viewingTeam && (
-        <div 
+        <div
           style={{
             position: 'fixed',
             top: 0,
@@ -842,7 +847,7 @@ const RescueTeams = () => {
           }}
           onClick={handleCloseViewModal}
         >
-          <div 
+          <div
             style={{
               background: colors.modalBg,
               borderRadius: '20px',
@@ -876,8 +881,8 @@ const RescueTeams = () => {
               <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary, marginBottom: '8px' }}>
                 {viewingTeam.name} - {viewingTeam.type}
               </h2>
-              <span 
-                style={{ 
+              <span
+                style={{
                   padding: '4px 12px',
                   borderRadius: '20px',
                   background: getStatusInfo(viewingTeam.status).bgColor,
@@ -890,15 +895,15 @@ const RescueTeams = () => {
               </span>
             </div>
 
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: '1fr 1fr', 
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
               gap: '16px',
               marginBottom: '20px'
             }}>
-              <div style={{ 
-                background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)', 
-                borderRadius: '12px', 
+              <div style={{
+                background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)',
+                borderRadius: '12px',
                 padding: '16px'
               }}>
                 <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Leader</p>
@@ -906,9 +911,9 @@ const RescueTeams = () => {
                   {viewingTeam.leader}
                 </p>
               </div>
-              <div style={{ 
-                background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)', 
-                borderRadius: '12px', 
+              <div style={{
+                background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)',
+                borderRadius: '12px',
                 padding: '16px'
               }}>
                 <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Contact</p>
@@ -916,9 +921,9 @@ const RescueTeams = () => {
                   {viewingTeam.contact}
                 </p>
               </div>
-              <div style={{ 
-                background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)', 
-                borderRadius: '12px', 
+              <div style={{
+                background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)',
+                borderRadius: '12px',
                 padding: '16px'
               }}>
                 <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Members</p>
@@ -926,9 +931,9 @@ const RescueTeams = () => {
                   {viewingTeam.members}
                 </p>
               </div>
-              <div style={{ 
-                background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)', 
-                borderRadius: '12px', 
+              <div style={{
+                background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)',
+                borderRadius: '12px',
                 padding: '16px'
               }}>
                 <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Location</p>
@@ -945,7 +950,7 @@ const RescueTeams = () => {
                 </h4>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {viewingTeam.equipment.map((item, idx) => (
-                    <span 
+                    <span
                       key={idx}
                       style={{
                         padding: '6px 12px',
@@ -964,9 +969,9 @@ const RescueTeams = () => {
             )}
 
             {viewingTeam.notes && (
-              <div style={{ 
-                background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)', 
-                borderRadius: '12px', 
+              <div style={{
+                background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)',
+                borderRadius: '12px',
                 padding: '16px'
               }}>
                 <h4 style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
@@ -983,7 +988,7 @@ const RescueTeams = () => {
 
       {/* Update/Add Modal */}
       {(isUpdateModalOpen || isAddModalOpen) && (
-        <div 
+        <div
           style={{
             position: 'fixed',
             top: 0,
@@ -999,7 +1004,7 @@ const RescueTeams = () => {
           }}
           onClick={isUpdateModalOpen ? handleCloseUpdateModal : handleCloseAddModal}
         >
-          <div 
+          <div
             style={{
               background: colors.modalBg,
               borderRadius: '20px',
@@ -1029,9 +1034,9 @@ const RescueTeams = () => {
               <X style={{ color: colors.textMuted, width: '24px', height: '24px' }} />
             </button>
 
-            <h2 style={{ 
-              fontSize: '24px', 
-              fontWeight: '700', 
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: '700',
               color: colors.textPrimary,
               marginBottom: '24px'
             }}>

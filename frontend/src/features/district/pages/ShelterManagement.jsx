@@ -6,15 +6,16 @@ import { useSettings } from '../../../app/providers/ThemeProvider';
 import { getThemeColors } from '../../../shared/utils/themeColors';
 import { DISTRICT_MENU_ITEMS } from '../constants';
 import { useShelterData, SHELTER_STATUS_OPTIONS, useDistrictData } from '../hooks';
-import { 
-  RadialBarChart, 
-  RadialBar, 
-  PieChart, 
-  Pie, 
-  Cell, 
-  Tooltip, 
+import {
+  RadialBarChart,
+  RadialBar,
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
   ResponsiveContainer
 } from 'recharts';
+import '@styles/css/main.css';
 
 // Custom tooltip for resource gauge
 const ResourceTooltip = ({ active, payload }) => {
@@ -39,6 +40,10 @@ const ResourceTooltip = ({ active, payload }) => {
   return null;
 };
 
+/**
+ * ShelterManagement Page
+ * CSS Migration: Now uses external CSS classes from design system
+ */
 const ShelterManagement = () => {
   const [activeRoute, setActiveRoute] = useState('shelters');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -53,7 +58,7 @@ const ShelterManagement = () => {
 
   // District info for layout
   const { districtInfo, rawStats: districtStats } = useDistrictData();
-  
+
   // Use the shelter data hook
   const {
     shelters,
@@ -73,7 +78,7 @@ const ShelterManagement = () => {
     getResourceGaugeData,
     getAverageResources
   } = useShelterData();
-  
+
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -83,7 +88,7 @@ const ShelterManagement = () => {
     contactPhone: '+92-300-0000000',
     resources: { food: 80, water: 60, medical: 90, tents: 40 }
   });
-  
+
   const navigate = useNavigate();
 
   const statusOptions = SHELTER_STATUS_OPTIONS;
@@ -206,18 +211,18 @@ const ShelterManagement = () => {
       notificationCount={districtStats?.pendingSOS || 0}
     >
       {/* KPI Summary Cards Row */}
-      <div 
-        style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
           gap: '20px',
           marginBottom: '24px'
         }}
       >
         {/* Total Shelters Card */}
-        <div 
+        <div
           className="hover:scale-[1.02] hover:-translate-y-1"
-          style={{ 
+          style={{
             ...cardBaseStyle,
             padding: '24px',
             display: 'flex',
@@ -248,9 +253,9 @@ const ShelterManagement = () => {
         </div>
 
         {/* Total Capacity Ring Gauge */}
-        <div 
+        <div
           className="hover:scale-[1.02] hover:-translate-y-1"
-          style={{ 
+          style={{
             ...cardBaseStyle,
             padding: '20px 24px',
             display: 'flex',
@@ -306,9 +311,9 @@ const ShelterManagement = () => {
         </div>
 
         {/* Status Breakdown Pie Chart */}
-        <div 
+        <div
           className="hover:scale-[1.02] hover:-translate-y-1"
-          style={{ 
+          style={{
             ...cardBaseStyle,
             padding: '20px 24px',
             display: 'flex',
@@ -334,7 +339,7 @@ const ShelterManagement = () => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       return (
@@ -379,9 +384,9 @@ const ShelterManagement = () => {
       </div>
 
       {/* Search, Filter and Add Button Row */}
-      <div 
-        style={{ 
-          display: 'flex', 
+      <div
+        style={{
+          display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: '24px',
@@ -392,16 +397,16 @@ const ShelterManagement = () => {
         <div style={{ display: 'flex', gap: '12px', flex: 1 }}>
           {/* Search Input */}
           <div style={{ position: 'relative', flex: 1, maxWidth: '350px' }}>
-            <Search 
-              style={{ 
-                position: 'absolute', 
-                left: '14px', 
-                top: '50%', 
+            <Search
+              style={{
+                position: 'absolute',
+                left: '14px',
+                top: '50%',
                 transform: 'translateY(-50%)',
                 color: colors.textMuted,
                 width: '18px',
                 height: '18px'
-              }} 
+              }}
             />
             <input
               type="text"
@@ -446,7 +451,7 @@ const ShelterManagement = () => {
               <span>{statusOptions.find(opt => opt.value === statusFilter)?.label}</span>
               <ChevronDown style={{ width: '16px', height: '16px', opacity: 0.6, transition: 'transform 0.2s', transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0)' }} />
             </button>
-            
+
             {isDropdownOpen && (
               <div
                 style={{
@@ -516,10 +521,10 @@ const ShelterManagement = () => {
       </div>
 
       {/* Shelter Cards Grid */}
-      <div 
-        style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', 
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))',
           gap: '24px'
         }}
       >
@@ -540,15 +545,15 @@ const ShelterManagement = () => {
               }}
             >
               {/* Card Header */}
-              <div style={{ 
+              <div style={{
                 padding: '20px 24px 16px',
                 borderBottom: `1px solid ${colors.border}`
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ 
-                      color: colors.textPrimary, 
-                      fontSize: '18px', 
+                    <h3 style={{
+                      color: colors.textPrimary,
+                      fontSize: '18px',
                       fontWeight: '700',
                       marginBottom: '4px',
                       lineHeight: '1.3'
@@ -562,10 +567,10 @@ const ShelterManagement = () => {
                       </span>
                     </div>
                   </div>
-                  
+
                   {/* Status Badge with pulse animation */}
-                  <div 
-                    style={{ 
+                  <div
+                    style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: '6px',
@@ -576,7 +581,7 @@ const ShelterManagement = () => {
                     }}
                   >
                     {(statusInfo.label === 'Near Full' || statusInfo.label === 'Full') && (
-                      <span 
+                      <span
                         style={{
                           width: '8px',
                           height: '8px',
@@ -586,9 +591,9 @@ const ShelterManagement = () => {
                         }}
                       />
                     )}
-                    <span style={{ 
-                      color: statusInfo.color, 
-                      fontSize: '12px', 
+                    <span style={{
+                      color: statusInfo.color,
+                      fontSize: '12px',
                       fontWeight: '600',
                       textTransform: 'uppercase',
                       letterSpacing: '0.03em'
@@ -603,14 +608,14 @@ const ShelterManagement = () => {
               <div style={{ padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
                 <div style={{ width: '140px', height: '140px', minWidth: '140px', minHeight: '140px', position: 'relative' }}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <RadialBarChart 
-                      cx="50%" 
-                      cy="50%" 
-                      innerRadius="30%" 
-                      outerRadius="100%" 
+                    <RadialBarChart
+                      cx="50%"
+                      cy="50%"
+                      innerRadius="30%"
+                      outerRadius="100%"
                       barSize={10}
                       data={isAnimated ? resourceData : resourceData.map(d => ({ ...d, value: 0 }))}
-                      startAngle={180} 
+                      startAngle={180}
                       endAngle={0}
                     >
                       <RadialBar
@@ -631,10 +636,10 @@ const ShelterManagement = () => {
                     transform: 'translateX(-50%)',
                     textAlign: 'center'
                   }}>
-                    <span style={{ 
-                      color: getResourceColor(avgResources), 
-                      fontSize: '24px', 
-                      fontWeight: '700' 
+                    <span style={{
+                      color: getResourceColor(avgResources),
+                      fontSize: '24px',
+                      fontWeight: '700'
                     }}>
                       {avgResources}%
                     </span>
@@ -652,11 +657,11 @@ const ShelterManagement = () => {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                     {resourceData.map((resource, idx) => (
                       <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <div style={{ 
-                          width: '10px', 
-                          height: '10px', 
-                          borderRadius: '3px', 
-                          background: resource.fill 
+                        <div style={{
+                          width: '10px',
+                          height: '10px',
+                          borderRadius: '3px',
+                          background: resource.fill
                         }} />
                         <span style={{ color: colors.textMuted, fontSize: '12px' }}>
                           {resource.name}: <span style={{ color: resource.fill, fontWeight: '600' }}>{resource.value}%</span>
@@ -668,7 +673,7 @@ const ShelterManagement = () => {
               </div>
 
               {/* Capacity & Occupancy Section */}
-              <div style={{ 
+              <div style={{
                 padding: '16px 24px',
                 background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)',
                 borderTop: `1px solid ${colors.border}`
@@ -687,28 +692,28 @@ const ShelterManagement = () => {
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <span style={{ color: colors.textMuted, fontSize: '12px' }}>Occupancy</span>
-                    <span style={{ 
-                      color: occupancyPercent >= 90 ? '#ef4444' : occupancyPercent >= 70 ? '#f59e0b' : '#10b981', 
-                      fontSize: '13px', 
-                      fontWeight: '600' 
+                    <span style={{
+                      color: occupancyPercent >= 90 ? '#ef4444' : occupancyPercent >= 70 ? '#f59e0b' : '#10b981',
+                      fontSize: '13px',
+                      fontWeight: '600'
                     }}>
                       {shelter.occupancy.toLocaleString()} ({occupancyPercent}%)
                     </span>
                   </div>
-                  <div style={{ 
-                    width: '100%', 
-                    height: '8px', 
-                    background: isLight ? '#e5e7eb' : '#374151', 
+                  <div style={{
+                    width: '100%',
+                    height: '8px',
+                    background: isLight ? '#e5e7eb' : '#374151',
                     borderRadius: '4px',
                     overflow: 'hidden'
                   }}>
-                    <div 
-                      style={{ 
+                    <div
+                      style={{
                         width: isAnimated ? `${occupancyPercent}%` : '0%',
                         height: '100%',
-                        background: occupancyPercent >= 90 ? 'linear-gradient(90deg, #ef4444, #dc2626)' : 
-                                   occupancyPercent >= 70 ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 
-                                   'linear-gradient(90deg, #10b981, #059669)',
+                        background: occupancyPercent >= 90 ? 'linear-gradient(90deg, #ef4444, #dc2626)' :
+                          occupancyPercent >= 70 ? 'linear-gradient(90deg, #f59e0b, #d97706)' :
+                            'linear-gradient(90deg, #10b981, #059669)',
                         borderRadius: '4px',
                         transition: 'width 1s ease-out'
                       }}
@@ -718,7 +723,7 @@ const ShelterManagement = () => {
               </div>
 
               {/* Action Buttons */}
-              <div style={{ 
+              <div style={{
                 padding: '16px 24px',
                 display: 'flex',
                 gap: '12px',
@@ -803,7 +808,7 @@ const ShelterManagement = () => {
 
       {/* Add/Edit Modal */}
       {isModalOpen && (
-        <div 
+        <div
           style={{
             position: 'fixed',
             top: 0,
@@ -819,7 +824,7 @@ const ShelterManagement = () => {
           }}
           onClick={handleCloseModal}
         >
-          <div 
+          <div
             style={{
               background: colors.modalBg,
               borderRadius: '20px',
@@ -849,9 +854,9 @@ const ShelterManagement = () => {
               <X style={{ color: colors.textMuted, width: '24px', height: '24px' }} />
             </button>
 
-            <h2 style={{ 
-              fontSize: '24px', 
-              fontWeight: '700', 
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: '700',
               color: colors.textPrimary,
               marginBottom: '24px'
             }}>
@@ -1045,7 +1050,7 @@ const ShelterManagement = () => {
 
       {/* View Modal */}
       {isViewModalOpen && viewingShelter && (
-        <div 
+        <div
           style={{
             position: 'fixed',
             top: 0,
@@ -1061,7 +1066,7 @@ const ShelterManagement = () => {
           }}
           onClick={handleCloseViewModal}
         >
-          <div 
+          <div
             style={{
               background: colors.modalBg,
               borderRadius: '20px',
@@ -1096,8 +1101,8 @@ const ShelterManagement = () => {
                 <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary }}>
                   {viewingShelter.name}
                 </h2>
-                <span 
-                  style={{ 
+                <span
+                  style={{
                     padding: '4px 12px',
                     borderRadius: '20px',
                     background: getStatusInfo(viewingShelter.occupancy, viewingShelter.capacity).bgColor,
@@ -1116,9 +1121,9 @@ const ShelterManagement = () => {
             </div>
 
             {/* Resource Gauge in Modal */}
-            <div style={{ 
-              background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)', 
-              borderRadius: '12px', 
+            <div style={{
+              background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)',
+              borderRadius: '12px',
               padding: '20px',
               marginBottom: '20px'
             }}>
@@ -1128,14 +1133,14 @@ const ShelterManagement = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
                 <div style={{ width: '120px', height: '120px', minWidth: '120px', minHeight: '120px', position: 'relative' }}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <RadialBarChart 
-                      cx="50%" 
-                      cy="50%" 
-                      innerRadius="30%" 
-                      outerRadius="100%" 
+                    <RadialBarChart
+                      cx="50%"
+                      cy="50%"
+                      innerRadius="30%"
+                      outerRadius="100%"
                       barSize={8}
                       data={getResourceGaugeData(viewingShelter.resources)}
-                      startAngle={180} 
+                      startAngle={180}
                       endAngle={0}
                     >
                       <RadialBar
@@ -1153,10 +1158,10 @@ const ShelterManagement = () => {
                     transform: 'translateX(-50%)',
                     textAlign: 'center'
                   }}>
-                    <span style={{ 
-                      color: getResourceColor(getAverageResources(viewingShelter.resources)), 
-                      fontSize: '20px', 
-                      fontWeight: '700' 
+                    <span style={{
+                      color: getResourceColor(getAverageResources(viewingShelter.resources)),
+                      fontSize: '20px',
+                      fontWeight: '700'
                     }}>
                       {getAverageResources(viewingShelter.resources)}%
                     </span>
@@ -1164,9 +1169,9 @@ const ShelterManagement = () => {
                 </div>
                 <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   {getResourceGaugeData(viewingShelter.resources).map((resource, idx) => (
-                    <div key={idx} style={{ 
-                      background: colors.cardBg, 
-                      borderRadius: '8px', 
+                    <div key={idx} style={{
+                      background: colors.cardBg,
+                      borderRadius: '8px',
                       padding: '12px',
                       border: `1px solid ${colors.border}`
                     }}>
@@ -1182,15 +1187,15 @@ const ShelterManagement = () => {
             </div>
 
             {/* Capacity Info */}
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: '1fr 1fr', 
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
               gap: '16px',
               marginBottom: '20px'
             }}>
-              <div style={{ 
-                background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)', 
-                borderRadius: '12px', 
+              <div style={{
+                background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)',
+                borderRadius: '12px',
                 padding: '16px'
               }}>
                 <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Capacity</p>
@@ -1198,17 +1203,17 @@ const ShelterManagement = () => {
                   {viewingShelter.capacity.toLocaleString()}
                 </p>
               </div>
-              <div style={{ 
-                background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)', 
-                borderRadius: '12px', 
+              <div style={{
+                background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)',
+                borderRadius: '12px',
                 padding: '16px'
               }}>
                 <p style={{ color: colors.textMuted, fontSize: '12px', marginBottom: '4px' }}>Current Occupancy</p>
                 <p style={{ color: colors.textPrimary, fontSize: '28px', fontWeight: '700' }}>
                   {viewingShelter.occupancy.toLocaleString()}
-                  <span style={{ 
-                    fontSize: '14px', 
-                    fontWeight: '500', 
+                  <span style={{
+                    fontSize: '14px',
+                    fontWeight: '500',
                     color: colors.textMuted,
                     marginLeft: '8px'
                   }}>
@@ -1219,9 +1224,9 @@ const ShelterManagement = () => {
             </div>
 
             {/* Contact Info */}
-            <div style={{ 
-              background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)', 
-              borderRadius: '12px', 
+            <div style={{
+              background: isLight ? '#f9fafb' : 'rgba(255,255,255,0.03)',
+              borderRadius: '12px',
               padding: '16px',
               marginBottom: '20px'
             }}>
@@ -1244,7 +1249,7 @@ const ShelterManagement = () => {
                 </h4>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {viewingShelter.amenities.map((amenity, idx) => (
-                    <span 
+                    <span
                       key={idx}
                       style={{
                         padding: '6px 12px',

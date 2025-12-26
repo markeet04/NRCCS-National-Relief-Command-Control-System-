@@ -1,10 +1,9 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// Shared Layout & Theme
+// Shared Layout
 import { DashboardLayout } from '../../../shared/components/layout';
-import { useSettings } from '../../../app/providers/ThemeProvider';
-import { getThemeColors } from '../../../shared/utils/themeColors';
+import '@styles/css/main.css';
 
 // District-specific imports - hooks, constants, components
 import { useDistrictData, useRescueTeams } from '../hooks';
@@ -18,17 +17,12 @@ import { Users, CheckCircle, Clock, AlertTriangle, Radio, Home, Package } from '
  * DistrictDashboard Component
  * District/Regional Dashboard for ground-level operations
  * Uses modular components, hooks, and services for easy backend integration
+ * 
+ * CSS Migration: Now uses external CSS classes from design system
  */
 const DistrictDashboard = () => {
   const navigate = useNavigate();
   const [activeRoute, setActiveRoute] = useState('dashboard');
-
-  // Theme support
-  const { theme } = useSettings();
-  const isLight = theme === 'light';
-  const colors = getThemeColors(isLight);
-
-  // Use dynamic theme colors for all styling
 
   // Use custom hooks for data management - fetches real data from API
   const {
@@ -120,38 +114,6 @@ const DistrictDashboard = () => {
     }
   };
 
-  // Get team status color helper
-  const getTeamStatusStyle = (status) => {
-    switch (status) {
-      case 'active':
-      case 'on_mission':
-        return { bg: colors.successGlow, text: colors.success };
-      case 'standby':
-        return { bg: colors.warningLight, text: colors.warning };
-      case 'unavailable':
-        return { bg: colors.criticalBg, text: colors.critical };
-      default:
-        return { bg: colors.textMuted + '22', text: colors.textMuted };
-    }
-  };
-
-  // NDMA-style card wrapper style helper
-  const cardStyle = {
-    background: colors.cardBg,
-    border: `1px solid ${colors.cardBorder || colors.border}`,
-    borderLeft: !isLight ? '4px solid #374151' : `1px solid ${colors.cardBorder || colors.border}`,
-    borderRadius: '12px',
-    padding: '20px',
-  };
-
-  const statCardStyle = {
-    background: colors.cardBgHover,
-    border: `1px solid ${colors.cardBorder || colors.border}`,
-    borderLeft: !isLight ? '4px solid #6b7280' : `1px solid ${colors.cardBorder || colors.border}`,
-    borderRadius: '12px',
-    padding: '20px',
-  };
-
   return (
     <DashboardLayout
       menuItems={DISTRICT_MENU_ITEMS}
@@ -165,42 +127,33 @@ const DistrictDashboard = () => {
     >
       {/* Loading State */}
       {dashboardLoading && (
-        <div style={{ textAlign: 'center', padding: '40px', color: colors.textMuted }}>
+        <div className="text-center p-10 text-muted">
           Loading dashboard data...
         </div>
       )}
 
       {!dashboardLoading && (
         <>
-          {/* Page Header - NDMA Style */}
-          <div style={{ marginBottom: '24px' }}>
-            <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.textPrimary, marginBottom: '4px' }}>
+          {/* Page Header */}
+          <div className="mb-6">
+            <h1 className="page-title">
               District Overview - {districtInfo?.name || 'Loading...'}
             </h1>
-            <p style={{ fontSize: '14px', color: colors.textSecondary }}>
+            <p className="page-subtitle">
               Real-time district disaster management dashboard
             </p>
           </div>
 
           {/* Critical Alert Banner - Only show if there are critical alerts */}
           {alerts?.some(a => a.severity === 'critical') && (
-            <div
-              style={{
-                backgroundColor: colors.criticalBg,
-                border: `1px solid ${colors.critical}55`,
-                borderLeft: `4px solid ${colors.critical}`,
-                borderRadius: '8px',
-                padding: '16px 20px',
-                marginBottom: '24px'
-              }}
-            >
+            <div className="alert alert--danger mb-6">
               <div className="flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: colors.critical }} />
+                <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                 <div>
-                  <div style={{ color: colors.criticalText, fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
+                  <div className="font-semibold mb-1">
                     {alerts.find(a => a.severity === 'critical')?.type || 'Critical Alert'}
                   </div>
-                  <div style={{ color: colors.criticalText, fontSize: '13px', lineHeight: '1.5' }}>
+                  <div className="text-sm">
                     {alerts.find(a => a.severity === 'critical')?.description || 'Check alerts for details'}
                   </div>
                 </div>
@@ -209,10 +162,7 @@ const DistrictDashboard = () => {
           )}
 
           {/* Stats Grid - Using StatCard component for consistent styling */}
-          <div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
-            style={{ gap: '16px', marginBottom: '24px' }}
-          >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {displayStats.slice(0, 4).map((stat, index) => (
               <StatCard
                 key={index}
@@ -228,14 +178,11 @@ const DistrictDashboard = () => {
           </div>
 
           {/* Map and Sidebar Section */}
-          <div
-            className="grid grid-cols-1 lg:grid-cols-3"
-            style={{ gap: '20px', marginBottom: '24px' }}
-          >
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
             {/* Live District Map - Takes 2 columns */}
             <div className="lg:col-span-2">
-              <div style={{ ...cardStyle, padding: '24px', borderLeft: !isLight ? '4px solid #3b82f6' : cardStyle.borderLeft }}>
-                <h3 style={{ color: colors.textPrimary, fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>
+              <div className="card card-body">
+                <h3 className="text-lg font-semibold text-primary mb-4">
                   {districtInfo?.name || 'District'} - Live Situation Map
                 </h3>
                 {/* ArcGIS District Map with Weather Layers */}
@@ -247,35 +194,33 @@ const DistrictDashboard = () => {
             </div>
 
             {/* Right Sidebar - Takes 1 column */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div className="flex flex-col gap-5">
 
-              {/* Today's Alerts Card - NDMA Style */}
-              <div style={{ ...cardStyle, borderLeft: !isLight ? '4px solid #ef4444' : cardStyle.borderLeft }}>
-                <h3 style={{ color: colors.textPrimary, fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>
+              {/* Today's Alerts Card */}
+              <div className="card card-body">
+                <h3 className="text-base font-semibold text-primary mb-4">
                   Today's Alerts
                 </h3>
                 <div className="flex flex-col gap-3">
                   {alerts?.slice(0, 3).map((alert, index) => (
                     <div key={index} className="flex items-start gap-2">
-                      <div style={{
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
-                        backgroundColor: alert.severity === 'critical' ? colors.critical : colors.warning,
-                        marginTop: '6px',
-                        flexShrink: 0
-                      }} />
+                      <div
+                        className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+                        style={{
+                          backgroundColor: alert.severity === 'critical' ? '#ef4444' : '#f59e0b'
+                        }}
+                      />
                       <div>
-                        <p style={{ color: colors.textPrimary, fontSize: '13px', fontWeight: '500' }}>
+                        <p className="text-sm font-medium text-primary">
                           {alert.title || alert.message}
                         </p>
-                        <p style={{ color: colors.textMuted, fontSize: '12px' }}>
+                        <p className="text-xs text-muted">
                           {alert.time || '2 hours ago'}
                         </p>
                       </div>
                     </div>
                   )) || (
-                      <p style={{ color: colors.textMuted, fontSize: '13px' }}>No alerts today</p>
+                      <p className="text-sm text-muted">No alerts today</p>
                     )}
                 </div>
               </div>
@@ -288,3 +233,4 @@ const DistrictDashboard = () => {
 };
 
 export default DistrictDashboard;
+

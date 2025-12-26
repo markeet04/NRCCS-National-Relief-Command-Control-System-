@@ -1,14 +1,15 @@
 /**
  * AssignTeamModal Component
  * Modal for assigning rescue teams to SOS requests
+ * 
+ * CSS Migration: Now uses external CSS classes from design system
  */
 
 import { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { X, Users, MapPin, Clock, Phone, Search } from 'lucide-react';
-import { useSettings } from '@app/providers/ThemeProvider';
-import { getThemeColors } from '@shared/utils/themeColors';
 import StatusBadge from './StatusBadge';
+import '@styles/css/main.css';
 
 const AssignTeamModal = ({
   isOpen,
@@ -18,10 +19,6 @@ const AssignTeamModal = ({
   availableTeams = [],
   isLoading = false,
 }) => {
-  const { theme } = useSettings();
-  const isLight = theme === 'light';
-  const colors = getThemeColors(isLight);
-  
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTeam, setSelectedTeam] = useState(null);
 
@@ -53,105 +50,40 @@ const AssignTeamModal = ({
 
   if (!isOpen) return null;
 
-  const overlayStyles = {
-    position: 'fixed',
-    inset: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    backdropFilter: 'blur(4px)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 50,
-    padding: '16px',
-  };
-
-  const modalStyles = {
-    backgroundColor: colors.cardBg,
-    borderRadius: '16px',
-    border: `1px solid ${colors.cardBorder}`,
-    width: '100%',
-    maxWidth: '520px',
-    maxHeight: '80vh',
-    overflow: 'hidden',
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-  };
-
-  const headerStyles = {
-    padding: '20px 24px',
-    borderBottom: `1px solid ${colors.cardBorder}`,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  };
-
-  const contentStyles = {
-    padding: '20px 24px',
-    maxHeight: 'calc(80vh - 180px)',
-    overflowY: 'auto',
-  };
-
-  const footerStyles = {
-    padding: '16px 24px',
-    borderTop: `1px solid ${colors.cardBorder}`,
-    display: 'flex',
-    justifyContent: 'flex-end',
-    gap: '12px',
-  };
-
   return (
-    <div style={overlayStyles} onClick={handleClose}>
-      <div style={modalStyles} onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay" onClick={handleClose}>
+      <div className="modal modal--md" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div style={headerStyles}>
+        <div className="modal__header">
           <div>
-            <h2 style={{ color: colors.textPrimary, fontWeight: '600', fontSize: '18px' }}>
-              Assign Rescue Team
-            </h2>
+            <h2 className="modal__title">Assign Rescue Team</h2>
             {sosRequest && (
-              <p style={{ color: colors.textMuted, fontSize: '14px', marginTop: '4px' }}>
+              <p className="text-sm text-muted mt-1">
                 SOS #{sosRequest.id} - {sosRequest.requester_name || sosRequest.name}
               </p>
             )}
           </div>
-          <button
-            onClick={handleClose}
-            style={{
-              padding: '8px',
-              borderRadius: '8px',
-              backgroundColor: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              color: colors.textMuted,
-              transition: 'background-color 0.2s',
-            }}
-          >
+          <button onClick={handleClose} className="modal__close">
             <X size={20} />
           </button>
         </div>
 
         {/* Content */}
-        <div style={contentStyles}>
+        <div className="modal__body">
           {/* SOS Details */}
           {sosRequest && (
             <div
+              className="rounded-xl p-4 mb-5"
               style={{
-                padding: '16px',
-                backgroundColor: isLight ? '#fef3c7' : 'rgba(251, 191, 36, 0.1)',
-                borderRadius: '12px',
-                marginBottom: '20px',
-                border: `1px solid ${isLight ? '#fcd34d' : 'rgba(251, 191, 36, 0.2)'}`,
+                backgroundColor: 'var(--warning-light)',
+                border: '1px solid var(--warning)'
               }}
             >
               <div className="flex items-start gap-3">
-                <MapPin
-                  size={20}
-                  style={{ color: '#f59e0b', marginTop: '2px', flexShrink: 0 }}
-                />
+                <MapPin size={20} style={{ color: '#f59e0b', marginTop: '2px', flexShrink: 0 }} />
                 <div>
-                  <p style={{ color: colors.textPrimary, fontWeight: '500', marginBottom: '4px' }}>
-                    {sosRequest.location}
-                  </p>
-                  <div className="flex items-center gap-4" style={{ fontSize: '13px', color: colors.textMuted }}>
+                  <p className="text-primary font-medium mb-1">{sosRequest.location}</p>
+                  <div className="flex items-center gap-4 text-sm text-muted">
                     <span className="flex items-center gap-1">
                       <Users size={14} />
                       {sosRequest.people_count || sosRequest.peopleCount || 1} people
@@ -167,45 +99,22 @@ const AssignTeamModal = ({
           )}
 
           {/* Search Teams */}
-          <div style={{ position: 'relative', marginBottom: '16px' }}>
-            <Search
-              size={18}
-              style={{
-                position: 'absolute',
-                left: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: colors.textMuted,
-              }}
-            />
+          <div className="search-input mb-4">
+            <Search className="search-input__icon" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search teams..."
-              style={{
-                width: '100%',
-                padding: '10px 12px 10px 40px',
-                borderRadius: '8px',
-                border: `1px solid ${colors.cardBorder}`,
-                backgroundColor: isLight ? '#f8fafc' : 'rgba(0, 0, 0, 0.2)',
-                color: colors.textPrimary,
-                fontSize: '14px',
-                outline: 'none',
-              }}
+              className="input"
+              style={{ paddingLeft: '40px' }}
             />
           </div>
 
           {/* Teams List */}
           <div className="space-y-3">
             {filteredTeams.length === 0 ? (
-              <div
-                style={{
-                  textAlign: 'center',
-                  padding: '32px',
-                  color: colors.textMuted,
-                }}
-              >
+              <div className="table__empty">
                 <Users size={40} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
                 <p>No available teams found</p>
               </div>
@@ -214,48 +123,29 @@ const AssignTeamModal = ({
                 <button
                   key={team.id}
                   onClick={() => setSelectedTeam(team)}
+                  className={`w-full p-4 rounded-xl text-left transition-all ${selectedTeam?.id === team.id
+                      ? 'ring-2 ring-blue-500'
+                      : ''
+                    }`}
                   style={{
-                    width: '100%',
-                    padding: '16px',
-                    borderRadius: '12px',
-                    border: `2px solid ${
-                      selectedTeam?.id === team.id
-                        ? '#3b82f6'
-                        : colors.cardBorder
-                    }`,
-                    backgroundColor:
-                      selectedTeam?.id === team.id
-                        ? isLight
-                          ? '#eff6ff'
-                          : 'rgba(59, 130, 246, 0.1)'
-                        : isLight
-                        ? '#f8fafc'
-                        : 'rgba(0, 0, 0, 0.2)',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'all 0.2s',
+                    border: `2px solid ${selectedTeam?.id === team.id ? '#3b82f6' : 'var(--card-border)'}`,
+                    backgroundColor: selectedTeam?.id === team.id
+                      ? 'var(--info-light)'
+                      : 'var(--input-bg)',
                   }}
                 >
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span
-                          style={{
-                            color: colors.textPrimary,
-                            fontWeight: '600',
-                            fontSize: '15px',
-                          }}
-                        >
+                        <span className="text-primary font-semibold text-sm">
                           {team.name}
                         </span>
                         <StatusBadge status={team.status} type="team" size="xs" />
                       </div>
                       {team.specialization && (
-                        <p style={{ color: colors.textMuted, fontSize: '13px', marginBottom: '8px' }}>
-                          {team.specialization}
-                        </p>
+                        <p className="text-sm text-muted mb-2">{team.specialization}</p>
                       )}
-                      <div className="flex items-center gap-4" style={{ fontSize: '12px', color: colors.textSecondary }}>
+                      <div className="flex items-center gap-4 text-xs text-secondary">
                         <span className="flex items-center gap-1">
                           <Users size={12} />
                           {team.members} members
@@ -269,13 +159,7 @@ const AssignTeamModal = ({
                       </div>
                     </div>
                     {team.distance && (
-                      <span
-                        style={{
-                          color: '#22c55e',
-                          fontSize: '12px',
-                          fontWeight: '500',
-                        }}
-                      >
+                      <span className="text-xs font-medium" style={{ color: '#22c55e' }}>
                         {team.distance}
                       </span>
                     )}
@@ -287,36 +171,14 @@ const AssignTeamModal = ({
         </div>
 
         {/* Footer */}
-        <div style={footerStyles}>
-          <button
-            onClick={handleClose}
-            style={{
-              padding: '10px 20px',
-              borderRadius: '8px',
-              border: `1px solid ${colors.cardBorder}`,
-              backgroundColor: 'transparent',
-              color: colors.textSecondary,
-              fontWeight: '500',
-              cursor: 'pointer',
-              fontSize: '14px',
-            }}
-          >
+        <div className="modal__footer">
+          <button onClick={handleClose} className="btn btn--secondary">
             Cancel
           </button>
           <button
             onClick={handleAssign}
             disabled={!selectedTeam || isLoading}
-            style={{
-              padding: '10px 20px',
-              borderRadius: '8px',
-              border: 'none',
-              backgroundColor: selectedTeam ? '#3b82f6' : colors.cardBorder,
-              color: selectedTeam ? '#ffffff' : colors.textMuted,
-              fontWeight: '500',
-              cursor: selectedTeam ? 'pointer' : 'not-allowed',
-              fontSize: '14px',
-              opacity: isLoading ? 0.7 : 1,
-            }}
+            className={`btn ${selectedTeam ? 'btn--primary' : 'btn--disabled'}`}
           >
             {isLoading ? 'Assigning...' : 'Assign Team'}
           </button>
@@ -354,3 +216,4 @@ AssignTeamModal.propTypes = {
 };
 
 export default AssignTeamModal;
+

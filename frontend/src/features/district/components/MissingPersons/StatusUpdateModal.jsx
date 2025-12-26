@@ -1,6 +1,7 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import './StatusUpdateModal.css';
+import '@styles/css/main.css';
 
 const StatusUpdateModal = ({ person, onClose, onUpdate }) => {
     if (!person) return null;
