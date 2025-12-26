@@ -74,6 +74,18 @@
     box-shadow: 0 0 0 3px var(--input-focus-ring);
 }
 
+.select option {
+    background: var(--card-bg, #1a1a1a);
+    color: var(--text-primary, #ffffff);
+    padding: 8px 12px;
+}
+
+.select option:hover,
+.select option:checked {
+    background: var(--primary, #3b82f6);
+    color: #ffffff;
+}
+
 /* ============================================================================
    TEXTAREA
    ============================================================================ */

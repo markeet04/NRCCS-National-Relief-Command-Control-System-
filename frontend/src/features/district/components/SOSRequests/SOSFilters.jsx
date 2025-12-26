@@ -39,10 +39,17 @@ const SOSFilters = ({
           value={statusFilter || 'All'}
           onChange={(e) => onStatusChange && onStatusChange(e.target.value)}
           className="select"
+          style={{
+            backgroundColor: '#1a1a1a',
+            color: '#ffffff',
+            colorScheme: 'dark'
+          }}
         >
-          <option value="All">All Statuses</option>
+          <option value="All" style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}>All Statuses</option>
           {(statusOptions || STATUS_OPTIONS).map(option => (
-            <option key={option} value={option}>{option}</option>
+            <option key={option} value={option} style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}>
+              {option}
+            </option>
           ))}
         </select>
       </div>

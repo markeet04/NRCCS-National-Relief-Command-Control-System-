@@ -6,8 +6,18 @@
 import { X, Users, MapPin, AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
 
-const SOSAssignModal = ({ request, teams, onAssign, onClose, colors, isLight }) => {
+const SOSAssignModal = ({ request, teams, onAssign, onClose, colors: propColors, isLight = false }) => {
   const [selectedTeam, setSelectedTeam] = useState(null);
+
+  // Default colors fallback if not provided
+  const colors = propColors || {
+    cardBg: '#1a1a1a',
+    border: 'rgba(255, 255, 255, 0.1)',
+    textPrimary: '#ffffff',
+    textSecondary: '#9ca3af',
+    textMuted: '#6b7280',
+    inputBg: 'rgba(255, 255, 255, 0.05)'
+  };
 
   if (!request) return null;
 
@@ -22,7 +32,7 @@ const SOSAssignModal = ({ request, teams, onAssign, onClose, colors, isLight }) 
   const availableTeams = teams?.filter(t => t.status === 'available' || t.status === 'Available') || [];
 
   return (
-    <div 
+    <div
       style={{
         position: 'fixed',
         top: 0,
@@ -40,7 +50,7 @@ const SOSAssignModal = ({ request, teams, onAssign, onClose, colors, isLight }) 
       }}
       onClick={onClose}
     >
-      <div 
+      <div
         style={{
           background: colors.cardBg,
           border: `1px solid ${colors.border}`,
@@ -61,9 +71,9 @@ const SOSAssignModal = ({ request, teams, onAssign, onClose, colors, isLight }) 
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Users size={24} color="#3b82f6" />
-            <h2 style={{ 
-              color: colors.textPrimary, 
-              fontSize: '20px', 
+            <h2 style={{
+              color: colors.textPrimary,
+              fontSize: '20px',
               fontWeight: '700',
               margin: 0
             }}>
@@ -136,7 +146,7 @@ const SOSAssignModal = ({ request, teams, onAssign, onClose, colors, isLight }) 
             }}>
               Select Rescue Team
             </label>
-            
+
             {availableTeams.length === 0 ? (
               <div style={{
                 padding: '24px',
@@ -182,16 +192,16 @@ const SOSAssignModal = ({ request, teams, onAssign, onClose, colors, isLight }) 
                     }}
                   >
                     <div>
-                      <div style={{ 
-                        color: colors.textPrimary, 
-                        fontSize: '15px', 
+                      <div style={{
+                        color: colors.textPrimary,
+                        fontSize: '15px',
                         fontWeight: '600',
                         marginBottom: '4px'
                       }}>
                         {team.name}
                       </div>
-                      <div style={{ 
-                        color: colors.textMuted, 
+                      <div style={{
+                        color: colors.textMuted,
                         fontSize: '13px',
                         display: 'flex',
                         alignItems: 'center',
