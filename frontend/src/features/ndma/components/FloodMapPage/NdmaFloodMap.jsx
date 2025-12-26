@@ -124,6 +124,7 @@ const NdmaFloodMap = ({
     const viewRef = useRef(null);
     const floodZonesLayerRef = useRef(null);
     const provinceAlertsLayerRef = useRef(null);
+    const provincePolygonsRef = useRef({}); // Cache for province geometries
 
     // State
     const [isLoading, setIsLoading] = useState(true);
@@ -203,10 +204,38 @@ const NdmaFloodMap = ({
         const layer = provinceAlertsLayerRef.current;
         layer.removeAll();
 
-        // Add province alert markers
+        // Add province alert markers and polygons
         provinces.forEach(province => {
             const center = PROVINCE_CENTERS[province.id] || PROVINCE_CENTERS.islamabad;
-            const riskColor = FLOOD_RISK_COLORS[province.floodRisk] || FLOOD_RISK_COLORS.low;
+            const riskKey = province.floodRisk?.toLowerCase() || 'low';
+            const riskColor = FLOOD_RISK_COLORS[riskKey] || FLOOD_RISK_COLORS.low;
+
+            // 1. Draw Province Polygon (if available)
+            // Normalize name to match keys in provincePolygonsRef
+            // Try matching by name or loose matching
+            if (provincePolygonsRef.current) {
+                const polyKeys = Object.keys(provincePolygonsRef.current);
+                const matchKey = polyKeys.find(k => k.includes(province.name.toLowerCase()) || province.name.toLowerCase().includes(k));
+
+                if (matchKey) {
+                    const geometry = provincePolygonsRef.current[matchKey];
+                    layer.add(new Graphic({
+                        geometry: geometry,
+                        symbol: {
+                            type: 'simple-fill',
+                            color: [...riskColor.slice(0, 3), 0.35], // 35% opacity fill
+                            outline: {
+                                color: riskKey === 'critical' ? [255, 0, 0, 0.8] : [255, 255, 255, 0.5],
+                                width: riskKey === 'critical' ? 2 : 1
+                            }
+                        },
+                        attributes: { ...province }
+                    }));
+                }
+            }
+
+            // 2. Draw Marker
+            console.log(`📍 Rendering marker for ${province.name}: Risk=${province.floodRisk} (Key=${riskKey})`, riskColor);
 
             layer.add(new Graphic({
                 geometry: new Point({
@@ -217,8 +246,8 @@ const NdmaFloodMap = ({
                     type: 'simple-marker',
                     style: 'diamond',
                     color: riskColor,
-                    size: province.floodRisk === 'critical' ? 28 : 20,
-                    outline: { color: [255, 255, 255], width: 3 }
+                    size: riskKey === 'critical' ? 32 : riskKey === 'high' ? 24 : 18,
+                    outline: { color: [255, 255, 255], width: 2 }
                 },
                 attributes: { ...province, ...center },
                 popupTemplate: {
@@ -297,6 +326,7 @@ const NdmaFloodMap = ({
                     visible: true,
                     opacity: 0.8,
                     definitionExpression: GIS_LAYERS.adminBoundaries.provinces.definitionExpression,
+                    outFields: ['*'], // Fetch all fields for identification
                     renderer: {
                         type: 'simple',
                         symbol: {
@@ -306,6 +336,8 @@ const NdmaFloodMap = ({
                         }
                     }
                 });
+
+                // Province geometry fetch moved to after view init
 
                 // Flood Zones Layer (GraphicsLayer for dynamic data)
                 const floodZonesLayer = new GraphicsLayer({
@@ -368,6 +400,34 @@ const NdmaFloodMap = ({
                 });
                 viewRef.current = view;
 
+
+
+                // Fetch province geometries for dynamic coloring
+                view.whenLayerView(provinceBoundaryLayer).then(async (layerView) => {
+                    reactiveUtils.whenOnce(() => !layerView.updating).then(async () => {
+                        try {
+                            const query = provinceBoundaryLayer.createQuery();
+                            query.returnGeometry = true;
+                            query.outFields = ['*'];
+
+                            const results = await provinceBoundaryLayer.queryFeatures(query);
+                            const features = results.features;
+
+                            // Map features to province names/ids
+                            const polyMap = {};
+                            features.forEach(f => {
+                                const name = f.attributes['NAME_1'] || f.attributes['name'] || f.attributes['PROVINCE'];
+                                if (name) polyMap[name.toLowerCase()] = f.geometry;
+                            });
+
+                            provincePolygonsRef.current = polyMap;
+                            if (provinces.length > 0) updateProvinceAlerts();
+
+                        } catch (e) {
+                            console.warn('Failed to cache province geometries:', e);
+                        }
+                    });
+                });
 
                 await view.when();
 

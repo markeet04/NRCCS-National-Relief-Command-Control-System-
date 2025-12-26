@@ -16,6 +16,7 @@ import {
  * useFloodMapLogic Hook
  * Manages all business logic for the NDMA Flood Map page
  * Fetches real data from backend API
+ * Includes ML flood prediction with simulation mode
  */
 export const useFloodMapLogic = () => {
   // Get badge counts from context for global visibility
@@ -51,6 +52,14 @@ export const useFloodMapLogic = () => {
   // Loading and error state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // ==================== ML SIMULATION STATE (NDMA-ONLY) ====================
+  const [simulationEnabled, setSimulationEnabled] = useState(false);
+  const [simulationScenario, setSimulationScenario] = useState('normal');
+  const [simulationScenarios, setSimulationScenarios] = useState([]);
+  const [predictionResult, setPredictionResult] = useState(null);
+  const [isPredicting, setIsPredicting] = useState(false);
+  const [lastPredictionTime, setLastPredictionTime] = useState(null);
 
   /**
    * Fetch flood map data from backend API
@@ -96,16 +105,27 @@ export const useFloodMapLogic = () => {
 
       // Update province data
       if (Array.isArray(provinceData)) {
-        const provinceStatus = provinceData.map(p => ({
-          id: p.code?.toLowerCase() || p.name?.toLowerCase().replace(/\s+/g, '-'),
-          name: p.name,
-          status: p.overallRisk === 'critical' ? 'critical' : p.overallRisk === 'high' ? 'warning' : 'normal',
-          waterLevel: 0,
-          floodRisk: p.overallRisk || 'low',
-          affectedDistricts: p.criticalDistricts + p.highRiskDistricts,
-          evacuated: 0,
-          coordinates: [30, 70], // Default Pakistan center
-        }));
+        const provinceStatus = provinceData.map(p => {
+          // Determine waterLevel based on risk - LOW risk shows minimal water
+          const riskToWaterLevel = {
+            'critical': 95,
+            'high': 78,
+            'medium': 55,
+            'low': 15, // Low water level for LOW risk
+          };
+          const waterLevel = riskToWaterLevel[p.overallRisk] || 15;
+
+          return {
+            id: p.code?.toLowerCase() || p.name?.toLowerCase().replace(/\s+/g, '-'),
+            name: p.name,
+            status: p.overallRisk === 'critical' ? 'critical' : p.overallRisk === 'high' ? 'warning' : 'normal',
+            waterLevel,
+            floodRisk: p.overallRisk || 'low',
+            affectedDistricts: (p.criticalDistricts || 0) + (p.highRiskDistricts || 0),
+            evacuated: p.overallRisk === 'critical' ? 25000 : p.overallRisk === 'high' ? 10000 : 0,
+            coordinates: [30, 70], // Default Pakistan center
+          };
+        });
 
         if (provinceStatus.length > 0) {
           setProvinces(provinceStatus);
@@ -131,10 +151,142 @@ export const useFloodMapLogic = () => {
     }
   }, []);
 
-  // Fetch data on mount
+  /**
+   * Fetch simulation scenarios from backend
+   */
+  const fetchSimulationScenarios = useCallback(async () => {
+    try {
+      const scenarios = await NdmaApiService.getSimulationScenarios();
+      if (Array.isArray(scenarios)) {
+        setSimulationScenarios(scenarios);
+        console.log('📊 Simulation scenarios loaded:', scenarios);
+      }
+    } catch (err) {
+      console.warn('⚠️ Could not load simulation scenarios:', err);
+    }
+  }, []);
+
+  /**
+   * Run flood prediction using ML model
+   * NDMA-only: Supports both live and simulation modes
+   * Also updates map visualization with prediction results
+   */
+  const runPrediction = useCallback(async (provinceId, generateAlert = false) => {
+    if (!provinceId) {
+      console.warn('Province ID required for prediction');
+      return null;
+    }
+
+    setIsPredicting(true);
+    try {
+      const payload = {
+        rainfall_24h: 50, // Default values for live mode
+        rainfall_48h: 30,
+        humidity: 75,
+        temperature: 28,
+        provinceId,
+        simulationMode: simulationEnabled,
+        simulationScenario: simulationEnabled ? simulationScenario : undefined,
+        generateAlert,
+      };
+
+      console.log(`🔮 Running ${simulationEnabled ? 'SIMULATION' : 'LIVE'} prediction for province ${provinceId}`, payload);
+
+      const result = await NdmaApiService.predictFlood(payload);
+
+      setPredictionResult(result);
+      setLastPredictionTime(new Date());
+
+      console.log('✅ Prediction result:', result);
+
+      // ========================================================
+      // 🗺️ VISUAL MAP UPDATE - Update provinces based on prediction
+      // ========================================================
+      if (result && result.flood_risk) {
+        const riskToLevel = {
+          'High': { floodRisk: 'critical', status: 'critical', waterLevel: 95 },
+          'Medium': { floodRisk: 'high', status: 'warning', waterLevel: 75 },
+          'Low': { floodRisk: 'low', status: 'normal', waterLevel: 25 },
+        };
+
+        const riskConfig = riskToLevel[result.flood_risk] || riskToLevel['Low'];
+
+        // Map provinceId to province key - matches all provinces
+        const idToKey = {
+          1: 'punjab',
+          2: 'sindh',
+          3: 'kpk',
+          4: 'balochistan',
+          5: 'gb',      // Gilgit-Baltistan
+          6: 'ajk'      // Azad Kashmir
+        };
+        const targetKey = idToKey[provinceId] || 'punjab';
+
+        // Update the provinces array to trigger map re-render
+        setProvinces(prev => prev.map(p => {
+          if (String(p.id) === String(targetKey)) {
+            console.log(`🗺️ Updating ${p.name} on map:`, riskConfig);
+            return {
+              ...p,
+              floodRisk: riskConfig.floodRisk,
+              status: riskConfig.status,
+              waterLevel: riskConfig.waterLevel,
+              affectedDistricts: result.flood_risk === 'High' ? 8 : result.flood_risk === 'Medium' ? 4 : 1,
+              evacuated: result.flood_risk === 'High' ? 50000 : result.flood_risk === 'Medium' ? 10000 : 0,
+            };
+          }
+          return p;
+        }));
+
+
+        // Add flood zone marker for high/medium risk
+        if (result.flood_risk !== 'Low') {
+          // Province center coordinates
+          const provinceCoords = {
+            punjab: { lat: 31.17, lon: 72.70 },
+            sindh: { lat: 25.89, lon: 68.52 },
+            kpk: { lat: 34.01, lon: 71.52 },
+            balochistan: { lat: 28.49, lon: 65.09 },
+            gb: { lat: 35.80, lon: 74.98 },
+            ajk: { lat: 33.93, lon: 73.78 }
+          };
+
+          const coords = provinceCoords[targetKey] || provinceCoords.punjab;
+
+          const newFloodZone = {
+            id: `ml-prediction-${Date.now()}`,
+            name: `ML Predicted Zone - ${targetKey}`,
+            riskLevel: riskConfig.floodRisk,
+            province: targetKey,
+            status: 'active',
+            source: simulationEnabled ? 'simulation' : 'live',
+            latitude: coords.lat,
+            longitude: coords.lon,
+          };
+          setFloodZones(prev => [...prev.filter(z => !String(z.id).startsWith('ml-prediction-')), newFloodZone]);
+          console.log('🌊 Added flood zone to map:', newFloodZone);
+        }
+      }
+
+      // If alert was generated, refresh data
+      if (result.alertGenerated) {
+        console.log('🚨 Alert generated with ID:', result.alertId);
+      }
+
+      return result;
+    } catch (err) {
+      console.error('❌ Prediction failed:', err);
+      return null;
+    } finally {
+      setIsPredicting(false);
+    }
+  }, [simulationEnabled, simulationScenario]);
+
+  // Fetch data on mount (including simulation scenarios)
   useEffect(() => {
     fetchFloodMapData();
-  }, [fetchFloodMapData]);
+    fetchSimulationScenarios();
+  }, [fetchFloodMapData, fetchSimulationScenarios]);
 
   /**
    * Calculate flood statistics
@@ -306,6 +458,17 @@ export const useFloodMapLogic = () => {
     floodStats,
     provincesByStatus,
     roleConfig,
+
+    // ML Prediction / Simulation (NDMA-only)
+    simulationEnabled,
+    setSimulationEnabled,
+    simulationScenario,
+    setSimulationScenario,
+    simulationScenarios,
+    predictionResult,
+    isPredicting,
+    lastPredictionTime,
+    runPrediction,
 
     // Actions
     setSelectedProvince,

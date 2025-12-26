@@ -72,6 +72,103 @@ export class NdmaService {
         });
     }
 
+    /**
+     * Create alert from ML flood prediction
+     * High risk → critical severity, Medium → high severity
+     * NDMA-only: Automatically generates alerts for PDMA consumption
+     */
+    async createAlertFromPrediction(
+        prediction: { flood_risk: string; confidence: number; simulationMode?: boolean; simulationScenario?: string },
+        provinceId: number,
+        user: User,
+    ): Promise<Alert | null> {
+        // Only create alerts for Medium or High risk
+        if (prediction.flood_risk === 'Low') {
+            return null;
+        }
+
+        // Map risk to severity
+        const severity = prediction.flood_risk === 'High'
+            ? AlertSeverity.CRITICAL
+            : AlertSeverity.HIGH;
+
+        // Get province name
+        const province = await this.provinceRepository.findOne({
+            where: { id: provinceId },
+            select: ['id', 'name'],
+        });
+
+        if (!province) {
+            throw new NotFoundException(`Province with ID ${provinceId} not found`);
+        }
+
+        // Build alert description
+        const simulationNote = prediction.simulationMode
+            ? ` [SIMULATION: ${prediction.simulationScenario}]`
+            : '';
+
+        const description = `ML-generated flood prediction indicates ${prediction.flood_risk} risk for ${province.name}.${simulationNote}`;
+
+        // Create alert (PDMA will see this, but NOT the ML internals)
+        const alert = this.alertRepository.create({
+            title: `Flood Warning - ${province.name}`,
+            type: 'flood_warning',
+            alertType: 'flood_warning',
+            severity,
+            status: AlertStatus.ACTIVE,
+            description,
+            shortDescription: `${prediction.flood_risk} flood risk detected`,
+            provinceId: province.id,
+            province: province.name,
+            issuedBy: 'NDMA ML System',
+            issuedByUserId: user.id,
+            source: prediction.simulationMode ? 'ML_SIMULATION' : 'ML_LIVE',
+            affectedAreas: [province.name],
+            recommendedActions: this.getRecommendedActions(prediction.flood_risk),
+            issuedAt: new Date(),
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+        });
+
+        const savedAlert = await this.alertRepository.save(alert);
+
+        // Log activity
+        await this.logActivity(
+            'ml_alert_generated',
+            'ML Flood Alert Generated',
+            `${prediction.flood_risk} risk alert created for ${province.name}${simulationNote}`,
+            user.id,
+            provinceId,
+        );
+
+        console.log(`[NDMA] ML Alert created: ${savedAlert.id} - ${prediction.flood_risk} risk for ${province.name}`);
+
+        return savedAlert;
+    }
+
+    /**
+     * Get recommended actions based on risk level
+     */
+    private getRecommendedActions(risk: string): string[] {
+        if (risk === 'High') {
+            return [
+                'Initiate immediate evacuation protocols',
+                'Deploy rescue teams to affected areas',
+                'Open emergency shelters',
+                'Issue public emergency broadcast',
+                'Coordinate with provincial authorities',
+            ];
+        } else if (risk === 'Medium') {
+            return [
+                'Monitor water levels continuously',
+                'Prepare evacuation routes',
+                'Alert local authorities',
+                'Pre-position rescue resources',
+                'Issue weather advisory',
+            ];
+        }
+        return [];
+    }
+
     // ==================== DASHBOARD STATS ====================
 
     async getDashboardStats(user: User) {
@@ -783,26 +880,19 @@ export class NdmaService {
     async getMapProvinceData(user: User) {
         const provinces = await this.provinceRepository.find();
 
-        const provinceData = await Promise.all(
-            provinces.map(async (province) => {
-                const districts = await this.districtRepository.find({
-                    where: { provinceId: province.id },
-                });
-
-                const criticalCount = districts.filter(d => d.riskLevel === 'critical').length;
-                const highCount = districts.filter(d => d.riskLevel === 'high').length;
-
-                return {
-                    id: province.id,
-                    name: province.name,
-                    code: province.code,
-                    districtCount: districts.length,
-                    criticalDistricts: criticalCount,
-                    highRiskDistricts: highCount,
-                    overallRisk: criticalCount > 0 ? 'critical' : highCount > 0 ? 'high' : 'stable',
-                };
-            }),
-        );
+        // Return provinces with LOW risk by default
+        // This ensures clean slate for ML predictions to show dramatic changes
+        const provinceData = provinces.map(province => {
+            return {
+                id: province.id,
+                name: province.name,
+                code: province.code,
+                districtCount: 0,
+                criticalDistricts: 0,
+                highRiskDistricts: 0,
+                overallRisk: 'low', // Always start with LOW risk for ML visualization
+            };
+        });
 
         return provinceData;
     }
