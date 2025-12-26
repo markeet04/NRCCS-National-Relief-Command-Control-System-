@@ -3,15 +3,11 @@
  * Central export for all district-specific components
  */
 
-// Dashboard Components
-export { default as StatCard } from './StatCard';
-export { default as WeatherCard } from './WeatherCard';
-export { default as AlertsList } from './AlertsList';
-export { default as LiveMapCard } from './LiveMapCard';
-export { default as DistrictMap } from './DistrictMap';
+// Dashboard Components (from DistrictDashboard folder)
+export { StatCard, WeatherCard, AlertsList, LiveMapCard, SOSTable } from './DistrictDashboard';
 
-// Table Components
-export { default as SOSTable } from './SOSTable';
+// Map Component
+export { default as DistrictMap } from './DistrictMap';
 
 // UI Components
 export { default as StatusBadge } from './StatusBadge';
@@ -29,3 +25,4 @@ export { default as ActionButton } from './shared/ActionButton';
 export { default as FormField } from './shared/FormField';
 export { default as EntityCard } from './shared/EntityCard';
 export { default as ProgressBar } from './shared/ProgressBar';
+

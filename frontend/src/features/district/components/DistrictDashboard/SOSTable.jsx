@@ -6,7 +6,7 @@
  */
 
 import PropTypes from 'prop-types';
-import { STATUS_COLORS } from '../constants';
+import { STATUS_COLORS } from '../../constants';
 import '@styles/css/main.css';
 
 const SOSTable = ({
