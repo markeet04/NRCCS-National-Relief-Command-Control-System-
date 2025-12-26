@@ -22,6 +22,7 @@ import { CreateShelterDto, UpdateShelterDto } from './dtos/shelter.dto';
 import { CreateAlertDto } from './dtos/alert.dto';
 import { CreateResourceDto, UpdateResourceDto, AllocateResourceDto } from './dtos/resource.dto';
 import { AssignTeamDto } from './dtos/sos.dto';
+import { CreateResourceRequestDto } from './dtos/resource-request.dto';
 
 @Controller('pdma')
 @UseGuards(SessionAuthGuard, RolesGuard)
@@ -184,6 +185,40 @@ export class PdmaController {
     @CurrentUser() user: User,
   ) {
     return await this.pdmaService.allocateResource(id, allocateDto, user);
+  }
+
+  @Post('resource-requests')
+  @HttpCode(HttpStatus.CREATED)
+  async createResourceRequest(
+    @Body() createDto: CreateResourceRequestDto,
+    @CurrentUser() user: User,
+  ) {
+    return await this.pdmaService.createResourceRequest(createDto, user);
+  }
+
+  @Get('resource-requests')
+  async getOwnResourceRequests(
+    @CurrentUser() user: User,
+    @Query('status') status?: string,
+  ) {
+    return await this.pdmaService.getOwnResourceRequests(user, status);
+  }
+
+  @Get('district-requests')
+  async getDistrictRequests(
+    @CurrentUser() user: User,
+    @Query('status') status?: string,
+  ) {
+    return await this.pdmaService.getDistrictRequests(user, status);
+  }
+
+  @Put('district-requests/:id/review')
+  async reviewDistrictRequest(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() reviewDto: { status: string; notes?: string },
+    @CurrentUser() user: User,
+  ) {
+    return await this.pdmaService.reviewDistrictRequest(id, reviewDto as any, user);
   }
 
   // ==================== SOS REQUESTS ====================

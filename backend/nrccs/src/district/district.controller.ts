@@ -43,12 +43,13 @@ import {
   AllocateResourceToShelterDto,
 } from './dtos/resource.dto';
 import { UpdateMissingPersonStatusDto } from './dtos/update-missing-person-status.dto';
+import { CreateDistrictResourceRequestDto } from './dtos/resource-request.dto';
 
 @Controller('district')
 @UseGuards(SessionAuthGuard, RolesGuard)
 @Roles(UserRole.DISTRICT)
 export class DistrictController {
-  constructor(private readonly districtService: DistrictService) {}
+  constructor(private readonly districtService: DistrictService) { }
 
   // ==================== DASHBOARD ====================
 
@@ -378,5 +379,24 @@ export class DistrictController {
   async triggerAutoDeadCheck(@CurrentUser() user: User) {
     // Manual trigger for testing - only accessible to district users
     return await this.districtService.checkAndMarkDeadPersons();
+  }
+
+  // ==================== RESOURCE REQUESTS ====================
+
+  @Post('resource-requests')
+  @HttpCode(HttpStatus.CREATED)
+  async createResourceRequest(
+    @Body() dto: CreateDistrictResourceRequestDto,
+    @CurrentUser() user: User,
+  ) {
+    return await this.districtService.createResourceRequest(dto, user);
+  }
+
+  @Get('resource-requests')
+  async getOwnResourceRequests(
+    @CurrentUser() user: User,
+    @Query('status') status?: string,
+  ) {
+    return await this.districtService.getOwnResourceRequests(user, status);
   }
 }

@@ -172,6 +172,75 @@ export const getResourcesByProvince = async () => {
     return response.data;
 };
 
+/**
+ * Get national-level resources only (provinceId = null)
+ */
+export const getNationalResources = async () => {
+    const response = await apiClient.get('/ndma/resources/national');
+    return response.data;
+};
+
+/**
+ * Create a new national resource
+ * @param {Object} data - { name, type, quantity, unit, location? }
+ */
+export const createNationalResource = async (data) => {
+    const response = await apiClient.post('/ndma/resources', data);
+    return response.data;
+};
+
+/**
+ * Increase stock of existing national resource
+ * @param {number} resourceId - Resource ID
+ * @param {Object} data - { quantity, reason?, source? }
+ */
+export const increaseNationalStock = async (resourceId, data) => {
+    const response = await apiClient.post(`/ndma/resources/${resourceId}/increase-stock`, data);
+    return response.data;
+};
+
+/**
+ * Allocate resource from national stock to a province
+ * @param {number} resourceId - Resource ID
+ * @param {Object} data - { provinceId, quantity, notes? }
+ */
+export const allocateResourceToProvince = async (resourceId, data) => {
+    const response = await apiClient.post(`/ndma/resources/${resourceId}/allocate`, data);
+    return response.data;
+};
+
+/**
+ * Get resource requests from provinces
+ * @param {string} status - Optional filter: 'pending', 'approved', 'rejected'
+ */
+export const getResourceRequests = async (status = null) => {
+    const params = new URLSearchParams();
+    if (status) params.append('status', status);
+    const response = await apiClient.get(`/ndma/resource-requests?${params.toString()}`);
+    return response.data;
+};
+
+/**
+ * Review (approve/reject) a resource request
+ * @param {number} requestId - Request ID
+ * @param {Object} decision - { decision: 'approved'|'rejected', approvedItems?, rejectionReason?, notes? }
+ */
+export const reviewResourceRequest = async (requestId, decision) => {
+    const response = await apiClient.put(`/ndma/resource-requests/${requestId}/review`, decision);
+    return response.data;
+};
+
+/**
+ * Get allocation history
+ * @param {number} provinceId - Optional filter by province
+ */
+export const getAllocationHistory = async (provinceId = null) => {
+    const params = new URLSearchParams();
+    if (provinceId) params.append('provinceId', provinceId);
+    const response = await apiClient.get(`/ndma/allocations/history?${params.toString()}`);
+    return response.data;
+};
+
 // ==================== SOS REQUESTS ====================
 
 /**
@@ -334,6 +403,13 @@ export default {
     getAllResources,
     getResourceStats,
     getResourcesByProvince,
+    getNationalResources,
+    createNationalResource,
+    increaseNationalStock,
+    allocateResourceToProvince,
+    getResourceRequests,
+    reviewResourceRequest,
+    getAllocationHistory,
 
     // SOS
     getAllSosRequests,

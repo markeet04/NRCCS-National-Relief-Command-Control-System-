@@ -16,6 +16,7 @@ import { SosRequestTimeline } from '../common/entities/sos-request-timeline.enti
 import { WeatherData } from '../common/entities/weather-data.entity';
 import { ResourceAllocation } from '../common/entities/resource-allocation.entity';
 import { MissingPerson } from '../common/entities/missing-person.entity';
+import { ResourceRequest, ResourceRequestStatus, ResourceRequestPriority } from '../common/entities/resource-request.entity';
 
 @Module({
   imports: [
@@ -34,10 +35,11 @@ import { MissingPerson } from '../common/entities/missing-person.entity';
       WeatherData,
       ResourceAllocation,
       MissingPerson,
+      ResourceRequest,
     ]),
   ],
   controllers: [DistrictController],
   providers: [DistrictService],
   exports: [DistrictService],
 })
-export class DistrictModule {}
+export class DistrictModule { }

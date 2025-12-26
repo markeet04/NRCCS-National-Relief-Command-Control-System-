@@ -1,7 +1,6 @@
-import { Plus } from 'lucide-react';
 import { RESOURCE_DISTRIBUTION_FILTERS } from '../../../constants';
 
-const ResourceFilters = ({ selectedFilter, onFilterChange, onAddResource, colors }) => {
+const ResourceFilters = ({ selectedFilter, onFilterChange, colors }) => {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', marginBottom: '20px' }}>
       <div className="pdma-filter-group">
@@ -20,13 +19,9 @@ const ResourceFilters = ({ selectedFilter, onFilterChange, onAddResource, colors
           </button>
         ))}
       </div>
-      <button
-        onClick={onAddResource}
-        className="pdma-button pdma-button-success pdma-button-small"
-      >
-        <Plus size={14} />
-        Add Resource
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: colors.textSecondary, fontSize: '13px' }}>
+        <span>Resources allocated from NDMA</span>
+      </div>
     </div>
   );
 };

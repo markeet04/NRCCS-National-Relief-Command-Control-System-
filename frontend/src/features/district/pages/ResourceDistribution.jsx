@@ -1,24 +1,25 @@
 import { useMemo } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import DemoModal from '@shared/components/DemoModal/DemoModal';
-import { Package, Loader2, MapPin, Home } from 'lucide-react';
+import { Package, Loader2, MapPin, Home, Send } from 'lucide-react';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
 import { useResourceDistributionState } from '../hooks';
 import { RESOURCE_DISTRIBUTION_FILTERS, RESOURCE_STATUS_COLORS } from '../constants';
 import AllocateToShelterForm from './ResourceDistribution/AllocateToShelterForm';
+import RequestResourceModal from '../components/ResourceRequest';
 
 // Transform API resources to UI format
 const transformResourcesForUI = (apiResources) => {
   if (!apiResources || !Array.isArray(apiResources)) return [];
-  
+
   return apiResources.map(resource => {
     const quantity = resource.quantity || 0;
     const allocated = resource.allocated || resource.allocatedQuantity || 0;
     const available = quantity - allocated;
     const usagePercentage = quantity > 0 ? (allocated / quantity) * 100 : 0;
-    
+
     let status = resource.status || 'available';
     if (available <= 0) {
       status = 'allocated';
@@ -27,7 +28,7 @@ const transformResourcesForUI = (apiResources) => {
     } else if (usagePercentage >= 70) {
       status = 'low';
     }
-    
+
     return {
       id: resource.id,
       name: resource.name,
@@ -57,12 +58,12 @@ const formatTimeAgo = (date) => {
 const filterResourcesByStatus = (resources, status) => {
   if (!resources || !Array.isArray(resources)) return [];
   if (status === 'all' || !status) return resources;
-  
+
   const normalizedStatus = status.toLowerCase();
-  
+
   return resources.filter(resource => {
     const availableQty = (resource.quantity || 0) - (resource.allocated || 0);
-    
+
     if (normalizedStatus === 'available') {
       return availableQty > 0;
     }
@@ -75,7 +76,7 @@ const filterResourcesByStatus = (resources, status) => {
 };
 
 // ResourceFilters Component
-const ResourceFilters = ({ selectedFilter, onFilterChange, colors }) => {
+const ResourceFilters = ({ selectedFilter, onFilterChange, colors, onRequestFromPdma }) => {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', marginBottom: '20px' }}>
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -99,9 +100,31 @@ const ResourceFilters = ({ selectedFilter, onFilterChange, colors }) => {
           </button>
         ))}
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: colors.textSecondary, fontSize: '13px' }}>
-        <Home size={16} />
-        <span>Resources allocated by PDMA</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <button
+          onClick={onRequestFromPdma}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 16px',
+            background: 'linear-gradient(135deg, #667eea, #764ba2)',
+            border: 'none',
+            borderRadius: '8px',
+            color: 'white',
+            fontWeight: '500',
+            cursor: 'pointer',
+            fontSize: '13px',
+            transition: 'all 0.2s'
+          }}
+        >
+          <Send size={16} />
+          Request from PDMA
+        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: colors.textSecondary, fontSize: '13px' }}>
+          <Home size={16} />
+          <span>Resources allocated by PDMA</span>
+        </div>
       </div>
     </div>
   );
@@ -115,11 +138,11 @@ const ResourceStats = ({ totalResources, totalQuantity, allocatedPercent, availa
   };
 
   return (
-    <div style={{ 
-      display: 'grid', 
-      gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
-      gap: '16px', 
-      marginBottom: '28px' 
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+      gap: '16px',
+      marginBottom: '28px'
     }}>
       <div
         style={{
@@ -195,18 +218,18 @@ const ResourceGrid = ({ resources, isLight, colors, onAllocate, selectedFilter }
 
   if (resources.length === 0) {
     return (
-      <div style={{ 
-        padding: '48px', 
-        textAlign: 'center', 
-        background: colors.cardBg, 
+      <div style={{
+        padding: '48px',
+        textAlign: 'center',
+        background: colors.cardBg,
         borderRadius: '8px',
         border: `1px solid ${colors.border}`
       }}>
         <Package size={48} style={{ color: colors.textMuted, marginBottom: '16px' }} />
         <h3 style={{ color: colors.textPrimary, marginBottom: '8px' }}>No Resources Found</h3>
         <p style={{ color: colors.textSecondary }}>
-          {selectedFilter === 'all' 
-            ? 'No resources have been allocated to this district yet.' 
+          {selectedFilter === 'all'
+            ? 'No resources have been allocated to this district yet.'
             : `No resources match the "${selectedFilter}" filter.`}
         </p>
       </div>
@@ -214,18 +237,18 @@ const ResourceGrid = ({ resources, isLight, colors, onAllocate, selectedFilter }
   }
 
   return (
-    <div style={{ 
-      display: 'grid', 
-      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
-      gap: '16px' 
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+      gap: '16px'
     }}>
       {resources.map((resource) => {
         const statusColor = RESOURCE_STATUS_COLORS[resource.status] || RESOURCE_STATUS_COLORS.available;
         const availableQty = resource.quantity - resource.allocated;
         const isFullyAllocated = availableQty <= 0;
-        
+
         let progressPercentage, progressLabel, progressValues;
-        
+
         if (showAvailableView) {
           progressPercentage = resource.quantity > 0 ? (availableQty / resource.quantity) * 100 : 0;
           progressLabel = 'Available';
@@ -266,10 +289,10 @@ const ResourceGrid = ({ resources, isLight, colors, onAllocate, selectedFilter }
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div
-                  style={{ 
-                    width: '36px', 
-                    height: '36px', 
-                    borderRadius: '8px', 
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '8px',
                     background: statusColor.light,
                     display: 'flex',
                     alignItems: 'center',
@@ -287,12 +310,12 @@ const ResourceGrid = ({ resources, isLight, colors, onAllocate, selectedFilter }
                   </p>
                 </div>
               </div>
-              <span style={{ 
-                padding: '4px 10px', 
-                borderRadius: '12px', 
-                fontSize: '11px', 
+              <span style={{
+                padding: '4px 10px',
+                borderRadius: '12px',
+                fontSize: '11px',
                 fontWeight: '500',
-                background: statusColor.light, 
+                background: statusColor.light,
                 color: statusColor.bg,
                 textTransform: 'capitalize'
               }}>
@@ -386,6 +409,11 @@ const ResourceDistribution = () => {
     shelters,
     loading,
     error,
+    // Request from PDMA
+    isRequestModalOpen,
+    setIsRequestModalOpen,
+    requestLoading,
+    handleRequestFromPdma,
   } = useResourceDistributionState();
 
   const { theme } = useSettings();
@@ -462,14 +490,15 @@ const ResourceDistribution = () => {
     >
       <div style={{ padding: '24px', background: colors.bgPrimary, color: colors.textPrimary, minHeight: '100%' }}>
         {/* Resource Filters */}
-        <ResourceFilters 
+        <ResourceFilters
           selectedFilter={selectedFilter}
           onFilterChange={setSelectedFilter}
           colors={colors}
+          onRequestFromPdma={() => setIsRequestModalOpen(true)}
         />
 
         {/* Resource Stats */}
-        <ResourceStats 
+        <ResourceStats
           totalResources={resources.length}
           totalQuantity={totalQuantity}
           allocatedPercent={totalQuantity > 0 ? Math.round((totalAllocated / totalQuantity) * 100) : 0}
@@ -478,7 +507,7 @@ const ResourceDistribution = () => {
         />
 
         {/* Resource Grid */}
-        <ResourceGrid 
+        <ResourceGrid
           resources={filteredResources}
           isLight={isLight}
           colors={colors}
@@ -503,6 +532,14 @@ const ResourceDistribution = () => {
         onSubmit={handleAllocateResource}
         resource={selectedResource}
         shelters={shelters}
+      />
+
+      {/* Request Resource from PDMA Modal */}
+      <RequestResourceModal
+        isOpen={isRequestModalOpen}
+        onClose={() => setIsRequestModalOpen(false)}
+        onSubmit={handleRequestFromPdma}
+        loading={requestLoading}
       />
     </DashboardLayout>
   );

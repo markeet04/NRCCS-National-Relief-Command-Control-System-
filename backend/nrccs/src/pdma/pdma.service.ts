@@ -13,6 +13,8 @@ import { CreateShelterDto, UpdateShelterDto } from './dtos/shelter.dto';
 import { CreateAlertDto, UpdateAlertDto } from './dtos/alert.dto';
 import { CreateResourceDto, UpdateResourceDto, AllocateResourceDto } from './dtos/resource.dto';
 import { AssignTeamDto } from './dtos/sos.dto';
+import { CreateResourceRequestDto } from './dtos/resource-request.dto';
+import { ResourceRequest, ResourceRequestStatus, ResourceRequestPriority } from '../common/entities/resource-request.entity';
 
 @Injectable()
 export class PdmaService {
@@ -31,6 +33,8 @@ export class PdmaService {
     private rescueTeamRepository: Repository<RescueTeam>,
     @InjectRepository(ActivityLog)
     private activityLogRepository: Repository<ActivityLog>,
+    @InjectRepository(ResourceRequest)
+    private resourceRequestRepository: Repository<ResourceRequest>,
   ) { }
 
   // ==================== HELPER METHODS ====================
@@ -609,10 +613,10 @@ export class PdmaService {
 
     // Update province-level allocation tracking
     provinceResource.allocated += allocateDto.quantity;
-    
+
     // Update province resource status based on allocation percentage
     const usagePercentage = (provinceResource.allocated / provinceResource.quantity) * 100;
-    
+
     if (usagePercentage >= 100) {
       provinceResource.status = ResourceStatus.ALLOCATED;
     } else if (usagePercentage >= 90) {
@@ -622,12 +626,12 @@ export class PdmaService {
     } else {
       provinceResource.status = ResourceStatus.AVAILABLE;
     }
-    
+
     await this.resourceRepository.save(provinceResource);
 
     // Create or update district-level resource
     let districtResource = await this.resourceRepository.findOne({
-      where: { 
+      where: {
         name: provinceResource.name,
         type: provinceResource.type,
         districtId: allocateDto.districtId,
@@ -864,4 +868,196 @@ export class PdmaService {
       })),
     };
   }
+
+  // ==================== RESOURCE REQUESTS ====================
+
+  /**
+   * Create a resource request from PDMA to NDMA
+   */
+  async createResourceRequest(createDto: CreateResourceRequestDto, user: User) {
+    const request = this.resourceRequestRepository.create({
+      provinceId: user.provinceId,
+      requestedByUserId: user.id,
+      requestedByName: user.name,
+      priority: createDto.priority,
+      reason: createDto.reason,
+      notes: createDto.notes,
+      requestedItems: createDto.requestedItems,
+      status: ResourceRequestStatus.PENDING,
+    });
+
+    const saved = await this.resourceRequestRepository.save(request);
+
+    await this.logActivity(
+      'resource_request_created',
+      'Resource Request Submitted to NDMA',
+      `${user.name} requested resources from NDMA: ${createDto.requestedItems.length} items`,
+      user.id,
+      user.provinceId,
+    );
+
+    return saved;
+  }
+
+  /**
+   * Get own resource requests (PDMA → NDMA)
+   */
+  async getOwnResourceRequests(user: User, status?: string) {
+    const where: any = {
+      provinceId: user.provinceId,
+    };
+
+    if (status) {
+      where.status = status;
+    }
+
+    return await this.resourceRequestRepository.find({
+      where,
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  /**
+   * Get resource requests from districts (District → PDMA)
+   * These are requests where districtId is set (from a district) 
+   * and the district belongs to this PDMA's province
+   */
+  async getDistrictRequests(user: User, status?: string) {
+    // Get all districts in this province
+    const districts = await this.districtRepository.find({
+      where: { provinceId: user.provinceId },
+      select: ['id', 'name'],
+    });
+
+    const districtIds = districts.map(d => d.id);
+
+    if (districtIds.length === 0) {
+      return [];
+    }
+
+    // Get all resource requests and filter by districtId
+    const allRequests = await this.resourceRequestRepository.find({
+      order: { createdAt: 'DESC' },
+    });
+
+    // Filter to only requests from districts in this province
+    let filteredRequests = allRequests.filter(req =>
+      req.districtId && districtIds.includes(req.districtId)
+    );
+
+    // Apply status filter if provided
+    if (status) {
+      filteredRequests = filteredRequests.filter(req => req.status === status);
+    }
+
+    // Map district information to each request
+    const districtMap = new Map(districts.map(d => [d.id, d]));
+    return filteredRequests.map(req => ({
+      ...req,
+      district: districtMap.get(req.districtId) || null,
+    }));
+  }
+
+  /**
+   * Review a district's resource request (approve/reject)
+   */
+  async reviewDistrictRequest(
+    requestId: number,
+    reviewDto: { status: ResourceRequestStatus; notes?: string },
+    user: User,
+  ) {
+    const request = await this.resourceRequestRepository.findOne({
+      where: { id: requestId },
+      relations: ['district'],
+    });
+
+    if (!request) {
+      throw new NotFoundException('Resource request not found');
+    }
+
+    // Verify the request is from a district in this PDMA's province
+    if (!request.districtId) {
+      throw new BadRequestException('This is not a district request');
+    }
+
+    const district = await this.districtRepository.findOne({
+      where: { id: request.districtId },
+    });
+
+    if (!district || district.provinceId !== user.provinceId) {
+      throw new ForbiddenException('Cannot review requests from other provinces');
+    }
+
+    if (request.status !== ResourceRequestStatus.PENDING) {
+      throw new BadRequestException('Request has already been reviewed');
+    }
+
+    // Update request status
+    request.status = reviewDto.status;
+    request.processedByUserId = user.id;
+    request.processedByName = user.name;
+    request.processedAt = new Date();
+    if (reviewDto.notes) {
+      request.notes = reviewDto.notes;
+    }
+
+    await this.resourceRequestRepository.save(request);
+
+    // If approved, allocate resources to the district
+    if (reviewDto.status === ResourceRequestStatus.APPROVED && request.requestedItems) {
+      // Create/update resource records for the district
+      for (const item of request.requestedItems) {
+        const resourceName = item.resourceName || item.name || item.resourceType || 'Resource';
+        const resourceType = item.resourceType || 'general';
+
+        // Check if district already has this resource type
+        const existingResource = await this.resourceRepository.findOne({
+          where: {
+            districtId: request.districtId,
+            name: resourceName,
+          },
+        });
+
+        if (existingResource) {
+          // Update existing resource quantity
+          existingResource.quantity += item.quantity;
+          await this.resourceRepository.save(existingResource);
+        } else {
+          // Create new resource for the district
+          const newResource = this.resourceRepository.create({
+            name: resourceName,
+            type: resourceType,
+            category: item.category || 'allocated',
+            quantity: item.quantity,
+            unit: item.unit || 'units',
+            status: ResourceStatus.AVAILABLE,
+            districtId: request.districtId,
+            provinceId: district.provinceId,
+          } as any);
+          await this.resourceRepository.save(newResource);
+        }
+      }
+
+      await this.logActivity(
+        'district_request_approved',
+        'District Resource Request Approved',
+        `${user.name} approved resource request from ${district.name} and allocated resources`,
+        user.id,
+        user.provinceId,
+        district.id,
+      );
+    } else {
+      await this.logActivity(
+        'district_request_rejected',
+        'District Resource Request Rejected',
+        `${user.name} rejected resource request from ${district.name}`,
+        user.id,
+        user.provinceId,
+        district.id,
+      );
+    }
+
+    return request;
+  }
 }
+

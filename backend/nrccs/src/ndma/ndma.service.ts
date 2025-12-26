@@ -1,16 +1,25 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository, In, IsNull } from 'typeorm';
 import { User } from '../common/entities/user.entity';
 import { Province } from '../common/entities/province.entity';
 import { District } from '../common/entities/district.entity';
 import { Shelter } from '../common/entities/shelter.entity';
 import { Alert, AlertStatus, AlertSeverity } from '../common/entities/alert.entity';
-import { Resource } from '../common/entities/resource.entity';
+import { Resource, ResourceStatus } from '../common/entities/resource.entity';
 import { SosRequest, SosStatus } from '../common/entities/sos-request.entity';
 import { RescueTeam, RescueTeamStatus } from '../common/entities/rescue-team.entity';
 import { ActivityLog } from '../common/entities/activity-log.entity';
+import { ResourceRequest, ResourceRequestStatus } from '../common/entities/resource-request.entity';
+import { NdmaResourceAllocation, NdmaAllocationStatus } from '../common/entities/ndma-resource-allocation.entity';
+import { ResourceAllocation } from '../common/entities/resource-allocation.entity';
 import { CreateAlertDto } from './dtos/alert.dto';
+import {
+    CreateNationalResourceDto,
+    AllocateResourceToProvinceDto,
+    ReviewResourceRequestDto,
+    IncreaseNationalStockDto
+} from './dtos/resource.dto';
 
 @Injectable()
 export class NdmaService {
@@ -31,6 +40,12 @@ export class NdmaService {
         private rescueTeamRepository: Repository<RescueTeam>,
         @InjectRepository(ActivityLog)
         private activityLogRepository: Repository<ActivityLog>,
+        @InjectRepository(ResourceRequest)
+        private resourceRequestRepository: Repository<ResourceRequest>,
+        @InjectRepository(NdmaResourceAllocation)
+        private ndmaAllocationRepository: Repository<NdmaResourceAllocation>,
+        @InjectRepository(ResourceAllocation)
+        private resourceAllocationRepository: Repository<ResourceAllocation>,
     ) { }
 
     // ==================== HELPER METHODS ====================
@@ -491,12 +506,13 @@ export class NdmaService {
         const availableQuantity = totalQuantity - totalAllocated;
         const allocatedPercent = totalQuantity > 0 ? Math.round((totalAllocated / totalQuantity) * 100) : 0;
 
-        // Get by type breakdown
+        // Get by type breakdown with allocated amounts
         const byType = await this.resourceRepository
             .createQueryBuilder('resource')
             .select('resource.type', 'type')
             .addSelect('COUNT(*)', 'count')
             .addSelect('COALESCE(SUM(resource.quantity), 0)', 'quantity')
+            .addSelect('COALESCE(SUM(resource.allocated), 0)', 'allocated')
             .groupBy('resource.type')
             .getRawMany();
 
@@ -761,5 +777,298 @@ export class NdmaService {
         );
 
         return provinceData;
+    }
+
+    // ==================== RESOURCE MANAGEMENT ====================
+
+    /**
+     * Create a national-level resource
+     * NDMA resources have province_id = NULL
+     */
+    async createNationalResource(createDto: CreateNationalResourceDto, user: User): Promise<Resource> {
+        const resourceData = {
+            name: createDto.name,
+            type: createDto.type,
+            category: createDto.category,
+            quantity: createDto.quantity,
+            unit: createDto.unit,
+            location: createDto.location || 'National Warehouse Islamabad',
+            icon: createDto.icon,
+            description: createDto.description,
+            provinceId: undefined as number | undefined, // National level
+            districtId: undefined as number | undefined,
+            status: ResourceStatus.AVAILABLE,
+            allocated: 0,
+            allocatedQuantity: 0,
+        };
+
+        const nationalResource = this.resourceRepository.create(resourceData as any) as unknown as Resource;
+        const saved = await this.resourceRepository.save(nationalResource);
+
+        await this.logActivity(
+            'resource_created',
+            'National Resource Created',
+            `NDMA ${user.name} created national resource: ${saved.name} (${saved.quantity} ${saved.unit})`,
+            user.id,
+        );
+
+        return saved;
+    }
+
+    /**
+     * Increase stock for a national resource
+     */
+    async increaseNationalStock(resourceId: number, increaseDto: IncreaseNationalStockDto, user: User) {
+        const resource = await this.resourceRepository.findOne({
+            where: { id: resourceId, provinceId: IsNull(), districtId: IsNull() },
+        });
+
+        if (!resource) {
+            throw new NotFoundException('National resource not found');
+        }
+
+        resource.quantity += increaseDto.quantity;
+        const updated = await this.resourceRepository.save(resource);
+
+        await this.logActivity(
+            'resource_stock_increased',
+            'National Stock Increased',
+            `NDMA ${user.name} increased ${resource.name} stock by ${increaseDto.quantity} ${resource.unit}. ${increaseDto.notes || ''}`,
+            user.id,
+        );
+
+        return updated;
+    }
+
+    /**
+     * Allocate national resource to a province (NDMA → PDMA)
+     */
+    async allocateResourceToProvince(resourceId: number, allocateDto: AllocateResourceToProvinceDto, user: User) {
+        // Verify national resource exists
+        const nationalResource = await this.resourceRepository.findOne({
+            where: { id: resourceId, provinceId: IsNull(), districtId: IsNull() },
+        });
+
+        if (!nationalResource) {
+            throw new NotFoundException('National resource not found');
+        }
+
+        // Verify province exists
+        const province = await this.provinceRepository.findOne({
+            where: { id: allocateDto.provinceId },
+        });
+
+        if (!province) {
+            throw new NotFoundException('Province not found');
+        }
+
+        // Check available stock
+        const available = nationalResource.quantity - nationalResource.allocated;
+        if (allocateDto.quantity > available) {
+            throw new BadRequestException(
+                `Insufficient stock. Only ${available} ${nationalResource.unit} available`
+            );
+        }
+
+        // Update national resource allocation counter
+        nationalResource.allocated += allocateDto.quantity;
+
+        // Update status based on allocation percentage
+        const usagePercentage = (nationalResource.allocated / nationalResource.quantity) * 100;
+        if (usagePercentage >= 100) {
+            nationalResource.status = ResourceStatus.ALLOCATED;
+        } else if (usagePercentage >= 90) {
+            nationalResource.status = ResourceStatus.CRITICAL;
+        } else if (usagePercentage >= 70) {
+            nationalResource.status = ResourceStatus.LOW;
+        } else {
+            nationalResource.status = ResourceStatus.AVAILABLE;
+        }
+
+        await this.resourceRepository.save(nationalResource);
+
+        // Create or update province-level resource
+        let provinceResource = await this.resourceRepository.findOne({
+            where: {
+                name: nationalResource.name,
+                type: nationalResource.type,
+                provinceId: allocateDto.provinceId,
+                districtId: IsNull(),
+            },
+        });
+
+        if (provinceResource) {
+            // Add to existing province resource
+            provinceResource.quantity += allocateDto.quantity;
+            await this.resourceRepository.save(provinceResource);
+        } else {
+            // Create new province resource
+            const newResourceData = {
+                name: nationalResource.name,
+                icon: nationalResource.icon,
+                type: nationalResource.type,
+                category: nationalResource.category,
+                quantity: allocateDto.quantity,
+                unit: nationalResource.unit,
+                location: `${province.name} Provincial Warehouse`,
+                provinceId: allocateDto.provinceId,
+                districtId: undefined as number | undefined,
+                status: ResourceStatus.AVAILABLE,
+                allocated: 0,
+                allocatedQuantity: 0,
+                description: allocateDto.purpose || nationalResource.description,
+            };
+            provinceResource = this.resourceRepository.create(newResourceData as any) as unknown as Resource;
+            await this.resourceRepository.save(provinceResource);
+        }
+
+        const savedProvinceResource = provinceResource;
+
+        // Create NDMA allocation record
+        const allocation = this.ndmaAllocationRepository.create({
+            resourceId: nationalResource.id,
+            resourceType: nationalResource.type,
+            resourceName: nationalResource.name,
+            provinceId: allocateDto.provinceId,
+            quantity: allocateDto.quantity,
+            unit: nationalResource.unit,
+            status: NdmaAllocationStatus.DELIVERED,
+            priority: allocateDto.priority || 'normal',
+            purpose: allocateDto.purpose,
+            notes: allocateDto.notes,
+            allocatedByUserId: user.id,
+            allocatedByName: user.name,
+        });
+
+        await this.ndmaAllocationRepository.save(allocation);
+
+        await this.logActivity(
+            'resource_allocated_to_province',
+            'Resource Allocated to Province',
+            `NDMA ${user.name} allocated ${allocateDto.quantity} ${nationalResource.unit} of ${nationalResource.name} to ${province.name}`,
+            user.id,
+            allocateDto.provinceId,
+        );
+
+        return {
+            nationalResource,
+            provinceResource: savedProvinceResource,
+            allocation,
+            message: `Successfully allocated ${allocateDto.quantity} ${nationalResource.unit} of ${nationalResource.name} to ${province.name}`,
+        };
+    }
+
+    /**
+     * Get resource requests from provinces (PDMA requests)
+     */
+    async getResourceRequests(user: User, status?: string) {
+        const where: any = {};
+
+        if (status) {
+            where.status = status;
+        }
+
+        const requests = await this.resourceRequestRepository.find({
+            where,
+            order: { createdAt: 'DESC' },
+            relations: ['province', 'requestedByUser'],
+        });
+
+        return requests;
+    }
+
+    /**
+     * Review (Approve/Reject) a resource request from PDMA
+     */
+    async reviewResourceRequest(requestId: number, reviewDto: ReviewResourceRequestDto, user: User) {
+        const request = await this.resourceRequestRepository.findOne({
+            where: { id: requestId },
+            relations: ['province'],
+        });
+
+        if (!request) {
+            throw new NotFoundException('Resource request not found');
+        }
+
+        if (request.status !== ResourceRequestStatus.PENDING) {
+            throw new BadRequestException('Request already processed');
+        }
+
+        request.status = reviewDto.status;
+        request.processedByUserId = user.id;
+        request.processedByName = user.name;
+        request.processedAt = new Date();
+
+        if (reviewDto.approvedItems) {
+            request.approvedItems = reviewDto.approvedItems;
+        }
+
+        await this.resourceRequestRepository.save(request);
+
+        // If approved, create allocations
+        if (reviewDto.status === ResourceRequestStatus.APPROVED && reviewDto.approvedItems) {
+            for (const item of reviewDto.approvedItems) {
+                // Find national resource
+                const nationalResource = await this.resourceRepository.findOne({
+                    where: {
+                        type: item.resourceType,
+                        provinceId: IsNull(),
+                        districtId: IsNull(),
+                    },
+                });
+
+                if (nationalResource) {
+                    // Allocate to province
+                    await this.allocateResourceToProvince(
+                        nationalResource.id,
+                        {
+                            provinceId: request.provinceId,
+                            quantity: item.quantity,
+                            purpose: request.reason,
+                            notes: `Approved from request #${requestId}`,
+                        },
+                        user,
+                    );
+                }
+            }
+        }
+
+        await this.logActivity(
+            'resource_request_reviewed',
+            'Resource Request Reviewed',
+            `NDMA ${user.name} ${reviewDto.status} resource request from ${request.province.name}`,
+            user.id,
+            request.provinceId,
+        );
+
+        return request;
+    }
+
+    /**
+     * Get national resources only (province_id = NULL)
+     */
+    async getNationalResources(user: User) {
+        return await this.resourceRepository.find({
+            where: { provinceId: IsNull(), districtId: IsNull() },
+            order: { type: 'ASC', name: 'ASC' },
+        });
+    }
+
+    /**
+     * Get NDMA allocation history
+     */
+    async getNdmaAllocationHistory(user: User, provinceId?: number) {
+        const where: any = {};
+
+        if (provinceId) {
+            where.provinceId = provinceId;
+        }
+
+        return await this.ndmaAllocationRepository.find({
+            where,
+            order: { allocatedAt: 'DESC' },
+            relations: ['province', 'resource'],
+            take: 100,
+        });
     }
 }

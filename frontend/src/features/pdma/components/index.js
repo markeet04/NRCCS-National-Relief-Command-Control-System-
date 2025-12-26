@@ -10,6 +10,8 @@ export { default as ResourceFilters } from './ResourceDistribution/ResourceFilte
 export { default as ResourceStats } from './ResourceDistribution/ResourceStats';
 export { default as ResourceGrid } from './ResourceDistribution/ResourceGrid';
 export { default as ShelterRegistry } from './ResourceDistribution/ShelterRegistry';
+export { default as RequestResourceModal } from './ResourceDistribution/RequestResourceModal';
+export { default as DistrictRequestsSection } from './ResourceDistribution/DistrictRequestsSection';
 
 // DistrictCoordination components
 export { default as DistrictSearchBar } from './DistrictCoordination/SearchBar';
