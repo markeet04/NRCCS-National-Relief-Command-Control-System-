@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Province } from './province.entity';
 import { District } from './district.entity';
+import { Shelter } from './shelter.entity';
 
 export enum ResourceType {
   FOOD = 'food',
@@ -78,6 +79,13 @@ export class Resource {
   @ManyToOne(() => District, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'district_id' })
   districtRelation: District;
+
+  @Column({ name: 'shelter_id', nullable: true })
+  shelterId: number;
+
+  @ManyToOne(() => Shelter, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'shelter_id' })
+  shelterRelation: Shelter;
 
   @Column({
     type: 'enum',

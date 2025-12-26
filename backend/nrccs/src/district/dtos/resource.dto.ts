@@ -1,20 +1,28 @@
-import { IsNumber, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
+import { IsNumber, IsNotEmpty, IsOptional, IsString, Min, IsInt } from 'class-validator';
 
 /**
  * DTO for allocating resources to a shelter
  */
 export class AllocateResourceToShelterDto {
-  @IsNumber()
+  @IsInt()
   @IsNotEmpty()
   shelterId: number;
 
-  @IsNumber()
+  @IsInt()
   @Min(1)
   quantity: number;
 
   @IsString()
   @IsOptional()
+  purpose?: string;
+
+  @IsString()
+  @IsOptional()
   notes?: string;
+
+  @IsString()
+  @IsOptional()
+  resourceType?: string;
 }
 
 /**

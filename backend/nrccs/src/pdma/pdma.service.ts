@@ -510,9 +510,14 @@ export class PdmaService {
 
   // ==================== RESOURCES ====================
 
+  /**
+   * Get all province-level resources (not district-level)
+   * These are resources allocated from NDMA to this province
+   */
   async getAllResources(user: User, status?: string) {
     const where: any = {
       provinceId: user.provinceId,
+      districtId: IsNull(), // Only province-level resources, not district-level
     };
 
     if (status) {
@@ -521,7 +526,7 @@ export class PdmaService {
 
     return await this.resourceRepository.find({
       where,
-      order: { name: 'ASC' },
+      order: { type: 'ASC', name: 'ASC' },
     });
   }
 
@@ -532,6 +537,7 @@ export class PdmaService {
       .addSelect('COALESCE(SUM(resource.quantity), 0)', 'totalQuantity')
       .addSelect('COALESCE(SUM(resource.allocated), 0)', 'totalAllocated')
       .where('resource.province_id = :provinceId', { provinceId: user.provinceId })
+      .andWhere('resource.district_id IS NULL') // Only province-level resources
       .getRawOne();
 
     const totalResources = parseInt(stats.totalResources);
@@ -638,6 +644,7 @@ export class PdmaService {
         name: provinceResource.name,
         type: provinceResource.type,
         districtId: allocateDto.districtId,
+        shelterId: IsNull(), // Only district-level, not shelter
       },
     });
 

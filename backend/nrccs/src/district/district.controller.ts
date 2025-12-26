@@ -336,6 +336,14 @@ export class DistrictController {
     return await this.districtService.allocateResourceToShelter(id, dto, user);
   }
 
+  @Post('allocate-by-type')
+  async allocateResourceByType(
+    @Body() dto: AllocateResourceToShelterDto & { resourceType: string },
+    @CurrentUser() user: User,
+  ) {
+    return await this.districtService.allocateResourceByType(dto, user);
+  }
+
   @Get('shelters-for-allocation')
   async getSheltersForAllocation(@CurrentUser() user: User) {
     return await this.districtService.getSheltersForAllocation(user);

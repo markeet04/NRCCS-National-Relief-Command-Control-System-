@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, Home, Users, TrendingUp, AlertCircle, Plus, RefreshCw } from 'lucide-react';
+import { Package, Home, Users, TrendingUp, AlertCircle, Plus, RefreshCw, Send } from 'lucide-react';
 import DashboardLayout from '@/shared/components/dashboard/DashboardLayout';
 import { DISTRICT_MENU_ITEMS } from '@/shared/constants/dashboardConfig';
 import { useDistrictContext } from '../../../app/providers/AuthProvider';
@@ -8,6 +8,7 @@ import { useShelterData } from '../../hooks/useShelterData';
 import { useRescueTeamData } from '../../hooks/useRescueTeamData';
 import { useResourceDistributionState } from '../../hooks/useResourceDistributionState';
 import AllocateToShelterForm from './AllocateToShelterForm';
+import AllocateByTypeForm from './AllocateByTypeForm';
 
 /**
  * ResourceDistribution - District Resource Distribution Page
@@ -24,11 +25,14 @@ const ResourceDistribution = () => {
     addResource,
     updateResource,
     allocateToShelter,
-    allocateToTeam
+    allocateToTeam,
+    handleAllocateByType
   } = useResourceDistributionState();
 
   const [activeRoute, setActiveRoute] = useState('resources');
   const [isAllocateModalOpen, setIsAllocateModalOpen] = useState(false);
+  const [isAllocateByTypeOpen, setIsAllocateByTypeOpen] = useState(false);
+  const [allocateByTypeLoading, setAllocateByTypeLoading] = useState(false);
   const [selectedResource, setSelectedResource] = useState(null);
   const [filterCategory, setFilterCategory] = useState('All');
 
@@ -53,6 +57,19 @@ const ResourceDistribution = () => {
       setSelectedResource(null);
     } catch (error) {
       console.error('Failed to allocate resource:', error);
+    }
+  };
+
+  // Handle allocate by type submission
+  const handleAllocateByTypeSubmit = async (allocationData) => {
+    try {
+      setAllocateByTypeLoading(true);
+      await handleAllocateByType(allocationData);
+      setIsAllocateByTypeOpen(false);
+    } catch (error) {
+      console.error('Failed to allocate by type:', error);
+    } finally {
+      setAllocateByTypeLoading(false);
     }
   };
 
@@ -202,24 +219,46 @@ const ResourceDistribution = () => {
           ))}
         </div>
 
-        <button
-          onClick={() => window.location.reload()}
-          style={{
-            padding: '10px 18px',
-            borderRadius: '8px',
-            border: `1px solid ${colors.border}`,
-            background: colors.cardBg,
-            color: colors.textPrimary,
-            fontSize: '14px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}
-        >
-          <RefreshCw size={16} />
-          Refresh
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button
+            onClick={() => setIsAllocateByTypeOpen(true)}
+            style={{
+              padding: '10px 18px',
+              borderRadius: '8px',
+              border: 'none',
+              background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+              color: '#ffffff',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <Send size={16} />
+            Allocate to Shelter
+          </button>
+
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              padding: '10px 18px',
+              borderRadius: '8px',
+              border: `1px solid ${colors.border}`,
+              background: colors.cardBg,
+              color: colors.textPrimary,
+              fontSize: '14px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <RefreshCw size={16} />
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* Resources List */}
@@ -342,6 +381,15 @@ const ResourceDistribution = () => {
         onSubmit={handleAllocateSubmit}
         resource={selectedResource}
         shelters={shelters}
+      />
+
+      {/* Allocate by Type Modal (4-level hierarchy) */}
+      <AllocateByTypeForm
+        isOpen={isAllocateByTypeOpen}
+        onClose={() => setIsAllocateByTypeOpen(false)}
+        onSubmit={handleAllocateByTypeSubmit}
+        shelters={shelters}
+        loading={allocateByTypeLoading}
       />
     </DashboardLayout>
   );

@@ -6,7 +6,7 @@ import { User } from '../common/entities/user.entity';
 import { District } from '../common/entities/district.entity';
 import { Shelter, ShelterStatus } from '../common/entities/shelter.entity';
 import { Alert, AlertStatus } from '../common/entities/alert.entity';
-import { Resource } from '../common/entities/resource.entity';
+import { Resource, ResourceStatus } from '../common/entities/resource.entity';
 import { SosRequest, SosStatus } from '../common/entities/sos-request.entity';
 import { RescueTeam, RescueTeamStatus } from '../common/entities/rescue-team.entity';
 import { ActivityLog } from '../common/entities/activity-log.entity';
@@ -1046,25 +1046,26 @@ export class DistrictService {
   // ==================== RESOURCES ====================
 
   /**
-   * Get all resources allocated to this district
+   * Get all resources allocated to this district (not shelter-level)
+   * These are resources allocated from PDMA to this district
    */
   async getAllResources(user: User) {
     const districtId = this.verifyDistrictAccess(user);
 
     return await this.resourceRepository.find({
-      where: { districtId },
-      order: { name: 'ASC' },
+      where: { districtId, shelterId: IsNull() }, // Only district-level, not shelter
+      order: { type: 'ASC', name: 'ASC' },
     });
   }
 
   /**
-   * Get resource statistics for this district
+   * Get resource statistics for this district (not shelter-level)
    */
   async getResourceStats(user: User) {
     const districtId = this.verifyDistrictAccess(user);
 
     const resources = await this.resourceRepository.find({
-      where: { districtId },
+      where: { districtId, shelterId: IsNull() }, // Only district-level, not shelter
     });
 
     const totalResources = resources.length;
@@ -1095,6 +1096,183 @@ export class DistrictService {
     }
 
     return resource;
+  }
+
+  /**
+   * Allocate resource by type to shelter (4-level hierarchy)
+   * Creates shelter-level resource record, decrements district stock
+   */
+  async allocateResourceByType(
+    allocateDto: { resourceType: string; shelterId: number; quantity: number; purpose?: string; notes?: string },
+    user: User,
+  ) {
+    const districtId = this.verifyDistrictAccess(user);
+
+    // Find or create district resource by type
+    let districtResource = await this.resourceRepository.findOne({
+      where: {
+        type: allocateDto.resourceType,
+        districtId,
+        shelterId: IsNull(),
+      },
+    });
+
+    // If district resource doesn't exist, auto-create with default values
+    if (!districtResource) {
+      const resourceDefaults = {
+        food: { name: 'Food Supplies', unit: 'tons', quantity: 10000, icon: 'package' },
+        water: { name: 'Water', unit: 'liters', quantity: 50000, icon: 'droplets' },
+        medical: { name: 'Medical Supplies', unit: 'kits', quantity: 5000, icon: 'stethoscope' },
+        shelter: { name: 'Shelter Materials', unit: 'units', quantity: 2000, icon: 'home' },
+      };
+
+      const defaults = resourceDefaults[allocateDto.resourceType.toLowerCase()] || {
+        name: `${allocateDto.resourceType} Resources`,
+        unit: 'units',
+        quantity: 1000,
+        icon: 'package',
+      };
+
+      const district = await this.districtRepository.findOne({
+        where: { id: districtId },
+      });
+
+      const newResource = this.resourceRepository.create({
+        name: defaults.name,
+        type: allocateDto.resourceType,
+        category: allocateDto.resourceType,
+        resourceType: allocateDto.resourceType,
+        quantity: defaults.quantity,
+        unit: defaults.unit,
+        icon: defaults.icon,
+        location: `${district?.name || 'District'} Warehouse`,
+        provinceId: user.provinceId,
+        districtId,
+        status: ResourceStatus.AVAILABLE,
+        allocated: 0,
+        allocatedQuantity: 0,
+        description: `Auto-created district ${allocateDto.resourceType} stock`,
+      });
+
+      districtResource = await this.resourceRepository.save(newResource);
+
+      await this.logActivity(
+        'resource_created',
+        'District Resource Auto-Created',
+        `System auto-created district resource: ${districtResource.name} for allocation`,
+        user.id,
+        districtId,
+      );
+    }
+
+    // TypeScript guard - should never happen after auto-creation above
+    if (!districtResource) {
+      throw new BadRequestException('Failed to find or create district resource');
+    }
+
+    // Validate sufficient quantity
+    const availableQty = districtResource.quantity - (districtResource.allocated || 0);
+    if (allocateDto.quantity > availableQty) {
+      throw new BadRequestException(
+        `Insufficient ${districtResource.type}. Available: ${availableQty}, Requested: ${allocateDto.quantity}`,
+      );
+    }
+
+    // Get shelter
+    const shelter = await this.shelterRepository.findOne({
+      where: { id: allocateDto.shelterId, districtId, isDeleted: false },
+    });
+
+    if (!shelter) {
+      throw new NotFoundException('Shelter not found in this district');
+    }
+
+    // Find or create shelter-level resource
+    let shelterResource = await this.resourceRepository.findOne({
+      where: {
+        type: districtResource.type,
+        shelterId: allocateDto.shelterId,
+      },
+    });
+
+    if (!shelterResource) {
+      shelterResource = this.resourceRepository.create({
+        name: districtResource.name,
+        type: districtResource.type,
+        category: districtResource.category,
+        resourceType: districtResource.resourceType,
+        quantity: 0,
+        unit: districtResource.unit,
+        icon: districtResource.icon,
+        location: shelter.name,
+        provinceId: user.provinceId,
+        districtId,
+        shelterId: allocateDto.shelterId,
+        status: ResourceStatus.AVAILABLE,
+        allocated: 0,
+        allocatedQuantity: 0,
+        description: `Shelter resource stock`,
+      });
+      // Save newly created shelter resource immediately
+      shelterResource = await this.resourceRepository.save(shelterResource);
+    }
+
+    // TypeScript guard - should never happen after auto-creation above
+    if (!shelterResource) {
+      throw new BadRequestException('Failed to find or create shelter resource');
+    }
+
+    // Perform allocation: decrement district, increment shelter
+    districtResource.quantity -= allocateDto.quantity;
+    districtResource.allocated = (districtResource.allocated || 0) + allocateDto.quantity;
+    shelterResource.quantity += allocateDto.quantity;
+
+    await this.resourceRepository.save([districtResource, shelterResource]);
+
+    // Update shelter supply levels (percentage-based)
+    const resourceType = allocateDto.resourceType.toLowerCase();
+    const supplyIncrease = Math.min(20, Math.floor(allocateDto.quantity / 10));
+
+    if (resourceType.includes('food')) {
+      shelter.supplyFood = Math.min(100, (shelter.supplyFood || 0) + supplyIncrease);
+    } else if (resourceType.includes('water')) {
+      shelter.supplyWater = Math.min(100, (shelter.supplyWater || 0) + supplyIncrease);
+    } else if (resourceType.includes('medical')) {
+      shelter.supplyMedical = Math.min(100, (shelter.supplyMedical || 0) + supplyIncrease);
+    } else if (resourceType.includes('shelter') || resourceType.includes('tent')) {
+      shelter.supplyTents = Math.min(100, (shelter.supplyTents || 0) + supplyIncrease);
+    }
+
+    await this.shelterRepository.save(shelter);
+
+    // Create allocation record
+    const allocation = this.resourceAllocationRepository.create({
+      resourceId: districtResource.id,
+      allocatedToShelterId: shelter.id,
+      quantity: allocateDto.quantity,
+      purpose: allocateDto.purpose || allocateDto.notes || `Allocated to ${shelter.name}`,
+      allocatedBy: user.id,
+    });
+    await this.resourceAllocationRepository.save(allocation);
+
+    // Log activity
+    await this.logActivity(
+      'resource_allocation',
+      'Resource Allocated to Shelter',
+      `Allocated ${allocateDto.quantity} ${districtResource.unit} of ${districtResource.name} to ${shelter.name}`,
+      user.id,
+      districtId,
+    );
+
+    return {
+      success: true,
+      message: `Successfully allocated ${allocateDto.quantity} ${districtResource.unit} of ${districtResource.name} to ${shelter.name}`,
+      allocation: {
+        from: districtResource,
+        to: shelterResource,
+        quantity: allocateDto.quantity,
+      },
+    };
   }
 
   /**

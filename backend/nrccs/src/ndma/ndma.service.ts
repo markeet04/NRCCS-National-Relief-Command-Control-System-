@@ -1105,13 +1105,111 @@ export class NdmaService {
     }
 
     /**
+     * Core national resource defaults for 4-level hierarchy treasury
+     */
+    private readonly NATIONAL_TREASURY_DEFAULTS = [
+        {
+            type: 'food',
+            name: 'Food Supplies',
+            category: 'food',
+            resourceType: 'food',
+            quantity: 100000,
+            unit: 'tons',
+            icon: 'package',
+            description: 'National food supply reserve',
+            location: 'National Warehouse Islamabad',
+        },
+        {
+            type: 'water',
+            name: 'Water Supply',
+            category: 'water',
+            resourceType: 'water',
+            quantity: 500000,
+            unit: 'liters',
+            icon: 'droplets',
+            description: 'National water reserve',
+            location: 'National Warehouse Islamabad',
+        },
+        {
+            type: 'medical',
+            name: 'Medical Supplies',
+            category: 'medical',
+            resourceType: 'medical',
+            quantity: 50000,
+            unit: 'kits',
+            icon: 'stethoscope',
+            description: 'National medical supplies reserve',
+            location: 'National Warehouse Islamabad',
+        },
+        {
+            type: 'shelter',
+            name: 'Shelter Materials',
+            category: 'shelter',
+            resourceType: 'shelter',
+            quantity: 20000,
+            unit: 'units',
+            icon: 'home',
+            description: 'National shelter materials reserve',
+            location: 'National Warehouse Islamabad',
+        },
+    ];
+
+    /**
      * Get national resources only (province_id = NULL)
+     * Auto-initializes the 4 core treasury resources if they don't exist
      */
     async getNationalResources(user: User) {
-        return await this.resourceRepository.find({
-            where: { provinceId: IsNull(), districtId: IsNull() },
+        // Check existing national resources
+        let nationalResources = await this.resourceRepository.find({
+            where: { provinceId: IsNull(), districtId: IsNull(), shelterId: IsNull() },
             order: { type: 'ASC', name: 'ASC' },
         });
+
+        // Auto-initialize treasury if empty or missing core types
+        const existingTypes = nationalResources.map(r => r.type?.toLowerCase());
+        const coreTypes = ['food', 'water', 'medical', 'shelter'];
+        const missingTypes = coreTypes.filter(t => !existingTypes.includes(t));
+
+        if (missingTypes.length > 0) {
+            console.log(`[NDMA Treasury] Initializing missing core resources: ${missingTypes.join(', ')}`);
+
+            for (const defaults of this.NATIONAL_TREASURY_DEFAULTS) {
+                if (missingTypes.includes(defaults.type)) {
+                    const newResource = this.resourceRepository.create({
+                        ...defaults,
+                        provinceId: null as any,
+                        districtId: null as any,
+                        shelterId: null as any,
+                        status: ResourceStatus.AVAILABLE,
+                        allocated: 0,
+                        allocatedQuantity: 0,
+                    });
+                    await this.resourceRepository.save(newResource);
+                }
+            }
+
+            // Refetch with newly created resources
+            nationalResources = await this.resourceRepository.find({
+                where: { provinceId: IsNull(), districtId: IsNull(), shelterId: IsNull() },
+                order: { type: 'ASC', name: 'ASC' },
+            });
+
+            // Log treasury initialization
+            await this.logActivity(
+                'treasury_initialized',
+                'National Treasury Initialized',
+                `System auto-initialized national treasury with core resources: ${missingTypes.join(', ')}`,
+                user.id,
+            );
+        }
+
+        // Return with computed available quantities
+        return nationalResources.map(resource => ({
+            ...resource,
+            available: resource.quantity,
+            allocated: resource.allocated || 0,
+            remaining: resource.quantity - (resource.allocated || 0),
+        }));
     }
 
     /**

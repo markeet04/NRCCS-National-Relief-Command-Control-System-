@@ -11,6 +11,131 @@
 -- 4. DISTRICT - District level officers
 -- 5. CIVILIAN - Public users
 -- =====================================================
+
+-- =====================================================
+-- 4-LEVEL RESOURCE HIERARCHY MIGRATIONS (v2.3)
+-- Levels: National (NDMA) → Province (PDMA) → District → Shelter
+-- Date: December 26, 2025
+-- =====================================================
+
+-- Task 1.1: Check current resources structure (RUN FIRST TO ANALYZE)
+-- SELECT 
+--     id, name, type, quantity, allocated,
+--     province_id, district_id,
+--     CASE 
+--         WHEN province_id IS NULL AND district_id IS NULL THEN 'National'
+--         WHEN province_id IS NOT NULL AND district_id IS NULL THEN 'Province'
+--         WHEN district_id IS NOT NULL THEN 'District'
+--     END as level
+-- FROM resources
+-- ORDER BY 
+--     CASE WHEN province_id IS NULL THEN 1 WHEN district_id IS NULL THEN 2 ELSE 3 END,
+--     type;
+
+-- Task 1.2: Add shelter_id column for 4th level (SAFE - No data loss)
+ALTER TABLE resources 
+ADD COLUMN IF NOT EXISTS shelter_id INTEGER REFERENCES shelters(id) ON DELETE SET NULL;
+
+-- Task 1.3: Add indexes for shelter lookups and each hierarchy level
+CREATE INDEX IF NOT EXISTS idx_resources_shelter ON resources(shelter_id);
+
+CREATE INDEX IF NOT EXISTS idx_national_resources 
+ON resources(type) 
+WHERE province_id IS NULL AND district_id IS NULL AND shelter_id IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_province_resources 
+ON resources(province_id, type) 
+WHERE district_id IS NULL AND shelter_id IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_district_resources 
+ON resources(district_id, type) 
+WHERE shelter_id IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_shelter_resources 
+ON resources(shelter_id, type);
+
+-- Task 1.4: Helper Views for easier queries
+CREATE OR REPLACE VIEW v_national_resources AS
+SELECT * FROM resources
+WHERE province_id IS NULL AND district_id IS NULL AND shelter_id IS NULL;
+
+CREATE OR REPLACE VIEW v_resources_hierarchy AS
+SELECT 
+    r.*,
+    p.name as province_name,
+    d.name as district_name,
+    s.name as shelter_name,
+    CASE 
+        WHEN r.shelter_id IS NOT NULL THEN 'Shelter'
+        WHEN r.district_id IS NOT NULL THEN 'District'
+        WHEN r.province_id IS NOT NULL THEN 'Province'
+        ELSE 'National'
+    END as level_name
+FROM resources r
+LEFT JOIN provinces p ON r.province_id = p.id
+LEFT JOIN districts d ON r.district_id = d.id
+LEFT JOIN shelters s ON r.shelter_id = s.id;
+
+CREATE OR REPLACE VIEW v_resource_flow_by_type AS
+SELECT 
+    type,
+    SUM(CASE WHEN province_id IS NULL AND district_id IS NULL AND shelter_id IS NULL 
+        THEN quantity ELSE 0 END) as national_stock,
+    SUM(CASE WHEN province_id IS NOT NULL AND district_id IS NULL AND shelter_id IS NULL 
+        THEN quantity ELSE 0 END) as province_stock,
+    SUM(CASE WHEN district_id IS NOT NULL AND shelter_id IS NULL 
+        THEN quantity ELSE 0 END) as district_stock,
+    SUM(CASE WHEN shelter_id IS NOT NULL 
+        THEN quantity ELSE 0 END) as shelter_stock,
+    SUM(quantity) as total_in_system
+FROM resources
+GROUP BY type;
+
+-- Task 1.5: (OPTIONAL) Check for invalid hierarchy before adding constraint
+-- SELECT id, name, province_id, district_id, shelter_id
+-- FROM resources
+-- WHERE NOT (
+--     (province_id IS NULL AND district_id IS NULL AND shelter_id IS NULL) OR
+--     (province_id IS NOT NULL AND district_id IS NULL AND shelter_id IS NULL) OR
+--     (province_id IS NOT NULL AND district_id IS NOT NULL AND shelter_id IS NULL) OR
+--     (province_id IS NOT NULL AND district_id IS NOT NULL AND shelter_id IS NOT NULL)
+-- );
+
+-- Task 1.6: (OPTIONAL) Add hierarchy validation constraint (run only if above returns empty)
+-- ALTER TABLE resources ADD CONSTRAINT chk_valid_resource_hierarchy CHECK (
+--     (province_id IS NULL AND district_id IS NULL AND shelter_id IS NULL) OR
+--     (province_id IS NOT NULL AND district_id IS NULL AND shelter_id IS NULL) OR
+--     (province_id IS NOT NULL AND district_id IS NOT NULL AND shelter_id IS NULL) OR
+--     (province_id IS NOT NULL AND district_id IS NOT NULL AND shelter_id IS NOT NULL)
+-- );
+
+-- Task 1.7: (OPTIONAL) Clean and reseed national resources only
+-- CREATE TABLE resources_backup_national AS 
+-- SELECT * FROM resources WHERE province_id IS NULL AND district_id IS NULL;
+-- 
+-- DELETE FROM resources WHERE province_id IS NULL AND district_id IS NULL AND shelter_id IS NULL;
+-- 
+-- INSERT INTO resources (
+--     name, icon, type, category, quantity, unit, location,
+--     province_id, district_id, shelter_id, status, allocated, allocated_quantity, description
+-- ) VALUES 
+--     ('Food Supplies', 'package', 'food', 'essential', 100000, 'tons', 
+--      'National Warehouse Islamabad', NULL, NULL, NULL, 'available', 0, 0, 
+--      'National food reserve for disaster relief'),
+--     ('Drinking Water', 'droplets', 'water', 'essential', 500000, 'liters', 
+--      'National Warehouse Islamabad', NULL, NULL, NULL, 'available', 0, 0, 
+--      'Potable water for emergency distribution'),
+--     ('Medical Kits', 'stethoscope', 'medical', 'healthcare', 50000, 'kits', 
+--      'National Medical Reserve Islamabad', NULL, NULL, NULL, 'available', 0, 0, 
+--      'First aid and emergency medical supplies'),
+--     ('Emergency Tents', 'home', 'shelter', 'housing', 20000, 'units', 
+--      'National Warehouse Islamabad', NULL, NULL, NULL, 'available', 0, 0, 
+--      'Emergency shelter tents for displaced persons');
+
+-- =====================================================
+-- END OF 4-LEVEL HIERARCHY MIGRATIONS
+-- =====================================================
+
   -- Add district_id column to resource_requests table
   ALTER TABLE resource_requests 
   ADD COLUMN IF NOT EXISTS district_id INTEGER NULL REFERENCES districts(id) ON DELETE CASCADE;

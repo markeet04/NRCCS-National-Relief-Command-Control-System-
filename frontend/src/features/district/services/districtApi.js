@@ -370,6 +370,20 @@ const districtApi = {
     }
   },
 
+  /**
+   * Allocate resource by type to shelter (4-level hierarchy)
+   * Auto-creates district and shelter resources if they don't exist
+   * @param {Object} data - { resourceType, shelterId, quantity, purpose?, notes? }
+   */
+  async allocateResourceByType(data) {
+    try {
+      const response = await apiClient.post('/district/allocate-by-type', data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to allocate resource by type');
+    }
+  },
+
   async getSheltersForAllocation() {
     try {
       const response = await apiClient.get('/district/shelters-for-allocation');

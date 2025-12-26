@@ -78,6 +78,30 @@ const useResourceDistributionState = () => {
     }
   };
 
+  // Handle resource allocation by type (4-level hierarchy)
+  // Auto-creates resources if they don't exist
+  const handleAllocateByType = async (allocationData) => {
+    try {
+      const result = await districtApi.allocateResourceByType({
+        resourceType: allocationData.resourceType,
+        shelterId: allocationData.shelterId,
+        quantity: allocationData.quantity,
+        purpose: allocationData.purpose || allocationData.notes,
+        notes: allocationData.notes
+      });
+      notification.success(result.message || `Successfully allocated ${allocationData.quantity} ${allocationData.resourceType} to shelter`);
+      setIsAllocateFormOpen(false);
+      setSelectedResource(null);
+
+      // Refresh data
+      await fetchResourceData();
+      return result;
+    } catch (err) {
+      notification.error(err.message);
+      throw err;
+    }
+  };
+
   // Handle requesting resources from PDMA
   const handleRequestFromPdma = async (requestData) => {
     try {
@@ -106,6 +130,7 @@ const useResourceDistributionState = () => {
     showDemo,
     handleOpenAllocateForm,
     handleAllocateResource,
+    handleAllocateByType,
     // Data
     resources,
     resourceStats,
