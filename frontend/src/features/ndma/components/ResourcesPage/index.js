@@ -13,3 +13,4 @@ export { default as ProvincialRequestCard } from './ProvincialRequestCard';
 export { default as HistoryModal } from './HistoryModal';
 export { default as NationalStockCard } from './NationalStockCard';
 export { default as ResourceHistoryModal } from './ResourceHistoryModal';
+export { default as AddResourcesModal } from './AddResourcesModal';

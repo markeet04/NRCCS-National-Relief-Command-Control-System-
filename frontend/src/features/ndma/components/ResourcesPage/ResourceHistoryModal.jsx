@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { X, Clock, Package, Stethoscope, Home, Droplets, MapPin } from 'lucide-react';
+import NdmaApiService from '@shared/services/NdmaApiService';
 
 /**
  * Resource icon mapping
@@ -29,6 +31,72 @@ const ResourceHistoryModal = ({
   resourceLabel,
   history = [] 
 }) => {
+  const [loading, setLoading] = useState(true);
+  const [historyData, setHistoryData] = useState([]);
+
+  // Fetch allocation history filtered by resource type
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const fetchHistory = async () => {
+      try {
+        setLoading(true);
+        const data = await NdmaApiService.getAllocationHistory();
+        
+        // Map resource types
+        const typeMapping = {
+          'food': ['food', 'Food Supplies', 'food supplies'],
+          'medical': ['medical', 'Medical Kits', 'medical kits', 'medicine'],
+          'shelter': ['shelter', 'Shelter Tents', 'shelter tents', 'tent'],
+          'water': ['water', 'Water', 'drinking water'],
+        };
+
+        // Filter by resource type
+        const filtered = (data || []).filter(item => {
+          const itemType = (item.resource?.type || item.resourceType || item.resourceName || '').toLowerCase();
+          const matchTypes = typeMapping[resourceType] || [resourceType];
+          return matchTypes.some(t => itemType.includes(t.toLowerCase()));
+        });
+
+        // Get national resources to calculate remaining stock
+        const nationalResources = await NdmaApiService.getNationalResources();
+        
+        // Find the current resource stock
+        const currentResource = nationalResources.find(r => {
+          const rType = (r.type || r.resourceType || '').toLowerCase();
+          const matchTypes = typeMapping[resourceType] || [resourceType];
+          return matchTypes.some(t => rType.includes(t.toLowerCase()));
+        });
+
+        // Transform to expected format with calculated remaining stock
+        const transformed = filtered.map((item, index) => {
+          // Calculate remaining stock: current available - sum of all previous allocations
+          const previousAllocations = filtered.slice(0, index);
+          const totalAllocated = previousAllocations.reduce((sum, alloc) => sum + (alloc.quantity || 0), 0);
+          const remaining = currentResource ? (currentResource.quantity - currentResource.allocated - totalAllocated) : 0;
+          
+          return {
+            date: item.allocatedAt || item.createdAt,
+            province: item.province?.name || item.provinceName || 'Unknown',
+            resource: item.resource?.type || item.resourceType || item.resourceName || resourceType,
+            amount: item.quantity || 0,
+            remaining: Math.max(0, remaining),
+            unit: item.resource?.unit || item.unit || currentResource?.unit || 'units',
+          };
+        });
+
+        setHistoryData(transformed);
+      } catch (error) {
+        console.error('Error fetching resource history:', error);
+        setHistoryData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, [isOpen, resourceType]);
+
   if (!isOpen) return null;
 
   const formatDate = (dateString) => {
@@ -41,6 +109,7 @@ const ResourceHistoryModal = ({
   };
 
   const Icon = RESOURCE_ICONS[resourceType] || Package;
+  const displayHistory = historyData.length > 0 ? historyData : history;
 
   return (
     <div className="resource-history-overlay" onClick={onClose}>
@@ -69,9 +138,21 @@ const ResourceHistoryModal = ({
 
         {/* Body - Timeline View */}
         <div className="resource-history-body">
-          {history && history.length > 0 ? (
+          {loading ? (
+            <div className="resource-history-empty">
+              <div style={{
+                width: '40px',
+                height: '40px',
+                border: '4px solid #e5e7eb',
+                borderTopColor: '#3b82f6',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite',
+              }} />
+              <p className="resource-history-empty-text">Loading allocation history...</p>
+            </div>
+          ) : displayHistory && displayHistory.length > 0 ? (
             <div className="history-timeline">
-              {history.map((entry, index) => (
+              {displayHistory.map((entry, index) => (
                 <div key={index} className="history-item">
                   <div className="history-item-dot">
                     <div className="history-item-dot-inner" />

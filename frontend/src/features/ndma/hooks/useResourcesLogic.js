@@ -58,6 +58,7 @@ export const useResourcesLogic = () => {
   // Provincial Requests state
   const [provincialRequests, setProvincialRequests] = useState(INITIAL_PROVINCIAL_REQUESTS);
   const [allocationHistory, setAllocationHistory] = useState(INITIAL_ALLOCATION_HISTORY);
+  const [allocationHistoryByProvince, setAllocationHistoryByProvince] = useState({});
 
   // Modal state
   const [isAllocationModalOpen, setIsAllocationModalOpen] = useState(false);
@@ -101,20 +102,46 @@ export const useResourcesLogic = () => {
       setBackendResourceStats(resourceStats);
 
       // Transform resources by province to provincial allocations format
-      if (Array.isArray(resourcesByProvince)) {
-        const allocations = resourcesByProvince.map(item => ({
-          province: item.province?.name || item.provinceName || 'Unknown',
-          food: item.totalQuantity || 0,
-          medical: 0,
-          shelter: 0,
-          water: 0,
-          totalQuantity: item.totalQuantity || 0,
-          totalAllocated: item.totalAllocated || 0,
-          availableQuantity: item.availableQuantity || 0,
-          status: item.availableQuantity > 1000 ? 'adequate' : item.availableQuantity > 500 ? 'moderate' : 'low',
-          lastUpdated: new Date().toISOString(),
-        }));
-        setProvincialAllocations(allocations.length > 0 ? allocations : INITIAL_PROVINCIAL_ALLOCATIONS);
+      if (Array.isArray(resourcesByProvince) && resourcesByProvince.length > 0) {
+        const allocations = resourcesByProvince.map(item => {
+          const resources = item.resources || { food: 0, water: 0, medical: 0, shelter: 0 };
+          const totalQty = resources.food + resources.water + resources.medical + resources.shelter;
+          
+          return {
+            province: item.province?.name || item.provinceName || 'Unknown',
+            food: resources.food || 0,
+            medical: resources.medical || 0,
+            shelter: resources.shelter || 0,
+            water: resources.water || 0,
+            totalQuantity: totalQty,
+            totalAllocated: item.totalAllocated || 0,
+            availableQuantity: totalQty - (item.totalAllocated || 0),
+            status: totalQty > 1000 ? 'adequate' : totalQty > 500 ? 'moderate' : 'low',
+            lastUpdated: item.updatedAt || new Date().toISOString(),
+          };
+        });
+        setProvincialAllocations(allocations);
+        console.log('📦 Provincial allocations from API:', allocations);
+      } else {
+        // If no backend data, create from provinces list
+        if (Array.isArray(provincesData) && provincesData.length > 0) {
+          const emptyAllocations = provincesData.map(p => ({
+            province: p.name,
+            food: 0,
+            medical: 0,
+            shelter: 0,
+            water: 0,
+            totalQuantity: 0,
+            totalAllocated: 0,
+            availableQuantity: 0,
+            status: 'low',
+            lastUpdated: new Date().toISOString(),
+          }));
+          setProvincialAllocations(emptyAllocations);
+          console.log('📦 Provincial allocations from provinces:', emptyAllocations);
+        } else {
+          setProvincialAllocations(INITIAL_PROVINCIAL_ALLOCATIONS);
+        }
       }
 
       // Update national stock from backend stats - use byType array for proper aggregation
@@ -198,10 +225,62 @@ export const useResourcesLogic = () => {
     }
   }, []);
 
+  /**
+   * Fetch allocation history from backend
+   */
+  const fetchAllocationHistory = useCallback(async () => {
+    try {
+      const historyData = await NdmaApiService.getAllocationHistory();
+      console.log('📜 Raw allocation history from backend:', historyData);
+      
+      // Transform backend data to match the expected format
+      // Group by province name
+      const historyByProvince = {};
+      
+      if (Array.isArray(historyData)) {
+        historyData.forEach(allocation => {
+          const provinceName = allocation.province?.name || allocation.provinceName || 'Unknown';
+          
+          if (!historyByProvince[provinceName]) {
+            historyByProvince[provinceName] = [];
+          }
+          
+          // Transform the allocation to match the expected format
+          historyByProvince[provinceName].push({
+            date: allocation.allocatedAt || allocation.createdAt,
+            province: provinceName,
+            items: [{
+              name: allocation.resource?.type || allocation.resourceType || allocation.resourceName || 'Unknown Resource',
+              quantity: allocation.quantity || 0,
+            }],
+            status: 'approved',
+            approvedBy: allocation.allocatedByUser?.name || allocation.allocatedByName || 'NDMA Admin',
+            id: allocation.id,
+          });
+        });
+        
+        // Sort each province's history by date (newest first)
+        Object.keys(historyByProvince).forEach(province => {
+          historyByProvince[province].sort((a, b) => 
+            new Date(b.date) - new Date(a.date)
+          );
+        });
+        
+        console.log('📜 Transformed allocation history by province:', historyByProvince);
+        setAllocationHistoryByProvince(historyByProvince);
+      }
+    } catch (err) {
+      console.error('❌ Error fetching allocation history:', err);
+      // Fall back to initial static data
+      setAllocationHistoryByProvince(INITIAL_ALLOCATION_HISTORY);
+    }
+  }, []);
+
   // Fetch data on mount
   useEffect(() => {
     fetchResourcesData();
-  }, [fetchResourcesData]);
+    fetchAllocationHistory();
+  }, [fetchResourcesData, fetchAllocationHistory]);
 
   /**
    * Calculate resource statistics
@@ -318,13 +397,16 @@ export const useResourcesLogic = () => {
 
       NotificationService.showSuccess(`Resources allocated to ${selectedProvince} successfully`);
       closeAllocationModal();
+      
+      // Refresh allocation history after successful allocation
+      await fetchAllocationHistory();
     } catch (err) {
       console.error('Error allocating resources:', err);
       NotificationService.showError('Failed to allocate resources');
     } finally {
       setLoading(false);
     }
-  }, [selectedProvince, allocationForm, getProvinceStatus, closeAllocationModal]);
+  }, [selectedProvince, allocationForm, getProvinceStatus, closeAllocationModal, fetchAllocationHistory]);
 
   /**
    * Get status config for display
@@ -359,13 +441,15 @@ export const useResourcesLogic = () => {
 
       // Refresh data
       fetchResourcesData();
+      // Refresh allocation history to show newly created allocation
+      fetchAllocationHistory();
     } catch (err) {
       console.error('Error approving request:', err);
       NotificationService.showError('Failed to approve request');
     } finally {
       setLoading(false);
     }
-  }, [provincialRequests, fetchResourcesData]);
+  }, [provincialRequests, fetchResourcesData, fetchAllocationHistory]);
 
   /**
    * Handle rejecting a provincial request - uses real backend
@@ -420,7 +504,7 @@ export const useResourcesLogic = () => {
     allocationForm,
     loading,
     provincialRequests,
-    allocationHistory,
+    allocationHistory: allocationHistoryByProvince, // Use real backend data
     provinces,
     nationalResourcesList,
 
