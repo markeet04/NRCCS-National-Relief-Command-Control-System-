@@ -24,7 +24,7 @@ export const useRescueTeamData = () => {
   const notification = useNotification?.() || null;
   const showSuccess = notification?.success || console.log;
   const showError = notification?.error || console.error;
-  
+
   // Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -36,7 +36,7 @@ export const useRescueTeamData = () => {
     try {
       const response = await districtApi.getAllRescueTeams();
       const data = response.data || response || [];
-      
+
       // Transform API data to match component expectations
       setTeams(data.map(team => ({
         id: team.id,
@@ -137,8 +137,8 @@ export const useRescueTeamData = () => {
   const filteredTeams = useMemo(() => {
     return teams.filter(team => {
       const matchesSearch = team.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            team.leader.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            team.location.toLowerCase().includes(searchQuery.toLowerCase());
+        team.leader.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        team.location.toLowerCase().includes(searchQuery.toLowerCase());
       if (statusFilter === 'all') return matchesSearch;
       return matchesSearch && team.status === statusFilter;
     });
@@ -159,7 +159,7 @@ export const useRescueTeamData = () => {
         equipment: teamData.equipment || [],
         notes: teamData.notes || '',
       });
-      
+
       setTeams(prev => [...prev, {
         id: newTeam.id,
         name: newTeam.name,
@@ -202,15 +202,15 @@ export const useRescueTeamData = () => {
         equipment: teamData.equipment,
         notes: teamData.notes,
       });
-      
+
       // If status changed, update it separately
       if (teamData.status) {
         const apiStatus = teamData.status.toLowerCase();
         await districtApi.updateTeamStatus(teamId, apiStatus);
       }
-      
+
       showSuccess('Team updated successfully');
-      
+
       // Refetch to get latest data from backend
       await fetchTeams();
     } catch (err) {
@@ -247,11 +247,11 @@ export const useRescueTeamData = () => {
       // Convert status to API format - backend expects lowercase with hyphens
       // e.g., 'available', 'busy', 'deployed', 'on-mission', 'unavailable', 'resting'
       const apiStatus = newStatus.toLowerCase();
-      
+
       await districtApi.updateTeamStatus(teamId, apiStatus);
-      
+
       showSuccess(`Team status updated to ${apiStatus}`);
-      
+
       // Refetch to ensure we have the latest data from backend
       await fetchTeams();
     } catch (err) {
@@ -275,24 +275,24 @@ export const useRescueTeamData = () => {
     stats,
     statusPieData,
     availableRingData,
-    
+
     // Filter state
     searchQuery,
     setSearchQuery,
     statusFilter,
     setStatusFilter,
-    
+
     // Helper functions
     getStatusInfo,
     getCompositionData,
-    
+
     // Actions
     addTeam,
     updateTeam,
     deleteTeam,
     updateTeamStatus,
     refresh,
-    
+
     // Loading state
     loading,
     error
