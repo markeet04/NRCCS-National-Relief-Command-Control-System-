@@ -160,13 +160,7 @@ const NDMADashboard = () => {
     }
   ];
 
-  // 24h Weather data
-  const weatherData = {
-    rainfall: 'Heavy',
-    windSpeed: '45 km/h',
-    temperature: '28°C',
-    humidity: '85%'
-  };
+
 
   // Get status icon for resource
   const getStatusIcon = (status) => {
@@ -353,28 +347,7 @@ const NDMADashboard = () => {
               </div>
             </div>
 
-            {/* 24h Weather Card */}
-            <div className="national-weather-card border-left-cyan">
-              <h3 className="national-weather-title">24h Weather</h3>
-              <div className="national-weather-list">
-                <div className="national-weather-row">
-                  <span className="national-weather-label">Rainfall</span>
-                  <span className="national-weather-value critical">{weatherData.rainfall}</span>
-                </div>
-                <div className="national-weather-row">
-                  <span className="national-weather-label">Wind Speed</span>
-                  <span className="national-weather-value">{weatherData.windSpeed}</span>
-                </div>
-                <div className="national-weather-row">
-                  <span className="national-weather-label">Temperature</span>
-                  <span className="national-weather-value">{weatherData.temperature}</span>
-                </div>
-                <div className="national-weather-row">
-                  <span className="national-weather-label">Humidity</span>
-                  <span className="national-weather-value">{weatherData.humidity}</span>
-                </div>
-              </div>
-            </div>
+
           </div>
         </div>
       </div>
