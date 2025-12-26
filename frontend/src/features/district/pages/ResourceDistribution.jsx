@@ -8,19 +8,18 @@ import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConf
 import { useResourceDistributionState } from '../hooks';
 import { RESOURCE_DISTRIBUTION_FILTERS, RESOURCE_STATUS_COLORS } from '../constants';
 import AllocateToShelterForm from './ResourceDistribution/AllocateToShelterForm';
+import RequestResourceModal from './ResourceDistribution/RequestResourceModal';
 import '@styles/css/main.css';
 
-// Helper - get theme colors from CSS variables
+// Helper - transform resources for UI
 const transformResourcesForUI = (apiResources) => {
   if (!apiResources || !Array.isArray(apiResources)) return [];
-
 
   return apiResources.map(resource => {
     const quantity = resource.quantity || 0;
     const allocated = resource.allocated || resource.allocatedQuantity || 0;
     const available = quantity - allocated;
     const usagePercentage = quantity > 0 ? (allocated / quantity) * 100 : 0;
-
 
     let status = resource.status || 'available';
     if (available <= 0) {
@@ -30,7 +29,6 @@ const transformResourcesForUI = (apiResources) => {
     } else if (usagePercentage >= 70) {
       status = 'low';
     }
-
 
     return {
       id: resource.id,
@@ -62,13 +60,10 @@ const filterResourcesByStatus = (resources, status) => {
   if (!resources || !Array.isArray(resources)) return [];
   if (status === 'all' || !status) return resources;
 
-
   const normalizedStatus = status.toLowerCase();
-
 
   return resources.filter(resource => {
     const availableQty = (resource.quantity || 0) - (resource.allocated || 0);
-
 
     if (normalizedStatus === 'available') {
       return availableQty > 0;
@@ -149,12 +144,7 @@ const ResourceStats = ({ totalResources, totalQuantity, allocatedPercent, availa
       gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
       gap: '16px',
       marginBottom: '28px'
-        < div style={{
-      display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-      gap: '16px',
-        marginBottom: '28px'
-}}>
+    }}>
       <div
         style={{
           background: colors.cardBg,
@@ -218,7 +208,7 @@ const ResourceStats = ({ totalResources, totalQuantity, allocatedPercent, availa
         </p>
         <p style={{ fontSize: '11px', color: colors.textMuted }}>For allocation</p>
       </div>
-    </div >
+    </div>
   );
 };
 
@@ -233,18 +223,12 @@ const ResourceGrid = ({ resources, isLight, colors, onAllocate, selectedFilter }
         padding: '48px',
         textAlign: 'center',
         background: colors.cardBg,
-      < div style={{
-          padding: '48px',
-          textAlign: 'center',
-          background: colors.cardBg,
-          borderRadius: '8px',
-          border: `1px solid ${colors.border}`
-        }}>
+        borderRadius: '8px',
+        border: `1px solid ${colors.border}`
+      }}>
         <Package size={48} style={{ color: colors.textMuted, marginBottom: '16px' }} />
         <h3 style={{ color: colors.textPrimary, marginBottom: '8px' }}>No Resources Found</h3>
         <p style={{ color: colors.textSecondary }}>
-          {selectedFilter === 'all'
-            ? 'No resources have been allocated to this district yet.'
           {selectedFilter === 'all'
             ? 'No resources have been allocated to this district yet.'
             : `No resources match the "${selectedFilter}" filter.`}
@@ -258,49 +242,42 @@ const ResourceGrid = ({ resources, isLight, colors, onAllocate, selectedFilter }
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
       gap: '16px'
-        < div style={{
-      display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-      gap: '16px'
-}}>
-{
-  resources.map((resource) => {
-    const statusColor = RESOURCE_STATUS_COLORS[resource.status] || RESOURCE_STATUS_COLORS.available;
-    const availableQty = resource.quantity - resource.allocated;
-    const isFullyAllocated = availableQty <= 0;
+    }}>
+      {resources.map((resource) => {
+        const statusColor = RESOURCE_STATUS_COLORS[resource.status] || RESOURCE_STATUS_COLORS.available;
+        const availableQty = resource.quantity - resource.allocated;
+        const isFullyAllocated = availableQty <= 0;
 
+        let progressPercentage, progressLabel, progressValues;
 
-    let progressPercentage, progressLabel, progressValues;
+        if (showAvailableView) {
+          progressPercentage = resource.quantity > 0 ? (availableQty / resource.quantity) * 100 : 0;
+          progressLabel = 'Available';
+          progressValues = `${availableQty}/${resource.quantity}`;
+        } else if (showAllocatedView) {
+          progressPercentage = resource.quantity > 0 ? (resource.allocated / resource.quantity) * 100 : 100;
+          progressLabel = 'Distributed';
+          progressValues = `${resource.allocated}/${resource.quantity}`;
+        } else {
+          progressPercentage = resource.quantity > 0 ? (resource.allocated / resource.quantity) * 100 : 100;
+          progressLabel = 'Usage';
+          progressValues = `${resource.allocated}/${resource.quantity}`;
+        }
 
+        let barColor;
+        if (showAvailableView) {
+          if (progressPercentage <= 10) {
+            barColor = '#ef4444';
+          } else if (progressPercentage <= 30) {
+            barColor = '#f97316';
+          } else {
+            barColor = '#22c55e';
+          }
+        } else {
+          barColor = statusColor.bg;
+        }
 
-    if (showAvailableView) {
-      progressPercentage = resource.quantity > 0 ? (availableQty / resource.quantity) * 100 : 0;
-      progressLabel = 'Available';
-      progressValues = `${availableQty}/${resource.quantity}`;
-    } else if (showAllocatedView) {
-      progressPercentage = resource.quantity > 0 ? (resource.allocated / resource.quantity) * 100 : 100;
-      progressLabel = 'Distributed';
-      progressValues = `${resource.allocated}/${resource.quantity}`;
-    } else {
-      progressPercentage = resource.quantity > 0 ? (resource.allocated / resource.quantity) * 100 : 100;
-      progressLabel = 'Usage';
-      progressValues = `${resource.allocated}/${resource.quantity}`;
-    }
-
-    let barColor;
-    if (showAvailableView) {
-      if (progressPercentage <= 10) {
-        barColor = '#ef4444';
-      } else if (progressPercentage <= 30) {
-        barColor = '#f97316';
-      } else {
-        barColor = '#22c55e';
-      }
-    } else {
-      barColor = statusColor.bg;
-    }
-
-    return (
+        return (
           <div
             key={resource.id}
             style={{
@@ -313,10 +290,6 @@ const ResourceGrid = ({ resources, isLight, colors, onAllocate, selectedFilter }
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '8px',
                   style={{
                     width: '36px',
                     height: '36px',
@@ -342,12 +315,7 @@ const ResourceGrid = ({ resources, isLight, colors, onAllocate, selectedFilter }
                 padding: '4px 10px',
                 borderRadius: '12px',
                 fontSize: '11px',
-              <span style={{
-                padding: '4px 10px',
-                borderRadius: '12px',
-                fontSize: '11px',
                 fontWeight: '500',
-                background: statusColor.light,
                 background: statusColor.light,
                 color: statusColor.bg,
                 textTransform: 'capitalize'
@@ -416,10 +384,10 @@ const ResourceGrid = ({ resources, isLight, colors, onAllocate, selectedFilter }
             >
               {isFullyAllocated ? 'Fully Distributed' : 'Allocate to Shelter'}
             </button>
-          </div >
+          </div>
         );
-})}
-    </div >
+      })}
+    </div>
   );
 };
 
@@ -524,7 +492,6 @@ const ResourceDistribution = () => {
       <div style={{ padding: '24px', background: colors.bgPrimary, color: colors.textPrimary, minHeight: '100%' }}>
         {/* Resource Filters */}
         <ResourceFilters
-        <ResourceFilters
           selectedFilter={selectedFilter}
           onFilterChange={setSelectedFilter}
           colors={colors}
@@ -532,7 +499,6 @@ const ResourceDistribution = () => {
         />
 
         {/* Resource Stats */}
-        <ResourceStats
         <ResourceStats
           totalResources={resources.length}
           totalQuantity={totalQuantity}
@@ -542,7 +508,6 @@ const ResourceDistribution = () => {
         />
 
         {/* Resource Grid */}
-        <ResourceGrid
         <ResourceGrid
           resources={filteredResources}
           isLight={isLight}
