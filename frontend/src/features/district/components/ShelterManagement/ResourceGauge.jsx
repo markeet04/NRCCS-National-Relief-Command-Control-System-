@@ -1,10 +1,18 @@
 /**
  * ResourceGauge Component
- * Radial bar chart showing average resource levels
+ * Half-gauge speedometer style showing resource levels
  */
-import { RadialBarChart, RadialBar, Tooltip, ResponsiveContainer } from 'recharts';
+import { RadialBarChart, RadialBar, Tooltip, ResponsiveContainer, PolarAngleAxis } from 'recharts';
 import '@styles/css/main.css';
 import './ShelterManagement.css';
+
+// Unique colors for each resource type
+const RESOURCE_COLORS = {
+    food: '#f59e0b',    // Orange
+    water: '#3b82f6',   // Blue
+    medical: '#ef4444', // Red
+    tents: '#22c55e'    // Green
+};
 
 // Custom tooltip for resource gauge
 const ResourceTooltip = ({ active, payload }) => {
@@ -14,7 +22,7 @@ const ResourceTooltip = ({ active, payload }) => {
             <div className="chart-tooltip">
                 <p className="chart-tooltip__title">{data.name}</p>
                 <p className="chart-tooltip__value" style={{ color: data.fill }}>
-                    {data.value}% remaining
+                    {data.actualValue}% remaining
                 </p>
             </div>
         );
@@ -24,74 +32,72 @@ const ResourceTooltip = ({ active, payload }) => {
 
 const ResourceGauge = ({
     resources = { food: 0, water: 0, medical: 0, tents: 0 },
-    getResourceColor,
-    animated = false,
-    size = 'md' // 'sm', 'md', 'lg'
+    animated = true
 }) => {
     // Calculate average resources
     const avgResources = Math.round(
         (resources.food + resources.water + resources.medical + resources.tents) / 4
     );
 
-    // Get gauge data for the radial chart
+    // Get gauge data for the radial chart with unique colors per resource
     const getResourceGaugeData = () => {
         const resourceTypes = [
-            { name: 'Food', value: resources.food, key: 'food' },
-            { name: 'Water', value: resources.water, key: 'water' },
+            { name: 'Tents', value: resources.tents, key: 'tents' },
             { name: 'Medical', value: resources.medical, key: 'medical' },
-            { name: 'Tents', value: resources.tents, key: 'tents' }
+            { name: 'Water', value: resources.water, key: 'water' },
+            { name: 'Food', value: resources.food, key: 'food' }
         ];
 
-        return resourceTypes.map((r, index) => ({
+        return resourceTypes.map((r) => ({
             name: r.name,
-            value: animated ? r.value : 0,
-            fill: getResourceColor ? getResourceColor(r.value) : getDefaultColor(r.value),
-            innerRadius: 20 + (index * 10),
-            outerRadius: 28 + (index * 10)
+            value: r.value,
+            actualValue: r.value,
+            fill: RESOURCE_COLORS[r.key]
         }));
     };
 
-    const getDefaultColor = (value) => {
-        if (value >= 70) return '#22c55e';
-        if (value >= 40) return '#f59e0b';
-        return '#ef4444';
-    };
-
-    const sizeConfig = {
-        sm: { width: 80, height: 80 },
-        md: { width: 100, height: 100 },
-        lg: { width: 120, height: 120 }
-    };
-
-    const { width, height } = sizeConfig[size] || sizeConfig.md;
-
     return (
-        <div className="resource-gauge" style={{ width, height, position: 'relative' }}>
-            <ResponsiveContainer width="100%" height="100%">
-                <RadialBarChart
-                    cx="50%"
-                    cy="50%"
-                    innerRadius="25%"
-                    outerRadius="100%"
-                    data={getResourceGaugeData()}
-                    startAngle={90}
-                    endAngle={-270}
-                >
-                    <RadialBar
-                        background={{ fill: 'rgba(255,255,255,0.05)' }}
-                        dataKey="value"
-                        cornerRadius={4}
-                        animationDuration={1000}
-                    />
-                    <Tooltip content={<ResourceTooltip />} />
-                </RadialBarChart>
-            </ResponsiveContainer>
-            <div className="resource-gauge__center">
-                <span className="resource-gauge__value">{avgResources}%</span>
-                <span className="resource-gauge__label">AVG</span>
+        <div className="resource-gauge-wrapper">
+            {/* Gauge Chart - Larger size */}
+            <div className="resource-gauge-chart">
+                <ResponsiveContainer width={120} height={70}>
+                    <RadialBarChart
+                        cx="50%"
+                        cy="100%"
+                        innerRadius="35%"
+                        outerRadius="100%"
+                        barSize={10}
+                        data={getResourceGaugeData()}
+                        startAngle={180}
+                        endAngle={0}
+                    >
+                        <PolarAngleAxis
+                            type="number"
+                            domain={[0, 100]}
+                            angleAxisId={0}
+                            tick={false}
+                        />
+                        <RadialBar
+                            background={{ fill: 'rgba(255,255,255,0.1)' }}
+                            dataKey="value"
+                            cornerRadius={5}
+                            animationDuration={animated ? 1000 : 0}
+                        />
+                        <Tooltip content={<ResourceTooltip />} />
+                    </RadialBarChart>
+                </ResponsiveContainer>
+            </div>
+
+            {/* Label Below Gauge */}
+            <div className="resource-gauge-avg">
+                <span className="resource-gauge-avg__value">{avgResources}%</span>
+                <span className="resource-gauge-avg__label">AVG</span>
             </div>
         </div>
     );
 };
+
+// Export colors for use elsewhere
+export const getResourceTypeColor = (key) => RESOURCE_COLORS[key] || '#22c55e';
 
 export default ResourceGauge;

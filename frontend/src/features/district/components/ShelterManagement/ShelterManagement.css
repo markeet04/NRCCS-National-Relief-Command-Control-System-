@@ -2,9 +2,41 @@
  * ShelterManagement Component-Specific Styles
  */
 
-/* Resource Gauge */
-.resource-gauge {
-    position: relative;
+/* Resource Gauge - Half speedometer style */
+.resource-gauge-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 120px;
+    flex-shrink: 0;
+}
+
+.resource-gauge-chart {
+    width: 120px;
+    height: 70px;
+}
+
+.resource-gauge-avg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.resource-gauge-avg__value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.resource-gauge-avg__label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
 }
 
 .resource-gauge__center {
@@ -54,15 +86,18 @@
     margin: 4px 0 0;
 }
 
-/* Shelter Card */
+/* Shelter Card - Using CSS Grid for consistent alignment */
 .shelter-card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 16px;
-    overflow: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr auto auto;
+    min-height: 360px;
+    min-width: 320px;
 }
 
 .shelter-card:hover {
@@ -72,10 +107,16 @@
 }
 
 .shelter-card__header {
-    padding: 20px 20px 0;
+    padding: 16px 16px 12px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    gap: 12px;
+}
+
+.shelter-card__header-info {
+    flex: 1;
+    min-width: 0;
 }
 
 .shelter-card__title {
@@ -83,6 +124,9 @@
     font-weight: 600;
     color: var(--text-primary);
     margin: 0 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .shelter-card__location {
@@ -94,12 +138,14 @@
 }
 
 .shelter-card__status {
-    padding: 4px 12px;
+    padding: 4px 10px;
     border-radius: 20px;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .shelter-card__status--available {
@@ -117,51 +163,56 @@
     color: #ef4444;
 }
 
-.shelter-card__body {
-    padding: 20px;
+/* Resources Section - Gauge Left, Levels Right */
+.shelter-card__resources-section {
+    padding: 12px 16px;
     display: flex;
-    gap: 20px;
+    gap: 12px;
+    align-items: flex-start;
 }
 
-.shelter-card__resources {
+.shelter-card__gauge {
+    flex-shrink: 0;
+}
+
+.shelter-card__levels {
     flex: 1;
+    min-width: 0;
 }
 
-.shelter-card__resources-title {
+.shelter-card__levels-title {
     font-size: 11px;
     font-weight: 600;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 12px;
+    margin: 0 0 8px;
 }
 
-.shelter-card__resources-grid {
+.shelter-card__levels-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 8px;
 }
 
-.shelter-card__resource-item {
+.shelter-card__level-row {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 12px;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    white-space: nowrap;
 }
 
-.shelter-card__resource-dot {
+.shelter-card__level-row strong {
+    color: var(--text-primary);
+}
+
+.shelter-card__level-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-}
-
-.shelter-card__resource-label {
-    color: var(--text-muted);
-}
-
-.shelter-card__resource-value {
-    color: var(--text-primary);
-    font-weight: 600;
+    flex-shrink: 0;
 }
 
 .shelter-card__stats {
