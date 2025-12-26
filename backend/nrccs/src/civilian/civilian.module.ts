@@ -6,6 +6,8 @@ import { Alert } from '../common/entities/alert.entity';
 import { Shelter } from '../common/entities/shelter.entity';
 import { SosRequest } from '../common/entities/sos-request.entity';
 import { MissingPerson } from '../common/entities/missing-person.entity';
+import { Province } from '../common/entities/province.entity';
+import { District } from '../common/entities/district.entity';
 
 @Module({
     imports: [
@@ -14,6 +16,8 @@ import { MissingPerson } from '../common/entities/missing-person.entity';
             Shelter,
             SosRequest,
             MissingPerson,
+            Province,
+            District,
         ]),
     ],
     controllers: [CivilianController],

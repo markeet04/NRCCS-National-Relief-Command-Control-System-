@@ -7,19 +7,19 @@ import { X, Users, MapPin, AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
 
 const SOSAssignModal = ({ request, teams, onAssign, onClose, colors, isLight }) => {
-  const [selectedTeam, setSelectedTeam] = useState('');
+  const [selectedTeam, setSelectedTeam] = useState(null);
 
   if (!request) return null;
 
   const handleAssign = () => {
     if (selectedTeam) {
-      onAssign(request.id, selectedTeam);
+      onAssign(request.id, selectedTeam.id, selectedTeam.name);
       onClose();
     }
   };
 
-  // Filter available teams
-  const availableTeams = teams?.filter(t => t.status === 'Available') || [];
+  // Filter available teams (backend returns lowercase 'available')
+  const availableTeams = teams?.filter(t => t.status === 'available' || t.status === 'Available') || [];
 
   return (
     <div 
@@ -156,13 +156,13 @@ const SOSAssignModal = ({ request, teams, onAssign, onClose, colors, isLight }) 
                 {availableTeams.map(team => (
                   <div
                     key={team.id}
-                    onClick={() => setSelectedTeam(team.name)}
+                    onClick={() => setSelectedTeam(team)}
                     style={{
                       padding: '16px',
-                      background: selectedTeam === team.name
+                      background: selectedTeam?.id === team.id
                         ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.15) 100%)'
                         : (isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)'),
-                      border: `2px solid ${selectedTeam === team.name ? '#3b82f6' : colors.border}`,
+                      border: `2px solid ${selectedTeam?.id === team.id ? '#3b82f6' : colors.border}`,
                       borderRadius: '12px',
                       cursor: 'pointer',
                       transition: 'all 0.2s',
@@ -171,12 +171,12 @@ const SOSAssignModal = ({ request, teams, onAssign, onClose, colors, isLight }) 
                       alignItems: 'center'
                     }}
                     onMouseEnter={(e) => {
-                      if (selectedTeam !== team.name) {
+                      if (selectedTeam?.id !== team.id) {
                         e.currentTarget.style.background = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)';
                       }
                     }}
                     onMouseLeave={(e) => {
-                      if (selectedTeam !== team.name) {
+                      if (selectedTeam?.id !== team.id) {
                         e.currentTarget.style.background = isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)';
                       }
                     }}

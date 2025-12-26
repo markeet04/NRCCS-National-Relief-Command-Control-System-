@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In, LessThan } from 'typeorm';
+import { Repository, In, LessThan, IsNull } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { User } from '../common/entities/user.entity';
 import { District } from '../common/entities/district.entity';
@@ -246,27 +246,30 @@ export class DistrictService {
   async getAllSosRequests(user: User, status?: string) {
     const districtId = this.verifyDistrictAccess(user);
 
-    const where: any = {
-      districtId,
-      isDeleted: false,
-    };
+    // Build query to include both district-specific AND unassigned (null districtId) SOS requests
+    const query = this.sosRepository
+      .createQueryBuilder('sos')
+      .leftJoinAndSelect('sos.rescueTeam', 'rescueTeam')
+      .where('sos.isDeleted = :isDeleted', { isDeleted: false })
+      .andWhere('(sos.districtId = :districtId OR sos.districtId IS NULL)', { districtId })
+      .orderBy('sos.createdAt', 'DESC');
 
     if (status && status !== 'All') {
-      where.status = status;
+      query.andWhere('sos.status = :status', { status });
     }
 
-    return await this.sosRepository.find({
-      where,
-      order: { createdAt: 'DESC' },
-      relations: ['rescueTeam'],
-    });
+    return await query.getMany();
   }
 
   async getSosRequestById(id: string, user: User) {
     const districtId = this.verifyDistrictAccess(user);
 
+    // Allow viewing SOS requests that either belong to this district OR have no district assigned
     const request = await this.sosRepository.findOne({
-      where: { id, districtId, isDeleted: false },
+      where: [
+        { id, districtId, isDeleted: false },
+        { id, districtId: IsNull(), isDeleted: false },
+      ],
       relations: ['rescueTeam', 'district'],
     });
 
@@ -342,8 +345,12 @@ export class DistrictService {
   async assignTeamToSos(id: string, dto: AssignTeamDto, user: User) {
     const districtId = this.verifyDistrictAccess(user);
 
+    // Allow assignment to SOS requests that either belong to this district OR have no district assigned
     const request = await this.sosRepository.findOne({
-      where: { id, districtId, isDeleted: false },
+      where: [
+        { id, districtId, isDeleted: false },
+        { id, districtId: IsNull(), isDeleted: false },
+      ],
     });
 
     if (!request) {
@@ -365,6 +372,11 @@ export class DistrictService {
 
     if (team.status !== RescueTeamStatus.AVAILABLE) {
       throw new BadRequestException(`Team ${team.name} is not available`);
+    }
+
+    // If SOS has no district assigned, assign it to this district
+    if (!request.districtId) {
+      request.districtId = districtId;
     }
 
     // Update SOS request
@@ -397,7 +409,11 @@ export class DistrictService {
       districtId,
     );
 
-    return request;
+      // Return updated SOS request with rescueTeam relation
+      return await this.sosRepository.findOne({
+        where: { id },
+        relations: ['rescueTeam'],
+      });
   }
 
   async addTimelineEntry(id: string, dto: AddTimelineEntryDto, user: User) {

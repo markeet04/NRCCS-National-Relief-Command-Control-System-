@@ -37,4 +37,6 @@ export const INITIAL_FORM_DATA = {
   emergencyType: '',
   details: '',
   coordinates: '',
+  provinceId: '',
+  districtId: '',
 };

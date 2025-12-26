@@ -8,6 +8,10 @@ const SOSForm = ({
   onSubmit,
   isSubmitting,
   gpsStatus,
+  provinces,
+  districts,
+  loadingProvinces,
+  loadingDistricts,
 }) => {
   return (
     <div className="sos-content">
@@ -20,6 +24,10 @@ const SOSForm = ({
         formData={formData}
         errors={errors}
         onInputChange={onInputChange}
+        provinces={provinces}
+        districts={districts}
+        loadingProvinces={loadingProvinces}
+        loadingDistricts={loadingDistricts}
       />
 
       <EmergencyDetailsForm formData={formData} onInputChange={onInputChange} />

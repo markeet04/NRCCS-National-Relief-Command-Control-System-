@@ -55,4 +55,12 @@ export class CreateSosDto {
     @IsNotEmpty()
     @MinLength(5)
     description: string;
+
+    @IsNumber()
+    @IsOptional()
+    provinceId?: number;
+
+    @IsNumber()
+    @IsOptional()
+    districtId?: number;
 }

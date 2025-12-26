@@ -64,6 +64,18 @@ const civilianApi = {
         const response = await apiClient.get('/civilian/help');
         return response.data;
     },
+
+    // ==================== LOCATION DATA ====================
+
+    async getProvinces() {
+        const response = await apiClient.get('/civilian/provinces');
+        return response.data;
+    },
+
+    async getDistrictsByProvince(provinceId) {
+        const response = await apiClient.get(`/civilian/provinces/${provinceId}/districts`);
+        return response.data;
+    },
 };
 
 export default civilianApi;

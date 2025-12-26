@@ -22,6 +22,10 @@ const EmergencySOS = () => {
     handleConfirm,
     handleCancel,
     handleReset,
+    provinces,
+    districts,
+    loadingProvinces,
+    loadingDistricts,
   } = useSOSLogic();
 
   if (showSuccessScreen && requestData) {
@@ -40,6 +44,10 @@ const EmergencySOS = () => {
           onSubmit={handleSOSClick}
           isSubmitting={isSubmitting}
           gpsStatus={gpsStatus}
+          provinces={provinces}
+          districts={districts}
+          loadingProvinces={loadingProvinces}
+          loadingDistricts={loadingDistricts}
         />
 
         {showConfirmModal && (

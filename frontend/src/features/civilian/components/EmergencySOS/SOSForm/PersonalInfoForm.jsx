@@ -1,4 +1,12 @@
-const PersonalInfoForm = ({ formData, errors, onInputChange }) => {
+const PersonalInfoForm = ({ 
+  formData, 
+  errors, 
+  onInputChange, 
+  provinces = [], 
+  districts = [], 
+  loadingProvinces = false, 
+  loadingDistricts = false 
+}) => {
   return (
     <div className="required-form">
       <p className="form-section-title">Personal Information (Required)</p>
@@ -51,6 +59,58 @@ const PersonalInfoForm = ({ formData, errors, onInputChange }) => {
           className={`form-input ${errors.phoneNumber ? 'error' : ''}`}
         />
         {errors.phoneNumber && <span className="error-message">{errors.phoneNumber}</span>}
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="provinceId">
+          Province <span className="required-star">*</span>
+        </label>
+        <select
+          id="provinceId"
+          name="provinceId"
+          value={formData.provinceId}
+          onChange={onInputChange}
+          className={`form-input ${errors.provinceId ? 'error' : ''}`}
+          disabled={loadingProvinces}
+        >
+          <option value="">
+            {loadingProvinces ? 'Loading provinces...' : 'Select your province'}
+          </option>
+          {provinces.map((province) => (
+            <option key={province.id} value={province.id}>
+              {province.name}
+            </option>
+          ))}
+        </select>
+        {errors.provinceId && <span className="error-message">{errors.provinceId}</span>}
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="districtId">
+          District <span className="required-star">*</span>
+        </label>
+        <select
+          id="districtId"
+          name="districtId"
+          value={formData.districtId}
+          onChange={onInputChange}
+          className={`form-input ${errors.districtId ? 'error' : ''}`}
+          disabled={!formData.provinceId || loadingDistricts}
+        >
+          <option value="">
+            {!formData.provinceId 
+              ? 'Select province first' 
+              : loadingDistricts 
+              ? 'Loading districts...' 
+              : 'Select your district'}
+          </option>
+          {districts.map((district) => (
+            <option key={district.id} value={district.id}>
+              {district.name}
+            </option>
+          ))}
+        </select>
+        {errors.districtId && <span className="error-message">{errors.districtId}</span>}
       </div>
 
       <div className="form-group">

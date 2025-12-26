@@ -32,8 +32,8 @@ export const useSOSRequests = () => {
       // Transform API data to match component expectations
       setRequests(data.map(sos => ({
         id: sos.id,
-        name: sos.reporterName || sos.user?.name || 'Unknown',
-        phone: sos.contactNumber || sos.user?.phone || 'N/A',
+        name: sos.name || sos.requesterName || sos.reporterName || sos.user?.name || 'Unknown',
+        phone: sos.phone || sos.contactNumber || sos.user?.phone || 'N/A',
         location: sos.locationAddress || sos.location || 'Unknown location',
         coordinates: sos.locationCoordinates,
         people: sos.numberOfPeople || 1,
@@ -124,7 +124,7 @@ export const useSOSRequests = () => {
     setLoading(true);
     setError(null);
     try {
-      await districtApi.assignTeamToSos(requestId, { rescueTeamId: teamId });
+      await districtApi.assignTeamToSos(requestId, { teamId });
       
       setRequests(prev => 
         prev.map(req => 

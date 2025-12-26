@@ -5,6 +5,8 @@ import { Alert, AlertStatus } from '../common/entities/alert.entity';
 import { Shelter } from '../common/entities/shelter.entity';
 import { SosRequest, SosStatus, SosPriority } from '../common/entities/sos-request.entity';
 import { MissingPerson, MissingPersonStatus } from '../common/entities/missing-person.entity';
+import { Province } from '../common/entities/province.entity';
+import { District } from '../common/entities/district.entity';
 import { CreateSosDto, CreateMissingPersonDto } from './dtos';
 
 @Injectable()
@@ -21,6 +23,10 @@ export class CivilianService {
         private sosRepository: Repository<SosRequest>,
         @InjectRepository(MissingPerson)
         private missingPersonRepository: Repository<MissingPerson>,
+        @InjectRepository(Province)
+        private provinceRepository: Repository<Province>,
+        @InjectRepository(District)
+        private districtRepository: Repository<District>,
     ) { }
 
     // ==================== ALERTS ====================
@@ -95,6 +101,7 @@ export class CivilianService {
             submittedByName: dto.name,
             submittedByCnic: dto.cnic,
             submittedByPhone: dto.phone,
+            districtId: dto.districtId, // Attach district ID from civilian selection
         });
 
         const savedRequest = await this.sosRepository.save(sosRequest);
@@ -272,5 +279,24 @@ export class CivilianService {
             ],
             message: 'Help content available',
         };
+    }
+
+    // ==================== LOCATION DATA ====================
+
+    async getAllProvinces() {
+        const provinces = await this.provinceRepository.find({
+            select: ['id', 'name', 'code'],
+            order: { name: 'ASC' },
+        });
+        return provinces;
+    }
+
+    async getDistrictsByProvince(provinceId: number) {
+        const districts = await this.districtRepository.find({
+            where: { provinceId },
+            select: ['id', 'name', 'provinceId'],
+            order: { name: 'ASC' },
+        });
+        return districts;
     }
 }

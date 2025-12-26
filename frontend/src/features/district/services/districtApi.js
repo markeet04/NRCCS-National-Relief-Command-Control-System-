@@ -71,9 +71,9 @@ const districtApi = {
     }
   },
 
-  async assignTeamToSos(sosId, teamId, estimatedArrival) {
+  async assignTeamToSos(sosId, dto) {
     try {
-      const response = await apiClient.put(`/district/sos/${sosId}/assign`, { teamId, estimatedArrival });
+      const response = await apiClient.put(`/district/sos/${sosId}/assign`, dto);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to assign team');

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   INITIAL_FORM_DATA,
   VALIDATION_RULES,
   VALIDATION_PATTERNS,
 } from '../constants';
+import civilianApi from '../services/civilianApi';
 
 const useSOSForm = (initialCoordinates = '') => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,50 @@ const useSOSForm = (initialCoordinates = '') => {
     coordinates: initialCoordinates,
   });
   const [errors, setErrors] = useState({});
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [loadingProvinces, setLoadingProvinces] = useState(false);
+  const [loadingDistricts, setLoadingDistricts] = useState(false);
+
+  // Load provinces on mount
+  useEffect(() => {
+    const loadProvinces = async () => {
+      setLoadingProvinces(true);
+      try {
+        const data = await civilianApi.getProvinces();
+        setProvinces(data || []);
+      } catch (error) {
+        console.error('Failed to load provinces:', error);
+        setProvinces([]);
+      } finally {
+        setLoadingProvinces(false);
+      }
+    };
+    loadProvinces();
+  }, []);
+
+  // Load districts when province changes
+  useEffect(() => {
+    const loadDistricts = async () => {
+      if (!formData.provinceId) {
+        setDistricts([]);
+        setFormData(prev => ({ ...prev, districtId: '' }));
+        return;
+      }
+
+      setLoadingDistricts(true);
+      try {
+        const data = await civilianApi.getDistrictsByProvince(formData.provinceId);
+        setDistricts(data || []);
+      } catch (error) {
+        console.error('Failed to load districts:', error);
+        setDistricts([]);
+      } finally {
+        setLoadingDistricts(false);
+      }
+    };
+    loadDistricts();
+  }, [formData.provinceId]);
 
   const validateFullName = (name) => {
     if (!name.trim()) return 'Full name is required';
@@ -78,6 +123,14 @@ const useSOSForm = (initialCoordinates = '') => {
     newErrors.fullName = validateFullName(formData.fullName);
     newErrors.cnic = validateCNIC(formData.cnic);
     newErrors.phoneNumber = validatePhoneNumber(formData.phoneNumber);
+    
+    // Validate province and district selection
+    if (!formData.provinceId) {
+      newErrors.provinceId = 'Province selection is required';
+    }
+    if (!formData.districtId) {
+      newErrors.districtId = 'District selection is required';
+    }
 
     // Remove empty error messages
     Object.keys(newErrors).forEach((key) => {
@@ -104,6 +157,10 @@ const useSOSForm = (initialCoordinates = '') => {
     validateForm,
     resetForm,
     setCoordinates,
+    provinces,
+    districts,
+    loadingProvinces,
+    loadingDistricts,
   };
 };
 

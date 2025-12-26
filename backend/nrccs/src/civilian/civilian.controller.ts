@@ -90,4 +90,17 @@ export class CivilianController {
     async getHelp() {
         return await this.civilianService.getHelpContent();
     }
+
+    // ==================== LOCATION DATA ====================
+
+    @Get('provinces')
+    async getAllProvinces() {
+        return await this.civilianService.getAllProvinces();
+    }
+
+    @Get('provinces/:provinceId/districts')
+    async getDistrictsByProvince(@Param('provinceId') provinceId: string) {
+        const parsedProvinceId = parseInt(provinceId, 10);
+        return await this.civilianService.getDistrictsByProvince(parsedProvinceId);
+    }
 }

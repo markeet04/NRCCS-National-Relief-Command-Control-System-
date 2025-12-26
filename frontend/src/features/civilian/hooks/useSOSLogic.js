@@ -4,7 +4,18 @@ import civilianApi from '../services/civilianApi';
 
 const useSOSLogic = () => {
   const { gpsStatus, location } = useGPSLocation();
-  const { formData, errors, handleInputChange, validateForm, resetForm, setCoordinates } = useSOSForm();
+  const { 
+    formData, 
+    errors, 
+    handleInputChange, 
+    validateForm, 
+    resetForm, 
+    setCoordinates,
+    provinces,
+    districts,
+    loadingProvinces,
+    loadingDistricts,
+  } = useSOSForm();
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
@@ -43,6 +54,8 @@ const useSOSLogic = () => {
         peopleCount: 1,
         emergencyType: formData.emergencyType || 'other',
         description: formData.details || 'Emergency assistance needed',
+        provinceId: formData.provinceId ? parseInt(formData.provinceId) : undefined,
+        districtId: formData.districtId ? parseInt(formData.districtId) : undefined,
       };
 
       const response = await civilianApi.submitSos(payload);
@@ -111,6 +124,10 @@ const useSOSLogic = () => {
     handleConfirm,
     handleCancel,
     handleReset,
+    provinces,
+    districts,
+    loadingProvinces,
+    loadingDistricts,
   };
 };
 
