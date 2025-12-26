@@ -630,7 +630,31 @@ export class NdmaService {
         const result = await Promise.all(
             provinces.map(async (province) => {
                 const resources = await this.resourceRepository.find({
-                    where: { provinceId: province.id },
+                    where: { 
+                        provinceId: province.id,
+                        districtId: IsNull(), // Only province-level resources
+                    },
+                });
+
+                // Group resources by type
+                const byType = {
+                    food: 0,
+                    water: 0,
+                    medical: 0,
+                    shelter: 0,
+                };
+
+                resources.forEach(resource => {
+                    const type = (resource.type || resource.resourceType || '').toLowerCase();
+                    if (type.includes('food')) {
+                        byType.food += resource.quantity || 0;
+                    } else if (type.includes('water')) {
+                        byType.water += resource.quantity || 0;
+                    } else if (type.includes('medical')) {
+                        byType.medical += resource.quantity || 0;
+                    } else if (type.includes('shelter')) {
+                        byType.shelter += resource.quantity || 0;
+                    }
                 });
 
                 const totalQuantity = resources.reduce((sum, r) => sum + (r.quantity || 0), 0);
@@ -638,10 +662,13 @@ export class NdmaService {
 
                 return {
                     province,
+                    provinceName: province.name,
                     resourceCount: resources.length,
                     totalQuantity,
                     totalAllocated,
                     availableQuantity: totalQuantity - totalAllocated,
+                    updatedAt: resources.length > 0 ? resources[0].updatedAt : new Date(),
+                    resources: byType, // Resource breakdown by type
                 };
             }),
         );

@@ -11,8 +11,7 @@ const ShelterCard = ({
     shelter,
     onView,
     onEdit,
-    getResourceColor,
-    animated = false
+    animated = true
 }) => {
     const { name, address, capacity, occupancy, resources, status } = shelter;
 
@@ -43,10 +42,10 @@ const ShelterCard = ({
         <div className="shelter-card">
             {/* Header */}
             <div className="shelter-card__header">
-                <div>
+                <div className="shelter-card__header-info">
                     <h3 className="shelter-card__title">{name}</h3>
                     <div className="shelter-card__location">
-                        <MapPin style={{ width: 12, height: 12 }} />
+                        <MapPin size={12} />
                         <span>{address || 'No address'}</span>
                     </div>
                 </div>
@@ -55,36 +54,29 @@ const ShelterCard = ({
                 </span>
             </div>
 
-            {/* Body with Resource Gauge and Levels */}
-            <div className="shelter-card__body">
-                <ResourceGauge
-                    resources={resources}
-                    getResourceColor={getResourceColor}
-                    animated={animated}
-                    size="md"
-                />
-                <div className="shelter-card__resources">
-                    <p className="shelter-card__resources-title">Resource Levels</p>
-                    <div className="shelter-card__resources-grid">
-                        <div className="shelter-card__resource-item">
-                            <span className="shelter-card__resource-dot" style={{ background: getResourceColor?.(resources.food) || '#22c55e' }} />
-                            <span className="shelter-card__resource-label">Food:</span>
-                            <span className="shelter-card__resource-value">{resources.food}%</span>
+            {/* Resources Section - Gauge Left, Levels Right */}
+            <div className="shelter-card__resources-section">
+                <div className="shelter-card__gauge">
+                    <ResourceGauge resources={resources} animated={animated} />
+                </div>
+                <div className="shelter-card__levels">
+                    <p className="shelter-card__levels-title">RESOURCE LEVELS</p>
+                    <div className="shelter-card__levels-grid">
+                        <div className="shelter-card__level-row">
+                            <span className="shelter-card__level-dot" style={{ background: '#f59e0b' }} />
+                            <span>Food: <strong>{resources.food}%</strong></span>
                         </div>
-                        <div className="shelter-card__resource-item">
-                            <span className="shelter-card__resource-dot" style={{ background: getResourceColor?.(resources.water) || '#22c55e' }} />
-                            <span className="shelter-card__resource-label">Water:</span>
-                            <span className="shelter-card__resource-value">{resources.water}%</span>
+                        <div className="shelter-card__level-row">
+                            <span className="shelter-card__level-dot" style={{ background: '#3b82f6' }} />
+                            <span>Water: <strong>{resources.water}%</strong></span>
                         </div>
-                        <div className="shelter-card__resource-item">
-                            <span className="shelter-card__resource-dot" style={{ background: getResourceColor?.(resources.medical) || '#22c55e' }} />
-                            <span className="shelter-card__resource-label">Medical:</span>
-                            <span className="shelter-card__resource-value">{resources.medical}%</span>
+                        <div className="shelter-card__level-row">
+                            <span className="shelter-card__level-dot" style={{ background: '#ef4444' }} />
+                            <span>Medical: <strong>{resources.medical}%</strong></span>
                         </div>
-                        <div className="shelter-card__resource-item">
-                            <span className="shelter-card__resource-dot" style={{ background: getResourceColor?.(resources.tents) || '#22c55e' }} />
-                            <span className="shelter-card__resource-label">Tents:</span>
-                            <span className="shelter-card__resource-value">{resources.tents}%</span>
+                        <div className="shelter-card__level-row">
+                            <span className="shelter-card__level-dot" style={{ background: '#22c55e' }} />
+                            <span>Tents: <strong>{resources.tents}%</strong></span>
                         </div>
                     </div>
                 </div>
@@ -94,7 +86,7 @@ const ShelterCard = ({
             <div className="shelter-card__stats">
                 <div className="shelter-card__stat">
                     <span className="shelter-card__stat-label">
-                        <Users style={{ width: 14, height: 14 }} />
+                        <Users size={14} />
                         Capacity
                     </span>
                     <span className="shelter-card__stat-value">{capacity.toLocaleString()}</span>
@@ -119,10 +111,10 @@ const ShelterCard = ({
             {/* Footer Actions */}
             <div className="shelter-card__footer">
                 <button className="btn btn--secondary" onClick={() => onView?.(shelter)}>
-                    <span>👁</span> View
+                    👁 View
                 </button>
                 <button className="btn btn--primary" onClick={() => onEdit?.(shelter)}>
-                    <span>✏️</span> Edit
+                    ✏️ Edit
                 </button>
             </div>
         </div>

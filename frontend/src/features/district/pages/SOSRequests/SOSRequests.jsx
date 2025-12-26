@@ -8,16 +8,16 @@
 
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DashboardLayout } from '../../../shared/components/layout';
+import { DashboardLayout } from '@shared/components/layout';
 import '@styles/css/main.css';
 
 // Hooks
-import { useSOSRequests } from '../hooks/useSOSRequests';
-import { useRescueTeamData } from '../hooks/useRescueTeamData';
-import { useDistrictData } from '../hooks/useDistrictData';
+import { useSOSRequests } from '../../hooks/useSOSRequests';
+import { useRescueTeamData } from '../../hooks/useRescueTeamData';
+import { useDistrictData } from '../../hooks/useDistrictData';
 
 // Constants
-import { DISTRICT_MENU_ITEMS } from '../constants';
+import { DISTRICT_MENU_ITEMS } from '../../constants';
 
 // Modular SOS Components
 import {
@@ -27,7 +27,7 @@ import {
   SOSDetailsModal,
   SOSAssignModal,
   SOSMapPanel
-} from '../components/SOSRequests';
+} from '../../components/SOSRequests';
 
 /**
  * Main SOS Requests Page Component
@@ -149,13 +149,13 @@ const SOSRequests = () => {
         <div className="mt-5 mb-5 flex gap-3">
           <button
             onClick={() => setShowMap(false)}
-            className={`btn ${!showMap ? 'btn--primary' : 'btn--secondary'}`}
+            className={`btn ${!showMap ? 'btn--blue' : 'btn--secondary'}`}
           >
             Table View
           </button>
           <button
             onClick={() => setShowMap(true)}
-            className={`btn ${showMap ? 'btn--primary' : 'btn--secondary'}`}
+            className={`btn ${showMap ? 'btn--blue' : 'btn--secondary'}`}
           >
             Map View
           </button>

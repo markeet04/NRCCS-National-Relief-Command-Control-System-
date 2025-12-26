@@ -191,7 +191,7 @@ const SOSVirtualTable = ({
                   <div className="flex gap-2">
                     <button
                       onClick={() => onViewDetails && onViewDetails(request)}
-                      className="btn btn--primary btn--sm flex-1"
+                      className="btn btn--blue btn--sm flex-1"
                     >
                       <Eye size={14} />
                       View

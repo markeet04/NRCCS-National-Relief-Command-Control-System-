@@ -212,21 +212,15 @@ const ProvinceResourceCardV2 = ({ allocation, onEdit, onViewHistory, getStatusCo
 
       {/* Action Buttons */}
       <div className="province-card-v2-actions">
-        <button
-          onClick={() => onEdit(province)}
-          className="province-card-v2-edit-btn"
-          title={`Edit ${province} allocation`}
-        >
-          <Edit2 className="w-4 h-4" />
-          <span>Edit Allocation</span>
-        </button>
         {onViewHistory && (
           <button
             onClick={onViewHistory}
             className="province-card-v2-history-btn"
             title={`View ${province} history`}
+            style={{ width: '100%' }}
           >
             <History className="w-4 h-4" />
+            <span>View History</span>
           </button>
         )}
       </div>

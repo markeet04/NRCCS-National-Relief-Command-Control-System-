@@ -130,6 +130,7 @@ const useResourceDistributionState = () => {
     showDemo,
     handleOpenAllocateForm,
     handleAllocateResource,
+    allocateToShelter: handleAllocateResource, // Alias for backward compatibility
     handleAllocateByType,
     // Data
     resources,

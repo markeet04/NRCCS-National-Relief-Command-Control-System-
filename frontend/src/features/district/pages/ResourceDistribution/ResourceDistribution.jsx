@@ -240,7 +240,7 @@ const ResourceDistribution = () => {
                     <MapPin size={12} />
                     <span>{resource.location || `District ${districtInfo?.id || ''} Warehouse`}</span>
                   </div>
-                  <div>Updated: {formatTimeAgo(resource.lastUpdate)}</div>
+                  <div>Updated: {formatTimeAgo(resource.updatedAt || resource.lastUpdate)}</div>
                 </div>
 
                 {/* Allocate Button */}

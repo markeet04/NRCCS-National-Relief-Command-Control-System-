@@ -59,7 +59,8 @@ const getGaugeColor = (usagePercent) => {
 const NationalStockCard = ({ 
   resourceType, 
   data,
-  onViewHistory 
+  onViewHistory,
+  onAddResources
 }) => {
   const [animatedPercent, setAnimatedPercent] = useState(0);
   
@@ -196,6 +197,7 @@ NationalStockCard.propTypes = {
     unit: PropTypes.string.isRequired,
   }).isRequired,
   onViewHistory: PropTypes.func.isRequired,
+  onAddResources: PropTypes.func,
 };
 
 export default NationalStockCard;

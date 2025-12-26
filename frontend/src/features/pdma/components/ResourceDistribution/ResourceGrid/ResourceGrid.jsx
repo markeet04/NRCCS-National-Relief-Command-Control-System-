@@ -124,7 +124,7 @@ const ResourceGrid = ({ resources, isLight, colors, onAllocate, selectedFilter }
                 <div className="pdma-resource-info-row">
                   <span className="pdma-resource-label">Updated:</span>
                   <span className="pdma-resource-value" style={{ color: colors.textPrimary }}>
-                    {resource.lastUpdated}
+                    {resource.updatedAt ? new Date(resource.updatedAt).toLocaleDateString() : (resource.lastUpdated || 'N/A')}
                   </span>
                 </div>
               </div>

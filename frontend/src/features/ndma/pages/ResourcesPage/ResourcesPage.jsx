@@ -14,6 +14,7 @@ import {
   HistoryModal,
   NationalStockCard,
   ResourceHistoryModal,
+  AddResourcesModal,
 } from '../../components/ResourcesPage';
 
 // Import custom hook for resources logic
@@ -40,6 +41,9 @@ const ResourcesPage = () => {
   const [resourceHistoryType, setResourceHistoryType] = useState(null);
   const [resourceHistoryLabel, setResourceHistoryLabel] = useState(null);
   const [isResourceHistoryOpen, setIsResourceHistoryOpen] = useState(false);
+  
+  // Resource form modal state
+  const [isResourceFormOpen, setIsResourceFormOpen] = useState(false);
 
   // Use custom hook for all resource logic
   const {
@@ -255,6 +259,37 @@ const ResourcesPage = () => {
                 </button>
               ))}
             </div>
+            {activeTab === 'national' && (
+              <button
+                onClick={() => setIsResourceFormOpen(true)}
+                style={{
+                  padding: '10px 20px',
+                  background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s',
+                  boxShadow: '0 2px 8px rgba(34, 197, 94, 0.3)',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(34, 197, 94, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 2px 8px rgba(34, 197, 94, 0.3)';
+                }}
+              >
+                <Package className="w-4 h-4" />
+                Add Resources
+              </button>
+            )}
           </div>
 
           {/* Content based on active tab */}
@@ -407,13 +442,15 @@ const ResourcesPage = () => {
                   <h3 className="allocate-stats-title">Available Stock</h3>
                   <div className="allocate-stats-list">
                     {Object.entries(nationalStock).map(([type, data]) => {
-                      const available = data.total - data.allocated;
-                      const percentage = Math.round((available / data.total) * 100);
+                      const total = data.available || 0;
+                      const allocated = data.allocated || 0;
+                      const remaining = total - allocated;
+                      const percentage = total > 0 ? Math.round((remaining / total) * 100) : 0;
                       return (
                         <div key={type} className="allocate-stat-item">
                           <div className="allocate-stat-header">
-                            <span className="allocate-stat-label">{data.label || type}</span>
-                            <span className="allocate-stat-value">{available.toLocaleString()} available</span>
+                            <span className="allocate-stat-label">{type.charAt(0).toUpperCase() + type.slice(1)}</span>
+                            <span className="allocate-stat-value">{remaining.toLocaleString()} / {total.toLocaleString()} {data.unit}</span>
                           </div>
                           <div className="allocate-stat-bar">
                             <div 
@@ -430,21 +467,24 @@ const ResourcesPage = () => {
                   <div className="allocate-recent">
                     <h4 className="allocate-recent-title">Recent Allocations</h4>
                     <div className="allocate-recent-list">
-                      <div className="allocate-recent-item">
-                        <span className="allocate-recent-province">Punjab</span>
-                        <span className="allocate-recent-resource">Food - 500 tons</span>
-                        <span className="allocate-recent-time">2 hours ago</span>
-                      </div>
-                      <div className="allocate-recent-item">
-                        <span className="allocate-recent-province">Sindh</span>
-                        <span className="allocate-recent-resource">Medical - 200 kits</span>
-                        <span className="allocate-recent-time">5 hours ago</span>
-                      </div>
-                      <div className="allocate-recent-item">
-                        <span className="allocate-recent-province">KPK</span>
-                        <span className="allocate-recent-resource">Shelter - 150 units</span>
-                        <span className="allocate-recent-time">1 day ago</span>
-                      </div>
+                      {Object.values(allocationHistory).flat().slice(0, 5).map((allocation, idx) => (
+                        <div key={idx} className="allocate-recent-item">
+                          <span className="allocate-recent-province">{allocation.province || 'Unknown'}</span>
+                          <span className="allocate-recent-resource">
+                            {allocation.items?.[0]?.name || 'Resource'} - {allocation.items?.[0]?.quantity || 0} units
+                          </span>
+                          <span className="allocate-recent-time">
+                            {new Date(allocation.date).toLocaleDateString()}
+                          </span>
+                        </div>
+                      ))}
+                      {Object.values(allocationHistory).flat().length === 0 && (
+                        <div className="allocate-recent-empty">
+                          <p style={{ color: '#6b7280', fontSize: '14px', textAlign: 'center', padding: '20px' }}>
+                            No recent allocations
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -542,6 +582,16 @@ const ResourcesPage = () => {
           resourceType={resourceHistoryType}
           resourceLabel={resourceHistoryLabel}
           history={allocationHistory[resourceHistoryType] || []}
+        />
+      )}
+
+      {/* Add Resources Modal - Functional form for adding to national stock */}
+      {isResourceFormOpen && (
+        <AddResourcesModal
+          isOpen={isResourceFormOpen}
+          onClose={() => setIsResourceFormOpen(false)}
+          onSuccess={refetchData}
+          currentStock={nationalStock}
         />
       )}
     </>
