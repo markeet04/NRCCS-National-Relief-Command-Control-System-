@@ -321,8 +321,8 @@ export const getActivityLogs = async (limit = 100, type = null) => {
 
 /**
  * Run flood prediction using ML model
- * @param {Object} data - { rainfall_24h, rainfall_48h, humidity, temperature }
- * @returns {Object} - { flood_risk, prediction_binary, confidence }
+ * @param {Object} data - { rainfall_24h, rainfall_48h, humidity, temperature, simulationMode, simulationScenario, generateAlert, provinceId }
+ * @returns {Object} - { flood_risk, prediction_binary, confidence, simulationMode, alertGenerated, alertId }
  */
 export const predictFlood = async (data) => {
     const response = await apiClient.post('/ndma/flood/predict', data);
@@ -334,6 +334,15 @@ export const predictFlood = async (data) => {
  */
 export const getFloodZones = async () => {
     const response = await apiClient.get('/ndma/flood/zones');
+    return response.data;
+};
+
+/**
+ * Get available simulation scenarios for flood prediction
+ * NDMA-only: Returns predefined scenarios (Normal, Heavy Rain, Extreme Event)
+ */
+export const getSimulationScenarios = async () => {
+    const response = await apiClient.get('/ndma/flood/simulation-scenarios');
     return response.data;
 };
 

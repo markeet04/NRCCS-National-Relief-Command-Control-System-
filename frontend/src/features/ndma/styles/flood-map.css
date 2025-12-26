@@ -487,15 +487,42 @@
 .flood-progress-fill {
   height: 100%;
   border-radius: 3px;
-  transition: width 0.5s ease;
+  /* Enhanced animation for visual feedback */
+  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.5s ease;
 }
 
 .flood-progress-fill.critical {
   background-color: #ef4444;
+  animation: pulse-critical 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-critical {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
 }
 
 .flood-progress-fill.high {
   background-color: #f97316;
+  animation: pulse-warning 2s ease-in-out infinite;
+}
+
+@keyframes pulse-warning {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
 }
 
 .flood-progress-fill.medium {

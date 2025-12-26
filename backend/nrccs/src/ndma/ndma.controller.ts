@@ -297,7 +297,41 @@ export class NdmaController {
         @Body() floodPredictionDto: FloodPredictionDto,
         @CurrentUser() user: User,
     ) {
-        return await this.floodPredictionService.predict(floodPredictionDto, user);
+        // Get ML prediction
+        const prediction = await this.floodPredictionService.predict(floodPredictionDto, user);
+
+        // Auto-generate alert if requested and risk is Medium/High
+        let alertGenerated = false;
+        let alertId: number | undefined;
+
+        if (floodPredictionDto.generateAlert && floodPredictionDto.provinceId) {
+            if (prediction.flood_risk === 'High' || prediction.flood_risk === 'Medium') {
+                const alert = await this.ndmaService.createAlertFromPrediction(
+                    prediction,
+                    floodPredictionDto.provinceId,
+                    user,
+                );
+                if (alert) {
+                    alertGenerated = true;
+                    alertId = alert.id;
+                }
+            }
+        }
+
+        return {
+            ...prediction,
+            alertGenerated,
+            alertId,
+        };
+    }
+
+    /**
+     * Get simulation scenarios for flood prediction
+     * NDMA-only: Used to select scenario parameters
+     */
+    @Get('flood/simulation-scenarios')
+    async getSimulationScenarios(@CurrentUser() user: User) {
+        return this.floodPredictionService.getSimulationScenarios();
     }
 
     @Get('flood/zones')
