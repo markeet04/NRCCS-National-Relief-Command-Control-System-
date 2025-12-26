@@ -43,7 +43,10 @@ import '@arcgis/core/assets/esri/themes/dark/main.css';
 
 // Shared Config
 import { getBasemapByTheme, PROVINCE_CONFIG, getProvinceConfig, getMapConfigForUser, normalizeProvinceName } from '@shared/config/mapConfig';
-import { GIS_LAYERS, EMERGENCY_FACILITIES, LAYER_SYMBOLS } from '@config/gisLayerConfig';
+import { GIS_LAYERS } from '@config/gisLayerConfig';
+
+// Open Data Service for OSM gauging stations
+import { fetchGaugingStations } from '@shared/services/openDataService';
 
 // Weather Animation Service
 import weatherAnimationService from '@shared/services/weatherAnimationService';
@@ -372,32 +375,55 @@ const ProvincialWeatherMap = ({
         windLayerRef.current = windLayer;
         precipLayerRef.current = precipLayer;
 
-        // Add sample gauging stations (PDMA level feature)
-        // These would be fetched from openDataService.fetchGaugingStations() in production
-        const sampleGaugingStations = [
-          { id: 1, name: 'Indus at Attock', lat: 33.7738, lon: 72.3609, status: 'normal' },
-          { id: 2, name: 'Jhelum at Mangla', lat: 33.1458, lon: 73.6469, status: 'warning' },
-          { id: 3, name: 'Chenab at Marala', lat: 32.6833, lon: 74.4667, status: 'normal' },
-          { id: 4, name: 'Ravi at Balloki', lat: 31.2167, lon: 73.8500, status: 'normal' }
-        ];
+        // DYNAMIC Gauging Stations from OSM Overpass API (PDMA level feature)
+        // No more hardcoded data - fetches live from OpenStreetMap
+        const loadGaugingStationsFromOSM = async () => {
+          try {
+            const bounds = {
+              minLat: provinceConfig.bounds.minLat,
+              minLon: provinceConfig.bounds.minLon,
+              maxLat: provinceConfig.bounds.maxLat,
+              maxLon: provinceConfig.bounds.maxLon
+            };
 
-        sampleGaugingStations.forEach(station => {
-          const color = station.status === 'warning' ? [239, 68, 68, 255] : [16, 185, 129, 255];
-          gaugingStationsLayer.add(new Graphic({
-            geometry: new Point({ longitude: station.lon, latitude: station.lat }),
-            symbol: new SimpleMarkerSymbol({
-              style: 'diamond',
-              color: color,
-              size: 12,
-              outline: { color: [255, 255, 255], width: 2 }
-            }),
-            attributes: station,
-            popupTemplate: {
-              title: '📊 {name}',
-              content: 'Status: {status}<br>Type: River Gauge'
+            const stations = await fetchGaugingStations(bounds);
+
+            if (stations && stations.length > 0) {
+              stations.forEach(station => {
+                // Green for normal, red/orange for warning types
+                const color = station.type === 'gauge' || station.type === 'gauging_station'
+                  ? [16, 185, 129, 255]  // Green
+                  : [59, 130, 246, 255]; // Blue for other types
+
+                gaugingStationsLayer.add(new Graphic({
+                  geometry: new Point({ longitude: station.lon, latitude: station.lat }),
+                  symbol: new SimpleMarkerSymbol({
+                    style: 'diamond',
+                    color: color,
+                    size: 12,
+                    outline: { color: [255, 255, 255], width: 2 }
+                  }),
+                  attributes: station,
+                  popupTemplate: {
+                    title: '📊 {name}',
+                    content: `
+                      <b>Type:</b> {type}<br>
+                      <b>Operator:</b> {operator}<br>
+                      <i>Data: OpenStreetMap</i>
+                    `
+                  }
+                }));
+              });
+              console.log(`✓ Loaded ${stations.length} gauging stations from OSM for ${provinceName}`);
+            } else {
+              console.log(`⚠️ No gauging stations found in OSM for ${provinceName}`);
             }
-          }));
-        });
+          } catch (error) {
+            console.warn('⚠️ Failed to load gauging stations from OSM:', error);
+            // Graceful failure - layer will be empty but map won't crash
+          }
+        };
+        loadGaugingStationsFromOSM();
 
         // Rivers layer
         const riversLayer = GIS_LAYERS.hydrology.rivers?.url ? new TileLayer({

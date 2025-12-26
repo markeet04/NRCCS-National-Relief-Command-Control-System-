@@ -160,6 +160,97 @@ export const fetchGaugingStations = async (bounds) => {
 };
 
 // ============================================================================
+// HOSPITALS (OpenStreetMap Overpass API) - DISTRICT ROLE ONLY
+// ============================================================================
+
+// In-memory cache for hospitals (reduces API calls)
+let hospitalsCache = {
+    data: null,
+    bounds: null,
+    timestamp: 0
+};
+const HOSPITAL_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Fetch hospitals from OpenStreetMap for district view
+ * DISTRICT ROLE ONLY - not for NDMA or PDMA
+ * @param {Object} bounds - {minLat, minLon, maxLat, maxLon}
+ * @returns {Promise<Array>} Array of hospital objects
+ */
+export const fetchHospitalsFromOSM = async (bounds) => {
+    // Check cache first
+    const now = Date.now();
+    if (
+        hospitalsCache.data &&
+        hospitalsCache.bounds &&
+        now - hospitalsCache.timestamp < HOSPITAL_CACHE_TTL &&
+        hospitalsCache.bounds.minLat === bounds.minLat &&
+        hospitalsCache.bounds.maxLat === bounds.maxLat
+    ) {
+        console.log('📍 Using cached hospital data');
+        return hospitalsCache.data;
+    }
+
+    const query = `
+        [out:json][timeout:25];
+        (
+            node["amenity"="hospital"](${bounds.minLat},${bounds.minLon},${bounds.maxLat},${bounds.maxLon});
+            way["amenity"="hospital"](${bounds.minLat},${bounds.minLon},${bounds.maxLat},${bounds.maxLon});
+            relation["amenity"="hospital"](${bounds.minLat},${bounds.minLon},${bounds.maxLat},${bounds.maxLon});
+        );
+        out center;
+    `;
+
+    try {
+        console.log('🏥 Fetching hospitals from OSM Overpass API...');
+        const response = await fetch(API_ENDPOINTS.OVERPASS, {
+            method: 'POST',
+            body: `data=${encodeURIComponent(query)}`,
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+
+        if (!response.ok) throw new Error('Overpass API failed');
+
+        const data = await response.json();
+
+        const hospitals = data.elements.map(el => ({
+            id: el.id,
+            lat: el.center?.lat || el.lat,
+            lon: el.center?.lon || el.lon,
+            name: el.tags?.name || 'Hospital',
+            type: 'hospital',
+            emergency: el.tags?.emergency === 'yes' || el.tags?.healthcare === 'hospital',
+            beds: el.tags?.beds ? parseInt(el.tags.beds) : null,
+            operator: el.tags?.operator || null,
+            phone: el.tags?.phone || el.tags?.['contact:phone'] || null,
+            website: el.tags?.website || null,
+            addr: el.tags?.['addr:full'] || el.tags?.['addr:street'] || null,
+            dataSource: 'OpenStreetMap'
+        })).filter(h => h.lat && h.lon); // Only include hospitals with valid coordinates
+
+        console.log(`✓ Loaded ${hospitals.length} hospitals from OSM`);
+
+        // Update cache
+        hospitalsCache = {
+            data: hospitals,
+            bounds: { ...bounds },
+            timestamp: now
+        };
+
+        return hospitals;
+    } catch (error) {
+        console.error('❌ Failed to fetch hospitals from OSM:', error);
+        // Return cached data if available (stale cache is better than nothing)
+        if (hospitalsCache.data) {
+            console.log('⚠️ Using stale cached hospital data');
+            return hospitalsCache.data;
+        }
+        return []; // Return empty array, don't crash the map
+    }
+};
+
+
+// ============================================================================
 // DAMS & RESERVOIRS (OpenStreetMap Overpass API)
 // ============================================================================
 
@@ -411,6 +502,7 @@ export const fetchRiverNetwork = async (bounds) => {
 export default {
     fetchRainAccumulation,
     fetchGaugingStations,
+    fetchHospitalsFromOSM,
     fetchDamsAndReservoirs,
     fetchPopulationExposure,
     fetchElevationData,

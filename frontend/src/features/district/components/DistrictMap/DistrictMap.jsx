@@ -16,7 +16,7 @@
  * WEATHER API: Open-Meteo (free, no API key required)
  */
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { CloudRain, Wind, Droplets, Loader2, Layers, Thermometer, Gauge, RefreshCw } from 'lucide-react';
 
 // ArcGIS Core Modules (4.33)
@@ -43,10 +43,13 @@ import Expand from '@arcgis/core/widgets/Expand';
 import '@arcgis/core/assets/esri/themes/dark/main.css';
 
 // GIS Layer Configuration
-import { GIS_LAYERS, EMERGENCY_FACILITIES, LAYER_SYMBOLS } from '@config/gisLayerConfig';
+import { GIS_LAYERS, LAYER_SYMBOLS } from '@config/gisLayerConfig';
 
 // Weather Animation Service
 import weatherAnimationService from '@shared/services/weatherAnimationService';
+
+// Open Data Service for OSM hospital data
+import { fetchHospitalsFromOSM } from '@shared/services/openDataService';
 
 // District API for backend shelter data
 import districtApi from '../../services/districtApi';
@@ -56,32 +59,22 @@ import { useSettings } from '../../../../app/providers/ThemeProvider';
 import { getThemeColors } from '../../../../shared/utils/themeColors';
 
 // Map Configuration
-import { getBasemapByTheme } from '@shared/config/mapConfig';
+import { getBasemapByTheme, getDistrictConfig, DISTRICT_CONFIG as ALL_DISTRICT_CONFIGS } from '@shared/config/mapConfig';
+
+// Auth - for login-based district scoping
+import { useAuth } from '@app/providers/AuthProvider';
 
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
 
-// Peshawar District Configuration
-const DISTRICT_CONFIG = {
-  name: 'Peshawar',
-  province: 'KPK',
-  center: [71.57, 34.0], // Peshawar coordinates (lon, lat)
-  lat: 34.0,
-  lon: 71.57,
-  zoom: 11,
-  minZoom: 9,
-  maxZoom: 14,  // Constrained to prevent pixelation at district level
-  bounds: {
-    minLon: 71.3,
-    minLat: 33.8,
-    maxLon: 71.85,
-    maxLat: 34.25
-  }
-};
+// NOTE: District config is now dynamically loaded in component from mapConfig.js
+// based on user.district from auth (same pattern as PDMA province scoping)
+// See DISTRICT_CONFIG in mapConfig.js for all supported districts
 
 // Open-Meteo API URL (free, no API key needed)
 const WEATHER_API_URL = 'https://api.open-meteo.com/v1/forecast';
+
 
 // ============================================================================
 // WEATHER SERVICE
@@ -191,7 +184,29 @@ const getWeatherDescription = (code) => {
 // COMPONENT
 // ============================================================================
 
-const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
+const DistrictMap = ({ districtName: propDistrictName, height = '384px' }) => {
+  // Get logged-in user for district scoping (same pattern as PDMA)
+  const { user } = useAuth();
+
+  // Use user's district from auth, fallback to prop, then to default
+  const districtName = user?.district || propDistrictName || 'Peshawar';
+
+  // Get district config dynamically based on user's assigned district
+  const districtConfig = useMemo(() => {
+    const config = getDistrictConfig(districtName);
+    console.log(`📍 District Map: Loading ${districtName} → config:`, config);
+    return {
+      ...config,
+      lat: config.center[1],
+      lon: config.center[0]
+    };
+  }, [districtName]);
+
+  // Debug logging for district scoping
+  console.log('🔐 District User from auth:', user);
+  console.log('📍 User district field:', user?.district);
+  console.log(`🗺️ Using district: "${districtName}" (from ${user?.district ? 'auth' : propDistrictName ? 'prop' : 'default'})`);
+
   // Refs
   const mapContainerRef = useRef(null);
   const rainCanvasRef = useRef(null);
@@ -227,7 +242,7 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
 
   const loadWeatherData = useCallback(async () => {
     setWeatherLoading(true);
-    const data = await fetchWeatherData(DISTRICT_CONFIG.lat, DISTRICT_CONFIG.lon);
+    const data = await fetchWeatherData(districtConfig.lat, districtConfig.lon);
     if (data) {
       setWeatherData(data);
       weatherDataRef.current = data;
@@ -235,7 +250,7 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
       console.log('✓ Real weather data loaded:', data.current);
     }
     setWeatherLoading(false);
-  }, []);
+  }, [districtConfig.lat, districtConfig.lon]);
 
   // Load weather data on mount and every 10 minutes
   useEffect(() => {
@@ -415,7 +430,7 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
   }, []);
 
   const initWindParticles = useCallback(() => {
-    const { bounds } = DISTRICT_CONFIG;
+    const { bounds } = districtConfig;
     const weather = weatherDataRef.current;
 
     // Create noise field for turbulence
@@ -454,7 +469,7 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
 
     if (!graphicsLayer || !windAnimatingRef.current) return;
 
-    const { bounds } = DISTRICT_CONFIG;
+    const { bounds } = districtConfig;
     const particles = windParticlesRef.current;
     const noiseGrid = noiseGridRef.current;
     const time = Date.now() * 0.001; // For animated turbulence
@@ -628,7 +643,7 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
   const precipZonesRef = useRef(null);
 
   const createPrecipitationZones = useCallback(() => {
-    const { bounds } = DISTRICT_CONFIG;
+    const { bounds } = districtConfig;
     const weather = weatherDataRef.current;
     const graphics = [];
 
@@ -750,14 +765,14 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
           console.log('✓ ArcGIS API Key configured');
         }
 
-        // Create boundary
+        // Create boundary from dynamic district config
         const districtBoundary = new Polygon({
           rings: [[
-            [DISTRICT_CONFIG.bounds.minLon, DISTRICT_CONFIG.bounds.minLat],
-            [DISTRICT_CONFIG.bounds.minLon, DISTRICT_CONFIG.bounds.maxLat],
-            [DISTRICT_CONFIG.bounds.maxLon, DISTRICT_CONFIG.bounds.maxLat],
-            [DISTRICT_CONFIG.bounds.maxLon, DISTRICT_CONFIG.bounds.minLat],
-            [DISTRICT_CONFIG.bounds.minLon, DISTRICT_CONFIG.bounds.minLat]
+            [districtConfig.bounds.minLon, districtConfig.bounds.minLat],
+            [districtConfig.bounds.minLon, districtConfig.bounds.maxLat],
+            [districtConfig.bounds.maxLon, districtConfig.bounds.maxLat],
+            [districtConfig.bounds.maxLon, districtConfig.bounds.minLat],
+            [districtConfig.bounds.minLon, districtConfig.bounds.minLat]
           ]],
           spatialReference: { wkid: 4326 }
         });
@@ -784,14 +799,16 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
         }) : null;
 
         // DISTRICT-SPECIFIC LAYERS (Tactical Level)
-        // REAL District/Tehsil Boundary (FeatureLayer from Living Atlas)
+        // District Boundary from Living Atlas (public FeatureLayer)
+        // NOTE: Using World Administrative Divisions - free tier only has Admin Level 1 (provinces)
+        // For actual tehsil-level boundaries, would need premium subscription or GADM GeoJSON hosting
         const tehsilBoundariesLayer = new FeatureLayer({
           url: GIS_LAYERS.adminBoundaries.districts.url,
           title: `${districtName} District Boundary`,
           visible: true,
           opacity: 0.9,
-          // Filter for this specific district 
-          definitionExpression: `(${GIS_LAYERS.adminBoundaries.districts.definitionExpression}) AND (NAME LIKE '%${districtName}%' OR ADM2_NAME LIKE '%${districtName}%')`,
+          // Filter for Pakistan and use NAME field only (ADM2_NAME doesn't exist in free tier)
+          definitionExpression: `COUNTRY = 'Pakistan'`,
           renderer: {
             type: 'simple',
             symbol: {
@@ -804,21 +821,53 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
 
         const hospitalsLayer = new GraphicsLayer({ title: '🏥 Hospitals', visible: true });
         const sheltersLayer = new GraphicsLayer({ title: '🏠 Shelters & Camps', visible: true });
-        const evacuationLayer = new GraphicsLayer({ title: '🚗 Evacuation Routes', visible: true });
+        // NOTE: Evacuation routes layer removed - no longer required
         const rescueAssetsLayer = new GraphicsLayer({ title: 'Rescue Assets', visible: false });
 
-        // Add hospital markers
-        EMERGENCY_FACILITIES.hospitals.forEach(h => {
-          hospitalsLayer.add(new Graphic({
-            geometry: new Point({ longitude: h.lon, latitude: h.lat }),
-            symbol: new SimpleMarkerSymbol({
-              style: 'cross', color: LAYER_SYMBOLS.hospital.color, size: LAYER_SYMBOLS.hospital.size,
-              outline: { color: [255, 255, 255], width: 2 }
-            }),
-            attributes: h,
-            popupTemplate: { title: '🏥 {name}', content: 'Emergency: {emergency}<br>Beds: {beds}' }
-          }));
-        });
+        // Add hospital markers - DYNAMIC from OSM Overpass API (DISTRICT ONLY)
+        // No more hardcoded data - fetches live from OpenStreetMap
+        const loadHospitalsFromOSM = async () => {
+          try {
+            // Use district bounds for hospital query
+            const bounds = {
+              minLat: districtConfig.bounds.minLat,
+              minLon: districtConfig.bounds.minLon,
+              maxLat: districtConfig.bounds.maxLat,
+              maxLon: districtConfig.bounds.maxLon
+            };
+
+            const hospitals = await fetchHospitalsFromOSM(bounds);
+
+            hospitals.forEach(h => {
+              hospitalsLayer.add(new Graphic({
+                geometry: new Point({ longitude: h.lon, latitude: h.lat }),
+                symbol: new SimpleMarkerSymbol({
+                  style: 'cross',
+                  color: LAYER_SYMBOLS.hospital.color,
+                  size: LAYER_SYMBOLS.hospital.size,
+                  outline: { color: [255, 255, 255], width: 2 }
+                }),
+                attributes: h,
+                popupTemplate: {
+                  title: '🏥 {name}',
+                  content: `
+                    <b>Type:</b> Hospital<br>
+                    <b>Emergency:</b> ${h.emergency ? 'Yes' : 'Unknown'}<br>
+                    ${h.beds ? '<b>Beds:</b> ' + h.beds + '<br>' : ''}
+                    ${h.operator ? '<b>Operator:</b> ' + h.operator + '<br>' : ''}
+                    ${h.phone ? '<b>Phone:</b> ' + h.phone + '<br>' : ''}
+                    <i>Data: OpenStreetMap</i>
+                  `
+                }
+              }));
+            });
+            console.log(`✓ Loaded ${hospitals.length} hospitals from OSM`);
+          } catch (error) {
+            console.warn('⚠️ Failed to load hospitals from OSM:', error);
+            // Graceful failure - hospital layer will just be empty
+          }
+        };
+        loadHospitalsFromOSM();
 
         // Add shelter markers (DISTRICT ONLY FEATURE)
         // Load shelters from backend API instead of mock data
@@ -883,26 +932,13 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
         };
         loadSheltersFromBackend();
 
-        // Add evacuation routes (DISTRICT ONLY FEATURE)
-        EMERGENCY_FACILITIES.evacuationRoutes.forEach(route => {
-          const sym = LAYER_SYMBOLS.evacuationRoute[route.status] || LAYER_SYMBOLS.evacuationRoute.clear;
-          evacuationLayer.add(new Graphic({
-            geometry: new Polyline({ paths: [route.paths], spatialReference: { wkid: 4326 } }),
-            symbol: new SimpleLineSymbol({
-              color: sym.color,
-              width: sym.width + 1, // Thicker for visibility
-              style: 'solid'
-            }),
-            attributes: route,
-            popupTemplate: { title: '🚗 {name}', content: 'Route Status: {status}' }
-          }));
-        });
+        // NOTE: Evacuation routes removed - no longer required
 
         // Build layers - DISTRICT TACTICAL ORDERING
-        // Shows: Shelters, Hospitals, Evacuation Routes (unique to district)
+        // Shows: Shelters, Hospitals (unique to district)
+        // NOTE: Evacuation routes removed - no longer required
         const mapLayers = [
           tehsilBoundariesLayer,  // Tehsil/UC boundaries
-          evacuationLayer,        // Evacuation routes (DISTRICT ONLY)
           sheltersLayer,          // Shelter markers (DISTRICT ONLY)
           hospitalsLayer,         // Hospital markers
           rescueAssetsLayer,      // Rescue teams/vehicles
@@ -922,12 +958,12 @@ const DistrictMap = ({ districtName = 'Peshawar', height = '384px' }) => {
         const view = new MapView({
           container: mapContainerRef.current,
           map: map,
-          center: DISTRICT_CONFIG.center,
-          zoom: DISTRICT_CONFIG.zoom,
+          center: districtConfig.center,
+          zoom: districtConfig.zoom,
           constraints: {
             geometry: districtBoundary,
-            minZoom: DISTRICT_CONFIG.minZoom,
-            maxZoom: DISTRICT_CONFIG.maxZoom,
+            minZoom: districtConfig.minZoom,
+            maxZoom: districtConfig.maxZoom,
             rotationEnabled: false
           },
           ui: { components: ['zoom', 'compass'] },

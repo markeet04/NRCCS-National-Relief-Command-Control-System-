@@ -164,34 +164,9 @@ export const EMERGENCY_FACILITIES = {
         { id: 1, name: 'Shelter A - Stadium', lat: 34.0151, lon: 71.5249, capacity: 500, status: 'available' },
         { id: 2, name: 'Shelter B - School', lat: 33.9981, lon: 71.5088, capacity: 300, status: 'available' },
         { id: 3, name: 'Shelter C - Community Center', lat: 34.0284, lon: 71.5633, capacity: 200, status: 'partial' }
-    ],
-    hospitals: [
-        { id: 1, name: 'Lady Reading Hospital', lat: 34.0107, lon: 71.5789, emergency: true, beds: 100 },
-        { id: 2, name: 'Hayatabad Medical Complex', lat: 34.0192, lon: 71.4556, emergency: true, beds: 80 },
-        { id: 3, name: 'Khyber Teaching Hospital', lat: 34.0215, lon: 71.5612, emergency: true, beds: 60 }
-    ],
-    evacuationRoutes: [
-        {
-            id: 1,
-            name: 'Route A - Northern Highway',
-            paths: [
-                [71.5249, 34.0151],
-                [71.5000, 34.0300],
-                [71.4556, 34.0192]
-            ],
-            status: 'clear'
-        },
-        {
-            id: 2,
-            name: 'Route B - Southern Bypass',
-            paths: [
-                [71.5249, 34.0151],
-                [71.5400, 33.9800],
-                [71.5789, 34.0107]
-            ],
-            status: 'clear'
-        }
     ]
+    // NOTE: hospitals removed - now fetched live from OSM Overpass API
+    // NOTE: evacuationRoutes removed - no longer required
 };
 
 // ============================================================================
@@ -202,17 +177,14 @@ export const LAYER_SYMBOLS = {
     shelter: {
         available: { color: [34, 197, 94, 255], size: 14 },    // Green
         partial: { color: [251, 191, 36, 255], size: 14 },     // Yellow
-        full: { color: [239, 68, 68, 255], size: 14 }          // Red
+        full: { color: [239, 68, 68, 255], size: 14 },         // Red
+        'near-full': { color: [251, 191, 36, 255], size: 14 }  // Yellow
     },
     hospital: {
         color: [239, 68, 68, 255],
         size: 16
-    },
-    evacuationRoute: {
-        clear: { color: [34, 197, 94, 200], width: 4 },
-        congested: { color: [251, 191, 36, 200], width: 4 },
-        blocked: { color: [239, 68, 68, 200], width: 4 }
     }
+    // NOTE: evacuationRoute symbols removed - layer no longer exists
 };
 
 // ============================================================================
