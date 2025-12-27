@@ -43,10 +43,6 @@ const SuccessScreen = ({ requestData, onReset }) => {
           </div>
 
           <div className="success-actions">
-            <button onClick={() => navigate('/civilian/reports')} className="btn-track-status">
-              <ClipboardList size={18} />
-              <span>Track Status</span>
-            </button>
             <button onClick={onReset} className="btn-send-another">
               Send Another SOS
             </button>

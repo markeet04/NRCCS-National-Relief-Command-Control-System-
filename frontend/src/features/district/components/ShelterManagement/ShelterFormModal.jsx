@@ -1,10 +1,32 @@
 /**
  * ShelterFormModal Component
- * Modal for adding or editing a shelter
+ * Modal for adding or editing a shelter with map location picker
  */
 import { useState, useEffect } from 'react';
 import { Modal } from '../shared';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import '@styles/css/main.css';
+
+// Fix leaflet marker icon issue
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
+
+// Component to handle map clicks
+const LocationMarker = ({ position, setPosition }) => {
+    useMapEvents({
+        click(e) {
+            setPosition([e.latlng.lat, e.latlng.lng]);
+        },
+    });
+
+    return position ? <Marker position={position} /> : null;
+};
 
 const ShelterFormModal = ({
     isOpen,
@@ -13,26 +35,38 @@ const ShelterFormModal = ({
     editData = null,
     statusOptions = []
 }) => {
+    // Default center: Pakistan
+    const defaultCenter = [30.3753, 69.3451];
+
     const [formData, setFormData] = useState({
         name: '',
         address: '',
         capacity: 500,
         occupancy: 0,
         contactPerson: '',
-        contactPhone: ''
+        contactPhone: '',
+        lat: defaultCenter[0],
+        lng: defaultCenter[1]
     });
+
+    const [markerPosition, setMarkerPosition] = useState(defaultCenter);
 
     // Load edit data when editing
     useEffect(() => {
         if (editData) {
+            const lat = editData.coordinates?.lat || editData.lat || defaultCenter[0];
+            const lng = editData.coordinates?.lng || editData.lng || defaultCenter[1];
             setFormData({
                 name: editData.name || '',
                 address: editData.address || '',
                 capacity: editData.capacity || 500,
                 occupancy: editData.occupancy || 0,
                 contactPerson: editData.contactPerson || '',
-                contactPhone: editData.contactPhone || ''
+                contactPhone: editData.contactPhone || '',
+                lat: lat,
+                lng: lng
             });
+            setMarkerPosition([lat, lng]);
         } else {
             // Reset form for new shelter
             setFormData({
@@ -41,10 +75,24 @@ const ShelterFormModal = ({
                 capacity: 500,
                 occupancy: 0,
                 contactPerson: '',
-                contactPhone: ''
+                contactPhone: '',
+                lat: defaultCenter[0],
+                lng: defaultCenter[1]
             });
+            setMarkerPosition(defaultCenter);
         }
     }, [editData, isOpen]);
+
+    // Update form when marker position changes
+    useEffect(() => {
+        if (markerPosition) {
+            setFormData(prev => ({
+                ...prev,
+                lat: markerPosition[0],
+                lng: markerPosition[1]
+            }));
+        }
+    }, [markerPosition]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -53,8 +101,6 @@ const ShelterFormModal = ({
             [name]: name === 'capacity' || name === 'occupancy' ? Number(value) : value
         }));
     };
-
-
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -100,6 +146,44 @@ const ShelterFormModal = ({
                             className="input"
                             placeholder="Enter address"
                         />
+                    </div>
+                </div>
+
+                {/* Location Picker */}
+                <div className="form-field">
+                    <label className="form-field__label">
+                        📍 Location (Click on map to set shelter location)
+                    </label>
+                    <div style={{
+                        height: '250px',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        border: '1px solid var(--color-border)'
+                    }}>
+                        <MapContainer
+                            center={markerPosition}
+                            zoom={6}
+                            style={{ height: '100%', width: '100%' }}
+                        >
+                            <TileLayer
+                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            />
+                            <LocationMarker
+                                position={markerPosition}
+                                setPosition={setMarkerPosition}
+                            />
+                        </MapContainer>
+                    </div>
+                    <div style={{
+                        display: 'flex',
+                        gap: '16px',
+                        marginTop: '8px',
+                        fontSize: '13px',
+                        color: 'var(--color-text-secondary)'
+                    }}>
+                        <span>Latitude: <strong>{formData.lat?.toFixed(6)}</strong></span>
+                        <span>Longitude: <strong>{formData.lng?.toFixed(6)}</strong></span>
                     </div>
                 </div>
 
@@ -156,8 +240,6 @@ const ShelterFormModal = ({
                         />
                     </div>
                 </div>
-
-
 
                 {/* Actions */}
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', paddingTop: '20px', borderTop: '1px solid var(--color-border)' }}>

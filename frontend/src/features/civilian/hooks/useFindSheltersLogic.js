@@ -1,7 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import civilianApi from '../services/civilianApi';
 import { STATUS_CONFIG } from '../constants/findSheltersConstants';
 import useUserLocation from './useUserLocation';
+
+// Haversine formula to calculate distance between two coordinates in km
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c * 10) / 10; // Round to 1 decimal place
+};
 
 const useFindSheltersLogic = () => {
   const [shelters, setShelters] = useState([]);
@@ -32,7 +47,7 @@ const useFindSheltersLogic = () => {
           address: shelter.address,
           latitude: parseFloat(shelter.lat) || 0,
           longitude: parseFloat(shelter.lng) || 0,
-          distance: shelter.distance || 0,
+          distance: 0, // Will be calculated when userLocation is available
           capacity: {
             total: shelter.capacity || 0,
             current: shelter.occupancy || 0,
@@ -57,8 +72,23 @@ const useFindSheltersLogic = () => {
     fetchShelters();
   }, []);
 
+  // Calculate distance when user location or shelters change
+  const sheltersWithDistance = useMemo(() => {
+    if (!userLocation) return shelters;
+
+    return shelters.map(shelter => ({
+      ...shelter,
+      distance: calculateDistance(
+        userLocation.latitude,
+        userLocation.longitude,
+        shelter.latitude,
+        shelter.longitude
+      ) || 0
+    }));
+  }, [shelters, userLocation]);
+
   // Filter and sort shelters
-  const filteredShelters = shelters
+  const filteredShelters = sheltersWithDistance
     .filter((shelter) => {
       // Apply search query filter
       const matchesSearch = shelter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -6,9 +6,9 @@ export class CreateShelterDto {
   @IsString()
   name: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  address: string;
+  address?: string;
 
   @IsInt()
   @Min(0)
