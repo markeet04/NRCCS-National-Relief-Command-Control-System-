@@ -6,7 +6,7 @@
  */
 
 import PropTypes from 'prop-types';
-import { STATUS_COLORS, TEAM_STATUS, SHELTER_STATUS, DAMAGE_SEVERITY } from '../constants';
+import { STATUS_COLORS, TEAM_STATUS, SHELTER_STATUS, DAMAGE_SEVERITY } from '../../constants';
 import '@styles/css/main.css';
 
 const StatusBadge = ({ status, type = 'sos', size = 'sm' }) => {
