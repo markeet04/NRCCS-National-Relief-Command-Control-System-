@@ -49,8 +49,8 @@ import { GIS_LAYERS } from '@config/gisLayerConfig';
 // Open Data Service for OSM gauging stations
 import { fetchGaugingStations } from '@shared/services/openDataService';
 
-// Weather Animation Service
-import weatherAnimationService from '@shared/services/weatherAnimationService';
+// Weather Animation Service IMPORT REMOVED - no longer used
+// import weatherAnimationService from '@shared/services/weatherAnimationService';
 
 // Theme
 import { useSettings } from '@app/providers/ThemeProvider';
@@ -94,13 +94,10 @@ const ProvincialWeatherMap = ({
 
   // Refs
   const mapContainerRef = useRef(null);
-  const rainCanvasRef = useRef(null);
   const viewRef = useRef(null);
   const mapInstanceRef = useRef(null);
-  const windLayerRef = useRef(null);
-  const precipLayerRef = useRef(null);
-  const rainAnimationRef = useRef(null);
   const viewMoveTimeoutRef = useRef(null);
+  // Weather animation refs REMOVED - Meteo API provides numeric data only
 
   // Province config - uses user's assigned province for correct map bounds
   const provinceConfig = useMemo(() => {
@@ -113,9 +110,7 @@ const ProvincialWeatherMap = ({
   // State
   const [isLoading, setIsLoading] = useState(true);
   const [mapError, setMapError] = useState(null);
-  const [rainEnabled, setRainEnabled] = useState(false);
-  const [windEnabled, setWindEnabled] = useState(false);
-  const [precipEnabled, setPrecipEnabled] = useState(false);
+  // Weather animation states REMOVED - no map-based weather layers
   const [weatherData, setWeatherData] = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [currentLocation, setCurrentLocation] = useState({
@@ -123,7 +118,7 @@ const ProvincialWeatherMap = ({
     lon: provinceConfig.center[0],
     name: provinceName
   });
-  const [animationMode, setAnimationMode] = useState({ mode: 'detecting', label: '🔍 Detecting...' });
+  // animationMode state REMOVED - weather animations no longer exist
   const [activeRoute, setActiveRoute] = useState('map');
 
   // Theme
@@ -156,70 +151,11 @@ const ProvincialWeatherMap = ({
   }, [loadWeatherData, provinceConfig]);
 
   // ============================================================================
-  // RAIN ANIMATION
+  // RAIN ANIMATION - REMOVED
+  // Meteo API provides numeric weather data only, not spatial data for animations
+  // Weather is displayed as info panels only
+  // startRainAnimation and stopRainAnimation functions removed
   // ============================================================================
-
-  const startRainAnimation = useCallback(() => {
-    const canvas = rainCanvasRef.current;
-    const mapContainer = mapContainerRef.current;
-    if (!canvas || !mapContainer) return;
-
-    const ctx = canvas.getContext('2d');
-    const rect = mapContainer.getBoundingClientRect();
-    canvas.width = rect.width || 800;
-    canvas.height = rect.height || 500;
-
-    const precipitation = weatherData?.current?.precipitation || 0;
-    const dropCount = Math.min(400, 50 + Math.floor(precipitation * 35));
-
-    const drops = [];
-    for (let i = 0; i < dropCount; i++) {
-      drops.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        length: Math.random() * 25 + 10,
-        speed: Math.random() * 15 + 10,
-        opacity: Math.random() * 0.4 + 0.2
-      });
-    }
-
-    const windDir = weatherData?.current?.windDirection || 0;
-    const rainAngle = (windDir - 90) * (Math.PI / 180);
-
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drops.forEach(drop => {
-        ctx.beginPath();
-        ctx.strokeStyle = `rgba(147, 197, 253, ${drop.opacity})`;
-        ctx.lineWidth = 1;
-        const endX = drop.x - Math.sin(rainAngle) * drop.length;
-        const endY = drop.y + Math.cos(rainAngle) * drop.length;
-        ctx.moveTo(drop.x, drop.y);
-        ctx.lineTo(endX, endY);
-        ctx.stroke();
-
-        drop.y += drop.speed;
-        if (drop.y > canvas.height) {
-          drop.y = -drop.length;
-          drop.x = Math.random() * canvas.width;
-        }
-      });
-      rainAnimationRef.current = requestAnimationFrame(animate);
-    };
-
-    animate();
-  }, [weatherData]);
-
-  const stopRainAnimation = useCallback(() => {
-    if (rainAnimationRef.current) {
-      cancelAnimationFrame(rainAnimationRef.current);
-      rainAnimationRef.current = null;
-    }
-    const canvas = rainCanvasRef.current;
-    if (canvas) {
-      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-    }
-  }, []);
 
   // ============================================================================
   // MAP INITIALIZATION
@@ -301,10 +237,8 @@ const ProvincialWeatherMap = ({
         // GIS LAYERS - PDMA PROVINCIAL LEVEL ONLY
         // Coordination layers: District Boundaries, Rivers, Gauging Stations, Dams
         // NO shelters (those are DISTRICT level only)
+        // Weather animation layers (windLayer, precipLayer) REMOVED
         // ============================================================
-
-        const windLayer = new GraphicsLayer({ title: 'Wind Flow', visible: false });
-        const precipLayer = new GraphicsLayer({ title: 'Precipitation Zones', visible: false });
 
         // PDMA-specific layers (provincial coordination level)
         const floodZonesLayer = new GraphicsLayer({ title: 'Flood Risk Zones', visible: true });
@@ -363,8 +297,7 @@ const ProvincialWeatherMap = ({
         });
 
 
-        windLayerRef.current = windLayer;
-        precipLayerRef.current = precipLayer;
+        // windLayerRef and precipLayerRef assignments REMOVED - refs no longer exist
 
         // DYNAMIC Gauging Stations from OSM Overpass API (PDMA level feature)
         // No more hardcoded data - fetches live from OpenStreetMap
@@ -419,17 +352,16 @@ const ProvincialWeatherMap = ({
         // REMOVED: riversLayer - Raster TileLayer causes blurriness
         // Vector basemaps (arcgis/navigation) include water features by default
 
-        // Layer order: Mask -> Province Boundary -> District Boundaries -> Flood zones -> Gauging Stations -> Weather
+        // Layer order: Mask -> Province Boundary -> District Boundaries -> Flood zones -> Gauging Stations
         // ALL LAYERS ARE VECTOR - no raster TileLayers to prevent pixelation
+        // Weather animation layers (precipLayer, windLayer) REMOVED from map
         const mapLayers = [
           maskLayer,                 // MASK: Covers areas outside province (VECTOR Graphics)
           provinceBoundaryLayer,     // Province boundary (VECTOR FeatureLayer)
           districtBoundariesLayer,   // District boundaries (VECTOR FeatureLayer)
           floodZonesLayer,           // Flood risk areas (VECTOR Graphics)
           gaugingStationsLayer,      // Gauging stations (VECTOR Graphics)
-          damsLayer,                 // Dams & reservoirs (VECTOR Graphics)
-          precipLayer,               // Weather precipitation (VECTOR Graphics)
-          windLayer                  // Wind animation (VECTOR Graphics)
+          damsLayer                  // Dams & reservoirs (VECTOR Graphics)
         ];
 
         // Create map with theme-aware basemap
@@ -504,16 +436,8 @@ const ProvincialWeatherMap = ({
         // Add search widget to top-right of map
         view.ui.add(searchWidget, { position: 'top-right' });
 
-        // Initialize animation mode
-        try {
-          await weatherAnimationService.initialize();
-          const modeInfo = weatherAnimationService.getMode();
-          setAnimationMode(modeInfo);
-          console.log(`✓ Animation Mode: ${modeInfo.label}`);
-        } catch (error) {
-          console.warn('Animation init warning:', error);
-          setAnimationMode({ mode: 'timeslider', label: '⏱ Time-Based Mode' });
-        }
+        // initAnimationMode block REMOVED - weatherAnimationService and setAnimationMode no longer exist
+        // Weather is displayed as numeric data in info panels only
 
         // Debounced weather fetch on map move
         reactiveUtils.watch(
@@ -576,11 +500,11 @@ const ProvincialWeatherMap = ({
       if (resizeObserver) resizeObserver.disconnect();
       if (resizeTimeout) clearTimeout(resizeTimeout);
       if (viewMoveTimeoutRef.current) clearTimeout(viewMoveTimeoutRef.current);
-      stopRainAnimation();
+      // stopRainAnimation() removed - rain animation no longer exists
       viewRef.current?.destroy();
       mapInstanceRef.current?.destroy();
     };
-  }, [provinceName, provinceConfig, loadWeatherData, stopRainAnimation]);
+  }, [provinceName, provinceConfig, loadWeatherData]);
 
   // ============================================================================
   // THEME-REACTIVE BASEMAP SWITCHING
@@ -595,24 +519,8 @@ const ProvincialWeatherMap = ({
     }
   }, [theme]);
 
-  // Toggle handlers
-  const toggleRain = useCallback(() => {
-    const newState = !rainEnabled;
-    setRainEnabled(newState);
-    newState ? startRainAnimation() : stopRainAnimation();
-  }, [rainEnabled, startRainAnimation, stopRainAnimation]);
-
-  const toggleWind = useCallback(() => {
-    const newState = !windEnabled;
-    setWindEnabled(newState);
-    if (windLayerRef.current) windLayerRef.current.visible = newState;
-  }, [windEnabled]);
-
-  const togglePrecip = useCallback(() => {
-    const newState = !precipEnabled;
-    setPrecipEnabled(newState);
-    if (precipLayerRef.current) precipLayerRef.current.visible = newState;
-  }, [precipEnabled]);
+  // Toggle handlers REMOVED - weather animation states no longer exist
+  // toggleRain, toggleWind, togglePrecip functions removed
 
   // ============================================================================
   // RENDER
@@ -637,26 +545,13 @@ const ProvincialWeatherMap = ({
       }}>
         <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
 
-        {/* Rain Canvas */}
-        <canvas
-          ref={rainCanvasRef}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            pointerEvents: 'none',
-            zIndex: 2,
-            display: rainEnabled ? 'block' : 'none'
-          }}
-        />
+        {/* Rain Canvas REMOVED - weather animations no longer exist */}
 
         {/* Map Overlays (Loading, Error, Labels) */}
         <MapOverlays
           isLoading={isLoading}
           mapError={mapError}
           provinceName={provinceName}
-          animationMode={animationMode}
           colors={colors}
         />
       </div>

@@ -210,23 +210,15 @@ const DistrictMap = ({ districtName: propDistrictName, height = '384px' }) => {
 
   // Refs
   const mapContainerRef = useRef(null);
-  const rainCanvasRef = useRef(null);
   const viewRef = useRef(null);
   const mapInstanceRef = useRef(null);
-  const windLayerRef = useRef(null);
-  const precipLayerRef = useRef(null);
-  const rainAnimationRef = useRef(null);
-  const windAnimationRef = useRef(null);
-  const windParticlesRef = useRef([]);
-  const windAnimatingRef = useRef(false);
   const weatherDataRef = useRef(null);
+  // Weather animation refs removed - Meteo provides numeric data only
 
   // State
   const [isLoading, setIsLoading] = useState(true);
   const [mapError, setMapError] = useState(null);
-  const [rainEnabled, setRainEnabled] = useState(false);
-  const [windEnabled, setWindEnabled] = useState(false);
-  const [precipEnabled, setPrecipEnabled] = useState(false);
+  // Weather toggle states removed - no map-based weather layers
   const [weatherData, setWeatherData] = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(null);
@@ -261,489 +253,20 @@ const DistrictMap = ({ districtName: propDistrictName, height = '384px' }) => {
   }, [loadWeatherData]);
 
   // ============================================================================
-  // RAIN ANIMATION (Based on REAL precipitation)
+  // WEATHER ANIMATIONS REMOVED
   // ============================================================================
-
-  const startRainAnimation = useCallback(() => {
-    const canvas = rainCanvasRef.current;
-    const mapContainer = mapContainerRef.current;
-    const weather = weatherDataRef.current;
-    if (!canvas || !mapContainer) return;
-
-    const ctx = canvas.getContext('2d');
-    const containerRect = mapContainer.getBoundingClientRect();
-    canvas.width = containerRect.width || 800;
-    canvas.height = containerRect.height || 384;
-
-    // Determine rain intensity from REAL data
-    const precipitation = weather?.current?.precipitation || 0;
-    const rain = weather?.current?.rain || 0;
-    const actualRain = Math.max(precipitation, rain);
-
-    // Scale drop count based on actual precipitation (0-50mm range)
-    const baseDrops = 50;
-    const maxDrops = 400;
-    const dropCount = Math.min(maxDrops, baseDrops + Math.floor(actualRain * 35));
-
-    console.log(`Rain animation: ${actualRain}mm precipitation → ${dropCount} drops`);
-
-    const rainDrops = [];
-    for (let i = 0; i < dropCount; i++) {
-      rainDrops.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        length: Math.random() * 25 + 10 + (actualRain * 2),
-        speed: Math.random() * 15 + 10 + (actualRain * 0.5),
-        opacity: Math.random() * 0.4 + 0.2,
-        thickness: Math.random() * 1.5 + 0.5
-      });
-    }
-
-    // Get wind direction for rain angle
-    const windDir = weather?.current?.windDirection || 0;
-    const windSpeed = weather?.current?.windSpeed || 0;
-    // Rain angle based on wind (converted to canvas coordinates)
-    const rainAngle = (windDir - 90) * (Math.PI / 180); // Adjust for canvas
-    const windEffect = Math.min(windSpeed / 20, 1) * 5; // Max 5px horizontal drift
-
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      rainDrops.forEach(drop => {
-        ctx.beginPath();
-        ctx.strokeStyle = `rgba(147, 197, 253, ${drop.opacity})`;
-        ctx.lineWidth = drop.thickness;
-        ctx.lineCap = 'round';
-
-        // Calculate end point based on wind direction
-        const endX = drop.x - Math.sin(rainAngle) * drop.length;
-        const endY = drop.y + Math.cos(rainAngle) * drop.length;
-
-        ctx.moveTo(drop.x, drop.y);
-        ctx.lineTo(endX, endY);
-        ctx.stroke();
-
-        // Splash at bottom
-        if (drop.y > canvas.height - 15) {
-          ctx.beginPath();
-          ctx.arc(endX, canvas.height - 3, 2, 0, Math.PI, true);
-          ctx.strokeStyle = `rgba(147, 197, 253, ${drop.opacity * 0.4})`;
-          ctx.stroke();
-        }
-
-        // Update position based on wind
-        drop.y += drop.speed;
-        drop.x += windEffect * Math.sin(rainAngle);
-
-        if (drop.y > canvas.height) {
-          drop.y = -drop.length;
-          drop.x = Math.random() * canvas.width;
-        }
-        if (drop.x < -20) drop.x = canvas.width + 20;
-        if (drop.x > canvas.width + 20) drop.x = -20;
-      });
-
-      rainAnimationRef.current = requestAnimationFrame(animate);
-    };
-
-    animate();
-  }, []);
-
-  const stopRainAnimation = useCallback(() => {
-    if (rainAnimationRef.current) {
-      cancelAnimationFrame(rainAnimationRef.current);
-      rainAnimationRef.current = null;
-    }
-    const canvas = rainCanvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-  }, []);
-
+  // The following animation functions have been removed as part of Weather Layer Cleanup:
+  // - startRainAnimation, stopRainAnimation (canvas rain drops)
+  // - createNoiseField, getTurbulence (wind turbulence calculations)
+  // - initWindParticles, runWindAnimation, startWindAnimation, stopWindAnimation (wind particles)
+  // - createPrecipitationZones (precipitation zone overlays)
+  //
+  // Reason: Meteo API provides point-based numeric weather data only
+  // Weather is now displayed as information panels, not map overlays
+  // To reintroduce, would need:
+  //   - Weather radar API for precipitation overlays
+  //   - Wind field API for spatial wind data
   // ============================================================================
-  // WIND ANIMATION - FlowRenderer Style (Curved Streamlines)
-  // Based on REAL wind direction & speed from Open-Meteo API
-  // ============================================================================
-
-  /**
-   * Create a Perlin-like noise function for natural wind turbulence
-   */
-  const createNoiseField = useCallback(() => {
-    // Simple noise grid for turbulence
-    const gridSize = 8;
-    const noiseGrid = [];
-    for (let i = 0; i < gridSize; i++) {
-      noiseGrid[i] = [];
-      for (let j = 0; j < gridSize; j++) {
-        noiseGrid[i][j] = {
-          angle: Math.random() * Math.PI * 2,
-          magnitude: 0.3 + Math.random() * 0.7
-        };
-      }
-    }
-    return noiseGrid;
-  }, []);
-
-  const noiseGridRef = useRef(null);
-
-  /**
-   * Get turbulence at a point using bilinear interpolation
-   */
-  const getTurbulence = useCallback((x, y, bounds, noiseGrid) => {
-    if (!noiseGrid) return { dx: 0, dy: 0 };
-
-    const gridSize = noiseGrid.length;
-    const normalizedX = (x - bounds.minLon) / (bounds.maxLon - bounds.minLon);
-    const normalizedY = (y - bounds.minLat) / (bounds.maxLat - bounds.minLat);
-
-    const gridX = normalizedX * (gridSize - 1);
-    const gridY = normalizedY * (gridSize - 1);
-
-    const x0 = Math.floor(gridX);
-    const y0 = Math.floor(gridY);
-    const x1 = Math.min(x0 + 1, gridSize - 1);
-    const y1 = Math.min(y0 + 1, gridSize - 1);
-
-    const fx = gridX - x0;
-    const fy = gridY - y0;
-
-    // Bilinear interpolation
-    const n00 = noiseGrid[x0]?.[y0] || { angle: 0, magnitude: 0 };
-    const n10 = noiseGrid[x1]?.[y0] || { angle: 0, magnitude: 0 };
-    const n01 = noiseGrid[x0]?.[y1] || { angle: 0, magnitude: 0 };
-    const n11 = noiseGrid[x1]?.[y1] || { angle: 0, magnitude: 0 };
-
-    const angle = n00.angle * (1 - fx) * (1 - fy) +
-      n10.angle * fx * (1 - fy) +
-      n01.angle * (1 - fx) * fy +
-      n11.angle * fx * fy;
-
-    const magnitude = n00.magnitude * (1 - fx) * (1 - fy) +
-      n10.magnitude * fx * (1 - fy) +
-      n01.magnitude * (1 - fx) * fy +
-      n11.magnitude * fx * fy;
-
-    return {
-      dx: Math.cos(angle) * magnitude * 0.15,
-      dy: Math.sin(angle) * magnitude * 0.15
-    };
-  }, []);
-
-  const initWindParticles = useCallback(() => {
-    const { bounds } = districtConfig;
-    const weather = weatherDataRef.current;
-
-    // Create noise field for turbulence
-    noiseGridRef.current = createNoiseField();
-
-    // More particles for denser flow visualization
-    const windSpeed = weather?.current?.windSpeed || 5;
-    const density = 1.0; // Adjustable density factor
-    const baseCount = 150;
-    const particleCount = Math.min(300, Math.floor(baseCount * density + windSpeed * 2));
-
-    const particles = [];
-    const width = bounds.maxLon - bounds.minLon;
-    const height = bounds.maxLat - bounds.minLat;
-
-    for (let i = 0; i < particleCount; i++) {
-      // Distribute particles evenly across the map
-      particles.push({
-        x: bounds.minLon + Math.random() * width,
-        y: bounds.minLat + Math.random() * height,
-        trail: [],
-        // Varying speeds for more natural look
-        baseSpeed: 0.0008 + Math.random() * 0.0012,
-        age: Math.random() * 80, // Stagger start ages
-        maxAge: 60 + Math.random() * 60, // Varying lifespans
-        // Individual turbulence offset
-        turbulencePhase: Math.random() * Math.PI * 2
-      });
-    }
-    windParticlesRef.current = particles;
-  }, [createNoiseField]);
-
-  const runWindAnimation = useCallback(() => {
-    const graphicsLayer = windLayerRef.current;
-    const weather = weatherDataRef.current;
-
-    if (!graphicsLayer || !windAnimatingRef.current) return;
-
-    const { bounds } = districtConfig;
-    const particles = windParticlesRef.current;
-    const noiseGrid = noiseGridRef.current;
-    const time = Date.now() * 0.001; // For animated turbulence
-
-    // Get REAL wind direction and speed
-    const windDirDegrees = weather?.current?.windDirection || 0;
-    const windSpeedKmh = weather?.current?.windSpeed || 5;
-
-    // Convert meteorological wind direction (where it comes FROM) to movement direction (where it goes TO)
-    const windAngleRad = ((windDirDegrees + 180) % 360) * (Math.PI / 180);
-
-    // Base movement vector from real wind
-    const baseWindX = Math.sin(windAngleRad);
-    const baseWindY = Math.cos(windAngleRad);
-
-    // Speed scaling based on actual wind speed
-    const speedScale = 0.0006 + (windSpeedKmh / 80) * 0.0015;
-
-    // Turbulence intensity (higher wind = less turbulence relative to main flow)
-    const turbulenceScale = Math.max(0.1, 0.4 - windSpeedKmh / 100);
-
-    graphicsLayer.removeAll();
-    const graphics = [];
-
-    const width = bounds.maxLon - bounds.minLon;
-    const height = bounds.maxLat - bounds.minLat;
-
-    particles.forEach((p, index) => {
-      // Get local turbulence
-      const turbulence = getTurbulence(p.x, p.y, bounds, noiseGrid);
-
-      // Add time-based oscillation for flowing effect
-      const oscillation = Math.sin(time * 2 + p.turbulencePhase) * 0.3;
-
-      // Combined movement: real wind direction + turbulence + oscillation
-      const moveX = (baseWindX + turbulence.dx * turbulenceScale + oscillation * turbulence.dy) * (p.baseSpeed + speedScale);
-      const moveY = (baseWindY + turbulence.dy * turbulenceScale + oscillation * turbulence.dx) * (p.baseSpeed + speedScale);
-
-      p.x += moveX;
-      p.y += moveY;
-      p.age++;
-
-      // Store trail point
-      p.trail.push({ x: p.x, y: p.y });
-
-      // Trail length based on speed (faster = longer trails)
-      const maxTrailLength = Math.floor(12 + windSpeedKmh / 5);
-      if (p.trail.length > maxTrailLength) p.trail.shift();
-
-      // Check if out of bounds or too old
-      const margin = 0.02;
-      const outOfBounds = p.x > bounds.maxLon + margin || p.x < bounds.minLon - margin ||
-        p.y > bounds.maxLat + margin || p.y < bounds.minLat - margin;
-
-      if (outOfBounds || p.age > p.maxAge) {
-        // Respawn from upwind edge based on wind direction
-        const spawnEdge = Math.random();
-        const windFromX = -baseWindX;
-        const windFromY = -baseWindY;
-
-        if (Math.abs(windFromX) > Math.abs(windFromY)) {
-          // Wind is more horizontal - spawn from left or right
-          p.x = windFromX > 0 ? bounds.minLon - margin : bounds.maxLon + margin;
-          p.y = bounds.minLat + Math.random() * height;
-        } else {
-          // Wind is more vertical - spawn from top or bottom
-          p.x = bounds.minLon + Math.random() * width;
-          p.y = windFromY > 0 ? bounds.minLat - margin : bounds.maxLat + margin;
-        }
-
-        // Also allow some random spawning across the map for fill
-        if (spawnEdge < 0.3) {
-          p.x = bounds.minLon + Math.random() * width;
-          p.y = bounds.minLat + Math.random() * height;
-        }
-
-        p.trail = [];
-        p.age = 0;
-        p.turbulencePhase = Math.random() * Math.PI * 2;
-      }
-
-      // Draw curved trail using quadratic bezier approximation
-      if (p.trail.length > 3) {
-        // Fade based on age
-        const lifeFade = 1 - (p.age / p.maxAge);
-        const trailFade = Math.min(1, p.trail.length / 6);
-        const alpha = lifeFade * trailFade;
-
-        // Color gradient based on wind speed
-        let r, g, b;
-        if (windSpeedKmh < 10) {
-          [r, g, b] = [100, 180, 255]; // Light blue - Calm
-        } else if (windSpeedKmh < 20) {
-          [r, g, b] = [80, 200, 255]; // Cyan - Light breeze
-        } else if (windSpeedKmh < 35) {
-          [r, g, b] = [60, 220, 220]; // Teal - Moderate
-        } else if (windSpeedKmh < 50) {
-          [r, g, b] = [100, 230, 150]; // Green - Fresh
-        } else {
-          [r, g, b] = [255, 220, 80]; // Yellow - Strong
-        }
-
-        // Create smooth curved path
-        const paths = p.trail.map(t => [t.x, t.y]);
-
-        // Draw the streamline
-        graphics.push(new Graphic({
-          geometry: new Polyline({
-            paths: [paths],
-            spatialReference: { wkid: 4326 }
-          }),
-          symbol: new SimpleLineSymbol({
-            color: [r, g, b, alpha * 180],
-            width: 1.5 + (windSpeedKmh / 40), // Thicker lines for stronger wind
-            cap: 'round',
-            join: 'round'
-          })
-        }));
-
-        // Glowing head particle
-        const head = p.trail[p.trail.length - 1];
-        graphics.push(new Graphic({
-          geometry: new Point({
-            longitude: head.x,
-            latitude: head.y,
-            spatialReference: { wkid: 4326 }
-          }),
-          symbol: new SimpleMarkerSymbol({
-            style: 'circle',
-            color: [r, g, b, alpha * 230],
-            size: 3 + (windSpeedKmh / 30),
-            outline: {
-              color: [255, 255, 255, alpha * 80],
-              width: 0.5
-            }
-          })
-        }));
-      }
-    });
-
-    graphicsLayer.addMany(graphics);
-
-    if (windAnimatingRef.current) {
-      windAnimationRef.current = setTimeout(runWindAnimation, 40); // ~25 FPS for smooth animation
-    }
-  }, [getTurbulence]);
-
-  const startWindAnimation = useCallback(() => {
-    windAnimatingRef.current = true;
-    initWindParticles();
-    runWindAnimation();
-  }, [initWindParticles, runWindAnimation]);
-
-  const stopWindAnimation = useCallback(() => {
-    windAnimatingRef.current = false;
-    if (windAnimationRef.current) {
-      clearTimeout(windAnimationRef.current);
-      windAnimationRef.current = null;
-    }
-    if (windLayerRef.current?.type === 'graphics') {
-      windLayerRef.current.removeAll();
-    }
-  }, []);
-
-  // ============================================================================
-  // PRECIPITATION ZONES (Based on REAL precipitation probability)
-  // Uses seeded random for consistent zone placement
-  // ============================================================================
-
-  // Store precipitation zone positions to keep them stable
-  const precipZonesRef = useRef(null);
-
-  const createPrecipitationZones = useCallback(() => {
-    const { bounds } = districtConfig;
-    const weather = weatherDataRef.current;
-    const graphics = [];
-
-    // Get real precipitation data
-    const currentPrecip = weather?.current?.precipitation || 0;
-    const precipProb = weather?.hourly?.precipitationProbability?.[0] || 0;
-
-    // Only show zones if there's actual precipitation or high probability
-    if (currentPrecip < 0.1 && precipProb < 20) {
-      console.log('No significant precipitation - showing light coverage');
-    }
-
-    // Number of zones based on precipitation amount
-    const zoneCount = Math.max(3, Math.min(8, Math.floor(currentPrecip * 2) + Math.floor(precipProb / 20)));
-
-    console.log(`Precipitation zones: ${currentPrecip}mm, ${precipProb}% prob → ${zoneCount} zones`);
-
-    // Generate stable zone positions if not already created or zone count changed
-    if (!precipZonesRef.current || precipZonesRef.current.length !== zoneCount) {
-      const zones = [];
-      const width = bounds.maxLon - bounds.minLon;
-      const height = bounds.maxLat - bounds.minLat;
-
-      // Create evenly distributed grid positions with some randomness
-      const cols = Math.ceil(Math.sqrt(zoneCount));
-      const rows = Math.ceil(zoneCount / cols);
-
-      for (let i = 0; i < zoneCount; i++) {
-        const col = i % cols;
-        const row = Math.floor(i / cols);
-
-        // Base position in grid
-        const baseX = bounds.minLon + (col + 0.5) * (width / cols);
-        const baseY = bounds.minLat + (row + 0.5) * (height / rows);
-
-        // Add controlled randomness - use index as seed for consistency
-        const seedX = Math.sin(i * 12.9898) * 43758.5453;
-        const seedY = Math.sin(i * 78.233) * 43758.5453;
-        const offsetX = ((seedX - Math.floor(seedX)) - 0.5) * 0.08;
-        const offsetY = ((seedY - Math.floor(seedY)) - 0.5) * 0.08;
-
-        zones.push({
-          centerX: Math.max(bounds.minLon + 0.05, Math.min(bounds.maxLon - 0.05, baseX + offsetX)),
-          centerY: Math.max(bounds.minLat + 0.05, Math.min(bounds.maxLat - 0.05, baseY + offsetY)),
-          // Seeded random for size variance
-          sizeVariance: 0.8 + ((seedX + seedY) % 1) * 0.4,
-          // Seeded random for shape variance per segment
-          shapeSeeds: Array.from({ length: 18 }, (_, j) =>
-            0.6 + (Math.sin((i * 18 + j) * 43.233) * 0.5 + 0.5) * 0.8
-          )
-        });
-      }
-      precipZonesRef.current = zones;
-    }
-
-    // Draw zones using stable positions
-    precipZonesRef.current.forEach((zone, i) => {
-      // Size based on precipitation intensity
-      const baseSize = 0.04 + (currentPrecip / 15) * 0.05;
-      const size = baseSize * zone.sizeVariance;
-
-      // Intensity based on actual precipitation
-      const intensity = Math.min(1, (currentPrecip / 10) + (precipProb / 100) * 0.5 + (i / precipZonesRef.current.length) * 0.2);
-
-      const points = [];
-      const segments = 18;
-      for (let j = 0; j <= segments; j++) {
-        const angle = (j / segments) * Math.PI * 2;
-        const variance = zone.shapeSeeds[j % 18];
-        const r = size * variance;
-        points.push([
-          zone.centerX + Math.cos(angle) * r,
-          zone.centerY + Math.sin(angle) * r * 0.85
-        ]);
-      }
-
-      // Color based on intensity (light blue → blue → purple)
-      const red = Math.floor(59 + (1 - intensity) * 100);
-      const green = Math.floor(130 - intensity * 60);
-      const blue = Math.floor(200 + intensity * 55);
-      const alpha = 60 + intensity * 90;
-
-      graphics.push(new Graphic({
-        geometry: new Polygon({
-          rings: [points],
-          spatialReference: { wkid: 4326 }
-        }),
-        symbol: new SimpleFillSymbol({
-          color: [red, green, blue, alpha],
-          outline: new SimpleLineSymbol({
-            color: [red - 20, green - 20, blue, alpha + 20],
-            width: 1.5
-          })
-        })
-      }));
-    });
-
-    return graphics;
-  }, []);
 
   // ============================================================================
   // MAP INITIALIZATION
@@ -778,12 +301,12 @@ const DistrictMap = ({ districtName: propDistrictName, height = '384px' }) => {
           spatialReference: { wkid: 4326 }
         });
 
-        // Create layers - Weather Animation
-        const windLayer = new GraphicsLayer({ title: 'Wind Flow', visible: false });
-        const precipLayer = new GraphicsLayer({ title: 'Precipitation Zones', visible: false });
-
-        windLayerRef.current = windLayer;
-        precipLayerRef.current = precipLayer;
+        // ============================================================
+        // WEATHER ANIMATION LAYERS REMOVED
+        // Wind Flow and Precipitation Zones GraphicsLayers removed
+        // Meteo API provides point-based numeric weather data only
+        // Weather displayed as info panel (not map overlays)
+        // ============================================================
 
         // ============================================================
         // GIS LAYERS - DISTRICT TACTICAL LEVEL
@@ -942,9 +465,8 @@ const DistrictMap = ({ districtName: propDistrictName, height = '384px' }) => {
           tehsilBoundariesLayer,  // Tehsil/UC boundaries (VECTOR FeatureLayer)
           sheltersLayer,          // Shelter markers (VECTOR Graphics - DISTRICT ONLY)
           hospitalsLayer,         // Hospital markers (VECTOR Graphics)
-          rescueAssetsLayer,      // Rescue teams/vehicles (VECTOR Graphics)
-          precipLayer,            // Weather (VECTOR Graphics)
-          windLayer               // Wind animation (VECTOR Graphics)
+          rescueAssetsLayer       // Rescue teams/vehicles (VECTOR Graphics)
+          // Weather layers removed - Meteo API provides numeric data only
         ];
         // NOTE: riversLayer removed - raster TileLayer caused blurriness
 
@@ -1066,12 +588,11 @@ const DistrictMap = ({ districtName: propDistrictName, height = '384px' }) => {
       isMounted = false;
       if (resizeObserver) resizeObserver.disconnect();
       if (resizeTimeout) clearTimeout(resizeTimeout);
-      stopRainAnimation();
-      stopWindAnimation();
+      // Weather animation cleanup removed - animations no longer exist
       viewRef.current?.destroy();
       mapInstanceRef.current?.destroy();
     };
-  }, [districtName, stopRainAnimation, stopWindAnimation]);
+  }, [districtName]);
 
   // ============================================================================
   // THEME-REACTIVE BASEMAP SWITCHING
@@ -1087,37 +608,11 @@ const DistrictMap = ({ districtName: propDistrictName, height = '384px' }) => {
   }, [theme]);
 
   // ============================================================================
-  // TOGGLE HANDLERS
+  // TOGGLE HANDLERS - WEATHER TOGGLES REMOVED
   // ============================================================================
-
-  const toggleRain = useCallback(() => {
-    const newState = !rainEnabled;
-    setRainEnabled(newState);
-    newState ? startRainAnimation() : stopRainAnimation();
-  }, [rainEnabled, startRainAnimation, stopRainAnimation]);
-
-  const toggleWind = useCallback(() => {
-    const newState = !windEnabled;
-    setWindEnabled(newState);
-    if (windLayerRef.current) {
-      windLayerRef.current.visible = newState;
-      newState ? startWindAnimation() : stopWindAnimation();
-    }
-  }, [windEnabled, startWindAnimation, stopWindAnimation]);
-
-  const togglePrecipitation = useCallback(() => {
-    const newState = !precipEnabled;
-    setPrecipEnabled(newState);
-    if (precipLayerRef.current) {
-      precipLayerRef.current.visible = newState;
-      if (newState) {
-        const zones = createPrecipitationZones();
-        precipLayerRef.current.addMany(zones);
-      } else {
-        precipLayerRef.current.removeAll();
-      }
-    }
-  }, [precipEnabled, createPrecipitationZones]);
+  // toggleRain, toggleWind, togglePrecipitation removed
+  // Reason: Weather animations removed - Meteo API provides numeric data only
+  // Weather is now displayed as information panels, not map overlays
 
   // ============================================================================
   // STYLES
@@ -1141,10 +636,8 @@ const DistrictMap = ({ districtName: propDistrictName, height = '384px' }) => {
       : '0 2px 4px rgba(0, 0, 0, 0.15)'
   });
 
-  const activeLayers = [];
-  if (rainEnabled) activeLayers.push('Rain');
-  if (windEnabled) activeLayers.push('Wind');
-  if (precipEnabled) activeLayers.push('Precipitation');
+  // activeLayers removed - weather toggle states no longer exist
+  // Weather is now information panels only, not map layers
 
   // ============================================================================
   // RENDER
@@ -1245,32 +738,7 @@ const DistrictMap = ({ districtName: propDistrictName, height = '384px' }) => {
       >
         <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
 
-        {/* Rain Canvas */}
-        <canvas
-          ref={rainCanvasRef}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            pointerEvents: 'none',
-            zIndex: 2,
-            display: rainEnabled ? 'block' : 'none'
-          }}
-        />
-
-        {/* Rain Overlay */}
-        {rainEnabled && (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'linear-gradient(180deg, rgba(30, 58, 95, 0.3) 0%, rgba(15, 23, 42, 0.4) 100%)',
-              pointerEvents: 'none',
-              zIndex: 1
-            }}
-          />
-        )}
+        {/* Rain Canvas and Rain Overlay REMOVED - weather is now info panel only */}
 
         {/* Loading */}
         {isLoading && (
@@ -1306,26 +774,7 @@ const DistrictMap = ({ districtName: propDistrictName, height = '384px' }) => {
           </div>
         )}
 
-        {/* Active Layers Badge */}
-        {!isLoading && activeLayers.length > 0 && (
-          <div style={{
-            position: 'absolute',
-            top: '12px',
-            right: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '8px 14px',
-            backgroundColor: 'rgba(0, 0, 0, 0.85)',
-            borderRadius: '20px',
-            zIndex: 5
-          }}>
-            <Layers style={{ width: '14px', height: '14px', color: '#22c55e' }} />
-            <span style={{ color: '#ffffff', fontSize: '12px', fontWeight: '600' }}>
-              {activeLayers.length} Active
-            </span>
-          </div>
-        )}
+        {/* Active Layers Badge removed - weather animations no longer exist */}
 
         {/* District Label */}
         <div style={{
@@ -1347,72 +796,8 @@ const DistrictMap = ({ districtName: propDistrictName, height = '384px' }) => {
         </div>
       </div>
 
-      {/* Animation controls available in LayerList widget above */}
-
-      {/* Legend with REAL data */}
-      {activeLayers.length > 0 && weatherData && (
-        <div style={{
-          marginTop: '14px',
-          padding: '16px 20px',
-          backgroundColor: isLight ? '#f8fafc' : '#1e293b',
-          borderRadius: '12px',
-          border: `1px solid ${colors.cardBorder || colors.border}`
-        }}>
-          <div style={{ fontSize: '11px', fontWeight: '700', color: colors.textSecondary, marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            Live Weather Layers
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {rainEnabled && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#3b82f620', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <CloudRain style={{ width: '18px', height: '18px', color: '#3b82f6' }} />
-                </div>
-                <div>
-                  <div style={{ color: colors.textPrimary, fontSize: '13px', fontWeight: '600' }}>
-                    Rain ({weatherData.current.precipitation}mm)
-                  </div>
-                  <div style={{ color: colors.textMuted, fontSize: '11px' }}>
-                    Angle based on {weatherData.current.windSpeed} km/h {getWindDirectionText(weatherData.current.windDirection)} wind
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {windEnabled && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#60a5fa20', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Wind style={{ width: '18px', height: '18px', color: '#60a5fa' }} />
-                </div>
-                <div>
-                  <div style={{ color: colors.textPrimary, fontSize: '13px', fontWeight: '600' }}>
-                    Wind: {weatherData.current.windSpeed} km/h
-                  </div>
-                  <div style={{ color: colors.textMuted, fontSize: '11px' }}>
-                    Direction: {getWindDirectionText(weatherData.current.windDirection)} ({weatherData.current.windDirection}°) • Gusts: {weatherData.current.windGusts} km/h
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {precipEnabled && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#8b5cf620', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Droplets style={{ width: '18px', height: '18px', color: '#8b5cf6' }} />
-                </div>
-                <div>
-                  <div style={{ color: colors.textPrimary, fontSize: '13px', fontWeight: '600' }}>
-                    Precipitation: {weatherData.current.precipitation}mm
-                  </div>
-                  <div style={{ color: colors.textMuted, fontSize: '11px' }}>
-                    Probability: {weatherData.hourly.precipitationProbability[0]}% • {getWeatherDescription(weatherData.current.weatherCode)}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Weather legend section removed - weather animations no longer exist */}
+      {/* Weather is now shown in the info panel at the top only */}
     </div>
   );
 };

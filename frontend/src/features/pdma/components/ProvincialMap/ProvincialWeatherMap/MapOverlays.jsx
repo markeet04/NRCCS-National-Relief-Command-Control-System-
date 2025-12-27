@@ -1,6 +1,7 @@
 /**
  * MapOverlays Component
  * Handles loading, error, and informational overlays for the map
+ * animationMode prop REMOVED - weather animations no longer exist
  */
 import { Loader2 } from 'lucide-react';
 
@@ -8,7 +9,6 @@ const MapOverlays = ({
     isLoading,
     mapError,
     provinceName,
-    animationMode,
     colors
 }) => {
     return (
@@ -63,23 +63,7 @@ const MapOverlays = ({
                 🏛️ PDMA {provinceName}
             </div>
 
-            {/* Animation Mode Badge */}
-            <div style={{
-                position: 'absolute',
-                top: '12px',
-                right: '12px',
-                padding: '6px 12px',
-                borderRadius: '16px',
-                fontSize: '11px',
-                fontWeight: '600',
-                backgroundColor: animationMode.mode?.includes('webgl')
-                    ? 'rgba(34, 197, 94, 0.2)'
-                    : 'rgba(59, 130, 246, 0.2)',
-                color: animationMode.mode?.includes('webgl') ? '#22c55e' : '#3b82f6',
-                zIndex: 3
-            }}>
-                {animationMode.label}
-            </div>
+            {/* Animation Mode Badge REMOVED - weather animations no longer exist */}
         </>
     );
 };

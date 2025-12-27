@@ -113,6 +113,44 @@ export const GIS_LAYERS = {
             visible: false,
             opacity: 0.5
         }
+    },
+
+    // ============================================================================
+    // WEATHER LAYERS - DISABLED
+    // Meteo API provides point-based numeric weather data only, not spatial layers
+    // These configs are kept for future reintroduction when spatial weather data is available
+    // ============================================================================
+    weather: {
+        windLayer: {
+            id: 'wind_layer',
+            url: null,
+            title: 'Wind Flow',
+            type: 'GraphicsLayer',
+            visible: false,
+            disabled: true,
+            disabledReason: 'Removed – Meteo API provides numeric weather only, no spatial wind data',
+            reintroductionNotes: 'Requires ArcGIS Spatial Analysis subscription or external wind field API (e.g., OpenWeatherMap Wind Layer)'
+        },
+        precipitationLayer: {
+            id: 'precipitation_layer',
+            url: null,
+            title: 'Precipitation Zones',
+            type: 'GraphicsLayer',
+            visible: false,
+            disabled: true,
+            disabledReason: 'Removed – Meteo API provides point precipitation, not spatial radar data',
+            reintroductionNotes: 'Requires weather radar imagery API subscription (e.g., RainViewer, AerisWeather)'
+        },
+        rainAnimation: {
+            id: 'rain_animation',
+            url: null,
+            title: 'Rain Animation',
+            type: 'CanvasOverlay',
+            visible: false,
+            disabled: true,
+            disabledReason: 'Removed – Visual effect not backed by real-time radar feed',
+            reintroductionNotes: 'Could be reintroduced as optional visual enhancement with user opt-in toggle'
+        }
     }
 };
 
