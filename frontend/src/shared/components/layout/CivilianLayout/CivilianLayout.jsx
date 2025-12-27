@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { X, AlertCircle } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { X, AlertCircle, LogOut } from 'lucide-react';
 import './civilian-layout.css';
 
 const CivilianLayout = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLinks = [
@@ -37,7 +38,7 @@ const CivilianLayout = ({ children }) => {
           </Link>
 
           {/* Hamburger Menu Button */}
-          <button 
+          <button
             className="hamburger-menu"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle menu"
@@ -51,7 +52,7 @@ const CivilianLayout = ({ children }) => {
           <div className={`civilian-nav-links ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
             <div className="mobile-menu-header">
               <span className="mobile-menu-title">Menu</span>
-              <button 
+              <button
                 className="mobile-menu-close"
                 onClick={() => setIsMobileMenuOpen(false)}
                 aria-label="Close menu"
@@ -64,9 +65,8 @@ const CivilianLayout = ({ children }) => {
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className={`civilian-nav-link ${
-                      isActive(link.path, link.exact) ? 'active' : ''
-                    }`}
+                    className={`civilian-nav-link ${isActive(link.path, link.exact) ? 'active' : ''
+                      }`}
                     onClick={handleLinkClick}
                   >
                     {link.label}
@@ -81,6 +81,15 @@ const CivilianLayout = ({ children }) => {
                   <span>SOS</span>
                 </Link>
               </li>
+              <li>
+                <button
+                  className="civilian-nav-exit"
+                  onClick={() => { handleLinkClick(); navigate('/'); }}
+                >
+                  <LogOut size={18} />
+                  <span>Exit Portal</span>
+                </button>
+              </li>
             </ul>
           </div>
         </div>
@@ -88,8 +97,8 @@ const CivilianLayout = ({ children }) => {
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div 
-          className="mobile-menu-overlay" 
+        <div
+          className="mobile-menu-overlay"
           onClick={() => setIsMobileMenuOpen(false)}
         ></div>
       )}
@@ -135,7 +144,7 @@ const CivilianLayout = ({ children }) => {
               </ul>
             </div>
           </div>
-     
+
           <p className="civilian-footer-text">
             © 2025 NRCCS. All rights reserved. | Your safety is our priority.
           </p>
