@@ -1557,6 +1557,13 @@ export class DistrictService {
   async createResourceRequest(createDto: CreateDistrictResourceRequestDto, user: User) {
     const districtId = this.verifyDistrictAccess(user);
 
+    console.log('📝 [District] Creating resource request:', {
+      dto: createDto,
+      districtId,
+      userId: user.id,
+      userName: user.name,
+    });
+
     // Get district to find province
     const district = await this.districtRepository.findOne({
       where: { id: districtId },
@@ -1565,6 +1572,12 @@ export class DistrictService {
     if (!district) {
       throw new NotFoundException('District not found');
     }
+
+    console.log('📝 [District] Found district:', {
+      districtId: district.id,
+      districtName: district.name,
+      provinceId: district.provinceId,
+    });
 
     // Create request targeting the province
     const request = this.resourceRequestRepository.create({
@@ -1584,7 +1597,21 @@ export class DistrictService {
       status: ResourceRequestStatus.PENDING,
     });
 
+    console.log('📝 [District] Request entity before save:', {
+      districtId: request.districtId,
+      provinceId: request.provinceId,
+      requestedByUserId: request.requestedByUserId,
+      status: request.status,
+    });
+
     const saved = await this.resourceRequestRepository.save(request);
+
+    console.log('✅ [District] Request saved successfully:', {
+      id: saved.id,
+      districtId: saved.districtId,
+      provinceId: saved.provinceId,
+      status: saved.status,
+    });
 
     await this.logActivity(
       'resource_request_created',

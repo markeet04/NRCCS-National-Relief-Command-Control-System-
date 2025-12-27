@@ -1011,6 +1011,12 @@ export class PdmaService {
    * and the district belongs to this PDMA's province
    */
   async getDistrictRequests(user: User, status?: string) {
+    console.log('📋 [PDMA] getDistrictRequests called:', {
+      userId: user.id,
+      provinceId: user.provinceId,
+      statusFilter: status,
+    });
+
     // Get all districts in this province
     const districts = await this.districtRepository.find({
       where: { provinceId: user.provinceId },
@@ -1018,8 +1024,10 @@ export class PdmaService {
     });
 
     const districtIds = districts.map(d => d.id);
+    console.log('📋 [PDMA] Found districts:', { districtIds, districtNames: districts.map(d => d.name) });
 
     if (districtIds.length === 0) {
+      console.log('⚠️ [PDMA] No districts found for province');
       return [];
     }
 
@@ -1028,14 +1036,27 @@ export class PdmaService {
       order: { createdAt: 'DESC' },
     });
 
+    console.log('📋 [PDMA] Total requests in DB:', allRequests.length);
+    console.log('📋 [PDMA] Requests with districtId:', allRequests.filter(r => r.districtId).length);
+    console.log('📋 [PDMA] Sample requests:', allRequests.slice(0, 3).map(r => ({
+      id: r.id,
+      districtId: r.districtId,
+      provinceId: r.provinceId,
+      status: r.status,
+      createdAt: r.createdAt
+    })));
+
     // Filter to only requests from districts in this province
     let filteredRequests = allRequests.filter(req =>
       req.districtId && districtIds.includes(req.districtId)
     );
 
+    console.log('📋 [PDMA] Filtered requests for this province:', filteredRequests.length);
+
     // Apply status filter if provided
     if (status) {
       filteredRequests = filteredRequests.filter(req => req.status === status);
+      console.log('📋 [PDMA] After status filter:', filteredRequests.length);
     }
 
     // Map district information to each request
