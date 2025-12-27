@@ -153,7 +153,8 @@
 .alerts-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 6px;
+  /* Compact operational display */
 }
 
 .alerts-list-empty {
@@ -174,15 +175,16 @@
 .alert-card {
   background-color: #0f1114;
   border: none;
-  border-radius: 12px;
-  padding: 20px 20px 20px 28px;
+  border-radius: 10px;
+  padding: 12px 14px 12px 20px;
+  /* Tight compact padding */
   position: relative;
   transition: all 0.2s ease;
 }
 
 .alert-card:hover {
   background-color: #111416;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 /* Priority Left Borders - 3px solid colored left border */
@@ -217,8 +219,8 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 12px;
-  gap: 12px;
+  margin-bottom: 8px;
+  gap: 10px;
 }
 
 .alert-card-badges {
@@ -303,29 +305,29 @@
 
 /* Alert Card Title */
 .alert-card-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #ffffff;
-  margin: 0 0 10px 0;
+  margin: 0 0 6px 0;
   line-height: 1.3;
 }
 
 /* Alert Card Description */
 .alert-card-description {
-  font-size: 14px;
+  font-size: 13px;
   color: #94a3b8;
-  line-height: 1.6;
-  margin: 0 0 16px 0;
+  line-height: 1.5;
+  margin: 0 0 10px 0;
 }
 
 /* Alert Card Meta */
 .alert-card-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
-  font-size: 13px;
+  gap: 14px;
+  font-size: 12px;
   color: #64748b;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .alert-card-meta-item {
@@ -346,8 +348,8 @@
 /* Alert Card Actions */
 .alert-card-actions {
   display: flex;
-  gap: 10px;
-  padding-top: 16px;
+  gap: 8px;
+  padding-top: 10px;
   border-top: 1px solid #1a1d21;
 }
 

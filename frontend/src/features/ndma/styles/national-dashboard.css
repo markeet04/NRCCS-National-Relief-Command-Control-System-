@@ -221,30 +221,31 @@
    ============================================================================= */
 .national-map-card {
   background-color: #0f1114;
-  border: none;
   border-radius: 12px;
   overflow: hidden;
-  /* Ensure only left-side glow from border-left-* class */
+  /* REMOVED glow effects - flat style matching stat cards */
+  border: 1px solid rgba(148, 163, 184, 0.15);
   box-shadow: none !important;
 }
 
-/* Apply left-only glow when combined with border accent classes */
+/* Left accent border only - no glow shadow */
 .national-map-card.border-left-blue {
-  box-shadow: -2px 0 10px 0 rgba(33, 150, 243, 0.4) !important;
+  border-left: 3px solid #2196f3;
+  box-shadow: none !important;
 }
 
-/* Ultra-specific override - force remove all-side shadows */
+/* Override any other shadow rules */
 .national-main-grid .national-map-card,
-.national-main-grid > .national-map-card,
+.national-main-grid>.national-map-card,
 div.national-map-card {
   box-shadow: none !important;
   filter: none !important;
 }
 
 .national-main-grid .national-map-card.border-left-blue,
-.national-main-grid > .national-map-card.border-left-blue,
+.national-main-grid>.national-map-card.border-left-blue,
 div.national-map-card.border-left-blue {
-  box-shadow: -2px 0 10px 0 rgba(33, 150, 243, 0.4) !important;
+  box-shadow: none !important;
   filter: none !important;
 }
 
@@ -298,7 +299,7 @@ div.national-map-card.border-left-blue {
   padding-left: 20px;
   padding-right: 20px;
   margin-bottom: 20px;
-  
+
 }
 
 .national-map-legend {
@@ -356,30 +357,31 @@ div.national-map-card.border-left-blue {
    ============================================================================= */
 .national-resource-card {
   background-color: #0f1114;
-  border: none;
   border-radius: 12px;
   padding: 20px 20px 20px 24px;
-  /* Ensure only left-side glow from border-left-* class */
+  /* REMOVED glow effects - flat style matching stat cards */
+  border: 1px solid rgba(148, 163, 184, 0.15);
   box-shadow: none !important;
 }
 
-/* Apply left-only glow when combined with border accent classes */
+/* Left accent border only - no glow shadow */
 .national-resource-card.border-left-green {
-  box-shadow: -2px 0 10px 0 rgba(76, 175, 80, 0.4) !important;
+  border-left: 3px solid #4caf50;
+  box-shadow: none !important;
 }
 
-/* Ultra-specific override - force remove all-side shadows */
+/* Override any other shadow rules */
 .national-sidebar .national-resource-card,
-.national-sidebar > .national-resource-card,
+.national-sidebar>.national-resource-card,
 div.national-resource-card {
   box-shadow: none !important;
   filter: none !important;
 }
 
 .national-sidebar .national-resource-card.border-left-green,
-.national-sidebar > .national-resource-card.border-left-green,
+.national-sidebar>.national-resource-card.border-left-green,
 div.national-resource-card.border-left-green {
-  box-shadow: -2px 0 10px 0 rgba(76, 175, 80, 0.4) !important;
+  box-shadow: none !important;
   filter: none !important;
 }
 
@@ -520,14 +522,14 @@ div.national-resource-card.border-left-green {
 
 /* Ultra-specific override - force remove all-side shadows */
 .national-sidebar .national-weather-card,
-.national-sidebar > .national-weather-card,
+.national-sidebar>.national-weather-card,
 div.national-weather-card {
   box-shadow: none !important;
   filter: none !important;
 }
 
 .national-sidebar .national-weather-card.border-left-cyan,
-.national-sidebar > .national-weather-card.border-left-cyan,
+.national-sidebar>.national-weather-card.border-left-cyan,
 div.national-weather-card.border-left-cyan {
   box-shadow: -2px 0 10px 0 rgba(6, 182, 212, 0.4) !important;
   filter: none !important;
@@ -621,7 +623,7 @@ div.national-weather-card.border-left-cyan {
 /* =============================================================================
    MAP FULLSCREEN MODE
    ============================================================================= */
-   
+
 /* When map is in fullscreen mode */
 .national-map-card.map-fullscreen {
   position: fixed !important;
@@ -813,8 +815,13 @@ div.national-weather-card.border-left-cyan {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Quick Jump Navigation Bar */

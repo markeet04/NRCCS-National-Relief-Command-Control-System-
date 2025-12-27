@@ -1,17 +1,16 @@
 import PropTypes from 'prop-types';
-import { Layers, RefreshCw, Maximize2, Minimize2 } from 'lucide-react';
+import { Maximize2, Minimize2 } from 'lucide-react';
 import NationalMap from '../NationalMap';
 
 /**
  * NationalMapCard Component
  * Displays the national weather map with header, controls, and legend
  * Uses CSS classes from national-dashboard.css
+ * Toggle layers and Refresh buttons removed per UI refinement
  */
-const NationalMapCard = ({ 
-  isFullscreen, 
+const NationalMapCard = ({
+  isFullscreen,
   onToggleFullscreen,
-  onRefresh,
-  onToggleLayers,
 }) => {
   return (
     <div className={`national-map-card border-left-blue ${isFullscreen ? 'map-fullscreen' : ''}`}>
@@ -24,20 +23,7 @@ const NationalMapCard = ({
           </p>
         </div>
         <div className="national-map-controls">
-          <button 
-            className="national-map-btn" 
-            title="Toggle layers"
-            onClick={onToggleLayers}
-          >
-            <Layers className="w-4 h-4" />
-          </button>
-          <button 
-            className="national-map-btn" 
-            title="Refresh"
-            onClick={onRefresh}
-          >
-            <RefreshCw className="w-4 h-4" />
-          </button>
+          {/* Toggle layers and Refresh buttons REMOVED */}
           <button
             className={`national-map-btn ${isFullscreen ? 'fullscreen-active' : ''}`}
             title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
@@ -83,14 +69,10 @@ const NationalMapCard = ({
 NationalMapCard.propTypes = {
   isFullscreen: PropTypes.bool,
   onToggleFullscreen: PropTypes.func.isRequired,
-  onRefresh: PropTypes.func,
-  onToggleLayers: PropTypes.func,
 };
 
 NationalMapCard.defaultProps = {
   isFullscreen: false,
-  onRefresh: () => {},
-  onToggleLayers: () => {},
 };
 
 export default NationalMapCard;

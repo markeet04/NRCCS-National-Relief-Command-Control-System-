@@ -78,13 +78,7 @@ const AlertCardItem = ({
 
         {alert.status === 'resolved' ? (
           <>
-            <button
-              className="alerts-btn alerts-btn-warning"
-              onClick={() => onReopen(alert.id)}
-            >
-              <CheckCircle className="w-4 h-4" />
-              Reopen
-            </button>
+            {/* Reopen button REMOVED per UI refinement - only Delete remains */}
             <button
               className="alerts-btn alerts-btn-danger"
               onClick={() => onDelete(alert.id)}
