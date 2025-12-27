@@ -66,7 +66,7 @@ const ResourceDistribution = () => {
   // Hooks
   const { districtInfo, rawStats: districtStats } = useDistrictData();
   const { shelters } = useShelterData();
-  const { resources, allocateToShelter } = useResourceDistributionState();
+  const { resources, allocateToShelter, handleRequestFromPdma } = useResourceDistributionState();
 
   // Navigation
   const handleNavigate = useCallback((route) => {
@@ -111,9 +111,14 @@ const ResourceDistribution = () => {
     }
   };
 
-  const handleRequestSubmit = (data) => {
+  const handleRequestSubmit = async (data) => {
     console.log('Request submitted:', data);
-    setIsRequestModalOpen(false);
+    try {
+      await handleRequestFromPdma(data);
+      setIsRequestModalOpen(false);
+    } catch (error) {
+      console.error('Failed to submit request:', error);
+    }
   };
 
   const formatQuantity = (qty) => {

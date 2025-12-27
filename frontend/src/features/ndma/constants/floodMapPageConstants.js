@@ -1,7 +1,7 @@
 /**
- * Flood Map Page Constants
- * Static data and configuration for the NDMA Flood Map page
- */
+* Flood Map Page Constants
+* Static data and configuration for the NDMA Flood Map page
+*/
 
 // Province status data for flood monitoring
 // Initially set to LOW risk - ML prediction will update

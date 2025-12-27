@@ -222,6 +222,26 @@ export const useFloodMapLogic = () => {
   }, []);
 
   /**
+   * Refresh weather for a specific province (without running ML prediction)
+   * Updates liveWeatherData state with fresh data from Open-Meteo API
+   * @param {number} provinceId - Province ID (1-6)
+   */
+  const refreshWeatherForProvince = useCallback(async (provinceId) => {
+    if (!provinceId) {
+      console.warn('Province ID required for weather refresh');
+      return null;
+    }
+
+    // Convert abbreviated IDs to numeric
+    const idToNumeric = { 'pb': 1, 'sd': 2, 'kp': 3, 'bl': 4, 'gb': 5, 'ajk': 6, 'ict': 1 };
+    const numericId = typeof provinceId === 'string' ? (idToNumeric[provinceId.toLowerCase()] || 1) : provinceId;
+
+    console.log(`🔄 Refreshing weather for province ${numericId}...`);
+    const weather = await fetchWeatherForProvince(numericId);
+    return weather;
+  }, [fetchWeatherForProvince]);
+
+  /**
    * Run flood prediction using ML model
    * NDMA-only: Supports both live and simulation modes
    * LIVE MODE: Fetches real weather data from Open-Meteo API
@@ -365,6 +385,31 @@ export const useFloodMapLogic = () => {
       setIsPredicting(false);
     }
   }, [simulationEnabled, simulationScenario, fetchWeatherForProvince, liveWeatherData]);
+
+  // ==================== RESET MAP WHEN SIMULATION IS TURNED OFF ====================
+  // When simulation mode is disabled, reset all provinces to normal/low risk state
+  useEffect(() => {
+    if (!simulationEnabled) {
+      console.log('🔄 Simulation OFF - Resetting map to normal state');
+
+      // Reset all provinces to default low risk state
+      setProvinces(PROVINCE_STATUS_DATA.map(p => ({
+        ...p,
+        floodRisk: 'low',
+        status: 'normal',
+        waterLevel: 15,
+        affectedDistricts: 0,
+        evacuated: 0,
+      })));
+
+      // Clear prediction results and weather data
+      setPredictionResult(null);
+      setLiveWeatherData(null);
+
+      // Clear ML-generated flood zones
+      setFloodZones(prev => prev.filter(z => !String(z.id).startsWith('ml-prediction-')));
+    }
+  }, [simulationEnabled]);
 
   // Fetch data on mount (including simulation scenarios)
   useEffect(() => {
@@ -554,6 +599,7 @@ export const useFloodMapLogic = () => {
     lastPredictionTime,
     liveWeatherData,
     runPrediction,
+    refreshWeatherForProvince,
 
     // Actions
     setSelectedProvince,
