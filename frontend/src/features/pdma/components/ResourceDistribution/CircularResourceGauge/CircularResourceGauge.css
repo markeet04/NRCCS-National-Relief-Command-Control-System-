@@ -1,0 +1,30 @@
+/* ============================================================================
+   CIRCULAR RESOURCE GAUGE STYLES
+   ============================================================================ */
+
+.pdma-circular-gauge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pdma-circular-gauge-svg {
+  overflow: visible;
+}
+
+.pdma-circular-gauge-track {
+  stroke: rgba(100, 116, 139, 0.2);
+}
+
+.pdma-circular-gauge-progress {
+  transition: stroke-dashoffset 1.2s ease-out;
+}
+
+.pdma-circular-gauge-text {
+  position: absolute;
+  font-size: 0.55rem;
+  font-weight: 700;
+  display: flex; /* Show percentage text in center */
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}

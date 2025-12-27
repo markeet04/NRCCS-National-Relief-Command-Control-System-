@@ -1,0 +1,585 @@
+/* ============================================================================
+   SECTION TABS (Below Status Cards)
+   ============================================================================ */
+.pdma-section-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1.1rem 0 2.25rem 0;
+  justify-content: space-between;
+  border-bottom: 1.5px solid #23272f;
+}
+
+.pdma-section-tab {
+  background: none;
+  border: none;
+  outline: none;
+  color: #94a3b8;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem 0.5rem 1.5rem;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  transition: color 0.2s, background 0.2s;
+  position: relative;
+}
+
+.pdma-section-tab.active {
+  color: #22c55e;
+  background: transparent;
+  border-bottom: 2.5px solid #22c55e;
+  z-index: 1;
+}
+
+.pdma-section-tab:not(.active):hover {
+  color: #22c55e;
+  background: #181b1f;
+}
+/**
+ * PDMA Resource Distribution Page Styles
+ * Inspired by NDMA Resource Allocation page design
+ * Dark theme with NASA mission control design
+ */
+
+/* ============================================================================
+   PAGE LAYOUT
+   ============================================================================ */
+.pdma-resources-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ============================================================================
+   STATS GRID - Top Summary Cards
+   ============================================================================ */
+.pdma-resource-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+@media (max-width: 1280px) {
+  .pdma-resource-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .pdma-resource-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================================
+   STAT CARD LAYOUT
+   ============================================================================ */
+.pdma-stat-card {
+  background-color: #0f1114;
+  border: 1px solid #1e2227;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  min-height: 180px;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.pdma-stat-card:hover {
+  border-color: #2d3238;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.pdma-stat-card.border-left-blue:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(33, 150, 243, 0.15);
+}
+.pdma-stat-card.border-left-green:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(34, 197, 94, 0.15);
+}
+.pdma-stat-card.border-left-yellow:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(234, 179, 8, 0.15);
+}
+.pdma-stat-card.border-left-purple:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(139, 92, 246, 0.15);
+}
+
+.pdma-stat-card:hover {
+  border-color: #2d3238;
+  transform: translateY(-2px);
+}
+
+/* Border colors with glow */
+.pdma-stat-card.border-left-blue {
+  border-left: 3px solid #2196f3;
+}
+
+.pdma-stat-card.border-left-blue:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(33, 150, 243, 0.2);
+}
+
+.pdma-stat-card.border-left-green {
+  border-left: 3px solid #22c55e;
+}
+
+.pdma-stat-card.border-left-green:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(34, 197, 94, 0.2);
+}
+
+.pdma-stat-card.border-left-yellow {
+  border-left: 3px solid #eab308;
+}
+
+.pdma-stat-card.border-left-yellow:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(234, 179, 8, 0.2);
+}
+
+.pdma-stat-card.border-left-purple {
+  border-left: 3px solid #8b5cf6;
+}
+
+.pdma-stat-card.border-left-purple:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(139, 92, 246, 0.2);
+}
+
+.pdma-stat-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pdma-stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  flex-shrink: 0;
+  padding: 0.875rem;
+  box-sizing: content-box;
+}
+
+.pdma-stat-icon.icon-blue {
+  background-color: rgba(33, 150, 243, 0.15);
+  color: #2196f3;
+}
+
+.pdma-stat-icon.icon-green {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.pdma-stat-icon.icon-yellow {
+  background-color: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.pdma-stat-icon.icon-purple {
+  background-color: rgba(139, 92, 246, 0.15);
+  color: #8b5cf6;
+}
+
+.pdma-stat-label {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.pdma-stat-value-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 0 0.5rem 0;
+  background-color: #151719;
+  border-radius: 12px;
+  margin-top: auto;
+}
+
+.pdma-stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.pdma-stat-unit {
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================================================
+   RESOURCE STOCK SECTION
+   ============================================================================ */
+.pdma-stock-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pdma-stock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.pdma-stock-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.pdma-stock-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 1.25rem;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 1280px) {
+  .pdma-stock-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .pdma-stock-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================================
+   RESOURCE STOCK CARD - Similar to NDMA NationalStockCard
+   ============================================================================ */
+.pdma-stock-card {
+  background-color: #0f1114;
+  border: 1px solid #1e2227;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: all 0.3s ease;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.pdma-stock-card:hover {
+  border-color: #2d3238;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Card border colors based on status */
+.pdma-stock-card.status-adequate {
+  border-left: 3px solid #22c55e;
+}
+
+.pdma-stock-card.status-adequate:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(34, 197, 94, 0.15);
+}
+
+.pdma-stock-card.status-moderate {
+  border-left: 3px solid #eab308;
+}
+
+.pdma-stock-card.status-moderate:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(234, 179, 8, 0.15);
+}
+
+.pdma-stock-card.status-low {
+  border-left: 3px solid #f97316;
+}
+
+.pdma-stock-card.status-low:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(249, 115, 22, 0.15);
+}
+
+.pdma-stock-card.status-critical {
+  border-left: 3px solid #ef4444;
+}
+
+.pdma-stock-card.status-critical:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(239, 68, 68, 0.15);
+}
+
+/* Card Header */
+.pdma-stock-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.pdma-stock-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.pdma-stock-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0.375rem;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.pdma-stock-icon.status-adequate {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.pdma-stock-icon.status-moderate {
+  background-color: rgba(234, 179, 8, 0.1);
+  color: #eab308;
+}
+
+.pdma-stock-icon.status-low {
+  background-color: rgba(249, 115, 22, 0.1);
+  color: #f97316;
+}
+
+.pdma-stock-icon.status-critical {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.pdma-stock-card-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pdma-stock-badge {
+  padding: 0.1875rem 0.5rem;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pdma-stock-badge.status-adequate {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.pdma-stock-badge.status-moderate {
+  background-color: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.pdma-stock-badge.status-low {
+  background-color: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.pdma-stock-badge.status-critical {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* Chart Container */
+.pdma-stock-chart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem 0;
+  position: relative;
+  min-height: 160px;
+}
+
+.pdma-stock-chart-center {
+  position: absolute;
+  top: 62%;
+  left: 50%;
+  transform: translate(-50%, 0%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.pdma-stock-percentage {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.pdma-stock-percentage-label {
+  font-size: 0.5625rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Stats Grid inside card */
+.pdma-stock-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background-color: #151719;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pdma-stock-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.pdma-stock-stat-label {
+  font-size: 0.5625rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.pdma-stock-stat-value {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  text-align: center;
+}
+
+.pdma-stock-stat-unit {
+  font-size: 0.5rem;
+  color: #64748b;
+  margin-left: 0.0625rem;
+}
+
+/* Action Buttons */
+.pdma-stock-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pdma-stock-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+}
+
+.pdma-stock-history-btn {
+  color: #94a3b8;
+  background-color: rgba(148, 163, 184, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.pdma-stock-history-btn:hover {
+  color: #ffffff;
+  background-color: rgba(148, 163, 184, 0.2);
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+.pdma-stock-history-btn.pdma-stock-history-full {
+  flex: 1;
+  width: 100%;
+}
+
+.pdma-stock-history-btn.pdma-stock-history-full:hover {
+  background-color: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+}
+
+.pdma-stock-allocate-btn {
+  color: #22c55e;
+  background-color: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.pdma-stock-allocate-btn:hover {
+  color: #ffffff;
+  background-color: rgba(34, 197, 94, 0.3);
+  border-color: rgba(34, 197, 94, 0.5);
+}
+
+.pdma-stock-allocate-btn:disabled {
+  color: #64748b;
+  background-color: rgba(100, 116, 139, 0.1);
+  border-color: rgba(100, 116, 139, 0.2);
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+   LIGHT THEME OVERRIDES
+   ============================================================================ */
+[data-theme="light"] .pdma-stat-card,
+[data-theme="light"] .pdma-stock-card {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .pdma-stat-card:hover,
+[data-theme="light"] .pdma-stock-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .pdma-stat-value-container,
+[data-theme="light"] .pdma-stock-stats {
+  background-color: #f1f5f9;
+}
+
+[data-theme="light"] .pdma-stat-label,
+[data-theme="light"] .pdma-stock-stat-label {
+  color: #64748b;
+}
+
+[data-theme="light"] .pdma-stat-value,
+[data-theme="light"] .pdma-stock-stat-value,
+[data-theme="light"] .pdma-stock-card-title,
+[data-theme="light"] .pdma-stock-percentage {
+  color: #1e293b;
+}
+
+[data-theme="light"] .pdma-stock-title {
+  color: #1e293b;
+}

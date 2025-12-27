@@ -4,6 +4,7 @@ import DemoModal from '@shared/components/DemoModal/DemoModal';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
+import { useAuth } from '@shared/hooks';
 import { MapPin, Loader2 } from 'lucide-react';
 import {
   DistrictSearchBar,
@@ -15,6 +16,10 @@ import { transformDistrictsForCoordination } from '../utils';
 import '@styles/css/main.css';
 
 const DistrictCoordination = () => {
+  // Get authenticated user
+  const { user } = useAuth();
+  const userName = user?.name || user?.username || 'PDMA User';
+
   // Use custom hook for district coordination state
   const {
     activeRoute,
@@ -55,7 +60,7 @@ const DistrictCoordination = () => {
       pageIcon={MapPin}
       pageIconColor="#f59e0b"
       userRole="PDMA"
-      userName="fz"
+      userName={userName}
     >
       <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary }}>
         {/* Loading State */}

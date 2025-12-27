@@ -7,6 +7,7 @@ import ResourceForm from '@shared/components/DemoModal/ResourceForm';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { Shield, Loader2 } from 'lucide-react';
+import { useAuth } from '@shared/hooks';
 import {
   getMenuItemsByRole,
   ROLE_CONFIG
@@ -32,6 +33,10 @@ import '@styles/css/main.css';
  * Uses modular components and hooks for better maintainability
  */
 const PDMADashboard = () => {
+  // Get authenticated user
+  const { user } = useAuth();
+  const userName = user?.name || user?.username || 'PDMA User';
+
   // Use custom hook for dashboard state management
   const {
     activeRoute,
@@ -80,7 +85,7 @@ const PDMADashboard = () => {
       activeRoute={activeRoute}
       onNavigate={handleNavigate}
       userRole={`${roleConfig.userRole} ${provinceName}`}
-      userName={roleConfig.userName}
+      userName={userName}
       pageTitle={roleConfig.title}
       pageSubtitle={`${provinceName} ${roleConfig.subtitle}`}
       pageIcon={Shield}

@@ -87,6 +87,7 @@ const ProvincialWeatherMap = ({
 
   // Use user's province from auth, fallback to prop, then to Punjab
   const provinceName = user?.province || propProvinceName || 'Punjab';
+  const userName = user?.name || user?.username || 'PDMA User';
   console.log(`🗺️ Using province: "${provinceName}" (from ${user?.province ? 'auth' : propProvinceName ? 'prop' : 'default'})`);
 
 
@@ -578,7 +579,7 @@ const ProvincialWeatherMap = ({
       pageIcon={MapIcon}
       pageIconColor="#10b981"
       userRole="PDMA"
-      userName="User"
+      userName={userName}
     >
       {mapContent}
     </DashboardLayout>

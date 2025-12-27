@@ -4,6 +4,7 @@ import { Home, Loader2 } from 'lucide-react';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { getMenuItemsByRole } from '@shared/constants/dashboardConfig';
+import { useAuth } from '@shared/hooks';
 import {
   ShelterSearchBar,
   SheltersList,
@@ -14,6 +15,10 @@ import { transformSheltersForUI } from '../utils';
 import '@styles/css/main.css';
 
 const ShelterManagement = () => {
+  // Get authenticated user
+  const { user } = useAuth();
+  const userName = user?.name || user?.username || 'PDMA User';
+
   // Use custom hook for shelter management state
   const {
     activeRoute,
@@ -53,7 +58,7 @@ const ShelterManagement = () => {
       pageIcon={Home}
       pageIconColor="#8b5cf6"
       userRole="PDMA"
-      userName="fz"
+      userName={userName}
     >
       <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary }}>
         {/* Loading State */}

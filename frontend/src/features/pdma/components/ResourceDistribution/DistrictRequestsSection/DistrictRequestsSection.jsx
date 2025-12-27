@@ -219,17 +219,51 @@ const DistrictRequestsSection = () => {
                             <h4 className="list-title" style={{ color: colors.textSecondary, marginTop: pendingRequests.length > 0 ? '16px' : 0 }}>
                                 Processed Requests
                             </h4>
-                            {processedRequests.slice(0, 3).map((request) => (
-                                <div key={request.id} className={`request-card processed ${request.status}`} style={{ background: colors.bgSecondary, border: `1px solid ${colors.border}`, opacity: 0.7 }}>
+                            {processedRequests.slice(0, 5).map((request) => (
+                                <div key={request.id} className={`request-card processed ${request.status}`} style={{ background: colors.bgSecondary, border: `1px solid ${colors.border}` }}>
                                     <div className="request-header">
-                                        <span className="district-name" style={{ color: colors.textPrimary }}>
-                                            {request.district?.name || 'Unknown District'}
-                                        </span>
+                                        <div className="district-info">
+                                            <span className="district-name" style={{ color: colors.textPrimary }}>
+                                                {request.district?.name || 'Unknown District'}
+                                            </span>
+                                            <span className="request-date" style={{ color: colors.mutedText }}>
+                                                <Clock size={12} />
+                                                {formatDate(request.processedAt || request.updatedAt)}
+                                            </span>
+                                        </div>
                                         <span className={`status-badge ${request.status}`}>
                                             {request.status === 'approved' ? <Check size={12} /> : <X size={12} />}
                                             {request.status}
                                         </span>
                                     </div>
+                                    
+                                    {/* Show requested items for approved requests */}
+                                    {request.status === 'approved' && request.requestedItems && (
+                                        <div className="request-items" style={{ marginTop: '8px', opacity: 0.9 }}>
+                                            {request.requestedItems.map((item, idx) => {
+                                                const Icon = getResourceIcon(item.name || item.resourceName || item.resourceType);
+                                                return (
+                                                    <div key={idx} className="item-row">
+                                                        <Icon size={14} style={{ color: '#22c55e' }} />
+                                                        <span style={{ color: colors.textSecondary }}>
+                                                            {item.name || item.resourceName || item.resourceType}:
+                                                        </span>
+                                                        <span style={{ color: colors.textPrimary, fontWeight: '600' }}>
+                                                            {item.quantity} {item.unit || 'units'}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                    
+                                    {/* Show processed by info */}
+                                    {request.processedByName && (
+                                        <p className="request-reason" style={{ color: colors.mutedText, fontSize: '0.75rem', marginTop: '8px' }}>
+                                            Processed by: {request.processedByName}
+                                            {request.notes && ` — ${request.notes}`}
+                                        </p>
+                                    )}
                                 </div>
                             ))}
                         </>

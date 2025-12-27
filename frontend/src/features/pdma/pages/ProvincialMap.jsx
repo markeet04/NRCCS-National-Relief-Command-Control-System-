@@ -10,12 +10,17 @@ import { DashboardLayout } from '@shared/components/layout';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
+import { useAuth } from '@shared/hooks';
 import { Map, Loader2 } from 'lucide-react';
 import ProvincialWeatherMap from '../components/ProvincialMap/ProvincialWeatherMap/ProvincialWeatherMap';
 import { useProvincialMapState } from '../hooks';
 import '@styles/css/main.css';
 
 const ProvincialMap = () => {
+  // Get authenticated user
+  const { user } = useAuth();
+  const userName = user?.name || user?.username || 'PDMA User';
+
   const {
     activeRoute,
     setActiveRoute,
@@ -48,7 +53,7 @@ const ProvincialMap = () => {
         pageIcon={Map}
         pageIconColor="#3b82f6"
         userRole="PDMA"
-        userName="User"
+        userName={userName}
       >
         <div className="h-96 flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin" style={{ color: colors.primary }} />
@@ -69,7 +74,7 @@ const ProvincialMap = () => {
         pageIcon={Map}
         pageIconColor="#3b82f6"
         userRole="PDMA"
-        userName="User"
+        userName={userName}
       >
         <div className="h-96 flex items-center justify-center">
           <div className="text-center">
@@ -93,7 +98,7 @@ const ProvincialMap = () => {
       pageIcon={Map}
       pageIconColor="#10b981"
       userRole="PDMA"
-      userName="User"
+      userName={userName}
     >
       <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary }}>
         {/* ArcGIS Map Component */}

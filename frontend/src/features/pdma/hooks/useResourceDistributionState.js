@@ -1,6 +1,6 @@
 // useResourceDistributionState Hook
 // Manages state for ResourceDistribution component
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { pdmaApi } from '../services';
 import { useNotification } from '@shared/hooks';
 
@@ -19,33 +19,37 @@ const useResourceDistributionState = () => {
   const [resources, setResources] = useState([]);
   const [resourceStats, setResourceStats] = useState(null);
   const [districts, setDistricts] = useState([]);
+  const [activityLogs, setActivityLogs] = useState([]);
+  const [districtResources, setDistrictResources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const notification = useNotification();
 
   // Fetch resources, stats, and districts
-  const fetchResourceData = async () => {
+  const fetchResourceData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const [resourcesData, statsData, districtsData] = await Promise.all([
+      const [resourcesData, statsData, districtsData, logsData] = await Promise.all([
         pdmaApi.getAllResources(),
         pdmaApi.getResourceStats(),
         pdmaApi.getDistricts(),
+        pdmaApi.getActivityLogs(100), // Fetch more logs for history
       ]);
 
       setResources(resourcesData);
       setResourceStats(statsData);
       setDistricts(districtsData);
+      setActivityLogs(logsData || []);
     } catch (err) {
       setError(err.message);
       notification.error(err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [notification]);
 
   useEffect(() => {
     fetchResourceData();
@@ -160,8 +164,11 @@ const useResourceDistributionState = () => {
     resources,
     resourceStats,
     districts,
+    activityLogs,
     loading,
     error,
+    // Refresh function
+    refreshData: fetchResourceData,
     // Request from NDMA
     isRequestModalOpen,
     setIsRequestModalOpen,

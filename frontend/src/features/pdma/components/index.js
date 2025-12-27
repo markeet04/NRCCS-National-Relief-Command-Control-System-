@@ -12,6 +12,15 @@ export { default as ResourceGrid } from './ResourceDistribution/ResourceGrid';
 export { default as ShelterRegistry } from './ResourceDistribution/ShelterRegistry';
 export { default as RequestResourceModal } from './ResourceDistribution/RequestResourceModal';
 export { default as DistrictRequestsSection } from './ResourceDistribution/DistrictRequestsSection';
+export { ResourceStatsNew } from './ResourceDistribution/ResourceStats';
+export { ResourceStockCard } from './ResourceDistribution/ResourceGrid';
+export { default as ResourceHistoryModal } from './ResourceDistribution/ResourceHistoryModal';
+
+// New ResourceDistribution components (matching NDMA style)
+export { default as DistrictStockTab } from './ResourceDistribution/DistrictStockTab';
+export { default as DistrictResourceCardV2 } from './ResourceDistribution/DistrictResourceCardV2';
+export { default as CircularResourceGauge } from './ResourceDistribution/CircularResourceGauge';
+export { default as AllocateResourcesTab } from './ResourceDistribution/AllocateResourcesTab';
 
 // DistrictCoordination components
 export { default as DistrictSearchBar } from './DistrictCoordination/SearchBar';

@@ -24,6 +24,8 @@
 .request-modal {
     width: 100%;
     max-width: 520px;
+    background: #0f1114 !important;
+    border: 1px solid #1e2227;
     border-radius: 16px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     animation: slideUp 0.3s ease;
