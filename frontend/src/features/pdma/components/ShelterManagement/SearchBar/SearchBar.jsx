@@ -1,6 +1,6 @@
 import { Search, X } from 'lucide-react';
 
-const SearchBar = ({ searchTerm, onSearchChange, placeholder = 'Search shelters by name or location...' }) => {
+const SearchBar = ({ searchTerm, onSearchChange, placeholder = 'Search shelters by name or location...', colors }) => {
   return (
     <div style={{
       position: 'relative'
@@ -13,7 +13,7 @@ const SearchBar = ({ searchTerm, onSearchChange, placeholder = 'Search shelters 
         <Search size={20} style={{
           position: 'absolute',
           left: '12px',
-          color: '#9CA3AF'
+          color: colors.textMuted
         }} />
         <input
           type="text"
@@ -23,21 +23,22 @@ const SearchBar = ({ searchTerm, onSearchChange, placeholder = 'Search shelters 
           style={{
             width: '100%',
             padding: '10px 40px 10px 40px',
-            border: '1px solid #E5E7EB',
+            border: `1px solid ${colors.border}`,
             borderRadius: '6px',
             fontSize: '14px',
             fontFamily: 'Outfit',
             outline: 'none',
-            backgroundColor: '#F9FAFB',
+            backgroundColor: colors.bgSecondary,
+            color: colors.textPrimary,
             transition: 'all 0.2s ease'
           }}
           onFocus={(e) => {
-            e.target.style.borderColor = '#3B82F6';
-            e.target.style.backgroundColor = '#FFFFFF';
+            e.target.style.borderColor = colors.primary;
+            e.target.style.backgroundColor = colors.cardBg;
           }}
           onBlur={(e) => {
-            e.target.style.borderColor = '#E5E7EB';
-            e.target.style.backgroundColor = '#F9FAFB';
+            e.target.style.borderColor = colors.border;
+            e.target.style.backgroundColor = colors.bgSecondary;
           }}
         />
         {searchTerm && (
@@ -55,7 +56,7 @@ const SearchBar = ({ searchTerm, onSearchChange, placeholder = 'Search shelters 
               padding: '4px'
             }}
           >
-            <X size={18} color="#9CA3AF" />
+            <X size={18} color={colors.textMuted} />
           </button>
         )}
       </div>

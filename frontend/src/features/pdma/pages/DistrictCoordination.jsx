@@ -12,7 +12,7 @@ import {
 } from '../components';
 import { useDistrictCoordinationState } from '../hooks';
 import { transformDistrictsForCoordination } from '../utils';
-import '../styles/pdma.css';
+import '@styles/css/main.css';
 
 const DistrictCoordination = () => {
   // Use custom hook for district coordination state
@@ -60,12 +60,12 @@ const DistrictCoordination = () => {
       <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary }}>
         {/* Loading State */}
         {loading && (
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
             minHeight: '400px',
-            color: colors.textSecondary 
+            color: colors.textSecondary
           }}>
             <Loader2 size={40} className="animate-spin" style={{ marginRight: '12px' }} />
             <span>Loading districts...</span>
@@ -74,9 +74,9 @@ const DistrictCoordination = () => {
 
         {/* Error State */}
         {error && !loading && (
-          <div style={{ 
-            padding: '20px', 
-            background: 'rgba(239, 68, 68, 0.1)', 
+          <div style={{
+            padding: '20px',
+            background: 'rgba(239, 68, 68, 0.1)',
             border: '1px solid #ef4444',
             borderRadius: '8px',
             color: '#ef4444',
@@ -90,36 +90,32 @@ const DistrictCoordination = () => {
         {!loading && !error && (
           <>
             {/* Search Bar Component */}
-            <DistrictSearchBar 
+            <DistrictSearchBar
               searchTerm={searchQuery}
               onSearchChange={setSearchQuery}
+              colors={colors}
             />
 
-        {/* Districts List Component */}
-        <DistrictsList 
-          districts={filteredDistricts}
-          selectedDistrict={selectedDistrict?.id}
-          onSelectDistrict={(districtId) => {
-            const district = filteredDistricts.find(d => d.id === districtId);
-            setSelectedDistrict(district);
-          }}
-          colors={colors}
-        />
+            {/* Districts List Component */}
+            <DistrictsList
+              districts={filteredDistricts}
+              selectedDistrict={selectedDistrict?.id}
+              onSelectDistrict={(districtId) => {
+                const district = filteredDistricts.find(d => d.id === districtId);
+                setSelectedDistrict(district);
+              }}
+              colors={colors}
+            />
 
-        {/* Detail Panel Component */}
-        <DetailPanel 
-          selectedDistrictData={selectedDistrict}
-          colors={colors}
-          onAssignTeam={(districtId) => {
-            showDemo('Assign Team', `Team assignment interface for the selected district. You can assign teams and manage personnel allocation.`, 'info');
-          }}
-          onUpdateStatus={(districtId) => {
-            showDemo('Update Status', `Update coordination status for the selected district. You can change operational status and update priorities.`, 'success');
-          }}
-        />
+            {/* Detail Panel Component */}
+            <DetailPanel
+              selectedDistrictData={selectedDistrict}
+              colors={colors}
+              onClose={() => setSelectedDistrict(null)}
+            />
           </>
         )}
-        
+
         {/* Demo Modal */}
         <DemoModal
           isOpen={demoModal.isOpen}

@@ -13,7 +13,7 @@ import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConf
 import { Map, Loader2 } from 'lucide-react';
 import ProvincialWeatherMap from '../components/ProvincialMap/ProvincialWeatherMap/ProvincialWeatherMap';
 import { useProvincialMapState } from '../hooks';
-import '../styles/pdma.css';
+import '@styles/css/main.css';
 
 const ProvincialMap = () => {
   const {
@@ -99,7 +99,6 @@ const ProvincialMap = () => {
         {/* ArcGIS Map Component */}
         <div style={{ marginBottom: '24px' }}>
           <ProvincialWeatherMap
-            provinceName="Punjab"
             height="500px"
             showDashboardLayout={false}
           />

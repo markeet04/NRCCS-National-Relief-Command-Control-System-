@@ -11,7 +11,7 @@ import {
 } from '../components';
 import { useShelterManagementState } from '../hooks';
 import { transformSheltersForUI } from '../utils';
-import '../styles/pdma.css';
+import '@styles/css/main.css';
 
 const ShelterManagement = () => {
   // Use custom hook for shelter management state
@@ -58,12 +58,12 @@ const ShelterManagement = () => {
       <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary }}>
         {/* Loading State */}
         {loading && (
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
             minHeight: '400px',
-            color: colors.textSecondary 
+            color: colors.textSecondary
           }}>
             <Loader2 size={40} className="animate-spin" style={{ marginRight: '12px' }} />
             <span>Loading shelters...</span>
@@ -72,9 +72,9 @@ const ShelterManagement = () => {
 
         {/* Error State */}
         {error && !loading && (
-          <div style={{ 
-            padding: '20px', 
-            background: 'rgba(239, 68, 68, 0.1)', 
+          <div style={{
+            padding: '20px',
+            background: 'rgba(239, 68, 68, 0.1)',
             border: '1px solid #ef4444',
             borderRadius: '8px',
             color: '#ef4444',
@@ -88,7 +88,7 @@ const ShelterManagement = () => {
         {!loading && !error && (
           <>
             {/* Shelter Stats Component */}
-            <ShelterStats 
+            <ShelterStats
               totalShelters={shelters.length}
               totalCapacity={totalCapacity}
               currentOccupancy={totalOccupancy}
@@ -98,23 +98,24 @@ const ShelterManagement = () => {
 
             {/* Search Bar */}
             <div style={{ marginBottom: '20px' }}>
-              <ShelterSearchBar 
+              <ShelterSearchBar
                 searchTerm={searchQuery}
                 onSearchChange={setSearchQuery}
                 placeholder="Search shelters by name or location..."
+                colors={colors}
               />
             </div>
 
-        {/* Shelters List Component */}
-        <SheltersList 
-          shelters={filteredShelters}
-          colors={colors}
-          onSelectShelter={(shelterId) => {
-            const shelter = filteredShelters.find(s => s.id === shelterId);
-            setSelectedShelter(shelter);
-          }}
-          selectedShelter={selectedShelter?.id}
-        />
+            {/* Shelters List Component */}
+            <SheltersList
+              shelters={filteredShelters}
+              colors={colors}
+              onSelectShelter={(shelterId) => {
+                const shelter = filteredShelters.find(s => s.id === shelterId);
+                setSelectedShelter(shelter);
+              }}
+              selectedShelter={selectedShelter?.id}
+            />
           </>
         )}
       </div>

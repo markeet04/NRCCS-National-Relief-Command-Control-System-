@@ -14,7 +14,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { CloudRain, Wind, Droplets, Loader2, Layers, Thermometer, Gauge, RefreshCw, MapPin, Map as MapIcon } from 'lucide-react';
+import { Map as MapIcon } from 'lucide-react';
 
 // ArcGIS Core Modules
 import esriConfig from '@arcgis/core/config';
@@ -58,71 +58,15 @@ import { getThemeColors } from '@shared/utils/themeColors';
 // Auth - for login-based province scoping
 import { useAuth } from '@app/providers/AuthProvider';
 
+// Local Components
+import WeatherInfoPanel from './WeatherInfoPanel';
+import MapOverlays from './MapOverlays';
+import { fetchWeatherData } from './weatherUtils';
+
 // Layout
 import { DashboardLayout } from '@shared/components/layout';
-import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
+import { getMenuItemsByRole } from '@shared/constants/dashboardConfig';
 
-
-// Open-Meteo API URL
-const WEATHER_API_URL = 'https://api.open-meteo.com/v1/forecast';
-
-// ============================================================================
-// WEATHER HELPERS
-// ============================================================================
-
-const fetchWeatherData = async (lat, lon) => {
-  try {
-    const params = new URLSearchParams({
-      latitude: lat,
-      longitude: lon,
-      current: [
-        'temperature_2m', 'relative_humidity_2m', 'precipitation', 'rain',
-        'weather_code', 'wind_speed_10m', 'wind_direction_10m', 'wind_gusts_10m'
-      ].join(','),
-      hourly: ['precipitation_probability', 'precipitation'].join(','),
-      timezone: 'Asia/Karachi',
-      forecast_days: 1
-    });
-
-    const response = await fetch(`${WEATHER_API_URL}?${params}`);
-    if (!response.ok) throw new Error('Weather API request failed');
-    const data = await response.json();
-
-    return {
-      current: {
-        temperature: data.current.temperature_2m,
-        humidity: data.current.relative_humidity_2m,
-        precipitation: data.current.precipitation,
-        rain: data.current.rain,
-        weatherCode: data.current.weather_code,
-        windSpeed: data.current.wind_speed_10m,
-        windDirection: data.current.wind_direction_10m,
-        windGusts: data.current.wind_gusts_10m
-      },
-      hourly: {
-        precipitationProbability: data.hourly.precipitation_probability
-      },
-      timestamp: new Date().toISOString()
-    };
-  } catch (error) {
-    console.error('Failed to fetch weather:', error);
-    return null;
-  }
-};
-
-const getWindDirectionText = (degrees) => {
-  const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
-  return directions[Math.round(degrees / 22.5) % 16];
-};
-
-const getWeatherDescription = (code) => {
-  const descriptions = {
-    0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
-    45: 'Foggy', 51: 'Light drizzle', 61: 'Slight rain', 63: 'Moderate rain',
-    65: 'Heavy rain', 80: 'Rain showers', 95: 'Thunderstorm'
-  };
-  return descriptions[code] || 'Unknown';
-};
 
 // ============================================================================
 // COMPONENT
@@ -574,47 +518,12 @@ const ProvincialWeatherMap = ({
 
   const mapContent = (
     <div className="provincial-map-wrapper" style={{ background: colors.bgPrimary }}>
-      {/* Weather Bar */}
-      {weatherData && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '16px',
-          padding: '12px 16px',
-          marginBottom: '12px',
-          backgroundColor: colors.cardBg,
-          borderRadius: '12px',
-          border: `1px solid ${colors.border}`,
-          flexWrap: 'wrap'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Thermometer style={{ width: '16px', height: '16px', color: '#f97316' }} />
-            <span style={{ color: colors.textPrimary, fontWeight: '600' }}>
-              {weatherData.current.temperature}°C
-            </span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Wind style={{ width: '16px', height: '16px', color: '#3b82f6' }} />
-            <span style={{ color: colors.textSecondary, fontSize: '13px' }}>
-              {weatherData.current.windSpeed} km/h {getWindDirectionText(weatherData.current.windDirection)}
-            </span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Droplets style={{ width: '16px', height: '16px', color: '#8b5cf6' }} />
-            <span style={{ color: colors.textSecondary, fontSize: '13px' }}>
-              {weatherData.current.precipitation} mm
-            </span>
-          </div>
-          <span style={{
-            marginLeft: 'auto',
-            color: colors.textMuted,
-            fontSize: '12px'
-          }}>
-            {getWeatherDescription(weatherData.current.weatherCode)}
-          </span>
-          {weatherLoading && <Loader2 className="animate-spin" style={{ width: '16px', height: '16px', color: colors.primary }} />}
-        </div>
-      )}
+      {/* Weather Info Panel */}
+      <WeatherInfoPanel
+        weatherData={weatherData}
+        weatherLoading={weatherLoading}
+        colors={colors}
+      />
 
       {/* Map Container */}
       <div style={{
@@ -640,73 +549,14 @@ const ProvincialWeatherMap = ({
           }}
         />
 
-        {/* Loading */}
-        {isLoading && (
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'rgba(0, 0, 0, 0.85)',
-            zIndex: 10
-          }}>
-            <Loader2 className="animate-spin" style={{ width: '48px', height: '48px', color: '#10b981', marginBottom: '12px' }} />
-            <span style={{ color: '#ffffff', fontSize: '14px' }}>Loading {provinceName} Map...</span>
-          </div>
-        )}
-
-        {/* Error */}
-        {mapError && (
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: colors.cardBg,
-            zIndex: 10
-          }}>
-            <div style={{ color: '#ef4444', fontWeight: '600', marginBottom: '8px' }}>⚠️ Map Error</div>
-            <div style={{ color: colors.textMuted, fontSize: '13px' }}>{mapError}</div>
-          </div>
-        )}
-
-        {/* Province Label */}
-        <div style={{
-          position: 'absolute',
-          bottom: '12px',
-          right: '12px',
-          backgroundColor: 'rgba(17, 24, 39, 0.9)',
-          color: '#ffffff',
-          padding: '10px 16px',
-          borderRadius: '10px',
-          fontSize: '13px',
-          fontWeight: '600',
-          zIndex: 3
-        }}>
-          🏛️ PDMA {provinceName}
-        </div>
-
-        {/* Animation Mode Badge */}
-        <div style={{
-          position: 'absolute',
-          top: '12px',
-          right: '12px',
-          padding: '6px 12px',
-          borderRadius: '16px',
-          fontSize: '11px',
-          fontWeight: '600',
-          backgroundColor: animationMode.mode?.includes('webgl')
-            ? 'rgba(34, 197, 94, 0.2)'
-            : 'rgba(59, 130, 246, 0.2)',
-          color: animationMode.mode?.includes('webgl') ? '#22c55e' : '#3b82f6',
-          zIndex: 3
-        }}>
-          {animationMode.label}
-        </div>
+        {/* Map Overlays (Loading, Error, Labels) */}
+        <MapOverlays
+          isLoading={isLoading}
+          mapError={mapError}
+          provinceName={provinceName}
+          animationMode={animationMode}
+          colors={colors}
+        />
       </div>
 
       {/* Animation controls in LayerList widget */}

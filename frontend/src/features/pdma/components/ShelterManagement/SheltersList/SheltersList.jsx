@@ -13,12 +13,12 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) =>
           key={shelter.id}
           style={{
             padding: '16px',
-            border: selectedShelter === shelter.id ? `2px solid ${colors.primary}` : '1px solid #E5E7EB',
+            border: selectedShelter === shelter.id ? `2px solid ${colors.primary}` : `1px solid ${colors.border}`,
             borderRadius: '8px',
-            backgroundColor: selectedShelter === shelter.id ? '#F0F9FF' : '#FFFFFF',
+            backgroundColor: selectedShelter === shelter.id ? colors.bgSecondary : colors.cardBg,
             cursor: 'pointer',
             transition: 'all 0.2s ease',
-            boxShadow: selectedShelter === shelter.id ? '0 4px 12px rgba(59, 130, 246, 0.1)' : 'none'
+            boxShadow: selectedShelter === shelter.id ? `0 4px 12px rgba(59, 130, 246, 0.1)` : 'none'
           }}
           onMouseEnter={(e) => {
             if (selectedShelter !== shelter.id) {
@@ -27,7 +27,7 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) =>
           }}
           onMouseLeave={(e) => {
             if (selectedShelter !== shelter.id) {
-              e.currentTarget.style.borderColor = '#E5E7EB';
+              e.currentTarget.style.borderColor = colors.border;
             }
           }}
         >
@@ -47,7 +47,7 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) =>
                 fontSize: '16px',
                 fontWeight: '600',
                 margin: 0,
-                color: '#1F2937'
+                color: colors.textPrimary
               }}>
                 {shelter.name}
               </h3>
@@ -57,8 +57,8 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) =>
               borderRadius: '4px',
               fontSize: '12px',
               fontWeight: '500',
-              backgroundColor: shelter.status === 'operational' ? '#DCFCE7' : '#FEE2E2',
-              color: shelter.status === 'operational' ? '#15803D' : '#991B1B'
+              backgroundColor: shelter.status === 'operational' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+              color: shelter.status === 'operational' ? '#10b981' : '#ef4444'
             }}>
               {shelter.status}
             </span>
@@ -70,7 +70,7 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) =>
             gap: '8px',
             marginBottom: '12px',
             fontSize: '14px',
-            color: '#6B7280'
+            color: colors.textSecondary
           }}>
             <MapPin size={16} color={colors.secondary} />
             {shelter.location}
@@ -82,12 +82,12 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) =>
             gap: '12px',
             marginBottom: '12px',
             paddingBottom: '12px',
-            borderBottom: '1px solid #E5E7EB'
+            borderBottom: `1px solid ${colors.border}`
           }}>
             <div>
               <label style={{
                 fontSize: '11px',
-                color: '#9CA3AF',
+                color: colors.textMuted,
                 fontWeight: '600',
                 display: 'block',
                 marginBottom: '4px'
@@ -98,7 +98,7 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) =>
                 fontSize: '16px',
                 fontWeight: '700',
                 margin: 0,
-                color: '#1F2937'
+                color: colors.textPrimary
               }}>
                 {shelter.currentOccupancy || 0}/{shelter.capacity || 0}
               </p>
@@ -107,7 +107,7 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) =>
             <div>
               <label style={{
                 fontSize: '11px',
-                color: '#9CA3AF',
+                color: colors.textMuted,
                 fontWeight: '600',
                 display: 'block',
                 marginBottom: '4px'
@@ -118,7 +118,7 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) =>
                 fontSize: '16px',
                 fontWeight: '700',
                 margin: 0,
-                color: '#1F2937'
+                color: colors.textPrimary
               }}>
                 {shelter.capacity > 0 ? Math.round((shelter.currentOccupancy / shelter.capacity) * 100) : 0}%
               </p>
@@ -132,7 +132,7 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) =>
             fontSize: '13px'
           }}>
             <AlertTriangle size={16} color={shelter.capacity > 0 && Math.round((shelter.currentOccupancy / shelter.capacity) * 100) >= 100 ? colors.danger : shelter.capacity > 0 && Math.round((shelter.currentOccupancy / shelter.capacity) * 100) > 80 ? colors.warning : colors.success} />
-            <span style={{ color: '#6B7280' }}>
+            <span style={{ color: colors.textSecondary }}>
               {shelter.capacity > 0 && Math.round((shelter.currentOccupancy / shelter.capacity) * 100) >= 100 ? 'Fully occupied' : shelter.capacity > 0 && Math.round((shelter.currentOccupancy / shelter.capacity) * 100) > 80 ? 'Near capacity' : 'Space available'}
             </span>
           </div>
