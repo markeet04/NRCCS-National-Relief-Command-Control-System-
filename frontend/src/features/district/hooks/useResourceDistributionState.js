@@ -17,26 +17,32 @@ const useResourceDistributionState = () => {
   const [resources, setResources] = useState([]);
   const [resourceStats, setResourceStats] = useState(null);
   const [shelters, setShelters] = useState([]);
+  const [fullShelters, setFullShelters] = useState([]); // Full shelter data with supplies
+  const [activityLogs, setActivityLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const notification = useNotification();
 
-  // Fetch resources, stats, and shelters
+  // Fetch resources, stats, shelters, and activity logs
   const fetchResourceData = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const [resourcesData, statsData, sheltersData] = await Promise.all([
+      const [resourcesData, statsData, sheltersData, fullSheltersData, logsData] = await Promise.all([
         districtApi.getAllResources(),
         districtApi.getResourceStats(),
         districtApi.getSheltersForAllocation(),
+        districtApi.getAllShelters(), // Full shelter data with supplies
+        districtApi.getActivityLogs(50), // Get recent activity logs
       ]);
 
       setResources(resourcesData);
       setResourceStats(statsData);
       setShelters(sheltersData);
+      setFullShelters(fullSheltersData);
+      setActivityLogs(logsData);
     } catch (err) {
       setError(err.message);
       notification.error(err.message);
@@ -136,6 +142,8 @@ const useResourceDistributionState = () => {
     resources,
     resourceStats,
     shelters,
+    fullShelters, // Full shelter data with supplies
+    activityLogs, // Activity logs from backend
     loading,
     error,
     refetch: fetchResourceData,

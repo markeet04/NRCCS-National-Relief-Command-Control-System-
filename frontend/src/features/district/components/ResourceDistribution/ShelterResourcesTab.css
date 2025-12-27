@@ -1,0 +1,649 @@
+/**
+ * ShelterResourcesTab Styles
+ * Displays resources allocated to each shelter
+ */
+
+/* ============================================================================
+   SHELTER RESOURCES TAB CONTAINER
+   ============================================================================ */
+.shelter-resources-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.shelter-resources-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  color: #94a3b8;
+}
+
+/* ============================================================================
+   HEADER
+   ============================================================================ */
+.shelter-resources-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.shelter-resources-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.shelter-resources-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.shelter-resources-subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.shelter-resources-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.shelter-resources-refresh-btn,
+.shelter-resources-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #94a3b8;
+  background: transparent;
+  border: 1px solid #2d3238;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shelter-resources-refresh-btn:hover,
+.shelter-resources-toggle-btn:hover {
+  color: #ffffff;
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* ============================================================================
+   SUMMARY STATS
+   ============================================================================ */
+.shelter-summary-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .shelter-summary-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .shelter-summary-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+.shelter-summary-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: #0f1114;
+  border: 1px solid #1e2227;
+  border-radius: 10px;
+}
+
+.shelter-summary-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.shelter-summary-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================================================
+   FILTER SECTION
+   ============================================================================ */
+.shelter-filter-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.shelter-filter-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.shelter-filter-options {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.shelter-filter-btn {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #64748b;
+  background: transparent;
+  border: 1px solid #2d3238;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shelter-filter-btn:hover {
+  color: #94a3b8;
+  border-color: #3b82f6;
+}
+
+.shelter-filter-btn.active {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+}
+
+/* ============================================================================
+   SHELTER CARDS LIST
+   ============================================================================ */
+.shelter-resources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.shelter-resources-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  background: #0f1114;
+  border: 1px dashed #2d3238;
+  border-radius: 12px;
+  color: #64748b;
+  text-align: center;
+}
+
+.shelter-resources-empty h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.shelter-resources-empty p {
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* ============================================================================
+   SHELTER RESOURCE CARD
+   ============================================================================ */
+.shelter-resource-card {
+  background: #0f1114;
+  border: 1px solid #1e2227;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.shelter-resource-card:hover {
+  border-color: #2d3238;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Status-based left border */
+.shelter-resource-card.status-adequate {
+  border-left: 3px solid #22c55e;
+}
+
+.shelter-resource-card.status-moderate {
+  border-left: 3px solid #eab308;
+}
+
+.shelter-resource-card.status-low {
+  border-left: 3px solid #f97316;
+}
+
+.shelter-resource-card.status-critical {
+  border-left: 3px solid #ef4444;
+}
+
+/* Card Header */
+.shelter-resource-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.shelter-resource-header:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.shelter-resource-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.shelter-resource-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.shelter-resource-icon.status-adequate {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.shelter-resource-icon.status-moderate {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.shelter-resource-icon.status-low {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.shelter-resource-icon.status-critical {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.shelter-resource-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.shelter-resource-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shelter-resource-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.shelter-resource-location {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shelter-resource-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.shelter-status-badge {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 4px;
+}
+
+.shelter-status-badge.status-available {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.shelter-status-badge.status-limited {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.shelter-status-badge.status-full {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.shelter-status-badge.status-operational {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.shelter-status-badge.status-closed {
+  background: rgba(100, 116, 139, 0.15);
+  color: #64748b;
+}
+
+.shelter-status-badge.status-unknown {
+  background: rgba(100, 116, 139, 0.15);
+  color: #64748b;
+}
+
+.shelter-supply-badge {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+.shelter-supply-badge.status-adequate {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.shelter-supply-badge.status-moderate {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.shelter-supply-badge.status-low {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.shelter-supply-badge.status-critical {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.shelter-expand-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.375rem;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.shelter-expand-btn:hover {
+  color: #94a3b8;
+}
+
+/* ============================================================================
+   EXPANDED CONTENT
+   ============================================================================ */
+.shelter-resource-content {
+  padding: 0 1.25rem 1.25rem;
+  border-top: 1px solid #1e2227;
+}
+
+/* Occupancy Section */
+.shelter-occupancy-section {
+  padding: 1rem 0;
+  border-bottom: 1px solid #1e2227;
+}
+
+.shelter-occupancy-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+.shelter-occupancy-label {
+  font-weight: 500;
+}
+
+.shelter-occupancy-value {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.shelter-occupancy-percent {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.shelter-occupancy-percent.low {
+  color: #22c55e;
+}
+
+.shelter-occupancy-percent.medium {
+  color: #eab308;
+}
+
+.shelter-occupancy-percent.high {
+  color: #ef4444;
+}
+
+.shelter-occupancy-bar {
+  height: 6px;
+  background: #2d3238;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.shelter-occupancy-progress {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.shelter-occupancy-progress.low {
+  background: #22c55e;
+}
+
+.shelter-occupancy-progress.medium {
+  background: #eab308;
+}
+
+.shelter-occupancy-progress.high {
+  background: #ef4444;
+}
+
+/* ============================================================================
+   RESOURCES GRID
+   ============================================================================ */
+.shelter-resources-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+@media (max-width: 1280px) {
+  .shelter-resources-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .shelter-resources-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.shelter-resource-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid #1e2227;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.shelter-resource-item.status-adequate {
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.shelter-resource-item.status-moderate {
+  border-color: rgba(234, 179, 8, 0.3);
+}
+
+.shelter-resource-item.status-low {
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+.shelter-resource-item.status-critical {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.shelter-resource-item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.shelter-resource-item-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.shelter-resource-item-gauge {
+  position: relative;
+  width: 100%;
+  height: 80px;
+}
+
+.shelter-resource-gauge-value {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.shelter-resource-item-status {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.125rem 0.375rem;
+  border-radius: 3px;
+}
+
+.shelter-resource-item-status.status-adequate {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.shelter-resource-item-status.status-moderate {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.shelter-resource-item-status.status-low {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.shelter-resource-item-status.status-critical {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* ============================================================================
+   MANAGER & CRITICAL NEEDS
+   ============================================================================ */
+.shelter-manager-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #1e2227;
+}
+
+.shelter-manager-label {
+  color: #64748b;
+}
+
+.shelter-manager-value {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.shelter-critical-needs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.shelter-critical-label {
+  font-size: 0.875rem;
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.shelter-critical-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.shelter-critical-tag {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+  border-radius: 4px;
+}

@@ -8,6 +8,10 @@ export { default as ResourceFilters } from './ResourceFilters';
 export { default as ResourceStats } from './ResourceStats';
 export { default as ResourceGrid } from './ResourceGrid';
 export { default as ResourceCard } from './ResourceCard';
+export { default as DistrictStockCard } from './DistrictStockCard';
+export { default as ResourceHistoryModal } from './ResourceHistoryModal';
+export { default as AllocateToSheltersTab } from './AllocateToSheltersTab';
+export { default as ShelterResourcesTab } from './ShelterResourcesTab';
 
 // Form Components
 export { default as AllocateByTypeForm } from './AllocateByTypeForm';

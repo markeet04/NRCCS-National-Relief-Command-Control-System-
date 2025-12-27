@@ -1,11 +1,11 @@
 /**
  * ResourceDistribution Page (Modular, Visual Parity)
- * Matches the original design from screenshot
+ * Matches PDMA/NDMA design with half-donut gauges
  */
 
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, Send, Home, MapPin } from 'lucide-react';
+import { Package, Send, Layers, Droplets, Stethoscope, Loader2 } from 'lucide-react';
 import { DashboardLayout } from '@shared/components/layout';
 import { useAuth } from '../../../../app/providers/AuthProvider';
 import { DISTRICT_MENU_ITEMS } from '../../constants';
@@ -16,14 +16,21 @@ import {
 } from '../../hooks';
 import {
   AllocateToShelterForm,
-  AllocateByTypeForm,
-  RequestResourceModal
+  RequestResourceModal,
+  DistrictStockCard,
+  ResourceHistoryModal,
+  AllocateToSheltersTab,
+  ShelterResourcesTab
 } from '../../components/ResourceDistribution';
 import '../../components/ResourceDistribution/ResourceDistribution.css';
 import '@styles/css/main.css';
 
-// Status filter options
-const FILTER_OPTIONS = ['All', 'Available', 'Allocated', 'Low', 'Critical'];
+// Tab options matching PDMA style - Added Shelter Resources between Stock and Allocate
+const TAB_OPTIONS = [
+  { id: 'stock', label: 'District Stock' },
+  { id: 'shelter-resources', label: 'Shelter Resources' },
+  { id: 'allocate', label: 'Allocate to Shelters' },
+];
 
 // Status color mapping
 const STATUS_COLORS = {
@@ -60,30 +67,41 @@ const ResourceDistribution = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [activeRoute, setActiveRoute] = useState('resources');
-  const [selectedFilter, setSelectedFilter] = useState('All');
+  const [activeTab, setActiveTab] = useState('stock');
   const [isAllocateModalOpen, setIsAllocateModalOpen] = useState(false);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [selectedResource, setSelectedResource] = useState(null);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [historyResource, setHistoryResource] = useState(null);
+  
+  // Allocate form state for AllocateToSheltersTab
+  const [allocateForm, setAllocateForm] = useState({
+    targetShelter: '',
+    resourceType: '',
+    quantity: '',
+    priority: 'normal',
+    notes: '',
+  });
+  const [allocating, setAllocating] = useState(false);
 
   // Hooks
   const { districtInfo, rawStats: districtStats } = useDistrictData();
   const { shelters } = useShelterData();
-  const { resources, allocateToShelter, handleRequestFromPdma } = useResourceDistributionState();
+  const { 
+    resources, 
+    loading, 
+    allocateToShelter, 
+    handleRequestFromPdma,
+    fullShelters,
+    activityLogs,
+    refetch
+  } = useResourceDistributionState();
 
   // Navigation
   const handleNavigate = useCallback((route) => {
     setActiveRoute(route);
     navigate(route === 'dashboard' ? '/district' : `/district/${route}`);
   }, [navigate]);
-
-  // Filter resources
-  const filteredResources = useMemo(() => {
-    if (selectedFilter === 'All') return resources;
-    return resources.filter(r => {
-      const status = getResourceStatus(r);
-      return status === selectedFilter.toLowerCase();
-    });
-  }, [resources, selectedFilter]);
 
   // Stats
   const stats = useMemo(() => {
@@ -97,10 +115,64 @@ const ResourceDistribution = () => {
     };
   }, [resources]);
 
+  // Compute district stock for allocate tab
+  const districtStock = useMemo(() => {
+    const stock = {};
+    resources.forEach(r => {
+      const type = r.type?.toLowerCase() || r.name?.toLowerCase().replace(/\s+/g, '') || 'other';
+      stock[type] = {
+        total: r.quantity,
+        allocated: r.allocated || 0,
+        unit: r.unit || 'units'
+      };
+    });
+    return stock;
+  }, [resources]);
+
+  // Compute recent allocations from activity logs
+  const recentAllocations = useMemo(() => {
+    return activityLogs
+      .filter(log => log.type?.includes('allocat') || log.title?.toLowerCase().includes('allocat'))
+      .slice(0, 10)
+      .map((log, index) => ({
+        id: log.id || index,
+        date: log.createdAt ? new Date(log.createdAt).toLocaleDateString() : 'N/A',
+        shelter: log.description?.match(/to\s+(.+?)(?:\s*-|$)/i)?.[1] || 'Shelter',
+        resources: log.description?.match(/(\d+\s*\w+)/)?.[1] || log.title,
+        status: 'completed',
+      }));
+  }, [activityLogs]);
+
+  // Compute history data from activity logs for a specific resource
+  const getResourceHistory = useCallback((resource) => {
+    const resourceType = resource?.type?.toLowerCase() || resource?.name?.toLowerCase().replace(/\s+/g, '') || '';
+    return activityLogs
+      .filter(log => {
+        const desc = (log.description || '').toLowerCase();
+        const title = (log.title || '').toLowerCase();
+        return (desc.includes(resourceType) || title.includes(resourceType)) &&
+               (log.type?.includes('allocat') || title.includes('allocat'));
+      })
+      .slice(0, 10)
+      .map((log, index) => ({
+        id: log.id || index,
+        date: log.createdAt,
+        shelter: log.description?.match(/to\s+["']?([^"']+?)["']?(?:\s*-|$)/i)?.[1] || 'Shelter',
+        resourceType: resource?.name || 'Resource',
+        amountAllocated: log.description?.match(/(\d+\s*\w+)/)?.[1] || 'N/A',
+        remainingStock: 'N/A',
+      }));
+  }, [activityLogs]);
+
   // Handlers
   const handleAllocateClick = (resource) => {
     setSelectedResource(resource);
     setIsAllocateModalOpen(true);
+  };
+
+  const handleViewHistory = (resource) => {
+    setHistoryResource(resource);
+    setIsHistoryModalOpen(true);
   };
 
   const handleAllocateSubmit = async (data) => {
@@ -110,6 +182,40 @@ const ResourceDistribution = () => {
       setSelectedResource(null);
     } catch (error) {
       console.error('Allocation failed:', error);
+    }
+  };
+  
+  // Handle allocate form changes
+  const handleAllocateFormChange = (field, value) => {
+    setAllocateForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Handle allocate form submit from AllocateToSheltersTab
+  const handleAllocateFormSubmit = async (e) => {
+    e.preventDefault();
+    setAllocating(true);
+    
+    try {
+      await allocateToShelter({
+        resourceType: allocateForm.resourceType,
+        shelterId: allocateForm.targetShelter,
+        quantity: parseInt(allocateForm.quantity, 10),
+        priority: allocateForm.priority,
+        notes: allocateForm.notes,
+      });
+      
+      // Reset form
+      setAllocateForm({
+        targetShelter: '',
+        resourceType: '',
+        quantity: '',
+        priority: 'normal',
+        notes: '',
+      });
+    } catch (error) {
+      console.error('Allocation failed:', error);
+    } finally {
+      setAllocating(false);
     }
   };
 
@@ -128,6 +234,26 @@ const ResourceDistribution = () => {
     return qty.toString();
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <DashboardLayout
+        menuItems={DISTRICT_MENU_ITEMS}
+        activeRoute={activeRoute}
+        onNavigate={handleNavigate}
+        pageTitle="Resource Distribution"
+        pageSubtitle="Allocate district resources to shelters"
+        userRole={`District ${districtInfo?.name || ''}`}
+        userName={user?.name || 'District Officer'}
+        notificationCount={districtStats?.pendingSOS || 0}
+      >
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout
       menuItems={DISTRICT_MENU_ITEMS}
@@ -139,21 +265,61 @@ const ResourceDistribution = () => {
       userName={user?.name || 'District Officer'}
       notificationCount={districtStats?.pendingSOS || 0}
     >
-      <div className="p-6">
-        {/* Filter Tabs + Request Button */}
-        <div className="resource-filters">
-          <div className="resource-filters__tabs">
-            {FILTER_OPTIONS.map(filter => (
+      <div className="district-resource-distribution">
+        {/* Stats Grid - NDMA Style */}
+        <div className="district-stats-grid">
+          <div className="district-stat-card">
+            <div className="district-stat-icon" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
+              <Layers size={20} style={{ color: '#3b82f6' }} />
+            </div>
+            <div className="district-stat-content">
+              <span className="district-stat-value" style={{ color: '#3b82f6' }}>{stats.resourceTypes}</span>
+              <span className="district-stat-label">Resource Types</span>
+            </div>
+          </div>
+          <div className="district-stat-card">
+            <div className="district-stat-icon" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+              <Package size={20} style={{ color: '#10b981' }} />
+            </div>
+            <div className="district-stat-content">
+              <span className="district-stat-value" style={{ color: '#10b981' }}>{formatQuantity(stats.totalQuantity)}</span>
+              <span className="district-stat-label">Total Quantity</span>
+            </div>
+          </div>
+          <div className="district-stat-card">
+            <div className="district-stat-icon" style={{ background: 'rgba(245, 158, 11, 0.1)' }}>
+              <Droplets size={20} style={{ color: '#f59e0b' }} />
+            </div>
+            <div className="district-stat-content">
+              <span className="district-stat-value" style={{ color: '#f59e0b' }}>{stats.distributed}%</span>
+              <span className="district-stat-label">Distributed</span>
+            </div>
+          </div>
+          <div className="district-stat-card">
+            <div className="district-stat-icon" style={{ background: 'rgba(239, 68, 68, 0.1)' }}>
+              <Stethoscope size={20} style={{ color: '#ef4444' }} />
+            </div>
+            <div className="district-stat-content">
+              <span className="district-stat-value" style={{ color: '#ef4444' }}>{formatQuantity(stats.available)}</span>
+              <span className="district-stat-label">Available</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Section Tabs */}
+        <div className="district-section-tabs">
+          <div className="district-tabs-container">
+            {TAB_OPTIONS.map(tab => (
               <button
-                key={filter}
-                onClick={() => setSelectedFilter(filter)}
-                className={`resource-filters__tab ${selectedFilter === filter ? 'resource-filters__tab--active' : ''}`}
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`district-tab-btn ${activeTab === tab.id ? 'district-tab-btn--active' : ''}`}
               >
-                {filter}
+                {tab.label}
               </button>
             ))}
           </div>
-          <div className="resource-filters__actions">
+          <div className="district-section-actions">
             <button
               onClick={() => setIsRequestModalOpen(true)}
               className="btn btn--primary"
@@ -161,113 +327,49 @@ const ResourceDistribution = () => {
               <Send size={16} />
               Request from PDMA
             </button>
-            <div className="flex items-center gap-2 text-sm text-secondary">
-              <Home size={16} />
-              <span>Resources allocated by PDMA</span>
-            </div>
           </div>
         </div>
 
-        {/* Stats Row */}
-        <div className="resource-stats-grid">
-          <div className="resource-stat-card" style={{ borderLeftColor: '#3b82f6' }}>
-            <p className="resource-stat-card__title">Resource Types</p>
-            <p className="resource-stat-card__value" style={{ color: '#3b82f6' }}>{stats.resourceTypes}</p>
-            <p className="resource-stat-card__subtitle">Different types</p>
-          </div>
-          <div className="resource-stat-card" style={{ borderLeftColor: '#10b981' }}>
-            <p className="resource-stat-card__title">Total Quantity</p>
-            <p className="resource-stat-card__value" style={{ color: '#10b981' }}>{formatQuantity(stats.totalQuantity)}</p>
-            <p className="resource-stat-card__subtitle">Units available</p>
-          </div>
-          <div className="resource-stat-card" style={{ borderLeftColor: '#f59e0b' }}>
-            <p className="resource-stat-card__title">Distributed</p>
-            <p className="resource-stat-card__value" style={{ color: '#f59e0b' }}>{stats.distributed}%</p>
-            <p className="resource-stat-card__subtitle">To shelters</p>
-          </div>
-          <div className="resource-stat-card" style={{ borderLeftColor: '#ef4444' }}>
-            <p className="resource-stat-card__title">Available</p>
-            <p className="resource-stat-card__value" style={{ color: '#ef4444' }}>{formatQuantity(stats.available)}</p>
-            <p className="resource-stat-card__subtitle">For allocation</p>
-          </div>
-        </div>
-
-        {/* Resource Cards Grid */}
-        <div className="resource-grid">
-          {filteredResources.map(resource => {
-            const status = getResourceStatus(resource);
-            const statusColor = STATUS_COLORS[status] || STATUS_COLORS.available;
-            const available = resource.quantity - (resource.allocated || 0);
-            const usagePercent = resource.quantity > 0
-              ? Math.round((resource.allocated / resource.quantity) * 100)
-              : 0;
-
-            return (
-              <div key={resource.id} className="resource-card">
-                {/* Header */}
-                <div className="resource-card__header">
-                  <div className="resource-card__info">
-                    <div className="resource-card__icon" style={{ background: statusColor.light }}>
-                      <Package size={20} style={{ color: statusColor.bg }} />
-                    </div>
-                    <div>
-                      <h3 className="resource-card__title">{resource.name}</h3>
-                      <p className="resource-card__unit">{resource.unit || 'units'}</p>
-                    </div>
-                  </div>
-                  <span
-                    className="resource-card__status"
-                    style={{ background: statusColor.light, color: statusColor.bg }}
-                  >
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                  </span>
-                </div>
-
-                {/* Progress */}
-                <div className="resource-card__progress">
-                  <div className="resource-card__progress-header">
-                    <span className="resource-card__progress-label">Usage</span>
-                    <span className="resource-card__progress-value">{resource.allocated || 0}/{resource.quantity}</span>
-                  </div>
-                  <div className="resource-card__progress-bar">
-                    <div
-                      className="resource-card__progress-fill"
-                      style={{
-                        width: `${usagePercent}%`,
-                        background: statusColor.bg
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Meta */}
-                <div className="resource-card__meta">
-                  <div className="resource-card__location">
-                    <MapPin size={12} />
-                    <span>{resource.location || `District ${districtInfo?.id || ''} Warehouse`}</span>
-                  </div>
-                  <div>Updated: {formatTimeAgo(resource.updatedAt || resource.lastUpdate)}</div>
-                </div>
-
-                {/* Allocate Button */}
-                <button
-                  onClick={() => handleAllocateClick(resource)}
-                  disabled={available <= 0}
-                  className="resource-card__allocate-btn"
-                  style={{
-                    background: available <= 0 ? '#4b5563' : statusColor.light,
-                    color: available <= 0 ? '#9ca3af' : statusColor.bg,
-                    border: `1px solid ${available <= 0 ? '#4b5563' : statusColor.light}`,
-                    cursor: available <= 0 ? 'not-allowed' : 'pointer',
-                    opacity: available <= 0 ? 0.6 : 1
-                  }}
-                >
-                  {available <= 0 ? 'Fully Allocated' : 'Allocate to Shelter'}
-                </button>
+        {/* Tab Content */}
+        {activeTab === 'stock' && (
+          <div className="district-stock-grid">
+            {resources.map(resource => (
+              <DistrictStockCard
+                key={resource.id}
+                resource={resource}
+                onAllocate={handleAllocateClick}
+                onViewHistory={handleViewHistory}
+              />
+            ))}
+            {resources.length === 0 && (
+              <div className="district-empty-state">
+                <Package size={48} className="text-gray-500" />
+                <p>No resources available</p>
+                <span>Request resources from PDMA to get started</span>
               </div>
-            );
-          })}
-        </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'shelter-resources' && (
+          <ShelterResourcesTab
+            shelters={fullShelters}
+            loading={loading}
+            onRefresh={refetch}
+          />
+        )}
+
+        {activeTab === 'allocate' && (
+          <AllocateToSheltersTab
+            allocateForm={allocateForm}
+            onFormChange={handleAllocateFormChange}
+            onSubmit={handleAllocateFormSubmit}
+            allocating={allocating}
+            shelters={shelters}
+            districtStock={districtStock}
+            recentAllocations={recentAllocations}
+          />
+        )}
       </div>
 
       {/* Modals */}
@@ -283,6 +385,14 @@ const ResourceDistribution = () => {
         isOpen={isRequestModalOpen}
         onClose={() => setIsRequestModalOpen(false)}
         onSubmit={handleRequestSubmit}
+      />
+
+      {/* History Modal - PDMA Style with Backend Data */}
+      <ResourceHistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        resource={historyResource}
+        historyData={historyResource ? getResourceHistory(historyResource) : []}
       />
     </DashboardLayout>
   );
