@@ -5,6 +5,7 @@ import NDMADashboard from './NDMADashboard';
 import AlertsPage from './AlertsPage';
 import ResourcesPage from './ResourcesPage';
 import FloodMapPage from './FloodMapPage';
+import SuggestionsPage from './SuggestionsPage';
 
 // Placeholder components for future pages
 const ReportsPage = () => (
@@ -34,6 +35,9 @@ const NDMAPortalRoutes = () => {
       
       {/* Resource Management */}
       <Route path="resources" element={<ResourcesPage />} />
+      
+      {/* AI Suggestions */}
+      <Route path="suggestions" element={<SuggestionsPage />} />
       
       {/* Flood Map / Weather Map */}
       <Route path="flood-map" element={<FloodMapPage />} />

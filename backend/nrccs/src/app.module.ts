@@ -11,6 +11,7 @@ import { PdmaModule } from './pdma/pdma.module';
 import { DistrictModule } from './district/district.module';
 import { CivilianModule } from './civilian/civilian.module';
 import { NdmaModule } from './ndma/ndma.module';
+import { ReasoningModule } from './reasoning/reasoning.module';
 
 
 @Module({
@@ -35,6 +36,7 @@ import { NdmaModule } from './ndma/ndma.module';
     DistrictModule,
     CivilianModule,
     NdmaModule,  // NDMA Dashboard module
+    ReasoningModule,  // AI Deductive Reasoning module
   ],
   controllers: [AppController],
   providers: [AppService],

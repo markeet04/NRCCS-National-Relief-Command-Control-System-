@@ -93,6 +93,54 @@ class MockAPIClient {
    * Override this method to return different mock data
    */
   _getMockData(endpoint) {
+    // Mock AI suggestions endpoint
+    if (endpoint.startsWith('/reasoning/suggestions')) {
+      return [
+        {
+          id: 1,
+          status: 'PENDING',
+          resourceType: 'food',
+          suggestedQuantity: 1000,
+          provinceId: 1,
+          provinceName: 'Punjab',
+          reasoning: 'High flood risk detected in Punjab region with ML confidence of 92%',
+          ruleIds: ['RULE-001', 'RULE-302'],
+          confidenceScore: 0.92,
+          mlPredictionData: { flood_risk: 0.85, rainfall: 150, temperature: 35 },
+          createdAt: new Date().toISOString(),
+          flags: ['HIGH_PRIORITY'],
+        },
+        {
+          id: 2,
+          status: 'APPROVED',
+          resourceType: 'water',
+          suggestedQuantity: 500,
+          provinceId: 2,
+          provinceName: 'Sindh',
+          reasoning: 'Severe rainfall predicted in Sindh region',
+          ruleIds: ['RULE-002'],
+          confidenceScore: 0.88,
+          mlPredictionData: { flood_risk: 0.80, rainfall: 120 },
+          createdAt: new Date(Date.now() - 86400000).toISOString(),
+          reviewedAt: new Date(Date.now() - 3600000).toISOString(),
+          allocationId: 42,
+        },
+        {
+          id: 3,
+          status: 'PENDING',
+          resourceType: 'medical',
+          suggestedQuantity: 250,
+          provinceId: 3,
+          provinceName: 'KPK',
+          reasoning: 'Population at risk requires medical supplies',
+          ruleIds: ['RULE-003'],
+          confidenceScore: 0.75,
+          mlPredictionData: { flood_risk: 0.65 },
+          createdAt: new Date(Date.now() - 7200000).toISOString(),
+          flags: ['LOW_CONFIDENCE'],
+        },
+      ];
+    }
     // Default empty response
     return { data: [], message: 'Mock data not configured for this endpoint' };
   }

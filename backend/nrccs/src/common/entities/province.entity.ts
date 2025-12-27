@@ -22,6 +22,12 @@ export class Province {
   @Column({ type: 'integer', default: 0, name: 'district_count' })
   districtCount: number;
 
+  @Column({ type: 'integer', default: 0, name: 'flood_history_count' })
+  floodHistoryCount: number;
+
+  @Column({ type: 'timestamp', nullable: true, name: 'last_flood_date' })
+  lastFloodDate: Date;
+
   @OneToMany(() => District, (district) => district.province)
   districts: District[];
 

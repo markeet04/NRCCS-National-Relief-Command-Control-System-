@@ -4,6 +4,7 @@ import NdmaApiService from '@shared/services/NdmaApiService';
 import { NotificationService } from '@services/NotificationService';
 
 // Import modular components
+
 import {
   ResourcesPageHeader,
   ResourcesTabNavigation,
@@ -17,6 +18,7 @@ import {
   ResourceHistoryModal,
   AddResourcesModal,
 } from '../../components/ResourcesPage';
+import SuggestionsTab from '../../components/SuggestionsTab/SuggestionsTab';
 
 // Import custom hook for resources logic
 import { useResourcesLogic } from '../../hooks';
@@ -88,6 +90,7 @@ const ResourcesPage = () => {
     { id: 'provincial', label: 'Provincial Stock' },
     { id: 'allocate', label: 'Allocate Resources' },
     { id: 'requests', label: `Provincial Requests${pendingRequestsCount > 0 ? ` (${pendingRequestsCount})` : ''}` },
+    { id: 'ai-suggestions', label: 'AI Suggestions' },
   ];
 
   // Handle view history for a province
@@ -241,6 +244,12 @@ const ResourcesPage = () => {
               onReject={handleRejectRequest}
               nationalStock={nationalStock}
             />
+          )}
+
+          {activeTab === 'ai-suggestions' && (
+            <div style={{marginTop: 24}}>
+              <SuggestionsTab />
+            </div>
           )}
         </div>
       </DashboardLayout>

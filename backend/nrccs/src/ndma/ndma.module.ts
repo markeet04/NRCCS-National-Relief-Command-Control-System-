@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { NdmaController } from './ndma.controller';
 import { NdmaService } from './ndma.service';
@@ -16,6 +16,7 @@ import { AuditLog } from '../common/entities/audit-log.entity';
 import { ResourceRequest } from '../common/entities/resource-request.entity';
 import { NdmaResourceAllocation } from '../common/entities/ndma-resource-allocation.entity';
 import { ResourceAllocation } from '../common/entities/resource-allocation.entity';
+import { ReasoningModule } from '../reasoning/reasoning.module';
 
 @Module({
     imports: [
@@ -34,6 +35,7 @@ import { ResourceAllocation } from '../common/entities/resource-allocation.entit
             NdmaResourceAllocation,
             ResourceAllocation,
         ]),
+        forwardRef(() => ReasoningModule),
     ],
     controllers: [NdmaController],
     providers: [NdmaService, FloodPredictionService],

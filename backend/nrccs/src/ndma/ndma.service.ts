@@ -1,5 +1,5 @@
 // NDMA Service - National Disaster Management Authority
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, IsNull } from 'typeorm';
 import { User } from '../common/entities/user.entity';
@@ -47,7 +47,14 @@ export class NdmaService {
         private ndmaAllocationRepository: Repository<NdmaResourceAllocation>,
         @InjectRepository(ResourceAllocation)
         private resourceAllocationRepository: Repository<ResourceAllocation>,
-    ) { }
+        @Inject(forwardRef(() => require('../reasoning/reasoning.service').ReasoningService))
+        private reasoningService: any,
+    ) {
+        // Fix circular dependency: set NDMA service in ReasoningService
+        if (this.reasoningService?.setNdmaService) {
+            this.reasoningService.setNdmaService(this);
+        }
+    }
 
     // ==================== HELPER METHODS ====================
 
@@ -141,6 +148,25 @@ export class NdmaService {
         );
 
         console.log(`[NDMA] ML Alert created: ${savedAlert.id} - ${prediction.flood_risk} risk for ${province.name}`);
+
+        // NEW: Auto-generate AI resource allocation suggestions
+        // Generate for both simulation and real predictions to test the deductive reasoning system
+        if (this.reasoningService && (prediction.flood_risk === 'High' || prediction.flood_risk === 'Medium')) {
+            try {
+                console.log(`[NDMA] Attempting to generate AI suggestions for ${province.name}...`);
+                const suggestions = await this.reasoningService.processMLPrediction(
+                    prediction,
+                    provinceId,
+                    user.id,
+                );
+                console.log(`[NDMA] ✅ Generated ${suggestions.length} AI suggestions for ${province.name}`);
+            } catch (error) {
+                console.error('[NDMA] ❌ Failed to generate AI suggestions:', error);
+                console.error('[NDMA] Error details:', error.stack);
+            }
+        } else {
+            console.log(`[NDMA] Skipping AI suggestions - reasoningService: ${!!this.reasoningService}, risk: ${prediction.flood_risk}`);
+        }
 
         return savedAlert;
     }
@@ -972,12 +998,22 @@ export class NdmaService {
      * Allocate national resource to a province (NDMA → PDMA)
      */
     async allocateResourceToProvince(resourceId: number, allocateDto: AllocateResourceToProvinceDto, user: User) {
+
+        // Defensive: Ensure user is provided
+        if (!user || !user.id || !user.name) {
+            console.error('[NDMA] ALLOCATE: User context missing or invalid');
+            throw new Error('User context is required for resource allocation');
+        }
+
+        // LOGGING: Allocation start
+        console.log('[NDMA] ALLOCATE: User:', user.id, user.name, '| Province:', allocateDto.provinceId, '| Resource:', resourceId, '| Qty:', allocateDto.quantity);
+
         // Verify national resource exists
         const nationalResource = await this.resourceRepository.findOne({
             where: { id: resourceId, provinceId: IsNull(), districtId: IsNull() },
         });
-
         if (!nationalResource) {
+            console.error('[NDMA] ALLOCATE: National resource not found:', resourceId);
             throw new NotFoundException('National resource not found');
         }
 
@@ -985,14 +1021,15 @@ export class NdmaService {
         const province = await this.provinceRepository.findOne({
             where: { id: allocateDto.provinceId },
         });
-
         if (!province) {
+            console.error('[NDMA] ALLOCATE: Province not found:', allocateDto.provinceId);
             throw new NotFoundException('Province not found');
         }
 
         // Check available stock
         const available = nationalResource.quantity - nationalResource.allocated;
         if (allocateDto.quantity > available) {
+            console.error('[NDMA] ALLOCATE: Insufficient stock. Requested:', allocateDto.quantity, 'Available:', available);
             throw new BadRequestException(
                 `Insufficient stock. Only ${available} ${nationalResource.unit} available`
             );
@@ -1014,6 +1051,7 @@ export class NdmaService {
         }
 
         await this.resourceRepository.save(nationalResource);
+        console.log('[NDMA] ALLOCATE: National resource updated. New allocated:', nationalResource.allocated);
 
         // Create or update province-level resource
         let provinceResource = await this.resourceRepository.findOne({
@@ -1029,6 +1067,7 @@ export class NdmaService {
             // Add to existing province resource
             provinceResource.quantity += allocateDto.quantity;
             await this.resourceRepository.save(provinceResource);
+            console.log('[NDMA] ALLOCATE: Province resource updated. New quantity:', provinceResource.quantity);
         } else {
             // Create new province resource
             const newResourceData = {
@@ -1048,6 +1087,7 @@ export class NdmaService {
             };
             provinceResource = this.resourceRepository.create(newResourceData as any) as unknown as Resource;
             await this.resourceRepository.save(provinceResource);
+            console.log('[NDMA] ALLOCATE: Province resource created. Quantity:', provinceResource.quantity);
         }
 
         const savedProvinceResource = provinceResource;
@@ -1069,6 +1109,7 @@ export class NdmaService {
         });
 
         await this.ndmaAllocationRepository.save(allocation);
+        console.log('[NDMA] ALLOCATE: Allocation record created. Allocation ID:', allocation.id);
 
         await this.logActivity(
             'resource_allocated_to_province',
@@ -1091,6 +1132,11 @@ export class NdmaService {
      * This is used for manual allocation from the UI when selecting resource types
      */
     async allocateResourceByType(allocateDto: AllocateResourceToProvinceDto & { resourceType: string }, user: User) {
+        // Defensive: Ensure user is provided
+        if (!user || !user.id || !user.name) {
+            console.error('[NDMA] ALLOCATE: User context missing or invalid (byType)');
+            throw new Error('User context is required for resource allocation');
+        }
         // Find or create national resource by type
         let nationalResource = await this.resourceRepository.findOne({
             where: {
