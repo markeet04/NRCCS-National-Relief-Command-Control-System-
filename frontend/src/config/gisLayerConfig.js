@@ -57,19 +57,23 @@ export const GIS_LAYERS = {
         }
     },
 
-    // Hydrology - using public Esri World Hydro Reference
+    // Hydrology - DISABLED: Raster TileLayer causes pixelation
+    // The World_Reference_Overlay is a raster service that blurs when zoomed
+    // Vector basemaps (arcgis/navigation) include water features by default
     hydrology: {
         rivers: {
-            // Public Esri hydro reference layer (no auth needed)
-            url: 'https://services.arcgisonline.com/arcgis/rest/services/Reference/World_Reference_Overlay/MapServer',
+            // ⚠️ DISABLED - Raster TileLayer causes blurriness at high zoom
+            // Vector basemaps already include river/water styling
+            url: null,  // Was: 'https://services.arcgisonline.com/arcgis/rest/services/Reference/World_Reference_Overlay/MapServer'
             title: 'Rivers & Water Features',
             type: 'TileLayer',
-            visible: true,
-            opacity: 0.7
+            visible: false,
+            opacity: 0.7,
+            disabled: true,
+            disabledReason: 'Raster TileLayer causes pixelation - using vector basemap water features instead'
         },
         waterbodies: {
-            // Using same reference layer
-            url: null, // Disabled - combined with rivers layer
+            url: null,
             title: 'Water Bodies',
             type: 'FeatureLayer',
             visible: false,
@@ -77,14 +81,18 @@ export const GIS_LAYERS = {
         }
     },
 
-    // Terrain (Living Atlas - public)
+    // Terrain - DISABLED: Raster TileLayer causes pixelation
+    // Hillshade is a pre-rendered raster that blurs when zoomed beyond native resolution
     terrain: {
         hillshade: {
-            url: 'https://services.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer',
+            // ⚠️ DISABLED - Raster TileLayer causes blurriness at high zoom
+            url: null,  // Was: 'https://services.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer'
             title: 'Terrain Hillshade',
             type: 'TileLayer',
             visible: false,
-            opacity: 0.4
+            opacity: 0.4,
+            disabled: true,
+            disabledReason: 'Raster TileLayer causes pixelation when zooming'
         }
     },
 

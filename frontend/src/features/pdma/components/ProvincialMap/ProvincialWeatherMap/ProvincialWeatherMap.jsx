@@ -22,7 +22,7 @@ import Map from '@arcgis/core/Map';
 import MapView from '@arcgis/core/views/MapView';
 import Graphic from '@arcgis/core/Graphic';
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
-import TileLayer from '@arcgis/core/layers/TileLayer';
+import TileLayer from '@arcgis/core/layers/TileLayer';  // DEPRECATED: Kept for reference, not used
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import Point from '@arcgis/core/geometry/Point';
 import Polygon from '@arcgis/core/geometry/Polygon';
@@ -34,6 +34,7 @@ import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol';
 // ArcGIS Widgets
 import LayerList from '@arcgis/core/widgets/LayerList';
 import Expand from '@arcgis/core/widgets/Expand';
+import Search from '@arcgis/core/widgets/Search';
 
 // ArcGIS Reactive Utils
 import * as reactiveUtils from '@arcgis/core/core/reactiveUtils';
@@ -251,6 +252,51 @@ const ProvincialWeatherMap = ({
           ]],
           spatialReference: { wkid: 4326 }
         });
+
+        // ============================================================
+        // OUTSIDE-PROVINCE MASK LAYER
+        // Creates a semi-transparent overlay covering areas OUTSIDE the province
+        // This hides India and other countries while highlighting the province
+        // ============================================================
+
+        // Create a large "world" extent with a hole for the province
+        // The outer ring covers a large area, inner ring (hole) is the province
+        const worldExtent = [
+          [40, 0],   // Southwest (covers region from Africa to China)
+          [40, 50],  // Northwest  
+          [100, 50], // Northeast
+          [100, 0],  // Southeast
+          [40, 0]    // Close the ring
+        ];
+
+        // Province boundary as the "hole" (reversed winding)
+        const provinceHole = [
+          [provinceConfig.bounds.maxLon, provinceConfig.bounds.minLat],  // Reversed winding for hole
+          [provinceConfig.bounds.maxLon, provinceConfig.bounds.maxLat],
+          [provinceConfig.bounds.minLon, provinceConfig.bounds.maxLat],
+          [provinceConfig.bounds.minLon, provinceConfig.bounds.minLat],
+          [provinceConfig.bounds.maxLon, provinceConfig.bounds.minLat]   // Close
+        ];
+
+        const outsideMask = new Polygon({
+          rings: [worldExtent, provinceHole],  // World with province hole cut out
+          spatialReference: { wkid: 4326 }
+        });
+
+        // Create mask layer with semi-transparent dark fill
+        const maskLayer = new GraphicsLayer({
+          title: 'Area Mask',
+          listMode: 'hide'  // Hide from layer list
+        });
+
+        maskLayer.add(new Graphic({
+          geometry: outsideMask,
+          symbol: new SimpleFillSymbol({
+            color: [20, 20, 25, 0.85],  // Dark gray, 85% opacity
+            outline: null  // No outline
+          })
+        }));
+
         // ============================================================
         // GIS LAYERS - PDMA PROVINCIAL LEVEL ONLY
         // Coordination layers: District Boundaries, Rivers, Gauging Stations, Dams
@@ -370,25 +416,21 @@ const ProvincialWeatherMap = ({
         };
         loadGaugingStationsFromOSM();
 
-        // Rivers layer
-        const riversLayer = GIS_LAYERS.hydrology.rivers?.url ? new TileLayer({
-          url: GIS_LAYERS.hydrology.rivers.url,
-          title: 'Rivers & Water Features',
-          visible: true,
-          opacity: 0.7
-        }) : null;
+        // REMOVED: riversLayer - Raster TileLayer causes blurriness
+        // Vector basemaps (arcgis/navigation) include water features by default
 
-        // Layer order: Rivers -> Province Boundary -> District Boundaries -> Flood zones -> Gauging Stations -> Weather
+        // Layer order: Mask -> Province Boundary -> District Boundaries -> Flood zones -> Gauging Stations -> Weather
+        // ALL LAYERS ARE VECTOR - no raster TileLayers to prevent pixelation
         const mapLayers = [
-          provinceBoundaryLayer,     // Province boundary (REAL shape from Living Atlas)
-          districtBoundariesLayer,   // District boundaries (REAL shapes)
-          floodZonesLayer,           // Flood risk areas
-          gaugingStationsLayer,      // Gauging stations (PDMA specific)
-          damsLayer,                 // Dams & reservoirs
-          precipLayer,               // Weather precipitation
-          windLayer                  // Wind animation
+          maskLayer,                 // MASK: Covers areas outside province (VECTOR Graphics)
+          provinceBoundaryLayer,     // Province boundary (VECTOR FeatureLayer)
+          districtBoundariesLayer,   // District boundaries (VECTOR FeatureLayer)
+          floodZonesLayer,           // Flood risk areas (VECTOR Graphics)
+          gaugingStationsLayer,      // Gauging stations (VECTOR Graphics)
+          damsLayer,                 // Dams & reservoirs (VECTOR Graphics)
+          precipLayer,               // Weather precipitation (VECTOR Graphics)
+          windLayer                  // Wind animation (VECTOR Graphics)
         ];
-        if (riversLayer) mapLayers.unshift(riversLayer);
 
         // Create map with theme-aware basemap
         const map = new Map({
@@ -432,6 +474,36 @@ const ProvincialWeatherMap = ({
         });
         view.ui.add(layerListExpand, 'top-left');
 
+        // ============================================================
+        // SEARCH WIDGET - ArcGIS Geocoding with Autocomplete
+        // Uses World Geocoding Service for address/place search
+        // Focused on Pakistan for relevant results
+        // ============================================================
+        const searchWidget = new Search({
+          view: view,
+          popupEnabled: true,
+          resultGraphicEnabled: true,
+          searchTerm: '',
+          // Focus search on Pakistan region for better results
+          countryCode: 'PK',
+          // Show suggestions as user types
+          suggestionsEnabled: true,
+          minSuggestCharacters: 2,
+          maxSuggestions: 6,
+          // Customize appearance
+          allPlaceholder: 'Search location in Pakistan...',
+          // Auto-navigate to result
+          goToOverride: (view, options) => {
+            return view.goTo({
+              target: options.target,
+              zoom: 12  // Zoom level when navigating to result
+            }, { duration: 1000, easing: 'ease-in-out' });
+          }
+        });
+
+        // Add search widget to top-right of map
+        view.ui.add(searchWidget, { position: 'top-right' });
+
         // Initialize animation mode
         try {
           await weatherAnimationService.initialize();
@@ -472,8 +544,37 @@ const ProvincialWeatherMap = ({
 
     initializeMap();
 
+    // ============================================================
+    // RESIZE OBSERVER - CRITICAL FOR PREVENTING BLURRINESS
+    // When container resizes (sidebar toggle, fullscreen), canvas must update
+    // ============================================================
+    let resizeObserver = null;
+    let resizeTimeout = null;
+
+    const setupResizeObserver = () => {
+      const container = mapContainerRef.current;
+      if (!container) return;
+
+      resizeObserver = new ResizeObserver(() => {
+        if (resizeTimeout) clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          if (viewRef.current && typeof viewRef.current.resize === 'function') {
+            viewRef.current.resize();
+            console.log('🔄 ProvincialMap resized for crisp rendering');
+          }
+        }, 100);
+      });
+
+      resizeObserver.observe(container);
+      console.log('✓ ResizeObserver attached to ProvincialMap container');
+    };
+
+    setTimeout(setupResizeObserver, 500);
+
     return () => {
       isMounted = false;
+      if (resizeObserver) resizeObserver.disconnect();
+      if (resizeTimeout) clearTimeout(resizeTimeout);
       if (viewMoveTimeoutRef.current) clearTimeout(viewMoveTimeoutRef.current);
       stopRainAnimation();
       viewRef.current?.destroy();

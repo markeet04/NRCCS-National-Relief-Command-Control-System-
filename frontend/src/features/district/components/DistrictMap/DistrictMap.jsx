@@ -26,7 +26,7 @@ import MapView from '@arcgis/core/views/MapView';
 import Graphic from '@arcgis/core/Graphic';
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
-import TileLayer from '@arcgis/core/layers/TileLayer';
+import TileLayer from '@arcgis/core/layers/TileLayer';  // DEPRECATED: Kept for reference, not used
 import Point from '@arcgis/core/geometry/Point';
 import Polygon from '@arcgis/core/geometry/Polygon';
 import Polyline from '@arcgis/core/geometry/Polyline';
@@ -38,6 +38,7 @@ import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol';
 import LayerList from '@arcgis/core/widgets/LayerList';
 import Legend from '@arcgis/core/widgets/Legend';
 import Expand from '@arcgis/core/widgets/Expand';
+import Search from '@arcgis/core/widgets/Search';
 
 // ArcGIS Dark Theme CSS
 import '@arcgis/core/assets/esri/themes/dark/main.css';
@@ -786,17 +787,16 @@ const DistrictMap = ({ districtName: propDistrictName, height = '384px' }) => {
 
         // ============================================================
         // GIS LAYERS - DISTRICT TACTICAL LEVEL
-        // This is the ONLY level with: Shelters, Evacuation Routes, Local Facilities
+        // This is the ONLY level with: Shelters, Hospitals (from OSM), Local Facilities
         // NDMA and PDMA do NOT have these layers
+        // 
+        // RASTER LAYERS DISABLED: riversLayer TileLayer removed
+        // Reason: Raster tiles pixelate when zoomed beyond native resolution
+        // Vector basemaps (arcgis/navigation) include water features by default
         // ============================================================
 
-        // Rivers (TileLayer - public, no auth)
-        const riversLayer = GIS_LAYERS.hydrology.rivers.url ? new TileLayer({
-          url: GIS_LAYERS.hydrology.rivers.url,
-          title: GIS_LAYERS.hydrology.rivers.title,
-          visible: true,
-          opacity: 0.7
-        }) : null;
+        // REMOVED: riversLayer - Raster TileLayer causes blurriness
+        // Vector basemaps include water features by default
 
         // DISTRICT-SPECIFIC LAYERS (Tactical Level)
         // District Boundary from Living Atlas (public FeatureLayer)
@@ -937,15 +937,16 @@ const DistrictMap = ({ districtName: propDistrictName, height = '384px' }) => {
         // Build layers - DISTRICT TACTICAL ORDERING
         // Shows: Shelters, Hospitals (unique to district)
         // NOTE: Evacuation routes removed - no longer required
+        // Build layers array - ALL VECTOR (no raster TileLayers)
         const mapLayers = [
-          tehsilBoundariesLayer,  // Tehsil/UC boundaries
-          sheltersLayer,          // Shelter markers (DISTRICT ONLY)
-          hospitalsLayer,         // Hospital markers
-          rescueAssetsLayer,      // Rescue teams/vehicles
-          precipLayer,            // Weather raster
-          windLayer               // Wind animation
+          tehsilBoundariesLayer,  // Tehsil/UC boundaries (VECTOR FeatureLayer)
+          sheltersLayer,          // Shelter markers (VECTOR Graphics - DISTRICT ONLY)
+          hospitalsLayer,         // Hospital markers (VECTOR Graphics)
+          rescueAssetsLayer,      // Rescue teams/vehicles (VECTOR Graphics)
+          precipLayer,            // Weather (VECTOR Graphics)
+          windLayer               // Wind animation (VECTOR Graphics)
         ];
-        if (riversLayer) mapLayers.unshift(riversLayer);
+        // NOTE: riversLayer removed - raster TileLayer caused blurriness
 
         // Create Map with theme-aware basemap
         const map = new Map({
@@ -993,6 +994,29 @@ const DistrictMap = ({ districtName: propDistrictName, height = '384px' }) => {
         });
         view.ui.add(legendExpand, 'top-left');
 
+        // ============================================================
+        // SEARCH WIDGET - ArcGIS Geocoding with Autocomplete
+        // District level - higher zoom for tactical precision
+        // ============================================================
+        const searchWidget = new Search({
+          view: view,
+          popupEnabled: true,
+          resultGraphicEnabled: true,
+          searchTerm: '',
+          countryCode: 'PK',  // Focus on Pakistan
+          suggestionsEnabled: true,
+          minSuggestCharacters: 2,
+          maxSuggestions: 6,
+          allPlaceholder: 'Search location...',
+          goToOverride: (view, options) => {
+            return view.goTo({
+              target: options.target,
+              zoom: 14  // District level - tactical zoom
+            }, { duration: 1000, easing: 'ease-in-out' });
+          }
+        });
+        view.ui.add(searchWidget, { position: 'top-right' });
+
         console.log('✓ District GIS Layers initialized');
 
         if (isMounted) {
@@ -1011,8 +1035,37 @@ const DistrictMap = ({ districtName: propDistrictName, height = '384px' }) => {
 
     initializeMap();
 
+    // ============================================================
+    // RESIZE OBSERVER - CRITICAL FOR PREVENTING BLURRINESS
+    // When container resizes (sidebar toggle, fullscreen), canvas must update
+    // ============================================================
+    let resizeObserver = null;
+    let resizeTimeout = null;
+
+    const setupResizeObserver = () => {
+      const container = mapContainerRef.current;
+      if (!container) return;
+
+      resizeObserver = new ResizeObserver(() => {
+        if (resizeTimeout) clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          if (viewRef.current && typeof viewRef.current.resize === 'function') {
+            viewRef.current.resize();
+            console.log('🔄 DistrictMap resized for crisp rendering');
+          }
+        }, 100);
+      });
+
+      resizeObserver.observe(container);
+      console.log('✓ ResizeObserver attached to DistrictMap container');
+    };
+
+    setTimeout(setupResizeObserver, 500);
+
     return () => {
       isMounted = false;
+      if (resizeObserver) resizeObserver.disconnect();
+      if (resizeTimeout) clearTimeout(resizeTimeout);
       stopRainAnimation();
       stopWindAnimation();
       viewRef.current?.destroy();

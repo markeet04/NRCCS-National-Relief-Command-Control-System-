@@ -6,32 +6,52 @@
  * - Theme-aware basemap selection
  * - Role-based map configuration
  * - Shared constants and utilities
+ * 
+ * CRITICAL: All basemaps MUST be VectorTileLayer-based for crisp rendering
+ * Raster basemaps cause pixelation when zooming beyond native resolution
  */
 
 // ============================================================================
-// BASEMAP CONFIGURATION
+// BASEMAP CONFIGURATION - VECTOR ONLY (NO RASTER)
 // ============================================================================
 
 /**
  * Get basemap ID based on current theme
- * Uses vector basemaps for crisp rendering at all zoom levels
+ * 
+ * IMPORTANT: Uses ONLY vector basemaps for crisp rendering at all zoom levels
+ * Vector tiles are mathematically rendered, never pixelate
+ * 
  * @param {string} theme - 'light' or 'dark'
- * @returns {string} Basemap ID
+ * @returns {string} Vector Basemap ID
  */
 export const getBasemapByTheme = (theme) => {
-    // Dark mode: arcgis/night (dark vector basemap)
-    // Light mode: arcgis/navigation (light vector basemap)
-    // These are pure vector basemaps that remain crisp at all zoom levels
-    return theme === 'light' ? 'arcgis/navigation' : 'arcgis/night';
+    // VECTOR BASEMAPS ONLY - prevents pixelation at any zoom level
+    // arcgis/navigation-night: Dark vector basemap with roads and labels
+    // arcgis/navigation: Light vector basemap with roads and labels
+    return theme === 'light' ? 'arcgis/navigation' : 'arcgis/navigation-night';
 };
 
 /**
- * Alternative basemaps if primary fails
- * STRICT: Only arcgis/night and arcgis/navigation allowed
+ * Fallback basemaps - ALL MUST BE VECTOR
+ * Used if primary basemap fails to load
  */
 export const FALLBACK_BASEMAPS = {
-    dark: ['arcgis/night'],
-    light: ['arcgis/navigation']
+    dark: ['arcgis/dark-gray', 'arcgis/streets-night'],  // Vector fallbacks
+    light: ['arcgis/streets', 'arcgis/light-gray']       // Vector fallbacks
+};
+
+/**
+ * Get basemap with automatic fallback on error
+ * @param {string} theme - 'light' or 'dark'
+ * @param {number} fallbackIndex - Index in fallback array (0 = primary)
+ * @returns {string} Basemap ID
+ */
+export const getBasemapWithFallback = (theme, fallbackIndex = 0) => {
+    if (fallbackIndex === 0) {
+        return getBasemapByTheme(theme);
+    }
+    const fallbacks = FALLBACK_BASEMAPS[theme === 'light' ? 'light' : 'dark'];
+    return fallbacks[Math.min(fallbackIndex - 1, fallbacks.length - 1)] || getBasemapByTheme(theme);
 };
 
 // ============================================================================

@@ -23,7 +23,7 @@ import MapView from '@arcgis/core/views/MapView';
 import Graphic from '@arcgis/core/Graphic';
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
-import TileLayer from '@arcgis/core/layers/TileLayer';
+import TileLayer from '@arcgis/core/layers/TileLayer';  // DEPRECATED: Kept for reference, not used
 import Point from '@arcgis/core/geometry/Point';
 import Polygon from '@arcgis/core/geometry/Polygon';
 
@@ -383,17 +383,15 @@ const NdmaFloodMap = ({
 
                 // ============================================================
                 // GIS LAYERS - NDMA NATIONAL FLOOD MONITORING
+                // RASTER LAYERS DISABLED: riversLayer TileLayer removed
+                // Reason: Raster tiles pixelate when zoomed beyond native resolution
+                // Vector basemaps (arcgis/navigation) include water features by default
                 // ============================================================
 
-                // Rivers layer
-                const riversLayer = GIS_LAYERS.hydrology.rivers?.url ? new TileLayer({
-                    url: GIS_LAYERS.hydrology.rivers.url,
-                    title: 'Rivers & Water Bodies',
-                    visible: true,
-                    opacity: 0.7
-                }) : null;
+                // REMOVED: riversLayer - Raster TileLayer causes blurriness
+                // Vector basemaps include water features by default
 
-                // Pakistan Country Boundary
+                // Pakistan Country Boundary (VECTOR FeatureLayer)
                 const countryBoundaryLayer = new FeatureLayer({
                     url: GIS_LAYERS.adminBoundaries.country.url,
                     title: '🇵🇰 Pakistan',
@@ -410,7 +408,7 @@ const NdmaFloodMap = ({
                     }
                 });
 
-                // Province Boundaries
+                // Province Boundaries (VECTOR FeatureLayer)
                 const provinceBoundaryLayer = new FeatureLayer({
                     url: GIS_LAYERS.adminBoundaries.provinces.url,
                     title: 'Province Boundaries',
@@ -430,35 +428,34 @@ const NdmaFloodMap = ({
 
                 // Province geometry fetch moved to after view init
 
-                // Flood Zones Layer (GraphicsLayer for dynamic data)
+                // Flood Zones Layer (GraphicsLayer for dynamic data - VECTOR)
                 const floodZonesLayer = new GraphicsLayer({
                     title: '🌊 Active Flood Zones',
                     visible: true
                 });
                 floodZonesLayerRef.current = floodZonesLayer;
 
-                // Province Alerts Layer
+                // Province Alerts Layer (VECTOR Graphics)
                 const provinceAlertsLayer = new GraphicsLayer({
                     title: '⚠️ Province Alerts',
                     visible: true
                 });
                 provinceAlertsLayerRef.current = provinceAlertsLayer;
 
-                // Weather Precipitation Layer
+                // Weather Precipitation Layer (VECTOR Graphics)
                 const precipitationLayer = new GraphicsLayer({
                     title: '🌧️ Rainfall Zones',
                     visible: false
                 });
 
-                // Build layers array
+                // Build layers array - VECTOR ONLY (no raster TileLayers)
                 const mapLayers = [
-                    countryBoundaryLayer,
-                    provinceBoundaryLayer,
-                    floodZonesLayer,
-                    provinceAlertsLayer,
-                    precipitationLayer
+                    countryBoundaryLayer,      // VECTOR FeatureLayer
+                    provinceBoundaryLayer,     // VECTOR FeatureLayer
+                    floodZonesLayer,           // VECTOR Graphics
+                    provinceAlertsLayer,       // VECTOR Graphics
+                    precipitationLayer         // VECTOR Graphics
                 ];
-                if (riversLayer) mapLayers.unshift(riversLayer);
 
                 // Create Map
                 const map = new Map({

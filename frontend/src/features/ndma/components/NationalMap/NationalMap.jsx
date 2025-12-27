@@ -27,7 +27,7 @@ import MapView from '@arcgis/core/views/MapView';
 import Graphic from '@arcgis/core/Graphic';
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
-import TileLayer from '@arcgis/core/layers/TileLayer';
+import TileLayer from '@arcgis/core/layers/TileLayer';  // DEPRECATED: Kept for reference, not used
 import MapImageLayer from '@arcgis/core/layers/MapImageLayer';
 import Point from '@arcgis/core/geometry/Point';
 import Polygon from '@arcgis/core/geometry/Polygon';
@@ -40,6 +40,7 @@ import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol';
 import LayerList from '@arcgis/core/widgets/LayerList';
 import Legend from '@arcgis/core/widgets/Legend';
 import Expand from '@arcgis/core/widgets/Expand';
+import Search from '@arcgis/core/widgets/Search';
 
 // ArcGIS Dark Theme CSS
 import '@arcgis/core/assets/esri/themes/dark/main.css';
@@ -731,27 +732,21 @@ const NationalMap = ({ height = '450px' }) => {
 
         // ============================================================
         // GIS LAYERS - NDMA NATIONAL LEVEL ONLY
-        // Strategic layers: Terrain, Rivers, Flood Zones, Province Boundaries
+        // Strategic layers: Province Boundaries, Flood Zones
         // NO shelters, NO evacuation routes (those are DISTRICT level)
+        // 
+        // RASTER LAYERS DISABLED: hillshade and rivers TileLayers removed
+        // Reason: Raster tiles pixelate when zoomed beyond native resolution
+        // Vector basemaps (arcgis/navigation) include road/water styling
         // ============================================================
 
-        // Hillshade Terrain Layer (public TileLayer)
-        const hillshadeLayer = new TileLayer({
-          url: GIS_LAYERS.terrain.hillshade.url,
-          title: GIS_LAYERS.terrain.hillshade.title,
-          visible: false,
-          opacity: 0.4
-        });
+        // REMOVED: hillshadeLayer - Raster TileLayer causes blurriness
+        // REMOVED: riversLayer - Raster TileLayer causes blurriness
+        // Vector basemaps (arcgis/navigation, arcgis/navigation-night) include:
+        // - Roads, boundaries, water features, terrain shading
+        // - All rendered as vectors = crisp at any zoom level
 
-        // Rivers & Water Reference Layer (public TileLayer - no auth)
-        const riversLayer = GIS_LAYERS.hydrology.rivers.url ? new TileLayer({
-          url: GIS_LAYERS.hydrology.rivers.url,
-          title: GIS_LAYERS.hydrology.rivers.title,
-          visible: true,
-          opacity: 0.7
-        }) : null;
-
-        // REAL Pakistan Country Boundary (FeatureLayer from Living Atlas)
+        // REAL Pakistan Country Boundary (FeatureLayer from Living Atlas - VECTOR)
         const pakistanCountryLayer = new FeatureLayer({
           url: GIS_LAYERS.adminBoundaries.country.url,
           title: '🇵🇰 Pakistan Boundary',
@@ -768,7 +763,7 @@ const NationalMap = ({ height = '450px' }) => {
           }
         });
 
-        // REAL Province Boundaries (FeatureLayer from Living Atlas - filtered for Pakistan)
+        // REAL Province Boundaries (FeatureLayer from Living Atlas - VECTOR)
         const provinceBoundaryLayer = new FeatureLayer({
           url: GIS_LAYERS.adminBoundaries.provinces.url,
           title: 'Province Boundaries',
@@ -785,21 +780,19 @@ const NationalMap = ({ height = '450px' }) => {
           }
         });
 
-        // Flood zones layer (GraphicsLayer for dynamic data)
+        // Flood zones layer (GraphicsLayer for dynamic data - VECTOR)
         const floodZonesLayer = new GraphicsLayer({ title: 'Flood Forecast Zones', visible: false });
 
-        // Build layers array - NDMA STRATEGIC LAYERS ONLY
-        // NO shelters, NO evacuation routes, NO hospitals (tactical level)
+        // Build layers array - VECTOR ONLY
+        // NO TileLayers (raster) to prevent pixelation
         const mapLayers = [
-          hillshadeLayer,           // Bottom - terrain
-          pakistanCountryLayer,     // Pakistan country boundary (REAL shape)
-          provinceBoundaryLayer,    // Province boundaries (REAL shapes)
-          floodZonesLayer,          // Flood forecast zones
-          precipLayer,              // Weather precipitation zones
-          windLayer,                // Wind animation layer
-          locationLayer             // Top - user location marker
+          pakistanCountryLayer,     // Pakistan country boundary (VECTOR)
+          provinceBoundaryLayer,    // Province boundaries (VECTOR)
+          floodZonesLayer,          // Flood forecast zones (VECTOR Graphics)
+          precipLayer,              // Weather precipitation zones (VECTOR Graphics)
+          windLayer,                // Wind animation layer (VECTOR Graphics)
+          locationLayer             // Top - user location marker (VECTOR Graphics)
         ];
-        if (riversLayer) mapLayers.splice(1, 0, riversLayer);
 
         // Map with theme-aware basemap
         const map = new Map({
@@ -872,6 +865,30 @@ const NationalMap = ({ height = '450px' }) => {
           group: 'top-left'
         });
         view.ui.add(legendExpand, 'top-left');
+
+        // ============================================================
+        // SEARCH WIDGET - ArcGIS Geocoding with Autocomplete
+        // Uses World Geocoding Service for address/place search
+        // National level - full Pakistan coverage
+        // ============================================================
+        const searchWidget = new Search({
+          view: view,
+          popupEnabled: true,
+          resultGraphicEnabled: true,
+          searchTerm: '',
+          countryCode: 'PK',  // Focus on Pakistan
+          suggestionsEnabled: true,
+          minSuggestCharacters: 2,
+          maxSuggestions: 6,
+          allPlaceholder: 'Search location in Pakistan...',
+          goToOverride: (view, options) => {
+            return view.goTo({
+              target: options.target,
+              zoom: 8  // National level zoom
+            }, { duration: 1000, easing: 'ease-in-out' });
+          }
+        });
+        view.ui.add(searchWidget, { position: 'top-right' });
 
         console.log('✓ GIS Layers and Widgets initialized');
 
@@ -968,8 +985,39 @@ const NationalMap = ({ height = '450px' }) => {
 
     initializeMap();
 
+    // ============================================================
+    // RESIZE OBSERVER - CRITICAL FOR PREVENTING BLURRINESS
+    // When container resizes (sidebar toggle, fullscreen), canvas must update
+    // Without this, WebGL renders at wrong resolution causing blur
+    // ============================================================
+    let resizeObserver = null;
+    let resizeTimeout = null;
+
+    const setupResizeObserver = () => {
+      const container = mapContainerRef.current;
+      if (!container) return;
+
+      resizeObserver = new ResizeObserver(() => {
+        if (resizeTimeout) clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          if (viewRef.current && typeof viewRef.current.resize === 'function') {
+            viewRef.current.resize();
+            console.log('🔄 NationalMap resized for crisp rendering');
+          }
+        }, 100);  // 100ms debounce
+      });
+
+      resizeObserver.observe(container);
+      console.log('✓ ResizeObserver attached to NationalMap container');
+    };
+
+    // Delay observer setup until view is ready
+    setTimeout(setupResizeObserver, 500);
+
     return () => {
       isMounted = false;
+      if (resizeObserver) resizeObserver.disconnect();
+      if (resizeTimeout) clearTimeout(resizeTimeout);
       if (viewMoveTimeoutRef.current) clearTimeout(viewMoveTimeoutRef.current);
       stopRainAnimation();
       stopWindAnimation();
