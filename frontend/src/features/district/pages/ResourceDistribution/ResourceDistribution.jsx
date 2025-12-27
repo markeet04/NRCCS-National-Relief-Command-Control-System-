@@ -7,7 +7,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Package, Send, Home, MapPin } from 'lucide-react';
 import { DashboardLayout } from '@shared/components/layout';
-import { getMenuItemsByRole } from '@shared/constants/dashboardConfig';
+import { DISTRICT_MENU_ITEMS } from '../../constants';
 import {
   useDistrictData,
   useShelterData,
@@ -123,7 +123,7 @@ const ResourceDistribution = () => {
 
   return (
     <DashboardLayout
-      menuItems={getMenuItemsByRole('district')}
+      menuItems={DISTRICT_MENU_ITEMS}
       activeRoute={activeRoute}
       onNavigate={handleNavigate}
       pageTitle="Resource Distribution"
