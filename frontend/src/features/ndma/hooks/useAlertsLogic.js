@@ -55,9 +55,8 @@ export const useAlertsLogic = () => {
         NotificationService.showSuccess('Alerts loaded successfully');
       }
     } catch (err) {
-      console.error('❌ Error loading alerts:', err);
+      NotificationService.showError('Failed to load alerts. Please refresh the page.');
       setError('Failed to load alerts');
-      NotificationService.showError('Failed to load alerts');
     } finally {
       setLoading(false);
     }
@@ -93,8 +92,7 @@ export const useAlertsLogic = () => {
       });
       NotificationService.showSuccess('Alert resolved successfully');
     } catch (err) {
-      console.error('Error resolving alert:', err);
-      NotificationService.showError('Failed to resolve alert');
+      NotificationService.showError('Failed to resolve alert. Please try again.');
     }
   }, [updateActiveStatusCount]);
 
@@ -108,8 +106,7 @@ export const useAlertsLogic = () => {
       NotificationService.showInfo('Reopening alerts requires admin action');
       await loadAlerts(false);
     } catch (err) {
-      console.error('Error reopening alert:', err);
-      NotificationService.showError('Failed to reopen alert');
+      NotificationService.showError('Failed to reopen alert. Please try again.');
     }
   }, [loadAlerts]);
 
@@ -127,8 +124,7 @@ export const useAlertsLogic = () => {
       });
       NotificationService.showSuccess('Alert deleted successfully');
     } catch (err) {
-      console.error('Error deleting alert:', err);
-      NotificationService.showError('Failed to delete alert');
+      NotificationService.showError('Failed to delete alert. Please try again.');
     }
   }, [updateActiveStatusCount]);
 
@@ -178,7 +174,6 @@ export const useAlertsLogic = () => {
     console.log('✅ Validation result:', validation);
 
     if (!validation.isValid) {
-      console.error('❌ Validation errors:', validation.errors);
       setValidationErrors(validation.errors);
       NotificationService.showError('Please fix the validation errors');
       return;
@@ -214,8 +209,7 @@ export const useAlertsLogic = () => {
 
       NotificationService.showSuccess('Alert published successfully');
     } catch (err) {
-      console.error('❌ Error creating alert:', err);
-      NotificationService.showError('Failed to publish alert: ' + err.message);
+      NotificationService.showError('Failed to publish alert. Please try again.');
     } finally {
       setLoading(false);
     }

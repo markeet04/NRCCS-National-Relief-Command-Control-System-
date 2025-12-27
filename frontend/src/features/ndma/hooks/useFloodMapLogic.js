@@ -198,7 +198,7 @@ export const useFloodMapLogic = () => {
       }
 
     } catch (err) {
-      console.error('❌ Error fetching flood map data:', err);
+      NotificationService.showError('Failed to load flood map data. Please refresh the page.');
       setError('Failed to load flood map data');
       // Keep using fallback mock data
     } finally {
@@ -379,7 +379,7 @@ export const useFloodMapLogic = () => {
 
       return result;
     } catch (err) {
-      console.error('❌ Prediction failed:', err);
+      NotificationService.showError('Flood prediction failed. Please try again.');
       return null;
     } finally {
       setIsPredicting(false);
@@ -542,7 +542,7 @@ export const useFloodMapLogic = () => {
       // setProvinceStatus(newProvinceStatus);
 
     } catch (err) {
-      console.error('Error refreshing flood data:', err);
+      NotificationService.showError('Failed to refresh flood data. Please try again.');
     } finally {
       setLoading(false);
     }

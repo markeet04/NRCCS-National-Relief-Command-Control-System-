@@ -105,8 +105,7 @@ const AddResourcesModal = ({ isOpen, onClose, onSuccess, currentStock }) => {
       }
       onClose();
     } catch (error) {
-      console.error('Error adding resources:', error);
-      NotificationService.showError('Failed to add resources');
+      NotificationService.showError('Failed to add resources. Please try again.');
     } finally {
       setLoading(false);
     }

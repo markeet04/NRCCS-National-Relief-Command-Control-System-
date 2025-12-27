@@ -216,7 +216,7 @@ export const useResourcesLogic = () => {
       }
 
     } catch (err) {
-      console.error('❌ Error fetching resources:', err);
+      NotificationService.showError('Failed to load resources data. Please refresh the page.');
       setError('Failed to load resources data');
       // Keep using fallback mock data
       setProvincialAllocations(INITIAL_PROVINCIAL_ALLOCATIONS);
@@ -270,7 +270,7 @@ export const useResourcesLogic = () => {
         setAllocationHistoryByProvince(historyByProvince);
       }
     } catch (err) {
-      console.error('❌ Error fetching allocation history:', err);
+      NotificationService.showError('Failed to fetch allocation history. Please refresh the page.');
       // Fall back to initial static data
       setAllocationHistoryByProvince(INITIAL_ALLOCATION_HISTORY);
     }
@@ -401,8 +401,7 @@ export const useResourcesLogic = () => {
       // Refresh allocation history after successful allocation
       await fetchAllocationHistory();
     } catch (err) {
-      console.error('Error allocating resources:', err);
-      NotificationService.showError('Failed to allocate resources');
+      NotificationService.showError('Failed to allocate resources. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -444,8 +443,7 @@ export const useResourcesLogic = () => {
       // Refresh allocation history to show newly created allocation
       fetchAllocationHistory();
     } catch (err) {
-      console.error('Error approving request:', err);
-      NotificationService.showError('Failed to approve request');
+      NotificationService.showError('Failed to approve request. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -474,8 +472,7 @@ export const useResourcesLogic = () => {
 
       NotificationService.showInfo(`Request from ${request.province} rejected`);
     } catch (err) {
-      console.error('Error rejecting request:', err);
-      NotificationService.showError('Failed to reject request');
+      NotificationService.showError('Failed to reject request. Please try again.');
     } finally {
       setLoading(false);
     }

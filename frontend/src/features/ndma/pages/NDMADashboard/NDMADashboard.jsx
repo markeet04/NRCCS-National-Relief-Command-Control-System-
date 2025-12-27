@@ -67,7 +67,7 @@ const NDMADashboard = () => {
       const activeAlertsCount = Array.isArray(alertsData) ? alertsData.length : 0;
       updateActiveStatusCount(activeAlertsCount);
     } catch (err) {
-      console.error('Error fetching dashboard data:', err);
+      NotificationService.showError('Failed to fetch dashboard data. Please refresh the page.');
     } finally {
       setLoading(false);
     }

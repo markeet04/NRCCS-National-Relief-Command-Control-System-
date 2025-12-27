@@ -87,7 +87,7 @@ const ResourceHistoryModal = ({
 
         setHistoryData(transformed);
       } catch (error) {
-        console.error('Error fetching resource history:', error);
+        NotificationService.showError('Failed to fetch resource history. Please try again.');
         setHistoryData([]);
       } finally {
         setLoading(false);

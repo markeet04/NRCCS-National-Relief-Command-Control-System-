@@ -218,10 +218,13 @@ export class NdmaService {
             this.districtRepository.count({
                 where: { riskLevel: In(['critical', 'high']) },
             }),
-            // Total resource count
+            // Total resource count - ONLY national-level resources
             this.resourceRepository
                 .createQueryBuilder('resource')
                 .select('COALESCE(SUM(resource.quantity), 0)', 'total')
+                .where('resource.province_id IS NULL')
+                .andWhere('resource.district_id IS NULL')
+                .andWhere('resource.shelter_id IS NULL')
                 .getRawOne()
                 .then(r => parseInt(r?.total, 10) || 0),
             // Province count
@@ -591,11 +594,15 @@ export class NdmaService {
     }
 
     async getResourceStats(user: User) {
+        // Only count NATIONAL-LEVEL resources (no province, district, or shelter assignment)
         const stats = await this.resourceRepository
             .createQueryBuilder('resource')
             .select('COUNT(*)', 'totalResources')
             .addSelect('COALESCE(SUM(resource.quantity), 0)', 'totalQuantity')
             .addSelect('COALESCE(SUM(resource.allocated), 0)', 'totalAllocated')
+            .where('resource.province_id IS NULL')
+            .andWhere('resource.district_id IS NULL')
+            .andWhere('resource.shelter_id IS NULL')
             .getRawOne();
 
         const totalResources = parseInt(stats.totalResources);
@@ -604,13 +611,16 @@ export class NdmaService {
         const availableQuantity = totalQuantity - totalAllocated;
         const allocatedPercent = totalQuantity > 0 ? Math.round((totalAllocated / totalQuantity) * 100) : 0;
 
-        // Get by type breakdown with allocated amounts
+        // Get by type breakdown with allocated amounts - ONLY national level
         const byType = await this.resourceRepository
             .createQueryBuilder('resource')
             .select('resource.type', 'type')
             .addSelect('COUNT(*)', 'count')
             .addSelect('COALESCE(SUM(resource.quantity), 0)', 'quantity')
             .addSelect('COALESCE(SUM(resource.allocated), 0)', 'allocated')
+            .where('resource.province_id IS NULL')
+            .andWhere('resource.district_id IS NULL')
+            .andWhere('resource.shelter_id IS NULL')
             .groupBy('resource.type')
             .getRawMany();
 

@@ -169,8 +169,7 @@ const ResourcesPage = () => {
         await refetchData();
       }
     } catch (err) {
-      console.error('Allocation failed:', err);
-      NotificationService.showError(err.response?.data?.message || err.message || 'Failed to allocate resources');
+      NotificationService.showError(err.response?.data?.message || err.message || 'Failed to allocate resources. Please try again.');
     } finally {
       setAllocating(false);
     }
