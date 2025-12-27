@@ -40,8 +40,9 @@ const TeamsGrid = ({
         <div
             style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))',
-                gap: '24px'
+                gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+                gap: '24px',
+                alignItems: 'start'
             }}
         >
             {teams.map((team) => (

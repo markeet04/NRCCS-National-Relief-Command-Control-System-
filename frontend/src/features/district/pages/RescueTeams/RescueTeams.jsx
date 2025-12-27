@@ -53,9 +53,12 @@ const RescueTeams = () => {
 
     const [formData, setFormData] = useState({
         name: '',
+        type: 'Rescue 1122',
         leader: '',
         contact: '',
-        members: 8,
+        medical: 0,
+        rescue: 0,
+        support: 0,
         status: 'available',
         location: ''
     });
@@ -95,9 +98,12 @@ const RescueTeams = () => {
         setUpdatingTeam(team);
         setFormData({
             name: team.name,
+            type: team.type || 'Rescue 1122',
             leader: team.leader,
             contact: team.contact,
-            members: team.members,
+            medical: team.composition?.medical || 0,
+            rescue: team.composition?.rescue || 0,
+            support: team.composition?.support || 0,
             status: team.status,
             location: team.location
         });
@@ -112,9 +118,12 @@ const RescueTeams = () => {
     const handleOpenAddModal = () => {
         setFormData({
             name: '',
+            type: 'Rescue 1122',
             leader: '',
             contact: '',
-            members: 8,
+            medical: 0,
+            rescue: 0,
+            support: 0,
             status: 'available',
             location: ''
         });
@@ -129,7 +138,7 @@ const RescueTeams = () => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'members' ? parseInt(value) || 0 : value
+            [name]: (name === 'medical' || name === 'rescue' || name === 'support') ? parseInt(value) || 0 : value
         }));
     };
 
@@ -144,12 +153,10 @@ const RescueTeams = () => {
             handleCloseUpdateModal();
         } else {
             addTeam({
-                type: 'Rescue 1122',
                 ...formData,
                 equipment: [],
                 notes: '',
-                lastUpdated: 'Just now',
-                composition: { medical: 2, rescue: 4, support: 2 }
+                lastUpdated: 'Just now'
             });
             handleCloseAddModal();
         }

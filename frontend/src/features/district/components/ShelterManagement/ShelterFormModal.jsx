@@ -19,8 +19,7 @@ const ShelterFormModal = ({
         capacity: 500,
         occupancy: 0,
         contactPerson: '',
-        contactPhone: '+92-300-0000000',
-        resources: { food: 80, water: 60, medical: 90, tents: 40 }
+        contactPhone: ''
     });
 
     // Load edit data when editing
@@ -32,8 +31,7 @@ const ShelterFormModal = ({
                 capacity: editData.capacity || 500,
                 occupancy: editData.occupancy || 0,
                 contactPerson: editData.contactPerson || '',
-                contactPhone: editData.contactPhone || '+92-300-0000000',
-                resources: editData.resources || { food: 80, water: 60, medical: 90, tents: 40 }
+                contactPhone: editData.contactPhone || ''
             });
         } else {
             // Reset form for new shelter
@@ -43,8 +41,7 @@ const ShelterFormModal = ({
                 capacity: 500,
                 occupancy: 0,
                 contactPerson: '',
-                contactPhone: '+92-300-0000000',
-                resources: { food: 80, water: 60, medical: 90, tents: 40 }
+                contactPhone: ''
             });
         }
     }, [editData, isOpen]);
@@ -57,15 +54,7 @@ const ShelterFormModal = ({
         }));
     };
 
-    const handleResourceChange = (resource, value) => {
-        setFormData(prev => ({
-            ...prev,
-            resources: {
-                ...prev.resources,
-                [resource]: Number(value)
-            }
-        }));
-    };
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -86,9 +75,9 @@ const ShelterFormModal = ({
             title={isEditing ? 'Edit Shelter' : 'Add New Shelter'}
             size="lg"
         >
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {/* Basic Info */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                     <div className="form-field">
                         <label className="form-field__label">Shelter Name *</label>
                         <input
@@ -115,7 +104,7 @@ const ShelterFormModal = ({
                 </div>
 
                 {/* Capacity & Occupancy */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                     <div className="form-field">
                         <label className="form-field__label">Capacity *</label>
                         <input
@@ -143,7 +132,7 @@ const ShelterFormModal = ({
                 </div>
 
                 {/* Contact Info */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                     <div className="form-field">
                         <label className="form-field__label">Contact Person</label>
                         <input
@@ -168,59 +157,10 @@ const ShelterFormModal = ({
                     </div>
                 </div>
 
-                {/* Resource Levels */}
-                <div className="form-field">
-                    <label className="form-field__label mb-3">Resource Levels (%)</label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div>
-                            <label className="text-xs text-muted mb-1 block">Food</label>
-                            <input
-                                type="number"
-                                value={formData.resources.food}
-                                onChange={(e) => handleResourceChange('food', e.target.value)}
-                                className="input"
-                                min="0"
-                                max="100"
-                            />
-                        </div>
-                        <div>
-                            <label className="text-xs text-muted mb-1 block">Water</label>
-                            <input
-                                type="number"
-                                value={formData.resources.water}
-                                onChange={(e) => handleResourceChange('water', e.target.value)}
-                                className="input"
-                                min="0"
-                                max="100"
-                            />
-                        </div>
-                        <div>
-                            <label className="text-xs text-muted mb-1 block">Medical</label>
-                            <input
-                                type="number"
-                                value={formData.resources.medical}
-                                onChange={(e) => handleResourceChange('medical', e.target.value)}
-                                className="input"
-                                min="0"
-                                max="100"
-                            />
-                        </div>
-                        <div>
-                            <label className="text-xs text-muted mb-1 block">Tents</label>
-                            <input
-                                type="number"
-                                value={formData.resources.tents}
-                                onChange={(e) => handleResourceChange('tents', e.target.value)}
-                                className="input"
-                                min="0"
-                                max="100"
-                            />
-                        </div>
-                    </div>
-                </div>
+
 
                 {/* Actions */}
-                <div className="flex justify-end gap-3 pt-4 border-t border-card-border">
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', paddingTop: '20px', borderTop: '1px solid var(--color-border)' }}>
                     <button type="button" onClick={onClose} className="btn btn--secondary">
                         Cancel
                     </button>
