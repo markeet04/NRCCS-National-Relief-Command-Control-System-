@@ -111,9 +111,8 @@ const NDMADashboard = () => {
       notificationCount={activeStatusCount || 5}
     >
       <div className={`ndma-page ${isLight ? 'light' : ''}`}>
-        <DashboardPageHeader 
+        <DashboardPageHeader
           title="National Overview - NDMA"
-          subtitle="Real-time national disaster management dashboard"
         />
 
         <DashboardAlertBanner

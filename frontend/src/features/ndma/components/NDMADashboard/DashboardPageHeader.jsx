@@ -2,20 +2,19 @@ import PropTypes from 'prop-types';
 
 /**
  * DashboardPageHeader Component
- * Displays the page title and subtitle for the dashboard
+ * Displays the page title for the dashboard
+ * Subtitle removed per UI refinement requirements
  */
-const DashboardPageHeader = ({ title, subtitle }) => {
+const DashboardPageHeader = ({ title }) => {
   return (
-    <div className="national-page-header">
+    <div className="national-page-header" style={{ marginBottom: '20px' }}>
       <h1 className="national-page-title">{title}</h1>
-      <p className="national-page-subtitle">{subtitle}</p>
     </div>
   );
 };
 
 DashboardPageHeader.propTypes = {
   title: PropTypes.string.isRequired,
-  subtitle: PropTypes.string.isRequired,
 };
 
 export default DashboardPageHeader;
