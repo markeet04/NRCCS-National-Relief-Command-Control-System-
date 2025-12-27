@@ -116,7 +116,7 @@ const MissingPersons = () => {
             pageTitle="Missing Persons"
             pageSubtitle="Manage and update missing person reports in your district"
             userRole={`District ${districtName}`}
-            userName="District Officer"
+            userName={user?.name || 'District Officer'}
             notificationCount={pendingSosCount || activeCases || 0}
         >
             <div className="p-6">

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { 
-  LayoutDashboard, 
-  AlertTriangle, 
-  Package, 
-  Map, 
+import {
+  LayoutDashboard,
+  AlertTriangle,
+  Package,
+  Map,
   MessageSquare,
   LogOut,
   Shield,
@@ -16,7 +16,9 @@ import {
   Zap,
   Menu,
   PanelLeftClose,
-  PanelLeft
+  PanelLeft,
+  Home,
+  Search
 } from 'lucide-react';
 
 /**
@@ -47,7 +49,7 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
     if (onNavigate) {
       onNavigate(route);
     }
-    
+
     // Navigate using the helper function
     navigate(getNavigationPath(route));
   };
@@ -61,6 +63,8 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
     provinces: Map,
     settings: Settings,
     api: Zap,
+    home: Home,
+    search: Search,
   };
 
   // Get the current base path to determine navigation context
@@ -73,7 +77,7 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
   };
 
   return (
-    <div 
+    <div
       className={`sidebar-container ${isCollapsed ? 'sidebar-collapsed' : ''}`}
     >
       {/* Collapse Toggle Button */}
@@ -121,7 +125,7 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
                   className={`sidebar-nav-btn ${isActive ? 'sidebar-nav-item-active' : ''} ${isHovered ? 'sidebar-nav-item-hovered' : ''}`}
                   title={item.label}
                 >
-                  <Icon 
+                  <Icon
                     className={`sidebar-nav-icon ${isActive ? 'sidebar-icon-glow' : ''}`}
                   />
                   {!isCollapsed && (
@@ -161,7 +165,7 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
               <p className="sidebar-user-role">{userRole}</p>
             </div>
           )}
-          <button 
+          <button
             onClick={handleLogout}
             className={`sidebar-logout-btn ${isCollapsed ? 'sidebar-logout-collapsed' : ''}`}
             title="Logout"

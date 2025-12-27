@@ -5,6 +5,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@shared/components/layout';
+import { useAuth } from '../../../../app/providers/AuthProvider';
 import { useSettings } from '../../../../app/providers/ThemeProvider';
 import { getThemeColors } from '../../../../shared/utils/themeColors';
 import { DISTRICT_MENU_ITEMS } from '../../constants';
@@ -19,6 +20,8 @@ import {
 import '@styles/css/main.css';
 
 const RescueTeams = () => {
+    const navigate = useNavigate();
+    const { user } = useAuth();
     const [activeRoute, setActiveRoute] = useState('rescue');
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -62,8 +65,6 @@ const RescueTeams = () => {
         status: 'available',
         location: ''
     });
-
-    const navigate = useNavigate();
 
     // Animate team cards on mount
     useEffect(() => {
@@ -170,7 +171,7 @@ const RescueTeams = () => {
             pageTitle="Rescue Teams Management"
             pageSubtitle="Monitor and coordinate rescue operations"
             userRole={`District ${districtInfo?.name || 'Loading...'}`}
-            userName="District Officer"
+            userName={user?.name || 'District Officer'}
             notificationCount={districtStats?.pendingSOS || 0}
         >
             <RescueTeamsKPICards

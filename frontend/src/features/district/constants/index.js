@@ -8,8 +8,8 @@
 export const DISTRICT_MENU_ITEMS = [
   { route: 'dashboard', label: 'District Dashboard', icon: 'dashboard' },
   { route: 'sos', label: 'SOS Requests', icon: 'alerts' },
-  { route: 'shelters', label: 'Shelter Management', icon: 'resources' },
-  { route: 'rescue', label: 'Rescue Teams', icon: 'resources' },
+  { route: 'shelters', label: 'Shelter Management', icon: 'home' },
+  { route: 'rescue', label: 'Rescue Teams', icon: 'users' },
   { route: 'resources', label: 'Resource Distribution', icon: 'resources' },
   { route: 'missing-persons', label: 'Missing Persons', icon: 'search' },
 ];

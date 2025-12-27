@@ -77,8 +77,8 @@
 }
 
 .table-container {
-    background: #111827;
-    border: 1px solid #1f2937;
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     overflow: hidden;
@@ -90,15 +90,15 @@
 }
 
 .missing-persons-table thead {
-    background: #1e293b;
+    background: #1a1a1a;
 }
 
 .missing-persons-table th {
     padding: 16px;
     text-align: left;
     font-weight: 600;
-    color: #94a3b8;
-    border-bottom: 1px solid #334155;
+    color: #9ca3af;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     text-transform: uppercase;
     font-size: 0.75rem;
     letter-spacing: 0.05em;
@@ -106,9 +106,9 @@
 
 .missing-persons-table td {
     padding: 16px;
-    border-bottom: 1px solid #1f2937;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     vertical-align: middle;
-    color: #f1f5f9;
+    color: #ffffff;
 }
 
 .missing-persons-table tbody tr {
@@ -116,7 +116,7 @@
 }
 
 .missing-persons-table tbody tr:hover {
-    background: rgba(59, 130, 246, 0.08);
+    background: rgba(255, 255, 255, 0.04);
 }
 
 .missing-persons-table tbody tr.warning-row {

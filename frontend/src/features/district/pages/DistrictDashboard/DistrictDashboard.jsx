@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../../app/providers/AuthProvider';
 
 // Shared Layout
 import { DashboardLayout } from '../../../../shared/components/layout';
@@ -22,6 +23,7 @@ import { Users, CheckCircle, Clock, AlertTriangle, Radio, Home, Package, Maximiz
  */
 const DistrictDashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [activeRoute, setActiveRoute] = useState('dashboard');
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
 
@@ -122,7 +124,7 @@ const DistrictDashboard = () => {
         activeRoute={activeRoute}
         onNavigate={handleNavigate}
         userRole={`District ${districtInfo?.name || 'Loading...'}`}
-        userName="District Officer"
+        userName={user?.name || 'District Officer'}
         pageTitle="National Rescue & Crisis Coordination System"
         pageSubtitle={districtInfo ? `${districtInfo.name} District - ${districtInfo.province?.name || districtInfo.province || ''} Province tactical operations` : 'Loading district...'}
         notificationCount={rawStats?.pendingSOS || 0}
