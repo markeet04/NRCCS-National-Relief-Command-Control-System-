@@ -45,6 +45,7 @@ const FloodMapPage = () => {
     isPredicting,
     liveWeatherData,
     runPrediction,
+    refreshWeatherForProvince,
 
     // Actions
     setSelectedProvince,
@@ -340,6 +341,32 @@ const FloodMapPage = () => {
                 </div>
               )}
 
+              {/* Live Weather Widget - Compact version */}
+              {!simulationEnabled && liveWeatherData && (
+                <div style={{
+                  marginBottom: '10px',
+                  padding: '8px',
+                  borderRadius: '6px',
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  border: '1px solid rgba(59, 130, 246, 0.3)'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <span style={{ color: '#60a5fa', fontSize: '11px', fontWeight: '600' }}>
+                      🌤️ {liveWeatherData.provinceName}
+                    </span>
+                    <span style={{ color: '#64748b', fontSize: '9px' }}>
+                      {new Date(liveWeatherData.fetchedAt).toLocaleTimeString()}
+                    </span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', fontSize: '10px', color: '#94a3b8' }}>
+                    <span>🌧️ 24h: <strong style={{ color: '#fff' }}>{liveWeatherData.rainfall_24h}mm</strong></span>
+                    <span>🌧️ 48h: <strong style={{ color: '#fff' }}>{liveWeatherData.rainfall_48h}mm</strong></span>
+                    <span>🌡️ <strong style={{ color: '#fff' }}>{liveWeatherData.temperature}°C</strong></span>
+                    <span>💧 <strong style={{ color: '#fff' }}>{liveWeatherData.humidity}%</strong></span>
+                  </div>
+                </div>
+              )}
+
               {/* Run Prediction Button */}
               <button
                 onClick={() => {
@@ -457,7 +484,13 @@ const FloodMapPage = () => {
                   <div
                     key={province.id}
                     className={`flood-province-item ${isSelected ? 'selected' : ''}`}
-                    onClick={() => setSelectedProvince(province)}
+                    onClick={() => {
+                      setSelectedProvince(province);
+                      // Auto-fetch weather when selecting a province (in LIVE mode only)
+                      if (!simulationEnabled) {
+                        refreshWeatherForProvince(province.id);
+                      }
+                    }}
                   >
                     {/* Header: Name + Risk Badge */}
                     <div className="flood-province-item-header">
