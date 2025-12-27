@@ -3,7 +3,11 @@
  * Exports all flood map page related components
  */
 
+// Core map components
 export { default as NdmaFloodMap } from './NdmaFloodMap';
-export { default as ProvinceStatusCard } from './ProvinceStatusCard';
-export { default as CriticalAreasPanel } from './CriticalAreasPanel';
-export { default as ShelterCapacityCard } from './ShelterCapacityCard';
+
+// Modular page section components
+export { default as ManageMapsModal } from './ManageMapsModal';
+export { default as FloodMapSection } from './FloodMapSection';
+export { default as MLPredictionPanel } from './MLPredictionPanel';
+export { default as ProvinceStatusPanel } from './ProvinceStatusPanel';

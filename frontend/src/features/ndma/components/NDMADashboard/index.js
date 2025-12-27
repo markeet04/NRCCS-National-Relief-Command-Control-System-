@@ -3,7 +3,9 @@
  * Exports all dashboard-related components
  */
 
-export { default as StatsOverview } from './StatsOverview';
-export { default as ResourceStatus } from './ResourceStatus';
-export { default as CriticalAlertBanner } from './CriticalAlertBanner';
-export { default as WeatherMap } from './WeatherMap';
+// Modular components
+export { default as DashboardStatsGrid } from './DashboardStatsGrid';
+export { default as DashboardAlertBanner } from './DashboardAlertBanner';
+export { default as NationalMapCard } from './NationalMapCard';
+export { default as DashboardResourceStatus } from './DashboardResourceStatus';
+export { default as DashboardPageHeader } from './DashboardPageHeader';
