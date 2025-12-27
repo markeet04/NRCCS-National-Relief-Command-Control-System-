@@ -73,7 +73,7 @@ const ResourceDistribution = () => {
   const [selectedResource, setSelectedResource] = useState(null);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [historyResource, setHistoryResource] = useState(null);
-  
+
   // Allocate form state for AllocateToSheltersTab
   const [allocateForm, setAllocateForm] = useState({
     targetShelter: '',
@@ -87,12 +87,14 @@ const ResourceDistribution = () => {
   // Hooks
   const { districtInfo, rawStats: districtStats } = useDistrictData();
   const { shelters } = useShelterData();
-  const { 
-    resources, 
-    loading, 
-    allocateToShelter, 
+  const {
+    resources,
+    loading,
+    allocateToShelter,
+    handleAllocateByType,
     handleRequestFromPdma,
     fullShelters,
+    shelters: sheltersForAllocation, // Shelters from getSheltersForAllocation API
     activityLogs,
     refetch
   } = useResourceDistributionState();
@@ -151,7 +153,7 @@ const ResourceDistribution = () => {
         const desc = (log.description || '').toLowerCase();
         const title = (log.title || '').toLowerCase();
         return (desc.includes(resourceType) || title.includes(resourceType)) &&
-               (log.type?.includes('allocat') || title.includes('allocat'));
+          (log.type?.includes('allocat') || title.includes('allocat'));
       })
       .slice(0, 10)
       .map((log, index) => ({
@@ -184,7 +186,7 @@ const ResourceDistribution = () => {
       console.error('Allocation failed:', error);
     }
   };
-  
+
   // Handle allocate form changes
   const handleAllocateFormChange = (field, value) => {
     setAllocateForm(prev => ({ ...prev, [field]: value }));
@@ -194,16 +196,17 @@ const ResourceDistribution = () => {
   const handleAllocateFormSubmit = async (e) => {
     e.preventDefault();
     setAllocating(true);
-    
+
     try {
-      await allocateToShelter({
+      // Use handleAllocateByType for type-based allocation (auto-creates resources if needed)
+      await handleAllocateByType({
         resourceType: allocateForm.resourceType,
-        shelterId: allocateForm.targetShelter,
+        shelterId: parseInt(allocateForm.targetShelter, 10),
         quantity: parseInt(allocateForm.quantity, 10),
-        priority: allocateForm.priority,
+        purpose: `Priority: ${allocateForm.priority}`,
         notes: allocateForm.notes,
       });
-      
+
       // Reset form
       setAllocateForm({
         targetShelter: '',
@@ -365,7 +368,7 @@ const ResourceDistribution = () => {
             onFormChange={handleAllocateFormChange}
             onSubmit={handleAllocateFormSubmit}
             allocating={allocating}
-            shelters={shelters}
+            shelters={sheltersForAllocation}
             districtStock={districtStock}
             recentAllocations={recentAllocations}
           />

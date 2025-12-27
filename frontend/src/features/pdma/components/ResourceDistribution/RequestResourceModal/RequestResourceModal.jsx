@@ -8,14 +8,10 @@ import { getThemeColors } from '@shared/utils/themeColors';
 import './RequestResourceModal.css';
 
 const RESOURCE_TYPES = [
-    { value: 'food', label: 'Food Supplies', unit: 'kg' },
+    { value: 'food', label: 'Food Supplies', unit: 'tons' },
     { value: 'water', label: 'Water', unit: 'liters' },
-    { value: 'medical', label: 'Medical Supplies', unit: 'kits' },
+    { value: 'medical', label: 'Medical Kits', unit: 'kits' },
     { value: 'shelter', label: 'Shelter Materials', unit: 'units' },
-    { value: 'clothing', label: 'Clothing', unit: 'pieces' },
-    { value: 'blankets', label: 'Blankets', unit: 'units' },
-    { value: 'fuel', label: 'Fuel', unit: 'liters' },
-    { value: 'equipment', label: 'Equipment', unit: 'units' },
 ];
 
 const PRIORITIES = [
@@ -103,11 +99,17 @@ const RequestResourceModal = ({ isOpen, onClose, onSubmit, loading }) => {
                         <select
                             value={formData.resourceType}
                             onChange={(e) => handleChange('resourceType', e.target.value)}
-                            style={{ background: colors.bgSecondary, color: colors.textPrimary, borderColor: errors.resourceType ? '#ef4444' : colors.border }}
+                            style={{
+                                background: colors.bgSecondary,
+                                color: colors.textPrimary,
+                                borderColor: errors.resourceType ? '#ef4444' : colors.border
+                            }}
                         >
-                            <option value="">Select resource type...</option>
+                            <option value="" style={{ background: '#1a1a1a', color: '#fff' }}>Select resource type...</option>
                             {RESOURCE_TYPES.map(type => (
-                                <option key={type.value} value={type.value}>{type.label}</option>
+                                <option key={type.value} value={type.value} style={{ background: '#1a1a1a', color: '#fff' }}>
+                                    {type.label}
+                                </option>
                             ))}
                         </select>
                         {errors.resourceType && <span className="error-text"><AlertCircle size={14} /> {errors.resourceType}</span>}
@@ -135,7 +137,9 @@ const RequestResourceModal = ({ isOpen, onClose, onSubmit, loading }) => {
                                 style={{ background: colors.bgSecondary, color: colors.textPrimary, borderColor: colors.border }}
                             >
                                 {PRIORITIES.map(p => (
-                                    <option key={p.value} value={p.value}>{p.label}</option>
+                                    <option key={p.value} value={p.value} style={{ background: '#1a1a1a', color: '#fff' }}>
+                                        {p.label}
+                                    </option>
                                 ))}
                             </select>
                         </div>
