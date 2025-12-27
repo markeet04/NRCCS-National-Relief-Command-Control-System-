@@ -640,7 +640,7 @@ export class NdmaService {
         const result = await Promise.all(
             provinces.map(async (province) => {
                 const resources = await this.resourceRepository.find({
-                    where: { 
+                    where: {
                         provinceId: province.id,
                         districtId: IsNull(), // Only province-level resources
                     },
@@ -1146,10 +1146,13 @@ export class NdmaService {
     }
 
     /**
-     * Get resource requests from provinces (PDMA requests)
+     * Get resource requests from provinces (PDMA requests only)
+     * Excludes district → PDMA requests (those have districtId set)
      */
     async getResourceRequests(user: User, status?: string) {
-        const where: any = {};
+        const where: any = {
+            districtId: IsNull(), // Only get PDMA → NDMA requests, not District → PDMA
+        };
 
         if (status) {
             where.status = status;
