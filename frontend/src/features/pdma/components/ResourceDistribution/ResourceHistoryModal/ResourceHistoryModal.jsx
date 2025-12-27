@@ -1,11 +1,11 @@
 import PropTypes from 'prop-types';
-import { X, Clock, Package, History } from 'lucide-react';
+import { X, History } from 'lucide-react';
 import './ResourceHistoryModal.css';
 
 /**
- * Dummy history data for Provincial Stock resources (fallback)
+ * Fallback history data for Provincial Stock resources
  */
-const DUMMY_PROVINCIAL_HISTORY = {
+const FALLBACK_HISTORY = {
   food: [
     { date: '2025-12-26', district: 'Lahore', resourceType: 'Food Supplies', amountAllocated: '500 tons', remainingStock: '2,000 tons' },
     { date: '2025-12-24', district: 'Faisalabad', resourceType: 'Food Supplies', amountAllocated: '350 tons', remainingStock: '2,500 tons' },
@@ -24,115 +24,45 @@ const DUMMY_PROVINCIAL_HISTORY = {
     { date: '2025-12-25', district: 'Faisalabad', resourceType: 'Water Supply', amountAllocated: '10,000 L', remainingStock: '100,000 L' },
   ],
   default: [
-    { date: '2025-12-26', district: 'Lahore', resourceType: 'Resources', amountAllocated: '500 units', remainingStock: '2,000 units' },
+    { date: '2025-12-26', district: 'District', resourceType: 'Resources', amountAllocated: '500 units', remainingStock: '2,000 units' },
   ],
 };
 
 /**
- * Dummy history data for District Stock (fallback)
+ * Get fallback history data based on resource type
  */
-const DUMMY_DISTRICT_HISTORY = {
-  default: [
-    { date: '2025-12-26', source: 'Provincial HQ', resourceType: 'Food, Medical', amountReceived: '200 tons, 400 kits', currentStock: '450 tons, 800 kits' },
-    { date: '2025-12-24', source: 'Provincial HQ', resourceType: 'Water Supply', amountReceived: '5,000 L', currentStock: '12,000 L' },
-  ],
-};
-
-/**
- * Transform activity logs to history format
- */
-const transformLogsToHistory = (logs, resourceType, isDistrict, districtName) => {
-  if (!logs || logs.length === 0) return [];
-
-  // Filter allocation-related logs
-  const allocationLogs = logs.filter(log => 
-    log.activityType === 'resource_allocated' || 
-    log.activityType === 'district_request_approved'
-  );
-
-  // If filtering by resource type
-  const normalizedType = resourceType?.toLowerCase() || '';
-  const filteredLogs = allocationLogs.filter(log => {
-    const desc = (log.description || '').toLowerCase();
-    if (isDistrict && districtName) {
-      return desc.includes(districtName.toLowerCase());
-    }
-    if (normalizedType && normalizedType !== 'default') {
-      return desc.includes(normalizedType);
-    }
-    return true;
-  });
-
-  return filteredLogs.map(log => {
-    // Parse description to extract details
-    // Format: "User allocated X units of Resource to district Y"
-    const desc = log.description || '';
-    const quantityMatch = desc.match(/(\d+[\d,]*)\s*(kg|liters|kits|units|tons)?/i);
-    const amount = quantityMatch ? quantityMatch[0] : 'N/A';
-
-    return {
-      date: log.createdAt || log.timestamp,
-      district: log.districtName || extractDistrictFromDesc(desc),
-      source: 'Provincial HQ',
-      resourceType: log.title || 'Resource',
-      amountAllocated: amount,
-      amountReceived: amount,
-      remainingStock: 'Updated',
-      currentStock: 'Updated',
-      rawDescription: desc,
-    };
-  });
-};
-
-const extractDistrictFromDesc = (desc) => {
-  const match = desc.match(/to district\s+(\w+)/i) || desc.match(/to\s+(\w+)\s+district/i);
-  return match ? match[1] : 'District';
-};
-
-/**
- * Get history data - prefers real data, falls back to dummy
- */
-const getHistoryData = (resourceType, isDistrict, activityLogs, districtName) => {
-  // Try to get real data from activity logs first
-  const realHistory = transformLogsToHistory(activityLogs, resourceType, isDistrict, districtName);
-  
-  if (realHistory.length > 0) {
-    return realHistory;
-  }
-
-  // Fallback to dummy data
-  if (isDistrict) {
-    return DUMMY_DISTRICT_HISTORY.default;
-  }
-  
+const getFallbackHistory = (resourceType) => {
   const normalizedType = resourceType?.toLowerCase().replace(/\s+/g, '').replace('supplies', '').replace('kits', '') || 'default';
-  if (normalizedType.includes('food')) return DUMMY_PROVINCIAL_HISTORY.food;
-  if (normalizedType.includes('medical')) return DUMMY_PROVINCIAL_HISTORY.medical;
-  if (normalizedType.includes('shelter')) return DUMMY_PROVINCIAL_HISTORY.shelter;
-  if (normalizedType.includes('water')) return DUMMY_PROVINCIAL_HISTORY.water;
-  
-  return DUMMY_PROVINCIAL_HISTORY.default;
+  if (normalizedType.includes('food')) return FALLBACK_HISTORY.food;
+  if (normalizedType.includes('medical')) return FALLBACK_HISTORY.medical;
+  if (normalizedType.includes('shelter')) return FALLBACK_HISTORY.shelter;
+  if (normalizedType.includes('water')) return FALLBACK_HISTORY.water;
+  return FALLBACK_HISTORY.default;
 };
 
 /**
- * ResourceHistoryModal Component
- * Shows allocation/distribution history for Provincial and District resources
- * Uses real activity logs from backend when available, falls back to dummy data
+ * ResourceHistoryModal Component for PDMA
+ * Shows allocation history for provincial resources to districts
+ * Uses backend data when available via historyData prop, falls back to sample data otherwise
  */
-const ResourceHistoryModal = ({ 
-  isOpen, 
-  onClose, 
+const ResourceHistoryModal = ({
+  isOpen,
+  onClose,
   resourceName = 'Resource',
   resourceType = 'default',
   isDistrict = false,
   districtName = '',
-  activityLogs = [],
+  historyData: providedHistory,
 }) => {
   if (!isOpen) return null;
 
-  const historyData = getHistoryData(resourceType, isDistrict, activityLogs, districtName);
-  const title = isDistrict 
-    ? `${districtName} Allocation History` 
+  // Use provided history from backend if available, else use fallback
+  const historyData = providedHistory && providedHistory.length > 0
+    ? providedHistory
+    : getFallbackHistory(resourceType);
+
+  const title = isDistrict
+    ? `${districtName} Allocation History`
     : `${resourceName} Distribution History`;
 
   const formatDate = (dateString) => {
@@ -160,8 +90,8 @@ const ResourceHistoryModal = ({
               </p>
             </div>
           </div>
-          <button 
-            className="pdma-history-close-btn" 
+          <button
+            className="pdma-history-close-btn"
             onClick={onClose}
             aria-label="Close modal"
           >
@@ -174,7 +104,7 @@ const ResourceHistoryModal = ({
           {historyData.length > 0 ? (
             <div className="pdma-history-timeline">
               {historyData.map((record, index) => (
-                <div key={index} className="pdma-history-card">
+                <div key={record.id || index} className="pdma-history-card">
                   <div className="pdma-history-card-indicator"></div>
                   <div className="pdma-history-card-content">
                     <div className="pdma-history-card-header">
@@ -184,21 +114,21 @@ const ResourceHistoryModal = ({
                     <div className="pdma-history-card-details">
                       <div className="pdma-history-card-row">
                         <span className="pdma-history-card-icon">📍</span>
-                        <span className="pdma-history-card-label">{isDistrict ? 'Source' : 'Province'}</span>
+                        <span className="pdma-history-card-label">{isDistrict ? 'Source' : 'District'}</span>
                         <span className="pdma-history-card-value">
-                          {isDistrict ? record.source : record.district}
+                          {isDistrict ? (record.source || 'Provincial HQ') : (record.district || record.shelter || 'District')}
                         </span>
                       </div>
                       <div className="pdma-history-card-row">
                         <span className="pdma-history-card-label">Amount Allocated</span>
                         <span className="pdma-history-card-value">
-                          {isDistrict ? record.amountReceived : record.amountAllocated}
+                          {record.amountAllocated || record.amountReceived || 'N/A'}
                         </span>
                       </div>
                       <div className="pdma-history-card-row">
                         <span className="pdma-history-card-label">Remaining Stock</span>
                         <span className="pdma-history-card-value">
-                          {isDistrict ? record.currentStock : record.remainingStock}
+                          {record.remainingStock || record.currentStock || 'Updated'}
                         </span>
                       </div>
                     </div>
@@ -208,10 +138,10 @@ const ResourceHistoryModal = ({
             </div>
           ) : (
             <div className="pdma-history-empty">
-              <Clock className="pdma-history-empty-icon" />
-              <p className="pdma-history-empty-text">No history records</p>
+              <History className="pdma-history-empty-icon" />
+              <p className="pdma-history-empty-text">No allocation history</p>
               <p className="pdma-history-empty-subtext">
-                No allocation records found for this resource
+                Allocation records will appear here after resources are distributed
               </p>
             </div>
           )}
@@ -219,7 +149,7 @@ const ResourceHistoryModal = ({
 
         {/* Footer */}
         <div className="pdma-history-footer">
-          <button 
+          <button
             className="pdma-history-close-footer-btn"
             onClick={onClose}
           >
@@ -238,7 +168,22 @@ ResourceHistoryModal.propTypes = {
   resourceType: PropTypes.string,
   isDistrict: PropTypes.bool,
   districtName: PropTypes.string,
-  activityLogs: PropTypes.array,
+  historyData: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    date: PropTypes.string,
+    district: PropTypes.string,
+    shelter: PropTypes.string,
+    source: PropTypes.string,
+    resourceType: PropTypes.string,
+    amountAllocated: PropTypes.string,
+    amountReceived: PropTypes.string,
+    remainingStock: PropTypes.string,
+    currentStock: PropTypes.string,
+  })),
+};
+
+ResourceHistoryModal.defaultProps = {
+  historyData: [],
 };
 
 export default ResourceHistoryModal;

@@ -441,7 +441,30 @@ const ResourceDistribution = () => {
         resourceType={historyResource?.type || historyResource?.name?.toLowerCase().replace(/\s+/g, '') || 'default'}
         isDistrict={historyModalType === 'district'}
         districtName={selectedDistrictName}
-        activityLogs={activityLogs}
+        historyData={activityLogs
+          .filter(log => {
+            const actType = (log.activityType || '').toLowerCase();
+            const title = (log.title || '').toLowerCase();
+            const desc = (log.description || '').toLowerCase();
+            // Filter for allocation-related logs
+            return actType.includes('allocat') || title.includes('allocat') || desc.includes('allocat');
+          })
+          .map(log => {
+            const desc = log.description || '';
+            const quantityMatch = desc.match(/(\d+[\d,]*)\s*(kg|liters|kits|units|tons)?/i);
+            const amount = quantityMatch ? quantityMatch[0] : 'N/A';
+            const districtMatch = desc.match(/to\s+(?:district\s+)?(\w+)/i);
+            return {
+              id: log.id,
+              date: log.createdAt,
+              district: districtMatch ? districtMatch[1] : 'District',
+              resourceType: log.title || 'Resource',
+              amountAllocated: amount,
+              remainingStock: 'Updated',
+            };
+          })
+          .slice(0, 20)
+        }
       />
     </DashboardLayout>
   );
