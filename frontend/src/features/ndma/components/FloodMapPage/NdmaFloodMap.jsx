@@ -31,6 +31,7 @@ import Polygon from '@arcgis/core/geometry/Polygon';
 import LayerList from '@arcgis/core/widgets/LayerList';
 import Legend from '@arcgis/core/widgets/Legend';
 import Expand from '@arcgis/core/widgets/Expand';
+import Search from '@arcgis/core/widgets/Search';
 
 // ArcGIS Reactive Utils
 import * as reactiveUtils from '@arcgis/core/core/reactiveUtils';
@@ -123,6 +124,9 @@ const NdmaFloodMap = ({
     onRunPrediction = null,
     activeLayers = [],
     searchTerm = '',
+    pinMode = false,
+    onMapClick = null,
+    quickJumpLocation = null,
 }) => {
     // Theme
     const { theme } = useSettings();
@@ -557,7 +561,32 @@ const NdmaFloodMap = ({
                 });
                 view.ui.add(legendExpand, 'top-right');
 
-                // Click handler for province selection
+                // ============================================================
+                // SEARCH WIDGET - ArcGIS Geocoding with Autocomplete
+                // Uses World Geocoding Service for address/place search
+                // Flood Map - National level Pakistan coverage
+                // ============================================================
+                const searchWidget = new Search({
+                    view: view,
+                    popupEnabled: true,
+                    resultGraphicEnabled: true,
+                    searchTerm: '',
+                    countryCode: 'PK',  // Focus on Pakistan
+                    suggestionsEnabled: true,
+                    minSuggestCharacters: 2,
+                    maxSuggestions: 6,
+                    allPlaceholder: 'Search location in Pakistan...',
+                    goToOverride: (view, options) => {
+                        return view.goTo({
+                            target: options.target,
+                            zoom: 9  // Zoom level for flood monitoring
+                        }, { duration: 1000, easing: 'ease-in-out' });
+                    }
+                });
+                view.ui.add(searchWidget, { position: 'top-right' });
+                console.log('✓ Search widget initialized with ArcGIS Geocoding');
+
+                // Click handler for province selection and pin mode
                 view.on('click', async (event) => {
                     const { mapPoint } = event;
                     if (mapPoint) {
@@ -566,6 +595,21 @@ const NdmaFloodMap = ({
                             lon: mapPoint.longitude,
                             name: 'Selected Location'
                         });
+
+                        // Find province name for the clicked location
+                        let clickedProvinceName = null;
+                        for (const [provinceName, geometry] of Object.entries(provincePolygonsRef.current)) {
+                            if (geometry && geometry.contains && geometry.contains(mapPoint)) {
+                                clickedProvinceName = PROVINCE_CENTERS[provinceName]?.name || provinceName;
+                                break;
+                            }
+                        }
+
+                        // Call external onMapClick callback (for pin mode weather fetch)
+                        if (onMapClick && typeof onMapClick === 'function') {
+                            onMapClick(mapPoint.latitude, mapPoint.longitude, clickedProvinceName);
+                        }
+
                         loadWeatherData(mapPoint.latitude, mapPoint.longitude);
 
                         // Find clicked province by polygon intersection (more accurate)
@@ -704,6 +748,17 @@ const NdmaFloodMap = ({
         }
     }, [provinces]);
 
+    // Handle quick jump location changes - navigate map to the location
+    useEffect(() => {
+        if (quickJumpLocation && viewRef.current) {
+            viewRef.current.goTo({
+                center: [quickJumpLocation.lon, quickJumpLocation.lat],
+                zoom: 8
+            }, { duration: 800, easing: 'ease-in-out' })
+                .catch(err => console.warn('Navigation error:', err));
+        }
+    }, [quickJumpLocation]);
+
     // ============================================================================
     // RENDER
     // ============================================================================
@@ -759,92 +814,26 @@ const NdmaFloodMap = ({
                 </div>
             )}
 
-            {/* Weather Info Badge */}
-            {!isLoading && weatherData && (
+            {/* Pin Mode Indicator */}
+            {pinMode && (
                 <div style={{
                     position: 'absolute',
-                    top: '12px',
+                    bottom: '12px',
                     left: '12px',
+                    backgroundColor: 'rgba(34, 197, 94, 0.9)',
+                    color: '#fff',
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    fontSize: '11px',
+                    fontWeight: '500',
+                    zIndex: 3,
                     display: 'flex',
-                    gap: '8px',
-                    zIndex: 5
+                    alignItems: 'center',
+                    gap: '6px'
                 }}>
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '8px 12px',
-                        backgroundColor: 'rgba(0, 0, 0, 0.85)',
-                        borderRadius: '8px',
-                        color: '#ffffff',
-                        fontSize: '12px'
-                    }}>
-                        <Thermometer style={{ width: '14px', height: '14px', color: '#f59e0b' }} />
-                        <span>{weatherData.current?.temperature_2m || '--'}°C</span>
-                    </div>
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '8px 12px',
-                        backgroundColor: 'rgba(0, 0, 0, 0.85)',
-                        borderRadius: '8px',
-                        color: '#ffffff',
-                        fontSize: '12px'
-                    }}>
-                        <CloudRain style={{ width: '14px', height: '14px', color: '#3b82f6' }} />
-                        <span>{weatherData.current?.precipitation || 0}mm</span>
-                    </div>
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '8px 12px',
-                        backgroundColor: 'rgba(0, 0, 0, 0.85)',
-                        borderRadius: '8px',
-                        color: '#ffffff',
-                        fontSize: '12px'
-                    }}>
-                        <Wind style={{ width: '14px', height: '14px', color: '#60a5fa' }} />
-                        <span>{weatherData.current?.wind_speed_10m || 0} km/h</span>
-                    </div>
+                    📍 Pin Mode Active - Click to get weather
                 </div>
             )}
-
-            {/* National View Label */}
-            <div style={{
-                position: 'absolute',
-                bottom: '12px',
-                right: '12px',
-                backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                color: '#ffffff',
-                padding: '10px 16px',
-                borderRadius: '10px',
-                fontSize: '12px',
-                fontWeight: '600',
-                zIndex: 3,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-            }}>
-                <span style={{ fontSize: '16px' }}>🇵🇰</span>
-                NDMA National Flood Monitoring
-            </div>
-
-            {/* Click Hint */}
-            <div style={{
-                position: 'absolute',
-                bottom: '12px',
-                left: '12px',
-                backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                color: '#94a3b8',
-                padding: '8px 12px',
-                borderRadius: '8px',
-                fontSize: '11px',
-                zIndex: 3
-            }}>
-                💡 Click on map to view weather & province details
-            </div>
         </div>
     );
 };

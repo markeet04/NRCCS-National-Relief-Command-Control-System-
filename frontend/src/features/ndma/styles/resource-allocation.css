@@ -71,19 +71,20 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  padding: 1rem 1.25rem 1rem 1.25rem; /* Reduce vertical height, add horizontal padding */
+  padding: 1rem 1.25rem 1rem 1.25rem;
   min-height: 120px;
   box-sizing: border-box;
   background-color: #0f1114;
   border: 1px solid #1e2227;
   border-radius: 12px;
-  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  /* CONSTANT GLOW - always visible, not just on hover */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .resources-stat-card:hover {
   border-color: #2d3238;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   transform: translateY(-2px);
 }
 
@@ -97,7 +98,8 @@
 
 /* ICON PADDING FIX - Add internal padding to stat icons */
 .resources-stat-header .ndma-stat-icon {
-  padding: 0.5rem; /* Decreased padding */
+  padding: 0.5rem;
+  /* Decreased padding */
   box-sizing: content-box;
 }
 
@@ -112,11 +114,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 0 0.5rem 0; /* Reduce vertical padding */
+  padding: 0.75rem 0 0.5rem 0;
+  /* Reduce vertical padding */
 }
 
 .resources-stat-value {
-  font-size: 1.5rem; /* Decreased from 2.25rem */
+  font-size: 1.5rem;
+  /* Decreased from 2.25rem */
   font-weight: 700;
   color: #ffffff;
   line-height: 1;
@@ -141,7 +145,8 @@
 
 .national-stock-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
+  /* CHANGED: 2 cards per row */
   gap: 1.25rem;
   max-width: 100%;
   overflow: hidden;
@@ -306,14 +311,15 @@
   color: #ef4444;
 }
 
-/* Chart Container */
+/* Chart Container - LARGER GAUGE SIZE */
 .national-stock-chart {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0.5rem 0;
+  padding: 0.75rem 0;
   position: relative;
-  min-height: 180px;
+  min-height: 220px;
+  /* Increased from 180px */
 }
 
 .national-stock-chart-center {
@@ -751,6 +757,8 @@
   gap: 1rem;
   flex-wrap: wrap;
   margin-bottom: 0.75rem;
+  margin-top: 0.75rem;
+  /* ADD RESOURCES BUTTON SPACING */
 }
 
 .tabs-list {
@@ -1090,8 +1098,20 @@
 }
 
 .provincial-request-card.request-processed {
-  opacity: 0.7;
+  opacity: 0.85;
+  /* GREEN BORDER FOR APPROVED - will be overridden by status-specific class */
   border-left-color: #64748b;
+}
+
+/* GREEN BORDER FOR APPROVED REQUESTS */
+.provincial-request-card.request-processed.request-approved {
+  border-left-color: #22c55e;
+  border-left-width: 3px;
+}
+
+/* REJECTED - keep gray/red */
+.provincial-request-card.request-processed.request-rejected {
+  border-left-color: #ef4444;
 }
 
 .request-card-header {
@@ -1385,7 +1405,7 @@
   gap: 0.75rem;
 }
 
-.resources-modal-actions > button {
+.resources-modal-actions>button {
   flex: 1;
 }
 

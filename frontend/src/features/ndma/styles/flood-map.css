@@ -10,8 +10,9 @@
 .flood-map-container {
   display: grid;
   grid-template-columns: 3fr 1fr;
-  gap: 24px;
-  min-height: calc(100vh - 200px);
+  gap: 12px;
+  min-height: calc(100vh - 120px);
+  height: calc(100vh - 120px);
 }
 
 @media (max-width: 1200px) {
@@ -32,7 +33,12 @@
 .flood-map-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 0;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .flood-map-card {
@@ -43,7 +49,9 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: 600px;
+  min-height: 0;
+  /* Allow shrinking */
+  height: 100%;
 }
 
 .flood-map-header {
@@ -186,42 +194,42 @@
   line-height: 1.6;
 }
 
-/* Map Legend */
+/* Map Legend - COMPACT */
 .flood-map-legend {
   position: absolute;
-  bottom: 20px;
-  left: 20px;
-  background-color: #1f242a;
+  bottom: 16px;
+  left: 16px;
+  background-color: rgba(17, 24, 39, 0.95);
   border: 1px solid #2d3238;
-  border-radius: 8px;
-  padding: 14px 16px;
+  border-radius: 6px;
+  padding: 8px 10px;
 }
 
 .flood-map-legend-title {
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 600;
   color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .flood-map-legend-items {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .flood-map-legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .flood-map-legend-color {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
 }
 
 .flood-map-legend-color.critical {
@@ -241,7 +249,7 @@
 }
 
 .flood-map-legend-label {
-  font-size: 12px;
+  font-size: 10px;
   color: #cbd5e1;
 }
 
@@ -288,8 +296,11 @@
 .flood-province-panel {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  max-height: calc(100vh - 200px);
+  gap: 12px;
+  height: 100%;
+  /* Full height to match map */
+  max-height: calc(100vh - 140px);
+  overflow: hidden;
 }
 
 .flood-province-card {
@@ -306,24 +317,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 10px 14px;
   background-color: #263038;
   border-bottom: 1px solid #2d3238;
 }
 
 .flood-province-header h3 {
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 600;
   color: #ffffff;
   margin: 0;
 }
 
 .flood-province-count {
-  font-size: 12px;
+  font-size: 10px;
   color: #94a3b8;
   background-color: #1f242a;
-  padding: 4px 10px;
-  border-radius: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
 }
 
 .flood-province-list {

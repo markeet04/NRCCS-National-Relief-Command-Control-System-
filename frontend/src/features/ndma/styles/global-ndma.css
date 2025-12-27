@@ -7,7 +7,7 @@
 /* ============================================================================
    BASE & BACKGROUNDS - DARK MODE (DEFAULT)
    ============================================================================ */
-   
+
 /* Pitch black background for entire page - DARK MODE ONLY */
 body {
   background-color: var(--bg-secondary, #000000);
@@ -45,7 +45,7 @@ body[data-theme="light"] {
    COLORED LEFT BORDER ACCENTS (GLOBAL)
    These apply to ALL stat cards across ALL dashboards
    ============================================================================ */
-   
+
 /* Red border - Critical/Emergencies */
 .border-left-red {
   border-left: 3px solid #ef4444 !important;
@@ -102,32 +102,32 @@ body[data-theme="light"] {
   content: none;
 }
 
-/* Glow variants based on color */
-.ndma-stat-card-glow.glow-blue:hover {
+/* Glow variants based on color - CONSTANT (always visible, not just on hover) */
+.ndma-stat-card-glow.glow-blue {
   box-shadow: -2px 0 10px rgba(33, 150, 243, 0.3);
 }
 
-.ndma-stat-card-glow.glow-green:hover {
+.ndma-stat-card-glow.glow-green {
   box-shadow: -2px 0 10px rgba(76, 175, 80, 0.3);
 }
 
-.ndma-stat-card-glow.glow-yellow:hover {
+.ndma-stat-card-glow.glow-yellow {
   box-shadow: -2px 0 10px rgba(234, 179, 8, 0.3);
 }
 
-.ndma-stat-card-glow.glow-purple:hover {
+.ndma-stat-card-glow.glow-purple {
   box-shadow: -2px 0 10px rgba(139, 92, 246, 0.3);
 }
 
-.ndma-stat-card-glow.glow-red:hover {
+.ndma-stat-card-glow.glow-red {
   box-shadow: -2px 0 10px rgba(239, 68, 68, 0.3);
 }
 
-.ndma-stat-card-glow.glow-orange:hover {
+.ndma-stat-card-glow.glow-orange {
   box-shadow: -2px 0 10px rgba(249, 115, 22, 0.3);
 }
 
-.ndma-stat-card-glow.glow-cyan:hover {
+.ndma-stat-card-glow.glow-cyan {
   box-shadow: -2px 0 10px rgba(6, 182, 212, 0.3);
 }
 
@@ -520,9 +520,12 @@ body[data-theme="light"] {
 
 /* Remove the intense pulse animation */
 @keyframes pulse-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 4px rgba(76, 175, 80, 0.6);
   }
+
   50% {
     box-shadow: 0 0 6px rgba(76, 175, 80, 0.8);
   }
@@ -833,7 +836,8 @@ body[data-theme="light"] {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.625rem; /* 10px internal padding for icon */
+  padding: 0.625rem;
+  /* 10px internal padding for icon */
   box-sizing: border-box;
 }
 
@@ -1184,18 +1188,18 @@ body[data-theme="light"] {
   --light-bg-elevated: #fefefe;
   --light-bg-header: #f5f7fa;
   --light-bg-accent: #f0f7f4;
-  
+
   /* Text colors */
   --light-text-primary: #1a202c;
   --light-text-secondary: #4a5568;
   --light-text-muted: #718096;
   --light-text-accent: #2d6a4f;
-  
+
   /* Border colors */
   --light-border: #e2e8f0;
   --light-border-subtle: #edf2f7;
   --light-border-accent: #c6f6d5;
-  
+
   /* Accent colors - softer versions */
   --light-accent-green: #48bb78;
   --light-accent-green-soft: rgba(72, 187, 120, 0.08);
@@ -1211,7 +1215,7 @@ body[data-theme="light"] {
   --light-accent-orange-soft: rgba(237, 137, 54, 0.08);
   --light-accent-cyan: #38b2ac;
   --light-accent-cyan-soft: rgba(56, 178, 172, 0.08);
-  
+
   /* Shadows */
   --light-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
   --light-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);

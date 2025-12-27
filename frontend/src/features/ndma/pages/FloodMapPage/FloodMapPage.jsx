@@ -86,15 +86,8 @@ const FloodMapPage = () => {
 
       {/* Main Two-Column Layout */}
       <div className="flood-map-container">
-        {/* Left Column: Interactive Map Section */}
+        {/* Left Column: Interactive Map Section - Compact Professional Design */}
         <FloodMapSection
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          mapView={mapView}
-          onMapViewChange={setMapView}
-          mapTypeOptions={MAP_TYPE_OPTIONS}
-          extraMaps={extraMaps}
-          onOpenModal={openModal}
           provinces={provinces}
           onProvinceClick={(province) => setSelectedProvince(province)}
           onRunPrediction={runPrediction}

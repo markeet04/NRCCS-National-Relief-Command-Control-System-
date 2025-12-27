@@ -42,27 +42,28 @@ const MLPredictionPanel = ({
   };
 
   return (
-    <div className="flood-province-card" style={{ marginBottom: '16px', background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' }}>
-      <div className="flood-province-header" style={{ borderBottom: '1px solid rgba(59, 130, 246, 0.3)' }}>
-        <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <div className="flood-province-card" style={{ marginBottom: '10px', background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', flex: '0 0 auto' }}>
+      {/* Compact Header */}
+      <div className="flood-province-header" style={{ borderBottom: '1px solid rgba(59, 130, 246, 0.3)', padding: '8px 12px' }}>
+        <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
           🔮 ML Flood Prediction
         </h3>
-        <span className="flood-province-count" style={{
+        <span style={{
           background: simulationEnabled ? '#f59e0b' : '#22c55e',
           color: '#000',
-          padding: '2px 8px',
-          borderRadius: '4px',
-          fontSize: '10px',
+          padding: '1px 6px',
+          borderRadius: '3px',
+          fontSize: '8px',
           fontWeight: '600'
         }}>
-          {simulationEnabled ? 'SIMULATION' : 'LIVE'}
+          {simulationEnabled ? 'SIM' : 'LIVE'}
         </span>
       </div>
 
-      <div style={{ padding: '12px' }}>
-        {/* Simulation Mode Toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-          <span style={{ color: '#94a3b8', fontSize: '12px' }}>Simulation Mode</span>
+      <div style={{ padding: '10px' }}>
+        {/* Simulation Mode Toggle - Compact */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+          <span style={{ color: '#94a3b8', fontSize: '10px' }}>Simulation Mode</span>
           <label style={{
             position: 'relative',
             display: 'inline-block',
@@ -97,10 +98,10 @@ const MLPredictionPanel = ({
           </label>
         </div>
 
-        {/* Scenario Selector (only when simulation enabled) */}
+        {/* Scenario Selector (only when simulation enabled) - Compact */}
         {simulationEnabled && (
-          <div style={{ marginBottom: '12px' }}>
-            <label style={{ color: '#94a3b8', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+          <div style={{ marginBottom: '8px' }}>
+            <label style={{ color: '#94a3b8', fontSize: '9px', display: 'block', marginBottom: '3px' }}>
               Scenario
             </label>
             <select
@@ -108,12 +109,12 @@ const MLPredictionPanel = ({
               onChange={(e) => onScenarioChange(e.target.value)}
               style={{
                 width: '100%',
-                padding: '8px 10px',
-                borderRadius: '6px',
+                padding: '6px 8px',
+                borderRadius: '5px',
                 border: '1px solid #475569',
                 backgroundColor: '#1e293b',
                 color: '#f1f5f9',
-                fontSize: '12px',
+                fontSize: '10px',
                 cursor: 'pointer'
               }}
             >
@@ -150,24 +151,24 @@ const MLPredictionPanel = ({
           </div>
         )}
 
-        {/* Run Prediction Button */}
+        {/* Run Prediction Button - Compact */}
         <button
           onClick={handleRunPrediction}
           disabled={isPredicting}
           style={{
             width: '100%',
-            padding: '10px',
-            borderRadius: '8px',
+            padding: '8px',
+            borderRadius: '6px',
             border: 'none',
             background: isPredicting ? '#475569' : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
             color: '#fff',
             fontWeight: '600',
-            fontSize: '13px',
+            fontSize: '11px',
             cursor: isPredicting ? 'not-allowed' : 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '8px'
+            gap: '6px'
           }}
         >
           {isPredicting ? '⏳ Analyzing...' : '🔍 Run Prediction'}

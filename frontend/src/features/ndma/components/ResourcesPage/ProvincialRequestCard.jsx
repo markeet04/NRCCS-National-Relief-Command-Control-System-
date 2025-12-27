@@ -27,15 +27,21 @@ const getPriorityClass = (priority) => {
 };
 
 /**
- * Format date for display
+ * Format date with timestamp for display
  */
 const formatDate = (dateString) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
+  const dateStr = date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
   });
+  const timeStr = date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+  return `${dateStr} at ${timeStr}`;
 };
 
 /**
@@ -70,7 +76,7 @@ const ProvincialRequestCard = ({
   const hasSufficientStock = checkSufficientStock();
 
   return (
-    <div className={`provincial-request-card ${!isPending ? 'request-processed' : ''}`}>
+    <div className={`provincial-request-card ${!isPending ? 'request-processed' : ''} ${!isPending ? `request-${status}` : ''}`}>
       {/* Card Header */}
       <div className="request-card-header">
         <div className="request-province-info">
