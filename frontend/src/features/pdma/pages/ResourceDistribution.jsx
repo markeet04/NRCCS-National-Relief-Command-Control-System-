@@ -78,6 +78,7 @@ const ResourceDistribution = () => {
     resources: apiResources,
     resourceStats,
     districts,
+    districtResources, // Real district stock from backend
     activityLogs,
     loading,
     error,
@@ -103,15 +104,18 @@ const ResourceDistribution = () => {
   const totalQuantity = resourceStats?.totalQuantity || calculateTotalQuantity(resources);
   const totalAllocated = resourceStats?.totalAllocated || calculateTotalAllocated(resources);
 
-  // Mock district allocations for District Stock tab
-  const districtAllocations = districts?.map((district, index) => ({
-    district: district.name || `District ${index + 1}`,
-    food: Math.floor(Math.random() * 800) + 200,
-    medical: Math.floor(Math.random() * 1200) + 300,
-    shelter: Math.floor(Math.random() * 600) + 100,
-    water: Math.floor(Math.random() * 40000) + 10000,
-    status: ['adequate', 'moderate', 'low', 'critical'][Math.floor(Math.random() * 4)],
-  })) || [];
+  // District allocations from backend (real data)
+  // Falls back to mock data if backend returns empty
+  const districtAllocations = districtResources && districtResources.length > 0
+    ? districtResources
+    : districts?.map((district, index) => ({
+      district: district.name || `District ${index + 1}`,
+      food: 0,
+      medical: 0,
+      shelter: 0,
+      water: 0,
+      status: 'critical', // No resources = critical
+    })) || [];
 
   // Provincial stock for allocate tab
   const provincialStock = {
@@ -123,8 +127,8 @@ const ResourceDistribution = () => {
 
   // Filter allocation-related activity logs for history
   const allocationHistory = useMemo(() => {
-    const allocations = activityLogs?.filter(log => 
-      log.activityType === 'resource_allocated' || 
+    const allocations = activityLogs?.filter(log =>
+      log.activityType === 'resource_allocated' ||
       log.activityType === 'district_request_approved'
     ) || [];
     return { allocations };
@@ -150,11 +154,11 @@ const ResourceDistribution = () => {
   const handleAllocateFormSubmit = async (e) => {
     e.preventDefault();
     setAllocating(true);
-    
+
     try {
       // Find the district ID from the selected district name
       const selectedDistrict = districts?.find(d => d.name === allocateForm.targetDistrict);
-      
+
       if (!selectedDistrict) {
         setDemoModal({
           isOpen: true,
@@ -181,7 +185,7 @@ const ResourceDistribution = () => {
         message: `Successfully allocated ${allocateForm.quantity} ${allocateForm.resourceType} to ${allocateForm.targetDistrict}. Provincial stock has been updated.`,
         type: 'success'
       });
-      
+
       // Reset form
       setAllocateForm({
         targetDistrict: '',
@@ -190,7 +194,7 @@ const ResourceDistribution = () => {
         priority: 'normal',
         notes: '',
       });
-      
+
       // Refresh data to reflect updated stock levels
       if (refreshData) {
         await refreshData();

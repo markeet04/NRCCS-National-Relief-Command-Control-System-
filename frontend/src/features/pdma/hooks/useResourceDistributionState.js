@@ -32,17 +32,19 @@ const useResourceDistributionState = () => {
       setLoading(true);
       setError(null);
 
-      const [resourcesData, statsData, districtsData, logsData] = await Promise.all([
+      const [resourcesData, statsData, districtsData, logsData, districtStockData] = await Promise.all([
         pdmaApi.getAllResources(),
         pdmaApi.getResourceStats(),
         pdmaApi.getDistricts(),
         pdmaApi.getActivityLogs(100), // Fetch more logs for history
+        pdmaApi.getDistrictResourceStock(), // Fetch real district stock data
       ]);
 
       setResources(resourcesData);
       setResourceStats(statsData);
       setDistricts(districtsData);
       setActivityLogs(logsData || []);
+      setDistrictResources(districtStockData || []);
     } catch (err) {
       setError(err.message);
       notification.error(err.message);
@@ -69,20 +71,20 @@ const useResourceDistributionState = () => {
   const handleAllocateResource = async (allocationData) => {
     try {
       console.log('🚀 Attempting to allocate resource:', allocationData);
-      
+
       // Ensure resourceType is set from the allocationData
-      const resourceType = allocationData.resourceType || 
-                          selectedResource?.type || 
-                          selectedResource?.resourceType || 
-                          selectedResource?.category ||
-                          selectedResource?.name?.toLowerCase();
-      
+      const resourceType = allocationData.resourceType ||
+        selectedResource?.type ||
+        selectedResource?.resourceType ||
+        selectedResource?.category ||
+        selectedResource?.name?.toLowerCase();
+
       if (!resourceType) {
         notification.error('Unable to determine resource type');
         console.error('❌ No resource type found in:', { allocationData, selectedResource });
         return;
       }
-      
+
       // Use allocateResourceByType which auto-creates province resources if needed
       await pdmaApi.allocateResourceByType({
         resourceType: resourceType,
@@ -164,6 +166,7 @@ const useResourceDistributionState = () => {
     resources,
     resourceStats,
     districts,
+    districtResources, // Real district stock from backend
     activityLogs,
     loading,
     error,

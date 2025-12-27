@@ -181,63 +181,27 @@ const DistrictDashboard = () => {
               ))}
             </div>
 
-            {/* Map and Sidebar Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
-              {/* Live District Map - Takes 2 columns */}
-              <div className="lg:col-span-2">
-                <div className="card card-body">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-primary">
-                      {districtInfo?.name || 'District'} - Live Situation Map
-                    </h3>
-                    <button
-                      onClick={() => setIsMapFullscreen(true)}
-                      className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
-                      title="Expand Map"
-                      style={{ background: 'rgba(59, 130, 246, 0.15)' }}
-                    >
-                      <Maximize2 size={20} color="#3b82f6" />
-                    </button>
-                  </div>
-                  {/* ArcGIS District Map with Weather Layers */}
-                  <DistrictMap
-                    districtName={districtInfo?.name}
-                    height="450px"
-                  />
-                </div>
-              </div>
-
-              {/* Right Sidebar - Takes 1 column */}
-              <div className="flex flex-col gap-5">
-
-                {/* Today's Alerts Card */}
-                <div className="card card-body" style={{ borderLeft: '4px solid #ef4444' }}>
-                  <h3 className="text-base font-semibold text-primary mb-4">
-                    Today's Alerts
+            {/* Map Section - Full Width */}
+            <div className="mb-6">
+              <div className="card card-body">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-primary">
+                    {districtInfo?.name || 'District'} - Live Situation Map
                   </h3>
-                  <div className="flex flex-col gap-3">
-                    {alerts?.slice(0, 3).map((alert, index) => (
-                      <div key={index} className="flex items-start gap-2">
-                        <div
-                          className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
-                          style={{
-                            backgroundColor: alert.severity === 'critical' ? '#ef4444' : '#f59e0b'
-                          }}
-                        />
-                        <div>
-                          <p className="text-sm font-medium text-primary">
-                            {alert.title || alert.message}
-                          </p>
-                          <p className="text-xs text-muted">
-                            {alert.time || '2 hours ago'}
-                          </p>
-                        </div>
-                      </div>
-                    )) || (
-                        <p className="text-sm text-muted">No alerts today</p>
-                      )}
-                  </div>
+                  <button
+                    onClick={() => setIsMapFullscreen(true)}
+                    className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
+                    title="Expand Map"
+                    style={{ background: 'rgba(59, 130, 246, 0.15)' }}
+                  >
+                    <Maximize2 size={20} color="#3b82f6" />
+                  </button>
                 </div>
+                {/* ArcGIS District Map with Weather Layers */}
+                <DistrictMap
+                  districtName={districtInfo?.name}
+                  height="450px"
+                />
               </div>
             </div>
           </>
@@ -267,10 +231,10 @@ const DistrictDashboard = () => {
             </div>
 
             {/* Fullscreen Map */}
-            <div className="flex-1 p-4">
+            <div className="flex-1 p-4" style={{ height: 'calc(100vh - 80px)' }}>
               <DistrictMap
                 districtName={districtInfo?.name}
-                height="100%"
+                height="calc(100vh - 112px)"
               />
             </div>
           </div>

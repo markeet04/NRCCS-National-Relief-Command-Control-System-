@@ -160,6 +160,11 @@ export class PdmaController {
     return await this.pdmaService.getResourceStats(user);
   }
 
+  @Get('resources/district-stock')
+  async getDistrictResourceStock(@CurrentUser() user: User) {
+    return await this.pdmaService.getDistrictResourceStock(user);
+  }
+
   @Post('resources')
   @HttpCode(HttpStatus.CREATED)
   async createResource(

@@ -555,6 +555,86 @@ export class PdmaService {
     };
   }
 
+  /**
+   * Get district resource stock summary for all districts in the province
+   * Returns aggregated quantities by type (food, water, medical, shelter) for each district
+   */
+  async getDistrictResourceStock(user: User) {
+    const districtIds = await this.getProvinceDistrictIds(user.provinceId);
+
+    if (districtIds.length === 0) {
+      return [];
+    }
+
+    // Get all districts with their names
+    const districts = await this.districtRepository.find({
+      where: { id: In(districtIds) },
+      select: ['id', 'name'],
+    });
+
+    // Get all district-level resources (not province-level, not shelter-level)
+    const districtResources = await this.resourceRepository.find({
+      where: {
+        districtId: In(districtIds),
+        shelterId: IsNull(),
+      },
+    });
+
+    // Aggregate resources by district and type
+    const districtStockMap = new Map();
+
+    for (const district of districts) {
+      districtStockMap.set(district.id, {
+        districtId: district.id,
+        district: district.name,
+        food: 0,
+        medical: 0,
+        water: 0,
+        shelter: 0,
+        totalQuantity: 0,
+      });
+    }
+
+    for (const resource of districtResources) {
+      const entry = districtStockMap.get(resource.districtId);
+      if (entry) {
+        const type = (resource.type || resource.resourceType || '').toLowerCase();
+        const qty = resource.quantity || 0;
+
+        if (type.includes('food')) {
+          entry.food += qty;
+        } else if (type.includes('water')) {
+          entry.water += qty;
+        } else if (type.includes('medical') || type.includes('kit')) {
+          entry.medical += qty;
+        } else if (type.includes('shelter') || type.includes('tent')) {
+          entry.shelter += qty;
+        }
+
+        entry.totalQuantity += qty;
+      }
+    }
+
+    // Convert to array and calculate status
+    const result = Array.from(districtStockMap.values()).map(d => {
+      // Calculate overall status based on resource levels
+      const totalResources = d.food + d.medical + d.water + d.shelter;
+      let status = 'adequate';
+
+      if (totalResources === 0) {
+        status = 'critical';
+      } else if (totalResources < 1000) {
+        status = 'low';
+      } else if (totalResources < 5000) {
+        status = 'moderate';
+      }
+
+      return { ...d, status };
+    });
+
+    return result;
+  }
+
   async createResource(createResourceDto: CreateResourceDto, user: User) {
     // If districtId provided, verify it belongs to province
     if (createResourceDto.districtId) {

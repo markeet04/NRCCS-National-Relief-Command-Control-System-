@@ -94,6 +94,11 @@ const pdmaApi = {
     return response.data;
   },
 
+  async getDistrictResourceStock() {
+    const response = await apiClient.get('/pdma/resources/district-stock');
+    return response.data;
+  },
+
   async createResource(data) {
     const response = await apiClient.post('/pdma/resources', data);
     return response.data;
