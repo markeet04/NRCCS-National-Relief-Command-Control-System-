@@ -39,7 +39,7 @@ const TeamFormModal = ({
                     borderRadius: '20px',
                     padding: '32px',
                     width: '100%',
-                    maxWidth: '500px',
+                    maxWidth: '700px',
                     maxHeight: '90vh',
                     overflowY: 'auto',
                     position: 'relative',
@@ -99,6 +99,33 @@ const TeamFormModal = ({
 
                     <div>
                         <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                            Team Type *
+                        </label>
+                        <select
+                            name="type"
+                            value={formData.type || 'Rescue 1122'}
+                            onChange={onInputChange}
+                            style={{
+                                width: '100%',
+                                padding: '12px 14px',
+                                background: colors.inputBg,
+                                border: `1px solid ${colors.inputBorder}`,
+                                borderRadius: '10px',
+                                color: colors.textPrimary,
+                                fontSize: '14px',
+                                outline: 'none',
+                                boxSizing: 'border-box',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <option value="Rescue 1122">Rescue 1122</option>
+                            <option value="PDMA Response Team">PDMA Response Team</option>
+                            <option value="NDMA Disaster Team">NDMA Disaster Team</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                             Team Leader *
                         </label>
                         <input
@@ -145,30 +172,91 @@ const TeamFormModal = ({
                         />
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                        <div>
-                            <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-                                Members
-                            </label>
-                            <input
-                                type="number"
-                                name="members"
-                                value={formData.members}
-                                onChange={onInputChange}
-                                style={{
-                                    width: '100%',
-                                    padding: '12px 14px',
-                                    background: colors.inputBg,
-                                    border: `1px solid ${colors.inputBorder}`,
-                                    borderRadius: '10px',
-                                    color: colors.textPrimary,
-                                    fontSize: '14px',
-                                    outline: 'none',
-                                    boxSizing: 'border-box'
-                                }}
-                            />
+                    <div style={{ marginBottom: '16px' }}>
+                        <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '600', display: 'block', marginBottom: '12px' }}>
+                            Team Composition
+                        </label>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                            <div>
+                                <label style={{ color: colors.textSecondary, fontSize: '12px', fontWeight: '500', display: 'block', marginBottom: '6px' }}>
+                                    Medical
+                                </label>
+                                <input
+                                    type="number"
+                                    name="medical"
+                                    value={formData.medical || 0}
+                                    onChange={onInputChange}
+                                    min="0"
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px 12px',
+                                        background: colors.inputBg,
+                                        border: `1px solid ${colors.inputBorder}`,
+                                        borderRadius: '8px',
+                                        color: colors.textPrimary,
+                                        fontSize: '14px',
+                                        outline: 'none',
+                                        boxSizing: 'border-box'
+                                    }}
+                                />
+                            </div>
+                            <div>
+                                <label style={{ color: colors.textSecondary, fontSize: '12px', fontWeight: '500', display: 'block', marginBottom: '6px' }}>
+                                    Rescue
+                                </label>
+                                <input
+                                    type="number"
+                                    name="rescue"
+                                    value={formData.rescue || 0}
+                                    onChange={onInputChange}
+                                    min="0"
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px 12px',
+                                        background: colors.inputBg,
+                                        border: `1px solid ${colors.inputBorder}`,
+                                        borderRadius: '8px',
+                                        color: colors.textPrimary,
+                                        fontSize: '14px',
+                                        outline: 'none',
+                                        boxSizing: 'border-box'
+                                    }}
+                                />
+                            </div>
+                            <div>
+                                <label style={{ color: colors.textSecondary, fontSize: '12px', fontWeight: '500', display: 'block', marginBottom: '6px' }}>
+                                    Support
+                                </label>
+                                <input
+                                    type="number"
+                                    name="support"
+                                    value={formData.support || 0}
+                                    onChange={onInputChange}
+                                    min="0"
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px 12px',
+                                        background: colors.inputBg,
+                                        border: `1px solid ${colors.inputBorder}`,
+                                        borderRadius: '8px',
+                                        color: colors.textPrimary,
+                                        fontSize: '14px',
+                                        outline: 'none',
+                                        boxSizing: 'border-box'
+                                    }}
+                                />
+                            </div>
                         </div>
+                        <div style={{ marginTop: '8px', padding: '8px 12px', background: colors.inputBg, borderRadius: '8px', border: `1px solid ${colors.border}` }}>
+                            <span style={{ color: colors.textSecondary, fontSize: '13px', fontWeight: '500' }}>
+                                Total Members: <span style={{ color: colors.textPrimary, fontWeight: '700' }}>
+                                    {(parseInt(formData.medical) || 0) + (parseInt(formData.rescue) || 0) + (parseInt(formData.support) || 0)}
+                                </span>
+                            </span>
+                        </div>
+                    </div>
 
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                         <div>
                             <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                                 Status

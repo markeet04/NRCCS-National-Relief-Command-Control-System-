@@ -554,15 +554,24 @@ export class DistrictService {
 
     const team = this.rescueTeamRepository.create({
       id: teamId,
-      ...dto,
+      name: dto.name,
+      type: dto.type || dto.specialization,
+      teamType: dto.type || dto.specialization,
+      leader: dto.leader || dto.leaderName,
+      leaderName: dto.leaderName || dto.leader,
+      contact: dto.contact || dto.contactNumber,
+      contactPhone: dto.contactNumber || dto.contact,
+      members: dto.members || dto.memberCount || 0,
+      memberCount: dto.memberCount || dto.members || 0,
+      compositionMedical: dto.compositionMedical || 0,
+      compositionRescue: dto.compositionRescue || 0,
+      compositionSupport: dto.compositionSupport || 0,
+      location: dto.location || dto.baseLocation || dto.currentLocation,
+      currentLocation: dto.currentLocation || dto.baseLocation || dto.location,
+      equipment: dto.equipment || [],
+      notes: dto.notes || '',
       districtId,
       status: RescueTeamStatus.AVAILABLE,
-      members: dto.members || 8,
-      memberCount: dto.members || 8,
-      leader: dto.leader,
-      leaderName: dto.leader,
-      contact: dto.contact,
-      contactPhone: dto.contact,
     });
 
     await this.rescueTeamRepository.save(team);

@@ -41,7 +41,7 @@ export const useRescueTeamData = () => {
       setTeams(data.map(team => ({
         id: team.id,
         name: team.name,
-        type: team.specialization || team.type || 'Rescue 1122',
+        type: team.specialization || team.type || team.teamType || 'Rescue 1122',
         leader: team.leaderName || 'Not assigned',
         contact: team.contactNumber || 'N/A',
         members: team.memberCount || team.members?.length || 0,
@@ -51,7 +51,11 @@ export const useRescueTeamData = () => {
         equipment: team.equipment || [],
         notes: team.notes || '',
         lastUpdated: getTimeAgo(team.updatedAt),
-        composition: team.composition || { medical: 0, rescue: 0, support: 0 }
+        composition: {
+          medical: team.compositionMedical || 0,
+          rescue: team.compositionRescue || 0,
+          support: team.compositionSupport || 0
+        }
       })));
     } catch (err) {
       console.error('Failed to fetch rescue teams:', err);
@@ -92,10 +96,10 @@ export const useRescueTeamData = () => {
 
   const getCompositionData = useCallback((composition) => {
     return [
-      { name: 'Medical', value: composition.medical, fill: '#10b981' },
-      { name: 'Rescue', value: composition.rescue, fill: '#3b82f6' },
-      { name: 'Support', value: composition.support, fill: '#f59e0b' }
-    ].filter(d => d.value > 0);
+      { name: 'Medical', value: composition.medical || 0, fill: '#10b981' },
+      { name: 'Rescue', value: composition.rescue || 0, fill: '#3b82f6' },
+      { name: 'Support', value: composition.support || 0, fill: '#f59e0b' }
+    ];
   }, []);
 
   // Computed statistics
@@ -149,30 +153,41 @@ export const useRescueTeamData = () => {
     setLoading(true);
     setError(null);
     try {
-      const newTeam = await districtApi.createRescueTeam({
+      const totalMembers = (parseInt(teamData.medical) || 0) + (parseInt(teamData.rescue) || 0) + (parseInt(teamData.support) || 0);
+
+      const payload = {
         name: teamData.name,
         leaderName: teamData.leader,
         contactNumber: teamData.contact,
-        memberCount: teamData.members,
+        memberCount: totalMembers,
+        compositionMedical: parseInt(teamData.medical) || 0,
+        compositionRescue: parseInt(teamData.rescue) || 0,
+        compositionSupport: parseInt(teamData.support) || 0,
         specialization: teamData.type,
         baseLocation: teamData.location,
         equipment: teamData.equipment || [],
         notes: teamData.notes || '',
-      });
+      };
+
+      const newTeam = await districtApi.createRescueTeam(payload);
 
       setTeams(prev => [...prev, {
         id: newTeam.id,
         name: newTeam.name,
-        type: newTeam.specialization || 'Rescue 1122',
+        type: newTeam.specialization || teamData.type || 'Rescue 1122',
         leader: newTeam.leaderName || teamData.leader,
         contact: newTeam.contactNumber || teamData.contact,
-        members: newTeam.memberCount || teamData.members,
+        members: newTeam.memberCount || totalMembers,
         status: 'available',
         location: newTeam.baseLocation || teamData.location,
         equipment: newTeam.equipment || [],
         notes: newTeam.notes || '',
         lastUpdated: 'Just now',
-        composition: { medical: 2, rescue: 4, support: 2 }
+        composition: {
+          medical: newTeam.compositionMedical || parseInt(teamData.medical) || 0,
+          rescue: newTeam.compositionRescue || parseInt(teamData.rescue) || 0,
+          support: newTeam.compositionSupport || parseInt(teamData.support) || 0
+        }
       }]);
       showSuccess(`Team "${teamData.name}" created successfully`);
       return newTeam;

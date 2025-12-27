@@ -112,14 +112,14 @@ const TeamCard = ({
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                             <Pie
-                                data={isAnimated ? compositionData : compositionData.map(d => ({ ...d, value: 0 }))}
+                                data={compositionData}
                                 cx="50%"
                                 cy="50%"
                                 innerRadius={25}
                                 outerRadius={45}
                                 paddingAngle={2}
                                 dataKey="value"
-                                animationDuration={1000}
+                                animationDuration={isAnimated ? 1000 : 0}
                             >
                                 {compositionData.map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={entry.fill} />
