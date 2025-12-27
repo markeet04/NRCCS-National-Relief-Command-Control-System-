@@ -9,6 +9,8 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@shared/components/layout';
+import { useAuth } from '../../../../app/providers/AuthProvider';
+import '@styles/css/main.css';
 import '@styles/css/main.css';
 
 // Hooks
@@ -34,6 +36,7 @@ import {
  */
 const SOSRequests = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   // Route state
   const [activeRoute, setActiveRoute] = useState('sos');
@@ -114,7 +117,7 @@ const SOSRequests = () => {
       pageTitle="SOS Requests"
       pageSubtitle="Monitor and manage emergency SOS requests in real-time"
       userRole={`District ${districtInfo?.name || 'Officer'}`}
-      userName="District Officer"
+      userName={user?.name || 'District Officer'}
       notificationCount={pendingCount}
     >
       <div className="p-6">
@@ -149,13 +152,13 @@ const SOSRequests = () => {
         <div className="mt-5 mb-5 flex gap-3">
           <button
             onClick={() => setShowMap(false)}
-            className={`btn ${!showMap ? 'btn--blue' : 'btn--secondary'}`}
+            className={`btn ${!showMap ? 'btn--primary' : 'btn--secondary'}`}
           >
             Table View
           </button>
           <button
             onClick={() => setShowMap(true)}
-            className={`btn ${showMap ? 'btn--blue' : 'btn--secondary'}`}
+            className={`btn ${showMap ? 'btn--primary' : 'btn--secondary'}`}
           >
             Map View
           </button>

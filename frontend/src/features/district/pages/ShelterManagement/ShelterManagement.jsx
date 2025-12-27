@@ -11,6 +11,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { DashboardLayout } from '@shared/components/layout';
+import { useAuth } from '../../../../app/providers/AuthProvider';
 import { SearchFilterBar } from '../../components/shared';
 import { DISTRICT_MENU_ITEMS } from '../../constants';
 import { useShelterData, SHELTER_STATUS_OPTIONS, useDistrictData } from '../../hooks';
@@ -30,6 +31,7 @@ import {
  */
 const ShelterManagement = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
 
     // Route state
     const [activeRoute, setActiveRoute] = useState('shelters');
@@ -133,7 +135,7 @@ const ShelterManagement = () => {
             pageTitle="Shelter Management"
             pageSubtitle="Monitor and manage emergency shelters"
             userRole={`District ${districtInfo?.name || 'Loading...'}`}
-            userName="District Officer"
+            userName={user?.name || 'District Officer'}
             notificationCount={districtStats?.pendingSOS || 0}
         >
             <div className="p-6">

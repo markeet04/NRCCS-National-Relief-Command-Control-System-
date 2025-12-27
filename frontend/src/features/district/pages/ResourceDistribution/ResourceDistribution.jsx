@@ -7,6 +7,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Package, Send, Home, MapPin } from 'lucide-react';
 import { DashboardLayout } from '@shared/components/layout';
+import { useAuth } from '../../../../app/providers/AuthProvider';
 import { DISTRICT_MENU_ITEMS } from '../../constants';
 import {
   useDistrictData,
@@ -57,6 +58,7 @@ const formatTimeAgo = (date) => {
 
 const ResourceDistribution = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [activeRoute, setActiveRoute] = useState('resources');
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [isAllocateModalOpen, setIsAllocateModalOpen] = useState(false);
@@ -134,7 +136,7 @@ const ResourceDistribution = () => {
       pageTitle="Resource Distribution"
       pageSubtitle="Allocate district resources to shelters"
       userRole={`District ${districtInfo?.name || ''}`}
-      userName="District Officer"
+      userName={user?.name || 'District Officer'}
       notificationCount={districtStats?.pendingSOS || 0}
     >
       <div className="p-6">
@@ -155,7 +157,6 @@ const ResourceDistribution = () => {
             <button
               onClick={() => setIsRequestModalOpen(true)}
               className="btn btn--primary"
-              style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}
             >
               <Send size={16} />
               Request from PDMA
