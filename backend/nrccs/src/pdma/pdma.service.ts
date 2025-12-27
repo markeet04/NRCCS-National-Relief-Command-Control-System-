@@ -638,11 +638,36 @@ export class PdmaService {
 
     await this.resourceRepository.save(provinceResource);
 
-    // Create or update district-level resource
+    // Standardized resource type mapping to match 4 resource types
+    const standardResourceTypes = {
+      food: { name: 'Food Supplies', type: 'food', unit: 'kg', icon: 'package' },
+      water: { name: 'Water', type: 'water', unit: 'liters', icon: 'droplets' },
+      medical: { name: 'Medical Kits', type: 'medical', unit: 'kits', icon: 'stethoscope' },
+      shelter: { name: 'Shelter Materials', type: 'shelter', unit: 'units', icon: 'home' },
+    };
+
+    // Normalize province resource type to standard 4 types
+    const normalizeType = (inputType: string): string => {
+      const lower = (inputType || '').toLowerCase();
+      if (lower.includes('food')) return 'food';
+      if (lower.includes('water')) return 'water';
+      if (lower.includes('medical') || lower.includes('kit')) return 'medical';
+      if (lower.includes('shelter') || lower.includes('tent')) return 'shelter';
+      return 'food'; // Default to food if unrecognized
+    };
+
+    const normalizedType = normalizeType(provinceResource.type || provinceResource.resourceType);
+    const standard = standardResourceTypes[normalizedType];
+
+    // Get district info for location
+    const district = await this.districtRepository.findOne({
+      where: { id: allocateDto.districtId },
+    });
+
+    // Create or update district-level resource - match by TYPE only
     let districtResource = await this.resourceRepository.findOne({
       where: {
-        name: provinceResource.name,
-        type: provinceResource.type,
+        type: standard.type,
         districtId: allocateDto.districtId,
         shelterId: IsNull(), // Only district-level, not shelter
       },
@@ -653,22 +678,22 @@ export class PdmaService {
       districtResource.quantity += allocateDto.quantity;
       districtResource.allocated = districtResource.allocated || 0;
     } else {
-      // Create new district resource
+      // Create new district resource with standardized name/type
       districtResource = this.resourceRepository.create({
-        name: provinceResource.name,
-        icon: provinceResource.icon,
-        type: provinceResource.type,
-        category: provinceResource.category,
-        resourceType: provinceResource.resourceType,
+        name: standard.name,
+        icon: standard.icon,
+        type: standard.type,
+        category: standard.type,
+        resourceType: standard.type,
         quantity: allocateDto.quantity,
-        unit: provinceResource.unit,
-        location: `District ${allocateDto.districtId} Warehouse`,
+        unit: standard.unit,
+        location: `${district?.name || 'District'} Warehouse`,
         provinceId: user.provinceId,
         districtId: allocateDto.districtId,
         status: ResourceStatus.AVAILABLE,
         allocated: 0,
         allocatedQuantity: 0,
-        description: allocateDto.purpose || provinceResource.description,
+        description: allocateDto.purpose || `Allocated from province`,
       });
     }
 
@@ -695,53 +720,53 @@ export class PdmaService {
    * This is used for manual allocation from the UI when selecting resource types
    */
   async allocateResourceByType(allocateDto: AllocateResourceDto & { resourceType: string }, user: User) {
-    console.log('🔍 PDMA allocateResourceByType called with:', {
-      resourceType: allocateDto.resourceType,
-      districtId: allocateDto.districtId,
-      quantity: allocateDto.quantity,
-      purpose: allocateDto.purpose,
-      userId: user.id,
-      provinceId: user.provinceId
-    });
-
     if (!user.provinceId) {
       throw new BadRequestException('User must be associated with a province');
     }
 
-    // Find or create province resource by type
-    let provinceResource = await this.resourceRepository.findOne({
-      where: {
-        type: allocateDto.resourceType,
-        provinceId: user.provinceId,
-        districtId: IsNull(),
-      },
-    });
+    // Normalize resource type to standard 4 types
+    const normalizeType = (inputType: string): string => {
+      const lower = (inputType || '').toLowerCase();
+      if (lower.includes('food')) return 'food';
+      if (lower.includes('water')) return 'water';
+      if (lower.includes('medical') || lower.includes('kit')) return 'medical';
+      if (lower.includes('shelter') || lower.includes('tent')) return 'shelter';
+      return 'food'; // Default to food if unrecognized
+    };
+
+    const normalizedType = normalizeType(allocateDto.resourceType);
+
+    // Standardized resource info
+    const resourceDefaults = {
+      food: { name: 'Food Supplies', unit: 'kg', quantity: 50000, icon: 'package' },
+      water: { name: 'Water', unit: 'liters', quantity: 250000, icon: 'droplets' },
+      medical: { name: 'Medical Kits', unit: 'kits', quantity: 25000, icon: 'stethoscope' },
+      shelter: { name: 'Shelter Materials', unit: 'units', quantity: 10000, icon: 'home' },
+    };
+    const defaults = resourceDefaults[normalizedType];
+
+    // Find province resource using case-insensitive search on type OR name
+    // Order by quantity DESC to get the main province resource, not small test records
+    let provinceResource = await this.resourceRepository
+      .createQueryBuilder('r')
+      .where('r.province_id = :provinceId', { provinceId: user.provinceId })
+      .andWhere('r.district_id IS NULL')
+      .andWhere('(LOWER(r.type) LIKE :pattern OR LOWER(r.name) LIKE :pattern)',
+        { pattern: `%${normalizedType}%` })
+      .orderBy('r.quantity', 'DESC')
+      .getOne();
 
     // If province resource doesn't exist, create it with default values
     if (!provinceResource) {
-      const resourceDefaults = {
-        food: { name: 'Food Supplies', unit: 'tons', quantity: 50000, icon: 'package' },
-        water: { name: 'Water', unit: 'liters', quantity: 250000, icon: 'droplets' },
-        medical: { name: 'Medical Supplies', unit: 'kits', quantity: 25000, icon: 'stethoscope' },
-        shelter: { name: 'Shelter Materials', unit: 'units', quantity: 10000, icon: 'home' },
-      };
-
-      const defaults = resourceDefaults[allocateDto.resourceType.toLowerCase()] || {
-        name: `${allocateDto.resourceType} Resources`,
-        unit: 'units',
-        quantity: 5000,
-        icon: 'package'
-      };
-
       const province = await this.provinceRepository.findOne({
         where: { id: user.provinceId }
       });
 
       const newResource = this.resourceRepository.create({
         name: defaults.name,
-        type: allocateDto.resourceType,
-        category: allocateDto.resourceType,
-        resourceType: allocateDto.resourceType,
+        type: normalizedType,
+        category: normalizedType,
+        resourceType: normalizedType,
         quantity: defaults.quantity,
         unit: defaults.unit,
         icon: defaults.icon,
@@ -750,7 +775,7 @@ export class PdmaService {
         status: ResourceStatus.AVAILABLE,
         allocated: 0,
         allocatedQuantity: 0,
-        description: `Auto-created province ${allocateDto.resourceType} stock`,
+        description: `Province ${defaults.name} stock`,
       });
 
       provinceResource = await this.resourceRepository.save(newResource);
@@ -1011,12 +1036,6 @@ export class PdmaService {
    * and the district belongs to this PDMA's province
    */
   async getDistrictRequests(user: User, status?: string) {
-    console.log('📋 [PDMA] getDistrictRequests called:', {
-      userId: user.id,
-      provinceId: user.provinceId,
-      statusFilter: status,
-    });
-
     // Get all districts in this province
     const districts = await this.districtRepository.find({
       where: { provinceId: user.provinceId },
@@ -1024,10 +1043,8 @@ export class PdmaService {
     });
 
     const districtIds = districts.map(d => d.id);
-    console.log('📋 [PDMA] Found districts:', { districtIds, districtNames: districts.map(d => d.name) });
 
     if (districtIds.length === 0) {
-      console.log('⚠️ [PDMA] No districts found for province');
       return [];
     }
 
@@ -1036,27 +1053,14 @@ export class PdmaService {
       order: { createdAt: 'DESC' },
     });
 
-    console.log('📋 [PDMA] Total requests in DB:', allRequests.length);
-    console.log('📋 [PDMA] Requests with districtId:', allRequests.filter(r => r.districtId).length);
-    console.log('📋 [PDMA] Sample requests:', allRequests.slice(0, 3).map(r => ({
-      id: r.id,
-      districtId: r.districtId,
-      provinceId: r.provinceId,
-      status: r.status,
-      createdAt: r.createdAt
-    })));
-
     // Filter to only requests from districts in this province
     let filteredRequests = allRequests.filter(req =>
       req.districtId && districtIds.includes(req.districtId)
     );
 
-    console.log('📋 [PDMA] Filtered requests for this province:', filteredRequests.length);
-
     // Apply status filter if provided
     if (status) {
       filteredRequests = filteredRequests.filter(req => req.status === status);
-      console.log('📋 [PDMA] After status filter:', filteredRequests.length);
     }
 
     // Map district information to each request
@@ -1109,21 +1113,78 @@ export class PdmaService {
     if (reviewDto.notes) {
       request.notes = reviewDto.notes;
     }
-
-    await this.resourceRequestRepository.save(request);
-
     // If approved, allocate resources to the district
     if (reviewDto.status === ResourceRequestStatus.APPROVED && request.requestedItems) {
-      // Create/update resource records for the district
-      for (const item of request.requestedItems) {
-        const resourceName = item.resourceName || item.name || item.resourceType || 'Resource';
-        const resourceType = item.resourceType || 'general';
+      // Standardized resource type mapping to match PDMA's 4 resource types
+      const standardResourceTypes = {
+        food: { name: 'Food Supplies', type: 'food', unit: 'kg', icon: 'package' },
+        water: { name: 'Water', type: 'water', unit: 'liters', icon: 'droplets' },
+        medical: { name: 'Medical Kits', type: 'medical', unit: 'kits', icon: 'stethoscope' },
+        shelter: { name: 'Shelter Materials', type: 'shelter', unit: 'units', icon: 'home' },
+      };
 
-        // Check if district already has this resource type
+      // Helper to normalize resource type to standard 4 types
+      const normalizeType = (inputType: string): string => {
+        const lower = (inputType || '').toLowerCase();
+        if (lower.includes('food')) return 'food';
+        if (lower.includes('water')) return 'water';
+        if (lower.includes('medical') || lower.includes('kit')) return 'medical';
+        if (lower.includes('shelter') || lower.includes('tent')) return 'shelter';
+        return 'food'; // Default to food if unrecognized
+      };
+
+      // Create/update resource records for the district AND deduct from province
+      for (const item of request.requestedItems) {
+        const normalizedType = normalizeType(item.resourceType || item.name);
+        const standard = standardResourceTypes[normalizedType];
+
+        // Find province resource to deduct from (case-insensitive)
+        // Order by quantity DESC to get main resource, not small test records
+        let provinceResource = await this.resourceRepository
+          .createQueryBuilder('r')
+          .where('r.province_id = :provinceId', { provinceId: user.provinceId })
+          .andWhere('r.district_id IS NULL')
+          .andWhere('(LOWER(r.type) LIKE :pattern OR LOWER(r.name) LIKE :pattern)',
+            { pattern: `%${normalizedType}%` })
+          .orderBy('r.quantity', 'DESC')
+          .getOne();
+
+        // If province resource doesn't exist, create it with default quantity
+        if (!provinceResource) {
+          const defaultQuantities = { food: 50000, water: 250000, medical: 25000, shelter: 10000 };
+          const newProvinceResource = this.resourceRepository.create({
+            name: standard.name,
+            type: standard.type,
+            category: standard.type,
+            resourceType: standard.type,
+            quantity: defaultQuantities[normalizedType],
+            unit: standard.unit,
+            icon: standard.icon,
+            location: `Province Central Warehouse`,
+            provinceId: user.provinceId,
+            status: ResourceStatus.AVAILABLE,
+            allocated: 0,
+            allocatedQuantity: 0,
+          } as any);
+          provinceResource = await this.resourceRepository.save(newProvinceResource) as any;
+        }
+
+        // Check if province has enough available
+        const available = provinceResource!.quantity - (provinceResource!.allocated || 0);
+        if (item.quantity > available) {
+          throw new BadRequestException(`Only ${available} ${standard.unit} of ${standard.name} available for allocation`);
+        }
+
+        // Deduct from province resource
+        provinceResource!.allocated = (provinceResource!.allocated || 0) + item.quantity;
+        await this.resourceRepository.save(provinceResource!);
+
+        // Check if district already has this resource TYPE
         const existingResource = await this.resourceRepository.findOne({
           where: {
             districtId: request.districtId,
-            name: resourceName,
+            type: standard.type,
+            shelterId: IsNull(),
           },
         });
 
@@ -1132,16 +1193,21 @@ export class PdmaService {
           existingResource.quantity += item.quantity;
           await this.resourceRepository.save(existingResource);
         } else {
-          // Create new resource for the district
+          // Create new resource for the district with standardized name/type
           const newResource = this.resourceRepository.create({
-            name: resourceName,
-            type: resourceType,
-            category: item.category || 'allocated',
+            name: standard.name,
+            type: standard.type,
+            category: standard.type,
+            resourceType: standard.type,
             quantity: item.quantity,
-            unit: item.unit || 'units',
+            unit: standard.unit,
+            icon: standard.icon,
+            location: `${district.name} Warehouse`,
             status: ResourceStatus.AVAILABLE,
             districtId: request.districtId,
             provinceId: district.provinceId,
+            allocated: 0,
+            allocatedQuantity: 0,
           } as any);
           await this.resourceRepository.save(newResource);
         }
@@ -1166,7 +1232,7 @@ export class PdmaService {
       );
     }
 
+    await this.resourceRequestRepository.save(request);
     return request;
   }
 }
-
