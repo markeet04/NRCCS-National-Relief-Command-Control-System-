@@ -18,12 +18,12 @@ import {
   FloodMapSection
 } from '../components';
 import { usePDMADashboardState } from '../hooks';
-import { 
-  transformStatsForUI, 
-  transformAlertsForUI, 
-  transformDistrictsForDashboard 
+import {
+  transformStatsForUI,
+  transformAlertsForUI,
+  transformDistrictsForDashboard
 } from '../utils';
-import '../styles/pdma.css';
+import '@styles/css/main.css';
 
 /**
  * PDMADashboard Component
@@ -90,12 +90,12 @@ const PDMADashboard = () => {
       <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary }}>
         {/* Loading State */}
         {loading && (
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
             minHeight: '400px',
-            color: colors.textSecondary 
+            color: colors.textSecondary
           }}>
             <Loader2 size={40} className="animate-spin" style={{ marginRight: '12px' }} />
             <span>Loading dashboard data...</span>
@@ -104,9 +104,9 @@ const PDMADashboard = () => {
 
         {/* Error State */}
         {error && !loading && (
-          <div style={{ 
-            padding: '20px', 
-            background: 'rgba(239, 68, 68, 0.1)', 
+          <div style={{
+            padding: '20px',
+            background: 'rgba(239, 68, 68, 0.1)',
             border: '1px solid #ef4444',
             borderRadius: '8px',
             color: '#ef4444',
@@ -122,31 +122,30 @@ const PDMADashboard = () => {
             {/* Statistics Section */}
             <StatisticsSection stats={stats} colors={colors} />
 
-        {/* Alerts and District Status Section */}
-        <div 
-          className="grid grid-cols-1 lg:grid-cols-5"
-          style={{ gap: '20px', marginBottom: '24px' }}
-        >
-          <div className="lg:col-span-3">
-            <AlertsSection 
-              alerts={alerts} 
-              colors={colors}
-              isLight={isLight}
-              onCreateAlert={() => setIsAlertFormOpen(true)}
-              onResolveAlert={handleResolveAlert}
-            />
-          </div>
-          <div className="lg:col-span-2">
-            <DistrictStatusSection 
-              districts={districts} 
-              colors={colors}
-              isLight={isLight}
-            />
-          </div>
-        </div>
+            {/* Alerts and District Status Section */}
+            <div
+              className="grid grid-cols-1 lg:grid-cols-5"
+              style={{ gap: '20px', marginBottom: '24px' }}
+            >
+              <div className="lg:col-span-3">
+                <AlertsSection
+                  alerts={alerts}
+                  colors={colors}
+                  isLight={isLight}
+                  onResolveAlert={handleResolveAlert}
+                />
+              </div>
+              <div className="lg:col-span-2">
+                <DistrictStatusSection
+                  districts={districts}
+                  colors={colors}
+                  isLight={isLight}
+                />
+              </div>
+            </div>
 
-        {/* Flood Map Section */}
-        <FloodMapSection provinceName={provinceName} colors={colors} isLight={isLight} />
+            {/* Flood Map Section */}
+            <FloodMapSection provinceName={provinceName} colors={colors} isLight={isLight} />
           </>
         )}
       </div>

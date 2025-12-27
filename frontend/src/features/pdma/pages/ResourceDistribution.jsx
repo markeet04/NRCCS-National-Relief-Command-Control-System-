@@ -21,7 +21,7 @@ import {
   calculateTotalQuantity,
   calculateTotalAllocated
 } from '../utils';
-import '../styles/pdma.css';
+import '@styles/css/main.css';
 
 const ResourceDistribution = () => {
   // Use custom hook for resource distribution state

@@ -14,23 +14,23 @@ const DistrictsList = ({ districts, selectedDistrict, onSelectDistrict, colors }
           onClick={() => onSelectDistrict(district.id)}
           style={{
             padding: '16px',
-            border: selectedDistrict === district.id ? `2px solid ${colors.primary}` : '1px solid #E5E7EB',
+            border: selectedDistrict === district.id ? `2px solid ${colors.primary}` : `1px solid ${colors.border}`,
             borderRadius: '8px',
-            backgroundColor: selectedDistrict === district.id ? '#F0F9FF' : '#FFFFFF',
+            backgroundColor: selectedDistrict === district.id ? colors.bgSecondary : colors.cardBg,
             cursor: 'pointer',
             transition: 'all 0.2s ease',
-            boxShadow: selectedDistrict === district.id ? '0 4px 12px rgba(59, 130, 246, 0.1)' : 'none'
+            boxShadow: selectedDistrict === district.id ? `0 4px 12px rgba(59, 130, 246, 0.1)` : 'none'
           }}
           onMouseEnter={(e) => {
             if (selectedDistrict !== district.id) {
               e.currentTarget.style.borderColor = colors.primary;
-              e.currentTarget.style.backgroundColor = '#F9FAFB';
+              e.currentTarget.style.backgroundColor = colors.bgSecondary;
             }
           }}
           onMouseLeave={(e) => {
             if (selectedDistrict !== district.id) {
-              e.currentTarget.style.borderColor = '#E5E7EB';
-              e.currentTarget.style.backgroundColor = '#FFFFFF';
+              e.currentTarget.style.borderColor = colors.border;
+              e.currentTarget.style.backgroundColor = colors.cardBg;
             }
           }}
         >
@@ -44,7 +44,7 @@ const DistrictsList = ({ districts, selectedDistrict, onSelectDistrict, colors }
               fontSize: '16px',
               fontWeight: '600',
               margin: 0,
-              color: '#1F2937'
+              color: colors.textPrimary
             }}>
               {district.name}
             </h3>
@@ -53,8 +53,8 @@ const DistrictsList = ({ districts, selectedDistrict, onSelectDistrict, colors }
               borderRadius: '4px',
               fontSize: '12px',
               fontWeight: '500',
-              backgroundColor: district.status === 'active' ? '#DBEAFE' : '#FEE2E2',
-              color: district.status === 'active' ? '#1E40AF' : '#991B1B'
+              backgroundColor: district.status === 'active' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+              color: district.status === 'active' ? '#3b82f6' : '#ef4444'
             }}>
               {district.status}
             </span>
@@ -72,7 +72,7 @@ const DistrictsList = ({ districts, selectedDistrict, onSelectDistrict, colors }
               fontSize: '14px'
             }}>
               <Users size={16} color={colors.info} />
-              <span style={{ color: '#6B7280' }}>
+              <span style={{ color: colors.textSecondary }}>
                 {district.teamSize} team members
               </span>
             </div>
@@ -84,7 +84,7 @@ const DistrictsList = ({ districts, selectedDistrict, onSelectDistrict, colors }
               fontSize: '14px'
             }}>
               <AlertTriangle size={16} color={colors.warning} />
-              <span style={{ color: '#6B7280' }}>
+              <span style={{ color: colors.textSecondary }}>
                 {district.alerts} alerts
               </span>
             </div>
@@ -96,14 +96,14 @@ const DistrictsList = ({ districts, selectedDistrict, onSelectDistrict, colors }
               fontSize: '14px'
             }}>
               <Activity size={16} color={colors.success} />
-              <span style={{ color: '#6B7280' }}>
+              <span style={{ color: colors.textSecondary }}>
                 {district.sosCount} SOS
               </span>
             </div>
 
             <div style={{
               fontSize: '14px',
-              color: '#6B7280'
+              color: colors.textMuted
             }}>
               {district.lastUpdate}
             </div>

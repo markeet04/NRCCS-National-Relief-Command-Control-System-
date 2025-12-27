@@ -16,9 +16,9 @@ const ShelterStats = ({ totalShelters = 0, totalCapacity = 0, currentOccupancy =
     }}>
       <div style={{
         padding: '16px',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.cardBg,
         borderRadius: '6px',
-        border: `1px solid #E5E7EB`,
+        border: `1px solid ${colors.border}`,
         borderLeft: `4px solid ${colors.primary}`
       }}>
         <div style={{
@@ -29,7 +29,7 @@ const ShelterStats = ({ totalShelters = 0, totalCapacity = 0, currentOccupancy =
         }}>
           <label style={{
             fontSize: '12px',
-            color: '#6B7280',
+            color: colors.textMuted,
             fontWeight: '600',
             margin: 0
           }}>
@@ -41,7 +41,7 @@ const ShelterStats = ({ totalShelters = 0, totalCapacity = 0, currentOccupancy =
           fontSize: '28px',
           fontWeight: '700',
           margin: 0,
-          color: '#1F2937'
+          color: colors.textPrimary
         }}>
           {safeTotal}
         </p>
@@ -49,9 +49,9 @@ const ShelterStats = ({ totalShelters = 0, totalCapacity = 0, currentOccupancy =
 
       <div style={{
         padding: '16px',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.cardBg,
         borderRadius: '6px',
-        border: `1px solid #E5E7EB`,
+        border: `1px solid ${colors.border}`,
         borderLeft: `4px solid ${colors.success}`
       }}>
         <div style={{
@@ -62,7 +62,7 @@ const ShelterStats = ({ totalShelters = 0, totalCapacity = 0, currentOccupancy =
         }}>
           <label style={{
             fontSize: '12px',
-            color: '#6B7280',
+            color: colors.textMuted,
             fontWeight: '600',
             margin: 0
           }}>
@@ -74,7 +74,7 @@ const ShelterStats = ({ totalShelters = 0, totalCapacity = 0, currentOccupancy =
           fontSize: '28px',
           fontWeight: '700',
           margin: 0,
-          color: '#1F2937'
+          color: colors.textPrimary
         }}>
           {safeCapacity.toLocaleString()}
         </p>
@@ -82,9 +82,9 @@ const ShelterStats = ({ totalShelters = 0, totalCapacity = 0, currentOccupancy =
 
       <div style={{
         padding: '16px',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.cardBg,
         borderRadius: '6px',
-        border: `1px solid #E5E7EB`,
+        border: `1px solid ${colors.border}`,
         borderLeft: `4px solid ${colors.warning}`
       }}>
         <div style={{
@@ -95,7 +95,7 @@ const ShelterStats = ({ totalShelters = 0, totalCapacity = 0, currentOccupancy =
         }}>
           <label style={{
             fontSize: '12px',
-            color: '#6B7280',
+            color: colors.textMuted,
             fontWeight: '600',
             margin: 0
           }}>
@@ -107,7 +107,7 @@ const ShelterStats = ({ totalShelters = 0, totalCapacity = 0, currentOccupancy =
           fontSize: '28px',
           fontWeight: '700',
           margin: 0,
-          color: '#1F2937'
+          color: colors.textPrimary
         }}>
           {safeOccupancy.toLocaleString()}
         </p>
@@ -115,9 +115,9 @@ const ShelterStats = ({ totalShelters = 0, totalCapacity = 0, currentOccupancy =
 
       <div style={{
         padding: '16px',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.cardBg,
         borderRadius: '6px',
-        border: `1px solid #E5E7EB`,
+        border: `1px solid ${colors.border}`,
         borderLeft: `4px solid ${colors.danger}`
       }}>
         <div style={{
@@ -128,7 +128,7 @@ const ShelterStats = ({ totalShelters = 0, totalCapacity = 0, currentOccupancy =
         }}>
           <label style={{
             fontSize: '12px',
-            color: '#6B7280',
+            color: colors.textMuted,
             fontWeight: '600',
             margin: 0
           }}>
@@ -140,7 +140,7 @@ const ShelterStats = ({ totalShelters = 0, totalCapacity = 0, currentOccupancy =
           fontSize: '28px',
           fontWeight: '700',
           margin: 0,
-          color: '#1F2937'
+          color: colors.textPrimary
         }}>
           {safePercent}%
         </p>

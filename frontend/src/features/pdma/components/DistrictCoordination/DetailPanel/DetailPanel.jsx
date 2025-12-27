@@ -1,12 +1,12 @@
-import { Phone, Mail, MapPin, Clock, Users, AlertTriangle, Zap } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, Users, AlertTriangle, Zap, X } from 'lucide-react';
 
-const DetailPanel = ({ selectedDistrictData, colors, onAssignTeam, onUpdateStatus }) => {
+const DetailPanel = ({ selectedDistrictData, colors, onClose }) => {
   if (!selectedDistrictData) {
     return (
       <div style={{
         padding: '40px 20px',
         textAlign: 'center',
-        color: '#9CA3AF'
+        color: colors.textMuted
       }}>
         <Users size={40} style={{ margin: '0 auto 16px', opacity: 0.3 }} />
         <p style={{ fontSize: '16px', margin: 0 }}>
@@ -19,14 +19,39 @@ const DetailPanel = ({ selectedDistrictData, colors, onAssignTeam, onUpdateStatu
   return (
     <div style={{
       padding: '20px',
-      backgroundColor: '#FFFFFF',
+      backgroundColor: colors.cardBg,
       borderRadius: '8px',
-      border: `1px solid ${colors.border}`
+      border: `1px solid ${colors.border}`,
+      position: 'relative'
     }}>
+      {/* Close Button */}
+      <button
+        onClick={() => onClose?.()}
+        style={{
+          position: 'absolute',
+          top: '16px',
+          right: '16px',
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          padding: '4px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: '4px',
+          transition: 'all 0.2s ease'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = colors.bgSecondary;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'transparent';
+        }}
+      >
+        <X size={20} color={colors.textSecondary} />
+      </button>
+
       <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'start',
         marginBottom: '20px'
       }}>
         <div>
@@ -34,13 +59,13 @@ const DetailPanel = ({ selectedDistrictData, colors, onAssignTeam, onUpdateStatu
             fontSize: '20px',
             fontWeight: '700',
             margin: 0,
-            color: '#1F2937'
+            color: colors.textPrimary
           }}>
             {selectedDistrictData.name}
           </h2>
           <p style={{
             fontSize: '14px',
-            color: '#6B7280',
+            color: colors.textSecondary,
             margin: '4px 0 0 0'
           }}>
             District Coordinator Details
@@ -51,8 +76,11 @@ const DetailPanel = ({ selectedDistrictData, colors, onAssignTeam, onUpdateStatu
           borderRadius: '6px',
           fontSize: '12px',
           fontWeight: '600',
-          backgroundColor: selectedDistrictData.status === 'active' ? '#DBEAFE' : '#FEE2E2',
-          color: selectedDistrictData.status === 'active' ? '#1E40AF' : '#991B1B'
+          backgroundColor: selectedDistrictData.status === 'active' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+          color: selectedDistrictData.status === 'active' ? '#3b82f6' : '#ef4444',
+          position: 'absolute',
+          top: '20px',
+          right: '60px'
         }}>
           {selectedDistrictData.status.toUpperCase()}
         </span>
@@ -69,9 +97,9 @@ const DetailPanel = ({ selectedDistrictData, colors, onAssignTeam, onUpdateStatu
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
             <Users size={16} color={colors.info} />
-            <label style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600' }}>TEAM SIZE</label>
+            <label style={{ fontSize: '12px', color: colors.textMuted, fontWeight: '600' }}>TEAM SIZE</label>
           </div>
-          <p style={{ fontSize: '18px', fontWeight: '700', margin: 0, color: '#1F2937' }}>
+          <p style={{ fontSize: '18px', fontWeight: '700', margin: 0, color: colors.textPrimary }}>
             {selectedDistrictData.teamSize}
           </p>
         </div>
@@ -79,9 +107,9 @@ const DetailPanel = ({ selectedDistrictData, colors, onAssignTeam, onUpdateStatu
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
             <AlertTriangle size={16} color={colors.warning} />
-            <label style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600' }}>ALERTS</label>
+            <label style={{ fontSize: '12px', color: colors.textMuted, fontWeight: '600' }}>ALERTS</label>
           </div>
-          <p style={{ fontSize: '18px', fontWeight: '700', margin: 0, color: '#1F2937' }}>
+          <p style={{ fontSize: '18px', fontWeight: '700', margin: 0, color: colors.textPrimary }}>
             {selectedDistrictData.alerts}
           </p>
         </div>
@@ -89,9 +117,9 @@ const DetailPanel = ({ selectedDistrictData, colors, onAssignTeam, onUpdateStatu
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
             <Zap size={16} color={colors.danger} />
-            <label style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600' }}>SOS REQUESTS</label>
+            <label style={{ fontSize: '12px', color: colors.textMuted, fontWeight: '600' }}>SOS REQUESTS</label>
           </div>
-          <p style={{ fontSize: '18px', fontWeight: '700', margin: 0, color: '#1F2937' }}>
+          <p style={{ fontSize: '18px', fontWeight: '700', margin: 0, color: colors.textPrimary }}>
             {selectedDistrictData.sosCount}
           </p>
         </div>
@@ -99,9 +127,9 @@ const DetailPanel = ({ selectedDistrictData, colors, onAssignTeam, onUpdateStatu
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
             <Clock size={16} color={colors.secondary} />
-            <label style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600' }}>LAST UPDATE</label>
+            <label style={{ fontSize: '12px', color: colors.textMuted, fontWeight: '600' }}>LAST UPDATE</label>
           </div>
-          <p style={{ fontSize: '14px', margin: 0, color: '#6B7280' }}>
+          <p style={{ fontSize: '14px', margin: 0, color: colors.textSecondary }}>
             {selectedDistrictData.lastUpdate}
           </p>
         </div>
@@ -116,87 +144,34 @@ const DetailPanel = ({ selectedDistrictData, colors, onAssignTeam, onUpdateStatu
         borderBottom: `1px solid ${colors.border}`
       }}>
         <div>
-          <label style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600', display: 'block', marginBottom: '4px' }}>
+          <label style={{ fontSize: '12px', color: colors.textMuted, fontWeight: '600', display: 'block', marginBottom: '4px' }}>
             <Phone size={14} style={{ display: 'inline', marginRight: '4px' }} />
             CONTACT
           </label>
-          <p style={{ fontSize: '14px', margin: 0, color: '#1F2937' }}>
+          <p style={{ fontSize: '14px', margin: 0, color: colors.textPrimary }}>
             {selectedDistrictData.contact}
           </p>
         </div>
 
         <div>
-          <label style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600', display: 'block', marginBottom: '4px' }}>
+          <label style={{ fontSize: '12px', color: colors.textMuted, fontWeight: '600', display: 'block', marginBottom: '4px' }}>
             <Mail size={14} style={{ display: 'inline', marginRight: '4px' }} />
             EMAIL
           </label>
-          <p style={{ fontSize: '14px', margin: 0, color: '#1F2937' }}>
+          <p style={{ fontSize: '14px', margin: 0, color: colors.textPrimary }}>
             {selectedDistrictData.email}
           </p>
         </div>
 
         <div style={{ gridColumn: '1 / -1' }}>
-          <label style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600', display: 'block', marginBottom: '4px' }}>
+          <label style={{ fontSize: '12px', color: colors.textMuted, fontWeight: '600', display: 'block', marginBottom: '4px' }}>
             <MapPin size={14} style={{ display: 'inline', marginRight: '4px' }} />
             LOCATION
           </label>
-          <p style={{ fontSize: '14px', margin: 0, color: '#1F2937' }}>
+          <p style={{ fontSize: '14px', margin: 0, color: colors.textPrimary }}>
             {selectedDistrictData.location}
           </p>
         </div>
-      </div>
-
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '12px'
-      }}>
-        <button
-          onClick={() => onAssignTeam(selectedDistrictData.id)}
-          style={{
-            padding: '10px 16px',
-            backgroundColor: colors.primary,
-            color: '#FFFFFF',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = colors.primaryDark || '#1E40AF';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = colors.primary;
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-        >
-          Assign Team
-        </button>
-        <button
-          onClick={() => onUpdateStatus(selectedDistrictData.id)}
-          style={{
-            padding: '10px 16px',
-            backgroundColor: 'transparent',
-            color: colors.primary,
-            border: `1px solid ${colors.primary}`,
-            borderRadius: '6px',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = colors.primaryLight || '#F0F9FF';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-          }}
-        >
-          Update Status
-        </button>
       </div>
     </div>
   );

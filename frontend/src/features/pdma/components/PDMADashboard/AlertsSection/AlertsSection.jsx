@@ -1,9 +1,9 @@
-import { AlertTriangle, Plus } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { SEVERITY_BORDER_COLORS } from '../../../constants';
 
-const AlertsSection = ({ alerts, colors, onCreateAlert, isLight }) => {
+const AlertsSection = ({ alerts, colors, isLight }) => {
   return (
-    <div 
+    <div
       className="lg:col-span-3"
       style={{
         background: colors.cardBg,
@@ -19,7 +19,6 @@ const AlertsSection = ({ alerts, colors, onCreateAlert, isLight }) => {
           borderBottom: `1px solid ${colors.border}`,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
           gap: '16px'
         }}
       >
@@ -32,13 +31,6 @@ const AlertsSection = ({ alerts, colors, onCreateAlert, isLight }) => {
           </div>
           <h2 className="pdma-section-title-text">Provincial Alerts</h2>
         </div>
-        <button 
-          onClick={onCreateAlert}
-          className="pdma-button pdma-button-primary pdma-button-small"
-        >
-          <Plus size={14} />
-          Create
-        </button>
       </div>
 
       <div
