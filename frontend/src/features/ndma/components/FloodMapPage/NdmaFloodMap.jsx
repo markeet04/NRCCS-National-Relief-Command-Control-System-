@@ -33,6 +33,9 @@ import Legend from '@arcgis/core/widgets/Legend';
 import Expand from '@arcgis/core/widgets/Expand';
 import Search from '@arcgis/core/widgets/Search';
 
+// ArcGIS Location Service for Reverse Geocoding
+import * as locator from '@arcgis/core/rest/locator';
+
 // ArcGIS Reactive Utils
 import * as reactiveUtils from '@arcgis/core/core/reactiveUtils';
 
@@ -140,6 +143,21 @@ const NdmaFloodMap = ({
     const floodZonesLayerRef = useRef(null);
     const provinceAlertsLayerRef = useRef(null);
     const provincePolygonsRef = useRef({}); // Cache for province geometries
+    const pinMarkerLayerRef = useRef(null); // Pin marker layer for pin mode
+
+    // Callback refs to prevent useEffect from retriggering on function prop changes
+    const onProvinceClickRef = useRef(onProvinceClick);
+    const onRunPredictionRef = useRef(onRunPrediction);
+    const onMapClickRef = useRef(onMapClick);
+    const pinModeRef = useRef(pinMode);
+
+    // Keep refs updated with latest prop values
+    useEffect(() => {
+        onProvinceClickRef.current = onProvinceClick;
+        onRunPredictionRef.current = onRunPrediction;
+        onMapClickRef.current = onMapClick;
+        pinModeRef.current = pinMode;
+    }, [onProvinceClick, onRunPrediction, onMapClick, pinMode]);
 
     // State
     const [isLoading, setIsLoading] = useState(true);
@@ -452,13 +470,21 @@ const NdmaFloodMap = ({
                     visible: false
                 });
 
+                // Pin Marker Layer - For Pin Mode clicks (shows location marker)
+                const pinMarkerLayer = new GraphicsLayer({
+                    title: '📍 Location Pin',
+                    visible: true
+                });
+                pinMarkerLayerRef.current = pinMarkerLayer;
+
                 // Build layers array - VECTOR ONLY (no raster TileLayers)
                 const mapLayers = [
                     countryBoundaryLayer,      // VECTOR FeatureLayer
                     provinceBoundaryLayer,     // VECTOR FeatureLayer
                     floodZonesLayer,           // VECTOR Graphics
                     provinceAlertsLayer,       // VECTOR Graphics
-                    precipitationLayer         // VECTOR Graphics
+                    precipitationLayer,        // VECTOR Graphics
+                    pinMarkerLayer             // Pin marker for click locations
                 ];
 
                 // Create Map
@@ -583,114 +609,146 @@ const NdmaFloodMap = ({
                         }, { duration: 1000, easing: 'ease-in-out' });
                     }
                 });
-                view.ui.add(searchWidget, { position: 'top-right' });
+                view.ui.add(searchWidget, { position: 'top-left' });
                 console.log('✓ Search widget initialized with ArcGIS Geocoding');
+
+                // ArcGIS Geocoding Service URL for reverse geocoding
+                const geocodeServiceUrl = 'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer';
 
                 // Click handler for province selection and pin mode
                 view.on('click', async (event) => {
                     const { mapPoint } = event;
-                    if (mapPoint) {
-                        setSelectedLocation({
-                            lat: mapPoint.latitude,
-                            lon: mapPoint.longitude,
-                            name: 'Selected Location'
-                        });
+                    if (!mapPoint) return;
 
-                        // Find province name for the clicked location
-                        let clickedProvinceName = null;
-                        for (const [provinceName, geometry] of Object.entries(provincePolygonsRef.current)) {
-                            if (geometry && geometry.contains && geometry.contains(mapPoint)) {
-                                clickedProvinceName = PROVINCE_CENTERS[provinceName]?.name || provinceName;
+                    // Only process pin-related logic if pin mode is active (use ref to avoid closure issues)
+                    if (pinModeRef.current && onMapClickRef.current) {
+                        // Add pin marker to map
+                        if (pinMarkerLayerRef.current) {
+                            pinMarkerLayerRef.current.removeAll();
+
+                            const pinGraphic = new Graphic({
+                                geometry: new Point({
+                                    longitude: mapPoint.longitude,
+                                    latitude: mapPoint.latitude
+                                }),
+                                symbol: {
+                                    type: 'simple-marker',
+                                    style: 'circle',
+                                    color: [239, 68, 68, 255], // Red
+                                    size: 14,
+                                    outline: { color: [255, 255, 255], width: 2 }
+                                }
+                            });
+
+                            // Add pin with drop animation effect
+                            pinMarkerLayerRef.current.add(pinGraphic);
+                        }
+
+                        // Use ArcGIS reverse geocoding to get actual place name
+                        try {
+                            const result = await locator.locationToAddress(geocodeServiceUrl, {
+                                location: mapPoint
+                            });
+
+                            // Extract place name from result
+                            const placeName = result?.address ||
+                                result?.attributes?.PlaceName ||
+                                result?.attributes?.City ||
+                                result?.attributes?.Match_addr ||
+                                `${mapPoint.latitude.toFixed(4)}°N, ${mapPoint.longitude.toFixed(4)}°E`;
+
+                            console.log('📍 Reverse geocoded:', placeName);
+
+                            // Call callback with actual place name (use ref)
+                            onMapClickRef.current(mapPoint.latitude, mapPoint.longitude, placeName);
+                        } catch (error) {
+                            console.warn('Reverse geocoding failed, using coordinates:', error);
+                            // Fallback to coordinates if geocoding fails (use ref)
+                            onMapClickRef.current(mapPoint.latitude, mapPoint.longitude,
+                                `${mapPoint.latitude.toFixed(4)}°N, ${mapPoint.longitude.toFixed(4)}°E`);
+                        }
+                    }
+
+                    // Update internal selected location state (don't cause rerender issues)
+
+                    // Find clicked province by polygon intersection (more accurate)
+                    let clickedProvinceId = null;
+
+                    // Check if click point is within any cached province polygon
+                    for (const [provinceName, geometry] of Object.entries(provincePolygonsRef.current)) {
+                        if (geometry && geometry.contains) {
+                            if (geometry.contains(mapPoint)) {
+                                clickedProvinceId = provinceName;
                                 break;
                             }
                         }
+                    }
 
-                        // Call external onMapClick callback (for pin mode weather fetch)
-                        if (onMapClick && typeof onMapClick === 'function') {
-                            onMapClick(mapPoint.latitude, mapPoint.longitude, clickedProvinceName);
+                    // Fallback to distance-based detection if polygon check fails
+                    if (!clickedProvinceId) {
+                        const clickedProvince = Object.entries(PROVINCE_CENTERS).find(([id, center]) => {
+                            const distance = Math.sqrt(
+                                Math.pow(mapPoint.latitude - center.lat, 2) +
+                                Math.pow(mapPoint.longitude - center.lon, 2)
+                            );
+                            return distance < 5; // Increased radius to cover more of province
+                        });
+                        if (clickedProvince) {
+                            clickedProvinceId = clickedProvince[0];
                         }
+                    }
 
-                        loadWeatherData(mapPoint.latitude, mapPoint.longitude);
+                    if (clickedProvinceId) {
+                        const province = provinces.find(p => {
+                            const pId = String(p.id).toLowerCase();
+                            const cId = String(clickedProvinceId).toLowerCase();
+                            return pId === cId || cId.includes(pId) || pId.includes(cId);
+                        });
 
-                        // Find clicked province by polygon intersection (more accurate)
-                        let clickedProvinceId = null;
+                        if (province) {
+                            console.log('🎯 Province clicked:', province.name);
+                            onProvinceClickRef.current(province);
 
-                        // Check if click point is within any cached province polygon
-                        for (const [provinceName, geometry] of Object.entries(provincePolygonsRef.current)) {
-                            if (geometry && geometry.contains) {
-                                if (geometry.contains(mapPoint)) {
-                                    clickedProvinceId = provinceName;
-                                    break;
+                            // Auto-trigger flood prediction if callback is provided (use ref)
+                            if (onRunPredictionRef.current && typeof onRunPredictionRef.current === 'function') {
+                                console.log('🔮 Auto-triggering flood prediction for:', province.name);
+
+                                // Map province string IDs to numeric IDs for backend
+                                // CRITICAL: Must match constants file IDs (pb, sd, kp, bl, gb, ajk, ict)
+                                const provinceIdMap = {
+                                    'pb': 1,           // Punjab
+                                    'punjab': 1,
+                                    'sd': 2,           // Sindh  
+                                    'sindh': 2,
+                                    'kp': 3,           // KPK
+                                    'kpk': 3,
+                                    'khyber': 3,
+                                    'pakhtunkhwa': 3,
+                                    'bl': 4,           // Balochistan
+                                    'balochistan': 4,
+                                    'baluchistan': 4,
+                                    'gb': 5,           // Gilgit-Baltistan
+                                    'gilgit': 5,
+                                    'gilgit-baltistan': 5,
+                                    'ajk': 6,          // Azad Kashmir
+                                    'azadkashmir': 6,
+                                    'azad kashmir': 6,
+                                    'ict': 1,          // Islamabad - treat as Punjab
+                                    'islamabad': 1,
+                                };
+
+                                const provinceIdStr = String(province.id).toLowerCase();
+                                const provinceNumericId = provinceIdMap[provinceIdStr];
+
+                                console.log(`🎯 Click: province.id="${province.id}" → provinceIdStr="${provinceIdStr}" → numericId=${provinceNumericId}`);
+
+                                if (!provinceNumericId) {
+                                    console.error(`❌ No mapping found for province ID: ${provinceIdStr}`);
+                                    return;
                                 }
-                            }
-                        }
 
-                        // Fallback to distance-based detection if polygon check fails
-                        if (!clickedProvinceId) {
-                            const clickedProvince = Object.entries(PROVINCE_CENTERS).find(([id, center]) => {
-                                const distance = Math.sqrt(
-                                    Math.pow(mapPoint.latitude - center.lat, 2) +
-                                    Math.pow(mapPoint.longitude - center.lon, 2)
-                                );
-                                return distance < 5; // Increased radius to cover more of province
-                            });
-                            if (clickedProvince) {
-                                clickedProvinceId = clickedProvince[0];
-                            }
-                        }
-
-                        if (clickedProvinceId) {
-                            const province = provinces.find(p => {
-                                const pId = String(p.id).toLowerCase();
-                                const cId = String(clickedProvinceId).toLowerCase();
-                                return pId === cId || cId.includes(pId) || pId.includes(cId);
-                            });
-
-                            if (province) {
-                                console.log('🎯 Province clicked:', province.name);
-                                onProvinceClick(province);
-
-                                // Auto-trigger flood prediction if callback is provided
-                                if (onRunPrediction && typeof onRunPrediction === 'function') {
-                                    console.log('🔮 Auto-triggering flood prediction for:', province.name);
-
-                                    // Map province string IDs to numeric IDs for backend
-                                    // CRITICAL: Must match constants file IDs (pb, sd, kp, bl, gb, ajk, ict)
-                                    const provinceIdMap = {
-                                        'pb': 1,           // Punjab
-                                        'punjab': 1,
-                                        'sd': 2,           // Sindh  
-                                        'sindh': 2,
-                                        'kp': 3,           // KPK
-                                        'kpk': 3,
-                                        'khyber': 3,
-                                        'pakhtunkhwa': 3,
-                                        'bl': 4,           // Balochistan
-                                        'balochistan': 4,
-                                        'baluchistan': 4,
-                                        'gb': 5,           // Gilgit-Baltistan
-                                        'gilgit': 5,
-                                        'gilgit-baltistan': 5,
-                                        'ajk': 6,          // Azad Kashmir
-                                        'azadkashmir': 6,
-                                        'azad kashmir': 6,
-                                        'ict': 1,          // Islamabad - treat as Punjab
-                                        'islamabad': 1,
-                                    };
-
-                                    const provinceIdStr = String(province.id).toLowerCase();
-                                    const provinceNumericId = provinceIdMap[provinceIdStr];
-
-                                    console.log(`🎯 Click: province.id="${province.id}" → provinceIdStr="${provinceIdStr}" → numericId=${provinceNumericId}`);
-
-                                    if (!provinceNumericId) {
-                                        console.error(`❌ No mapping found for province ID: ${provinceIdStr}`);
-                                        return;
-                                    }
-
-                                    // Trigger prediction
-                                    onRunPrediction(provinceNumericId, false);
-                                }
+                                // Trigger prediction (use ref)
+                                onRunPredictionRef.current(provinceNumericId, false);
                             }
                         }
                     }
@@ -720,7 +778,8 @@ const NdmaFloodMap = ({
             viewRef.current?.destroy();
             mapInstanceRef.current?.destroy();
         };
-    }, [theme, loadWeatherData, onProvinceClick]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [theme]); // Only reinitialize on theme change - callbacks use refs to avoid retriggering
 
     // Theme-reactive basemap switching
     useEffect(() => {

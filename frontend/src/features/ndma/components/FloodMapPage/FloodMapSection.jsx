@@ -93,12 +93,11 @@ const FloodMapSection = ({
     return conditions[code] || 'Unknown';
   };
 
-  // Handle map click for pin mode
+  // Handle map click for pin mode - called only when pin mode is active
   const handleMapClick = useCallback((lat, lon, placeName) => {
-    if (pinMode) {
-      fetchWeather(lat, lon, placeName || `Location (${lat.toFixed(4)}, ${lon.toFixed(4)})`);
-    }
-  }, [pinMode, fetchWeather]);
+    // NdmaFloodMap only calls this when pin mode is ON, so always fetch weather
+    fetchWeather(lat, lon, placeName || `Location (${lat.toFixed(4)}, ${lon.toFixed(4)})`);
+  }, [fetchWeather]);
 
   // Handle quick jump to city
   const handleQuickJump = (city) => {
