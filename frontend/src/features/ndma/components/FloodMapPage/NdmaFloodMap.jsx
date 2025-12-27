@@ -55,7 +55,17 @@ const PAKISTAN_CONFIG = ROLE_MAP_CONFIG.ndma;
 const WEATHER_API_URL = 'https://api.open-meteo.com/v1/forecast';
 
 // Province centers for navigation
+// CRITICAL: Includes both full names AND abbreviated IDs to match province data structure
 const PROVINCE_CENTERS = {
+    // Abbreviated IDs (used in floodMapPageConstants.js)
+    pb: { lat: 31.1704, lon: 72.7097, name: 'Punjab' },        // Punjab
+    sd: { lat: 25.8943, lon: 68.5247, name: 'Sindh' },         // Sindh
+    kp: { lat: 34.0151, lon: 71.5249, name: 'Khyber Pakhtunkhwa' }, // KPK
+    bl: { lat: 28.4907, lon: 65.0958, name: 'Balochistan' },   // Balochistan
+    gb: { lat: 35.8026, lon: 74.9832, name: 'Gilgit-Baltistan' }, // Gilgit-Baltistan
+    ajk: { lat: 34.3703, lon: 73.4712, name: 'Azad Kashmir' }, // Azad Kashmir
+    ict: { lat: 33.6844, lon: 73.0479, name: 'Islamabad' },    // Islamabad (Capital Territory)
+    // Full names (for backward compatibility and fallback)
     punjab: { lat: 31.1704, lon: 72.7097, name: 'Punjab' },
     sindh: { lat: 25.8943, lon: 68.5247, name: 'Sindh' },
     kpk: { lat: 34.0151, lon: 71.5249, name: 'Khyber Pakhtunkhwa' },
@@ -110,6 +120,7 @@ const NdmaFloodMap = ({
     provinces = [],
     floodZones = [],
     onProvinceClick = () => { },
+    onRunPrediction = null,
     activeLayers = [],
     searchTerm = '',
 }) => {
@@ -198,24 +209,45 @@ const NdmaFloodMap = ({
     // PROVINCE ALERTS VISUALIZATION
     // ============================================================================
 
-    const updateProvinceAlerts = useCallback(() => {
+    const updateProvinceAlerts = () => {
         if (!provinceAlertsLayerRef.current || !viewRef.current) return;
 
         const layer = provinceAlertsLayerRef.current;
         layer.removeAll();
 
+        console.log(`🎨 updateProvinceAlerts called with ${provinces.length} provinces`);
+
         // Add province alert markers and polygons
         provinces.forEach(province => {
-            const center = PROVINCE_CENTERS[province.id] || PROVINCE_CENTERS.islamabad;
+            const center = PROVINCE_CENTERS[province.id] || PROVINCE_CENTERS.pb;
             const riskKey = province.floodRisk?.toLowerCase() || 'low';
             const riskColor = FLOOD_RISK_COLORS[riskKey] || FLOOD_RISK_COLORS.low;
 
             // 1. Draw Province Polygon (if available)
-            // Normalize name to match keys in provincePolygonsRef
-            // Try matching by name or loose matching
-            if (provincePolygonsRef.current) {
+            // Enhanced matching to support all province variations
+            let polygonDrawn = false;
+            if (provincePolygonsRef.current && Object.keys(provincePolygonsRef.current).length > 0) {
                 const polyKeys = Object.keys(provincePolygonsRef.current);
-                const matchKey = polyKeys.find(k => k.includes(province.name.toLowerCase()) || province.name.toLowerCase().includes(k));
+                const pName = province.name.toLowerCase();
+                const pId = String(province.id).toLowerCase();
+
+                // Multi-strategy matching for all 6 provinces
+                const matchKey = polyKeys.find(k => {
+                    const kLower = k.toLowerCase();
+                    // Direct match
+                    if (kLower === pName || kLower === pId) return true;
+                    // Partial match
+                    if (kLower.includes(pName) || pName.includes(kLower)) return true;
+                    if (kLower.includes(pId) || pId.includes(kLower)) return true;
+                    // Special cases
+                    if ((pName.includes('gilgit') || pName.includes('gb')) && kLower.includes('gilgit')) return true;
+                    if ((pName.includes('kashmir') || pName.includes('ajk')) && kLower.includes('kashmir')) return true;
+                    if (pName.includes('khyber') && kLower.includes('khyber')) return true;
+                    if (pName.includes('punjab') && kLower.includes('punjab')) return true;
+                    if (pName.includes('sindh') && kLower.includes('sindh')) return true;
+                    if (pName.includes('balochistan') && kLower.includes('balochistan')) return true;
+                    return false;
+                });
 
                 if (matchKey) {
                     const geometry = provincePolygonsRef.current[matchKey];
@@ -223,21 +255,61 @@ const NdmaFloodMap = ({
                         geometry: geometry,
                         symbol: {
                             type: 'simple-fill',
-                            color: [...riskColor.slice(0, 3), 0.35], // 35% opacity fill
+                            color: [...riskColor.slice(0, 3), 0.55], // 55% opacity fill
                             outline: {
-                                color: riskKey === 'critical' ? [255, 0, 0, 0.8] : [255, 255, 255, 0.5],
-                                width: riskKey === 'critical' ? 2 : 1
+                                color: riskKey === 'critical' ? [255, 0, 0, 1] : riskKey === 'high' ? [245, 158, 11, 1] : [255, 255, 255, 0.7],
+                                width: riskKey === 'critical' ? 3 : riskKey === 'high' ? 2 : 1
                             }
                         },
                         attributes: { ...province }
                     }));
+                    polygonDrawn = true;
                 }
             }
 
-            // 2. Draw Marker
-            console.log(`📍 Rendering marker for ${province.name}: Risk=${province.floodRisk} (Key=${riskKey})`, riskColor);
+            // Fallback: Draw a large circle region if polygon not available
+            // This ensures provinces always show colored fill even without polygon data
+            if (!polygonDrawn) {
+                // Province approximate radii (in degrees, roughly)
+                const provinceRadii = {
+                    pb: 2.5, sd: 2.2, kp: 1.5, bl: 3.5, gb: 1.2, ajk: 0.8, ict: 0.3
+                };
+                const radius = provinceRadii[province.id] || 2.0;
 
-            layer.add(new Graphic({
+                // Create a simple polygon approximating a circle
+                const centerLon = center.lon;
+                const centerLat = center.lat;
+                const numPoints = 32;
+                const ringPoints = [];
+
+                for (let i = 0; i <= numPoints; i++) {
+                    const angle = (i / numPoints) * 2 * Math.PI;
+                    const latOffset = radius * Math.cos(angle);
+                    const lonOffset = radius * 1.3 * Math.sin(angle); // Adjust for latitude
+                    ringPoints.push([centerLon + lonOffset, centerLat + latOffset]);
+                }
+
+                const circlePolygon = new Polygon({
+                    rings: [ringPoints],
+                    spatialReference: { wkid: 4326 }
+                });
+
+                layer.add(new Graphic({
+                    geometry: circlePolygon,
+                    symbol: {
+                        type: 'simple-fill',
+                        color: [...riskColor.slice(0, 3), 0.45], // 45% opacity for fallback circles
+                        outline: {
+                            color: riskKey === 'critical' ? [255, 0, 0, 0.9] : riskKey === 'high' ? [245, 158, 11, 0.9] : [...riskColor.slice(0, 3), 0.6],
+                            width: riskKey === 'critical' ? 2.5 : riskKey === 'high' ? 2 : 1.5
+                        }
+                    },
+                    attributes: { ...province, isFallbackCircle: true }
+                }));
+            }
+
+            // Province Marker (Diamond Icon) - for clickability and popup
+            const provinceMarker = new Graphic({
                 geometry: new Point({
                     longitude: center.lon,
                     latitude: center.lat
@@ -246,7 +318,7 @@ const NdmaFloodMap = ({
                     type: 'simple-marker',
                     style: 'diamond',
                     color: riskColor,
-                    size: riskKey === 'critical' ? 32 : riskKey === 'high' ? 24 : 18,
+                    size: riskKey === 'critical' ? 36 : riskKey === 'high' ? 28 : 20,
                     outline: { color: [255, 255, 255], width: 2 }
                 },
                 attributes: { ...province, ...center },
@@ -257,11 +329,30 @@ const NdmaFloodMap = ({
                     <b>Affected Districts:</b> ${province.affectedDistricts || 0}<br>
                     <b>Evacuated:</b> ${province.evacuated?.toLocaleString() || 0}`
                 }
-            }));
-        });
+            });
+            layer.add(provinceMarker);
 
-        console.log(`✓ Updated ${provinces.length} province alerts on map`);
-    }, [provinces]);
+            // Province Name Label
+            const provinceName = new Graphic({
+                geometry: new Point({
+                    longitude: center.lon,
+                    latitude: center.lat - 0.5 // Slightly below center
+                }),
+                symbol: {
+                    type: 'text',
+                    color: '#ffffff',
+                    text: province.name,
+                    font: {
+                        size: 11,
+                        weight: 'bold'
+                    },
+                    haloColor: [0, 0, 0, 0.8],
+                    haloSize: 2
+                }
+            });
+            layer.add(provinceName);
+        });
+    }; // NO useCallback - direct function
 
     // ============================================================================
     // MAP INITIALIZATION
@@ -413,12 +504,21 @@ const NdmaFloodMap = ({
                             const results = await provinceBoundaryLayer.queryFeatures(query);
                             const features = results.features;
 
-                            // Map features to province names/ids
+                            // Map features to province names/ids with multiple keys for matching
                             const polyMap = {};
                             features.forEach(f => {
                                 const name = f.attributes['NAME_1'] || f.attributes['name'] || f.attributes['PROVINCE'];
-                                if (name) polyMap[name.toLowerCase()] = f.geometry;
+                                if (name) {
+                                    const nameLower = name.toLowerCase();
+                                    polyMap[nameLower] = f.geometry;
+                                    // Add alternate keys for better matching
+                                    if (nameLower.includes('gilgit')) polyMap['gb'] = f.geometry;
+                                    if (nameLower.includes('kashmir')) polyMap['ajk'] = f.geometry;
+                                    if (nameLower.includes('khyber')) polyMap['kpk'] = f.geometry;
+                                }
                             });
+
+                            console.log('🗺️ Cached province polygons:', Object.keys(polyMap));
 
                             provincePolygonsRef.current = polyMap;
                             if (provinces.length > 0) updateProvinceAlerts();
@@ -471,19 +571,85 @@ const NdmaFloodMap = ({
                         });
                         loadWeatherData(mapPoint.latitude, mapPoint.longitude);
 
-                        // Find clicked province
-                        const clickedProvince = Object.entries(PROVINCE_CENTERS).find(([id, center]) => {
-                            const distance = Math.sqrt(
-                                Math.pow(mapPoint.latitude - center.lat, 2) +
-                                Math.pow(mapPoint.longitude - center.lon, 2)
-                            );
-                            return distance < 2; // Rough province area
-                        });
+                        // Find clicked province by polygon intersection (more accurate)
+                        let clickedProvinceId = null;
 
-                        if (clickedProvince) {
-                            const province = provinces.find(p => p.id === clickedProvince[0]);
+                        // Check if click point is within any cached province polygon
+                        for (const [provinceName, geometry] of Object.entries(provincePolygonsRef.current)) {
+                            if (geometry && geometry.contains) {
+                                if (geometry.contains(mapPoint)) {
+                                    clickedProvinceId = provinceName;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // Fallback to distance-based detection if polygon check fails
+                        if (!clickedProvinceId) {
+                            const clickedProvince = Object.entries(PROVINCE_CENTERS).find(([id, center]) => {
+                                const distance = Math.sqrt(
+                                    Math.pow(mapPoint.latitude - center.lat, 2) +
+                                    Math.pow(mapPoint.longitude - center.lon, 2)
+                                );
+                                return distance < 5; // Increased radius to cover more of province
+                            });
+                            if (clickedProvince) {
+                                clickedProvinceId = clickedProvince[0];
+                            }
+                        }
+
+                        if (clickedProvinceId) {
+                            const province = provinces.find(p => {
+                                const pId = String(p.id).toLowerCase();
+                                const cId = String(clickedProvinceId).toLowerCase();
+                                return pId === cId || cId.includes(pId) || pId.includes(cId);
+                            });
+
                             if (province) {
+                                console.log('🎯 Province clicked:', province.name);
                                 onProvinceClick(province);
+
+                                // Auto-trigger flood prediction if callback is provided
+                                if (onRunPrediction && typeof onRunPrediction === 'function') {
+                                    console.log('🔮 Auto-triggering flood prediction for:', province.name);
+
+                                    // Map province string IDs to numeric IDs for backend
+                                    // CRITICAL: Must match constants file IDs (pb, sd, kp, bl, gb, ajk, ict)
+                                    const provinceIdMap = {
+                                        'pb': 1,           // Punjab
+                                        'punjab': 1,
+                                        'sd': 2,           // Sindh  
+                                        'sindh': 2,
+                                        'kp': 3,           // KPK
+                                        'kpk': 3,
+                                        'khyber': 3,
+                                        'pakhtunkhwa': 3,
+                                        'bl': 4,           // Balochistan
+                                        'balochistan': 4,
+                                        'baluchistan': 4,
+                                        'gb': 5,           // Gilgit-Baltistan
+                                        'gilgit': 5,
+                                        'gilgit-baltistan': 5,
+                                        'ajk': 6,          // Azad Kashmir
+                                        'azadkashmir': 6,
+                                        'azad kashmir': 6,
+                                        'ict': 1,          // Islamabad - treat as Punjab
+                                        'islamabad': 1,
+                                    };
+
+                                    const provinceIdStr = String(province.id).toLowerCase();
+                                    const provinceNumericId = provinceIdMap[provinceIdStr];
+
+                                    console.log(`🎯 Click: province.id="${province.id}" → provinceIdStr="${provinceIdStr}" → numericId=${provinceNumericId}`);
+
+                                    if (!provinceNumericId) {
+                                        console.error(`❌ No mapping found for province ID: ${provinceIdStr}`);
+                                        return;
+                                    }
+
+                                    // Trigger prediction
+                                    onRunPrediction(provinceNumericId, false);
+                                }
                             }
                         }
                     }
@@ -513,7 +679,7 @@ const NdmaFloodMap = ({
             viewRef.current?.destroy();
             mapInstanceRef.current?.destroy();
         };
-    }, [theme, loadWeatherData, onProvinceClick, provinces]);
+    }, [theme, loadWeatherData, onProvinceClick]);
 
     // Theme-reactive basemap switching
     useEffect(() => {
@@ -530,8 +696,16 @@ const NdmaFloodMap = ({
 
     // Update province alerts when data changes
     useEffect(() => {
-        updateProvinceAlerts();
-    }, [updateProvinceAlerts]);
+        console.log('🔄 provinces useEffect triggered, length:', provinces.length);
+        console.log('🗂️ Provinces data:', provinces.map(p => ({ id: p.id, name: p.name, risk: p.floodRisk })));
+
+        if (provinceAlertsLayerRef.current && provinces.length > 0) {
+            console.log('✅ Calling updateProvinceAlerts()');
+            updateProvinceAlerts();
+        } else {
+            console.log('⏭️ Skipping updateProvinceAlerts - conditions not met');
+        }
+    }, [provinces]);
 
     // ============================================================================
     // RENDER

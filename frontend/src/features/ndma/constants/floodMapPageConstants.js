@@ -7,7 +7,7 @@
 // Initially set to LOW risk - ML prediction will update
 export const PROVINCE_STATUS_DATA = [
   {
-    id: 'punjab',
+    id: 'pb',  // Abbreviated ID to match prediction logic
     name: 'Punjab',
     status: 'normal',
     waterLevel: 15,
@@ -17,7 +17,7 @@ export const PROVINCE_STATUS_DATA = [
     coordinates: [31.1704, 72.7097],
   },
   {
-    id: 'sindh',
+    id: 'sd',  // Abbreviated ID
     name: 'Sindh',
     status: 'normal',
     waterLevel: 15,
@@ -27,7 +27,7 @@ export const PROVINCE_STATUS_DATA = [
     coordinates: [25.8943, 68.5247],
   },
   {
-    id: 'kpk',
+    id: 'kp',  // Abbreviated ID
     name: 'Khyber Pakhtunkhwa',
     status: 'normal',
     waterLevel: 15,
@@ -37,7 +37,7 @@ export const PROVINCE_STATUS_DATA = [
     coordinates: [34.9526, 72.3311],
   },
   {
-    id: 'balochistan',
+    id: 'bl',  // Abbreviated ID
     name: 'Balochistan',
     status: 'normal',
     waterLevel: 15,
@@ -65,6 +65,16 @@ export const PROVINCE_STATUS_DATA = [
     affectedDistricts: 0,
     evacuated: 0,
     coordinates: [33.9259, 73.7810],
+  },
+  {
+    id: 'ict',  // Islamabad Capital Territory
+    name: 'Islamabad',
+    status: 'normal',
+    waterLevel: 15,
+    floodRisk: 'low',
+    affectedDistricts: 0,
+    evacuated: 0,
+    coordinates: [33.6844, 73.0479],
   },
 ];
 

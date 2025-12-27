@@ -43,6 +43,7 @@ const FloodMapPage = () => {
     simulationScenarios,
     predictionResult,
     isPredicting,
+    liveWeatherData,
     runPrediction,
 
     // Actions
@@ -206,12 +207,16 @@ const FloodMapPage = () => {
 
             {/* Map Content - Interactive ArcGIS Map */}
             <div className="flood-map-content" style={{ position: 'relative', minHeight: '500px' }}>
+              {/* Debug logging */}
+              {console.log('📦 FloodMapPage passing provinces to map:', provinces.map(p => ({ id: p.id, name: p.name, risk: p.floodRisk })))}
+
               {/* NdmaFloodMap Component - Real Interactive Map */}
               <NdmaFloodMap
                 height="500px"
                 provinces={provinces}
                 floodZones={[]}
                 onProvinceClick={(province) => setSelectedProvince(province)}
+                onRunPrediction={runPrediction}
                 activeLayers={activeLayers}
                 searchTerm={searchTerm}
               />
@@ -339,20 +344,27 @@ const FloodMapPage = () => {
               <button
                 onClick={() => {
                   // Map province string IDs to numeric IDs for backend
+                  // Match the abbreviated IDs from floodMapPageConstants.js
                   const provinceIdMap = {
+                    'pb': 1,      // Punjab
+                    'sd': 2,      // Sindh
+                    'kp': 3,      // Khyber Pakhtunkhwa
+                    'bl': 4,      // Balochistan
+                    'gb': 5,      // Gilgit-Baltistan
+                    'ajk': 6,     // Azad Kashmir
+                    'ict': 1,     // Islamabad (defaults to Punjab region)
+                    // Legacy full names for backward compatibility
                     'punjab': 1,
                     'sindh': 2,
                     'kpk': 3,
                     'balochistan': 4,
-                    'gb': 5,
                     'gilgit': 5,
-                    'ajk': 6,
                     'azadkashmir': 6
                   };
-                  
-                  const provinceId = selectedProvince?.id ? 
-                    (provinceIdMap[selectedProvince.id] || 1) : 1;
-                    
+
+                  const provinceId = selectedProvince?.id ?
+                    (provinceIdMap[selectedProvince.id.toLowerCase()] || 1) : 1;
+
                   runPrediction(provinceId, true);
                 }}
                 disabled={isPredicting}
@@ -403,6 +415,21 @@ const FloodMapPage = () => {
                   {predictionResult.simulationMode && (
                     <div style={{ color: '#f59e0b', fontSize: '10px', marginTop: '4px' }}>
                       ⚡ Simulation: {predictionResult.simulationScenario}
+                    </div>
+                  )}
+                  {/* Show real weather data in LIVE mode */}
+                  {!predictionResult.simulationMode && liveWeatherData && (
+                    <div style={{
+                      color: '#60a5fa',
+                      fontSize: '10px',
+                      marginTop: '6px',
+                      padding: '6px',
+                      background: 'rgba(59, 130, 246, 0.1)',
+                      borderRadius: '4px'
+                    }}>
+                      🌤️ <strong>Live Weather ({liveWeatherData.provinceName}):</strong><br />
+                      🌧️ Rain 24h: {liveWeatherData.rainfall_24h}mm | 48h: {liveWeatherData.rainfall_48h}mm<br />
+                      🌡️ Temp: {liveWeatherData.temperature}°C | 💧 Humidity: {liveWeatherData.humidity}%
                     </div>
                   )}
                   {predictionResult.alertGenerated && (

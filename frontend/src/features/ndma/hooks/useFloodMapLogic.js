@@ -60,6 +60,61 @@ export const useFloodMapLogic = () => {
   const [predictionResult, setPredictionResult] = useState(null);
   const [isPredicting, setIsPredicting] = useState(false);
   const [lastPredictionTime, setLastPredictionTime] = useState(null);
+  const [liveWeatherData, setLiveWeatherData] = useState(null);
+
+  // ==================== WEATHER API CONFIGURATION ====================
+  const PROVINCE_COORDS = {
+    1: { lat: 31.17, lon: 72.70, name: 'Punjab' },
+    2: { lat: 25.89, lon: 68.52, name: 'Sindh' },
+    3: { lat: 34.01, lon: 71.52, name: 'KPK' },
+    4: { lat: 28.49, lon: 65.09, name: 'Balochistan' },
+    5: { lat: 35.80, lon: 74.98, name: 'Gilgit-Baltistan' },
+    6: { lat: 33.93, lon: 73.78, name: 'Azad Kashmir' },
+  };
+
+  /**
+   * Fetch real weather data from Open-Meteo API for LIVE mode
+   * @param {number} provinceId - Province ID (1-6)
+   * @returns {Promise<Object>} Weather data with rainfall, temp, humidity
+   */
+  const fetchWeatherForProvince = useCallback(async (provinceId) => {
+    const coords = PROVINCE_COORDS[provinceId] || PROVINCE_COORDS[1];
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,relative_humidity_2m,precipitation&hourly=precipitation&past_days=2&forecast_days=1&timezone=auto`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Weather API error');
+      const data = await response.json();
+
+      // Calculate 24h and 48h rainfall from hourly data
+      const hourlyPrecip = data.hourly?.precipitation || [];
+      const rainfall_24h = hourlyPrecip.slice(-24).reduce((a, b) => a + (b || 0), 0);
+      const rainfall_48h = hourlyPrecip.slice(-48).reduce((a, b) => a + (b || 0), 0);
+
+      const weatherData = {
+        rainfall_24h: Math.round(rainfall_24h * 10) / 10,
+        rainfall_48h: Math.round(rainfall_48h * 10) / 10,
+        temperature: data.current?.temperature_2m || 28,
+        humidity: data.current?.relative_humidity_2m || 70,
+        provinceName: coords.name,
+        fetchedAt: new Date().toISOString(),
+      };
+
+      console.log(`🌤️ Real weather data for ${coords.name}:`, weatherData);
+      setLiveWeatherData(weatherData);
+      return weatherData;
+    } catch (error) {
+      console.warn('⚠️ Weather API failed, using defaults:', error.message);
+      return {
+        rainfall_24h: 5,
+        rainfall_48h: 10,
+        temperature: 28,
+        humidity: 70,
+        provinceName: coords.name,
+        isDefault: true,
+      };
+    }
+  }, []);
 
   /**
    * Fetch flood map data from backend API
@@ -169,7 +224,8 @@ export const useFloodMapLogic = () => {
   /**
    * Run flood prediction using ML model
    * NDMA-only: Supports both live and simulation modes
-   * Also updates map visualization with prediction results
+   * LIVE MODE: Fetches real weather data from Open-Meteo API
+   * SIMULATION MODE: Uses preset scenarios from backend
    */
   const runPrediction = useCallback(async (provinceId, generateAlert = false) => {
     if (!provinceId) {
@@ -179,25 +235,48 @@ export const useFloodMapLogic = () => {
 
     setIsPredicting(true);
     try {
-      const payload = {
-        rainfall_24h: 50, // Default values for live mode
-        rainfall_48h: 30,
-        humidity: 75,
-        temperature: 28,
-        provinceId,
-        simulationMode: simulationEnabled,
-        simulationScenario: simulationEnabled ? simulationScenario : undefined,
-        generateAlert,
-      };
+      let payload;
 
-      console.log(`🔮 Running ${simulationEnabled ? 'SIMULATION' : 'LIVE'} prediction for province ${provinceId}`, payload);
+      if (simulationEnabled) {
+        // SIMULATION MODE: Use hardcoded scenario values (backend handles this)
+        payload = {
+          rainfall_24h: 50, // Backend overrides these with scenario values
+          rainfall_48h: 30,
+          humidity: 75,
+          temperature: 28,
+          provinceId,
+          simulationMode: true,
+          simulationScenario: simulationScenario,
+          generateAlert,
+        };
+        console.log(`🎮 SIMULATION mode: ${simulationScenario} for province ${provinceId}`);
+      } else {
+        // LIVE MODE: Fetch real weather data from Open-Meteo API
+        console.log(`🌤️ LIVE mode: Fetching real weather for province ${provinceId}...`);
+        const weather = await fetchWeatherForProvince(provinceId);
+
+        payload = {
+          rainfall_24h: weather.rainfall_24h,
+          rainfall_48h: weather.rainfall_48h,
+          humidity: weather.humidity,
+          temperature: weather.temperature,
+          provinceId,
+          simulationMode: false,
+          generateAlert,
+        };
+        console.log(`🌤️ LIVE weather payload:`, payload);
+      }
 
       const result = await NdmaApiService.predictFlood(payload);
 
-      setPredictionResult(result);
+      setPredictionResult({
+        ...result,
+        weatherSource: simulationEnabled ? 'simulation' : 'live-api',
+        weatherData: simulationEnabled ? null : liveWeatherData,
+      });
       setLastPredictionTime(new Date());
 
-      console.log('✅ Prediction result:', result);
+      console.log(`✅ Prediction: ${result.flood_risk} risk (${simulationEnabled ? 'SIMULATION' : 'LIVE'})`);
 
       // ========================================================
       // 🗺️ VISUAL MAP UPDATE - Update provinces based on prediction
@@ -213,30 +292,35 @@ export const useFloodMapLogic = () => {
 
         // Map provinceId to province key - matches all provinces
         const idToKey = {
-          1: 'punjab',
-          2: 'sindh',
-          3: 'kpk',
-          4: 'balochistan',
+          1: 'pb',      // Punjab (abbreviated)
+          2: 'sd',      // Sindh (abbreviated)
+          3: 'kp',      // KPK (abbreviated)
+          4: 'bl',      // Balochistan (abbreviated)
           5: 'gb',      // Gilgit-Baltistan
           6: 'ajk'      // Azad Kashmir
         };
-        const targetKey = idToKey[provinceId] || 'punjab';
+        const targetKey = idToKey[provinceId] || 'pb';
 
-        // Update the provinces array to trigger map re-render
-        setProvinces(prev => prev.map(p => {
-          if (String(p.id) === String(targetKey)) {
-            console.log(`🗺️ Updating ${p.name} on map:`, riskConfig);
-            return {
-              ...p,
-              floodRisk: riskConfig.floodRisk,
-              status: riskConfig.status,
-              waterLevel: riskConfig.waterLevel,
-              affectedDistricts: result.flood_risk === 'High' ? 8 : result.flood_risk === 'Medium' ? 4 : 1,
-              evacuated: result.flood_risk === 'High' ? 50000 : result.flood_risk === 'Medium' ? 10000 : 0,
-            };
-          }
-          return p;
-        }));
+        // Update the provinces array to trigger map re-render (single log only)
+        setProvinces(prev => {
+          const updated = prev.map(p => {
+            const pIdStr = String(p.id).toLowerCase();
+            const targetStr = String(targetKey).toLowerCase();
+
+            if (pIdStr === targetStr) {
+              return {
+                ...p,
+                floodRisk: riskConfig.floodRisk,
+                status: riskConfig.status,
+                waterLevel: riskConfig.waterLevel,
+                affectedDistricts: result.flood_risk === 'High' ? 8 : result.flood_risk === 'Medium' ? 4 : 1,
+                evacuated: result.flood_risk === 'High' ? 50000 : result.flood_risk === 'Medium' ? 10000 : 0,
+              };
+            }
+            return p;
+          });
+          return updated;
+        });
 
 
         // Add flood zone marker for high/medium risk
@@ -280,7 +364,7 @@ export const useFloodMapLogic = () => {
     } finally {
       setIsPredicting(false);
     }
-  }, [simulationEnabled, simulationScenario]);
+  }, [simulationEnabled, simulationScenario, fetchWeatherForProvince, liveWeatherData]);
 
   // Fetch data on mount (including simulation scenarios)
   useEffect(() => {
@@ -468,6 +552,7 @@ export const useFloodMapLogic = () => {
     predictionResult,
     isPredicting,
     lastPredictionTime,
+    liveWeatherData,
     runPrediction,
 
     // Actions
