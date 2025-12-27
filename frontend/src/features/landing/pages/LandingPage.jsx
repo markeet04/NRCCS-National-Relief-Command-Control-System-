@@ -33,57 +33,57 @@ const LandingPage = () => {
     setLoginError('');
   };
 
-const handleLoginSubmit = async (e) => {
-  e.preventDefault();
-  setLoginError('');
-  
-  if (!selectedRole) {
-    setLoginError('Please select a role');
-    return;
-  }
-  
-  if (!username || !password) {
-    setLoginError('Please enter email and password');
-    return;
-  }
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    setLoginError('');
 
-  setIsLoggingIn(true);
-  
-  try {
-    console.log('[LandingPage] Attempting login...');
-    const result = await login({
-      email: username,
-      password: password,
-    });
-    console.log('[LandingPage] Login result:', result);
+    if (!selectedRole) {
+      setLoginError('Please select a role');
+      return;
+    }
 
-    if (result.success) {
-      // Verify role matches
-      if (result.user.role !== selectedRole) {
-        setLoginError(`You don't have ${selectedRole} access. Your role is: ${result.user.role}`);
+    if (!username || !password) {
+      setLoginError('Please enter email and password');
+      return;
+    }
+
+    setIsLoggingIn(true);
+
+    try {
+      console.log('[LandingPage] Attempting login...');
+      const result = await login({
+        email: username,
+        password: password,
+      });
+      console.log('[LandingPage] Login result:', result);
+
+      if (result.success) {
+        // Verify role matches
+        if (result.user.role !== selectedRole) {
+          setLoginError(`You don't have ${selectedRole} access. Your role is: ${result.user.role}`);
+          setIsLoggingIn(false);
+          return;
+        }
+
+        console.log('[LandingPage] Login successful, navigating to:', `/${selectedRole}`);
+
+        // Close modal
+        setShowLoginModal(false);
+
+        // Add a small delay to ensure state propagation
+        setTimeout(() => {
+          navigate(`/${selectedRole}`, { replace: true });
+        }, 100);
+      } else {
+        setLoginError(result.message || 'Invalid credentials. Please try again.');
         setIsLoggingIn(false);
-        return;
       }
-
-      console.log('[LandingPage] Login successful, navigating to:', `/${selectedRole}`);
-      
-      // Close modal
-      setShowLoginModal(false);
-      
-      // Add a small delay to ensure state propagation
-      setTimeout(() => {
-        navigate(`/${selectedRole}`, { replace: true });
-      }, 100);
-    } else {
-      setLoginError(result.message || 'Invalid credentials. Please try again.');
+    } catch (error) {
+      console.error('[LandingPage] Login error:', error);
+      setLoginError('Login failed. Please try again.');
       setIsLoggingIn(false);
     }
-  } catch (error) {
-    console.error('[LandingPage] Login error:', error);
-    setLoginError('Login failed. Please try again.');
-    setIsLoggingIn(false);
-  }
-};
+  };
 
   const handleCloseModal = () => {
     setShowLoginModal(false);
@@ -97,8 +97,8 @@ const handleLoginSubmit = async (e) => {
 
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
+    <div style={{
+      minHeight: '100vh',
       background: 'linear-gradient(135deg, #f8fafc 0%, #e8f5e9 50%, #f1f5f9 100%)',
       display: 'flex',
       flexDirection: 'column',
@@ -349,25 +349,25 @@ const handleLoginSubmit = async (e) => {
                   gap: '10px'
                 }}
               >
-              
-               
+
+
               </motion.div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
       {/* Animated background */}
-      <motion.div 
+      <motion.div
         animate={{ scale: [1, 1.2, 1], opacity: [0.05, 0.08, 0.05] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        style={{ position: 'absolute', top: '-200px', right: '-200px', width: '500px', height: '500px', background: 'rgba(0, 102, 0, 0.05)', borderRadius: '50%', filter: 'blur(80px)', zIndex: 0 }} 
+        style={{ position: 'absolute', top: '-200px', right: '-200px', width: '500px', height: '500px', background: 'rgba(0, 102, 0, 0.05)', borderRadius: '50%', filter: 'blur(80px)', zIndex: 0 }}
       />
-      <motion.div 
+      <motion.div
         animate={{ scale: [1, 1.15, 1], opacity: [0.03, 0.06, 0.03] }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        style={{ position: 'absolute', bottom: '-150px', left: '-150px', width: '400px', height: '400px', background: 'rgba(0, 102, 0, 0.03)', borderRadius: '50%', filter: 'blur(80px)', zIndex: 0 }} 
+        style={{ position: 'absolute', bottom: '-150px', left: '-150px', width: '400px', height: '400px', background: 'rgba(0, 102, 0, 0.03)', borderRadius: '50%', filter: 'blur(80px)', zIndex: 0 }}
       />
-      
+
       {/* Floating shapes */}
       <motion.div animate={{ y: [0, -30, 0], rotate: [0, 10, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} style={{ position: 'absolute', top: '20%', left: '10%', width: '60px', height: '60px', border: '2px solid rgba(0, 102, 0, 0.1)', borderRadius: '12px', zIndex: 0 }} />
       <motion.div animate={{ y: [0, 40, 0], rotate: [0, -15, 0] }} transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 0.5 }} style={{ position: 'absolute', bottom: '30%', right: '8%', width: '80px', height: '80px', border: '2px solid rgba(0, 102, 0, 0.08)', borderRadius: '50%', zIndex: 0 }} />
@@ -409,20 +409,20 @@ const handleLoginSubmit = async (e) => {
                 </motion.div>
                 <motion.h3 animate={{ color: hoveredCard === 'internal' ? '#006600' : '#1e293b' }} style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '15px', transition: 'color 0.3s' }}>Internal System Login</motion.h3>
                 <p style={{ fontSize: '1rem', color: '#64748b', lineHeight: '1.6', marginBottom: '30px' }}>Authorized access for NDMA, PDMA, District, and Super Admin authorities. Command center for disaster coordination.</p>
-                
-                <motion.button 
-                  whileHover={{ scale: 1.05 }} 
+
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleInternalLogin}
-                  style={{ width: '100%', padding: '16px 32px', background: '#006600', color: 'white', border: 'none', borderRadius: '12px', fontSize: '1.1rem', fontWeight: '600', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0, 102, 0, 0.3)', transition: 'all 0.3s' }} 
-                  onMouseOver={(e) => e.target.style.background = '#005200'} 
-                  onMouseOut={(e) => e.target.style.background = '#006600'}
+                  style={{ width: '100%', padding: '16px 32px', background: '#006600', color: 'white', border: 'none', borderRadius: '12px', fontSize: '1.1rem', fontWeight: '600', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0, 102, 0, 0.3)', transition: 'all 0.3s', outline: 'none' }}
+                  onMouseOver={(e) => e.currentTarget.style.background = '#005200'}
+                  onMouseOut={(e) => e.currentTarget.style.background = '#006600'}
                 >
-                  <motion.span animate={{ x: hoveredCard === 'internal' ? [0, 3, 0] : 0 }} transition={{ duration: 0.5 }} style={{ display: 'inline-block' }}>
+                  <span style={{ display: 'inline-block', pointerEvents: 'none' }}>
                     Internal Login →
-                  </motion.span>
+                  </span>
                 </motion.button>
-                
+
                 <motion.div animate={{ opacity: hoveredCard === 'internal' ? 1 : 0.6 }} style={{ marginTop: '20px', fontSize: '0.875rem', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                   <svg style={{ width: '16px', height: '16px' }} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" /></svg>
                   Secure Access Required
@@ -446,8 +446,8 @@ const handleLoginSubmit = async (e) => {
                 </motion.div>
                 <motion.h3 animate={{ color: hoveredCard === 'citizen' ? '#006600' : '#1e293b' }} style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '15px', transition: 'color 0.3s' }}>Citizen Portal</motion.h3>
                 <p style={{ fontSize: '1rem', color: '#64748b', lineHeight: '1.6', marginBottom: '30px' }}>Public access for citizens to view real-time alerts, safety information, and emergency resources.</p>
-                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%', padding: '16px 32px', background: 'white', color: '#006600', border: '2px solid #006600', borderRadius: '12px', fontSize: '1.1rem', fontWeight: '600', cursor: 'pointer', transition: 'all 0.3s' }} onClick={handleCitizenPortal} onMouseOver={(e) => { e.target.style.background = '#006600'; e.target.style.color = 'white'; }} onMouseOut={(e) => { e.target.style.background = 'white'; e.target.style.color = '#006600'; }}>
-                  <motion.span animate={{ x: hoveredCard === 'citizen' ? [0, 3, 0] : 0 }} transition={{ duration: 0.5 }} style={{ display: 'inline-block' }}>Visit Citizen Portal →</motion.span>
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%', padding: '16px 32px', background: 'white', color: '#006600', border: '2px solid #006600', borderRadius: '12px', fontSize: '1.1rem', fontWeight: '600', cursor: 'pointer', transition: 'all 0.3s', outline: 'none' }} onClick={handleCitizenPortal} onMouseOver={(e) => { e.currentTarget.style.background = '#006600'; e.currentTarget.style.color = 'white'; }} onMouseOut={(e) => { e.currentTarget.style.background = 'white'; e.currentTarget.style.color = '#006600'; }}>
+                  <span style={{ display: 'inline-block', pointerEvents: 'none' }}>Visit Citizen Portal →</span>
                 </motion.button>
                 <motion.div animate={{ opacity: hoveredCard === 'citizen' ? 1 : 0.6 }} style={{ marginTop: '20px', fontSize: '0.875rem', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                   <svg style={{ width: '16px', height: '16px' }} fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" /></svg>
@@ -611,29 +611,37 @@ const handleLoginSubmit = async (e) => {
                   </div>
                 </div>
 
-                {/* Username */}
+                {/* Email */}
                 <div>
                   <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: '600', color: '#1e293b', marginBottom: '8px' }}>
-                    Username
+                    Email
                   </label>
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Enter your username"
-                    style={{
-                      width: '100%',
-                      padding: '14px 16px',
-                      borderRadius: '12px',
-                      border: '2px solid #e2e8f0',
-                      fontSize: '1rem',
-                      outline: 'none',
-                      transition: 'all 0.2s',
-                      color: '#111', // black text
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#006600'}
-                    onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
-                  />
+                  <div style={{ position: 'relative' }}>
+                    <div style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }}>
+                      <svg style={{ width: '18px', height: '18px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <input
+                      type="email"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="admin@nrccs.gov.pk"
+                      style={{
+                        width: '100%',
+                        padding: '14px 16px 14px 44px',
+                        borderRadius: '12px',
+                        border: '2px solid #e2e8f0',
+                        fontSize: '1rem',
+                        outline: 'none',
+                        transition: 'all 0.2s',
+                        color: '#111',
+                        boxSizing: 'border-box'
+                      }}
+                      onFocus={(e) => e.target.style.borderColor = '#006600'}
+                      onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+                    />
+                  </div>
                 </div>
 
                 {/* Password */}
