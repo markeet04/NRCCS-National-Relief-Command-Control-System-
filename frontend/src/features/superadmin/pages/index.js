@@ -1,5 +1,5 @@
 export { default as SuperAdminDashboard } from './SuperAdminDashboard';
-export { default as UserManagement } from './UserManagement';
+// UserManagement is now integrated into SuperAdminDashboard
 export { default as ProvinceManagement } from './ProvinceManagement';
 export { default as SystemStats } from './SystemStats';
 export { default as ManageAlerts } from './ManageAlerts';

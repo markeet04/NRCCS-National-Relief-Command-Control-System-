@@ -32,11 +32,12 @@ export const DISTRICT_MENU_ITEMS = [
   { route: 'reports', label: 'Damage Reports', icon: 'map' },
 ];
 
+
 export const SUPERADMIN_MENU_ITEMS = [
   { route: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
-  { route: 'users', label: 'User Management', icon: 'users' },
   { route: 'provinces', label: 'Provinces & Districts', icon: 'provinces' },
 ];
+
 
 // Get menu items by role
 export const getMenuItemsByRole = (role, badgeCount = 0, provincialRequestsCount = 0) => {
@@ -69,7 +70,7 @@ export const STAT_GRADIENT_KEYS = {
   warning: 'amber',
   primary: 'blue',
   default: 'cyan',
-  
+
   // Named stat types
   emergencies: 'rose',
   alerts: 'amber',
@@ -97,18 +98,18 @@ export const STATUS_COLORS = {
   'en-route': { bg: 'rgba(59, 130, 246, 0.2)', text: '#3b82f6' },
   resolved: { bg: 'rgba(34, 197, 94, 0.2)', text: '#22c55e' },
   rescued: { bg: 'rgba(34, 197, 94, 0.2)', text: '#22c55e' },
-  
+
   // Resource statuses
   available: { bg: 'rgba(34, 197, 94, 0.2)', text: '#22c55e' },
   low: { bg: 'rgba(251, 191, 36, 0.2)', text: '#f59e0b' },
   critical: { bg: 'rgba(239, 68, 68, 0.2)', text: '#ef4444' },
   sufficient: { bg: 'rgba(34, 197, 94, 0.2)', text: '#22c55e' },
-  
+
   // Team statuses
   on_mission: { bg: 'rgba(251, 191, 36, 0.2)', text: '#f59e0b' },
   standby: { bg: 'rgba(59, 130, 246, 0.2)', text: '#3b82f6' },
   unavailable: { bg: 'rgba(107, 114, 128, 0.2)', text: '#6b7280' },
-  
+
   // Default
   default: { bg: 'rgba(107, 114, 128, 0.2)', text: '#6b7280' },
 };
@@ -235,11 +236,11 @@ export const getDashboardLayoutProps = (role, options = {}) => {
   const { badgeCount = 0, activeRoute = 'dashboard', onNavigate } = options;
   const roleConfig = ROLE_CONFIG[role?.toLowerCase()] || ROLE_CONFIG.ndma;
   const menuItems = getMenuItemsByRole(role, badgeCount);
-  
+
   return {
     menuItems,
     activeRoute,
-    onNavigate: onNavigate || (() => {}),
+    onNavigate: onNavigate || (() => { }),
     userRole: roleConfig.userRole,
     userName: roleConfig.userName,
     pageTitle: roleConfig.title,

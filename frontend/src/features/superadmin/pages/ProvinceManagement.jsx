@@ -8,23 +8,32 @@ import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConf
 
 const ProvinceManagement = () => {
 
-    // List of all possible cities (for demo, you can expand as needed)
-    const allCities = [
-      'Lahore', 'Faisalabad', 'Multan', 'Rawalpindi', 'Gujranwala',
-      'Karachi', 'Hyderabad', 'Sukkur', 'Larkana', 'Mirpurkhas',
-      'Peshawar', 'Mardan', 'Abbottabad', 'Swat', 'Kohat',
-      'Quetta', 'Gwadar', 'Turbat', 'Khuzdar', 'Sibi',
-      'Gilgit', 'Skardu', 'Hunza', 'Ghizer', 'Diamer'
-    ];
-    const [addCityDropdown, setAddCityDropdown] = useState('');
+  // List of all possible cities (for demo, you can expand as needed)
+  const allCities = [
+    'Lahore', 'Faisalabad', 'Multan', 'Rawalpindi', 'Gujranwala',
+    'Karachi', 'Hyderabad', 'Sukkur', 'Larkana', 'Mirpurkhas',
+    'Peshawar', 'Mardan', 'Abbottabad', 'Swat', 'Kohat',
+    'Quetta', 'Gwadar', 'Turbat', 'Khuzdar', 'Sibi',
+    'Gilgit', 'Skardu', 'Hunza', 'Ghizer', 'Diamer'
+  ];
+  const [addCityDropdown, setAddCityDropdown] = useState('');
   const [activeRoute, setActiveRoute] = useState('provinces');
   const { theme } = useSettings();
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
-  
+
   // Get role configuration and menu items from shared config
   const roleConfig = ROLE_CONFIG.superadmin;
   const menuItems = useMemo(() => getMenuItemsByRole('superadmin'), []);
+
+  // Color variants for provinces
+  const provinceColors = [
+    { border: '#3b82f6', shadow: 'rgba(59, 130, 246, 0.35)' },  // Blue - Punjab
+    { border: '#22c55e', shadow: 'rgba(34, 197, 94, 0.35)' },   // Green - Sindh
+    { border: '#f59e0b', shadow: 'rgba(245, 158, 11, 0.35)' },  // Amber - KPK
+    { border: '#ef4444', shadow: 'rgba(239, 68, 68, 0.35)' },   // Red - Balochistan
+    { border: '#8b5cf6', shadow: 'rgba(139, 92, 246, 0.35)' }   // Purple - Gilgit-Baltistan
+  ];
 
   const [provinces, setProvinces] = useState([
     {
@@ -96,8 +105,8 @@ const ProvinceManagement = () => {
     >
       <div style={{ padding: '24px' }}>
         {/* Header */}
-        <div style={{ 
-          display: 'flex', 
+        <div style={{
+          display: 'flex',
           alignItems: 'center',
           marginBottom: '24px'
         }}>
@@ -119,13 +128,16 @@ const ProvinceManagement = () => {
                 background: colors.cardBg,
                 borderRadius: '12px',
                 padding: '24px',
-                border: `1px solid ${colors.border}`
+                border: `1px solid ${colors.border}`,
+                borderLeft: `4px solid ${provinceColors[province.id - 1].border}`,
+                boxShadow: !isLight ? `-2px 0 12px 0 ${provinceColors[province.id - 1].shadow}` : 'none',
+                transition: 'all 0.3s ease'
               }}
             >
               {/* Province Header */}
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
                 marginBottom: '16px'
               }}>
@@ -159,96 +171,96 @@ const ProvinceManagement = () => {
               }}>
                 {editProvinceId === province.id
                   ? <>
-                      {editDistricts.map((district, idx) => (
-                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <input
-                            value={district}
-                            onChange={e => {
-                              const newDistricts = [...editDistricts];
-                              newDistricts[idx] = e.target.value;
-                              setEditDistricts(newDistricts);
-                            }}
-                            style={{ flex: 1, padding: '10px 12px', background: colors.inputBg, borderRadius: '6px', color: colors.textPrimary, fontSize: '14px', border: `1px solid ${colors.border}` }}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const newDistricts = editDistricts.filter((_, i) => i !== idx);
-                              setEditDistricts(newDistricts);
-                            }}
-                            style={{ padding: '6px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      ))}
-                      {/* Add City Dropdown (fallback to native select) */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
+                    {editDistricts.map((district, idx) => (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <input
+                          value={district}
+                          onChange={e => {
+                            const newDistricts = [...editDistricts];
+                            newDistricts[idx] = e.target.value;
+                            setEditDistricts(newDistricts);
+                          }}
+                          style={{ flex: 1, padding: '10px 12px', background: colors.inputBg, borderRadius: '6px', color: colors.textPrimary, fontSize: '14px', border: `1px solid ${colors.border}` }}
+                        />
                         <button
                           type="button"
-                          onClick={() => setAddCityDropdown('open')}
-                          style={{ padding: '8px 12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: '500', cursor: 'pointer', fontSize: '14px', width: '100%' }}
+                          onClick={() => {
+                            const newDistricts = editDistricts.filter((_, i) => i !== idx);
+                            setEditDistricts(newDistricts);
+                          }}
+                          style={{ padding: '6px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
                         >
-                          Add City
+                          Delete
                         </button>
-                        {addCityDropdown === 'open' && (
-                          <div style={{
-                            position: 'relative',
-                            zIndex: 10,
-                            background: 'rgba(58, 66, 86, 0.5)',
-                            borderRadius: '6px',
-                            boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
-                            backdropFilter: 'blur(8px)',
-                            WebkitBackdropFilter: 'blur(8px)',
-                            border: `1px solid ${colors.border}`,
-                            maxHeight: '180px',
-                            overflowY: 'auto',
-                            marginTop: '4px',
-                          }}>
-                            {allCities.filter(city => !editDistricts.includes(city)).map(city => (
-                              <div
-                                key={city}
-                                onClick={() => {
-                                  setEditDistricts([...editDistricts, city]);
-                                  setAddCityDropdown('');
-                                }}
-                                style={{
-                                  padding: '10px 12px',
-                                  color: colors.textPrimary,
-                                  fontSize: '14px',
-                                  cursor: 'pointer',
-                                  borderBottom: `1px solid ${colors.border}`,
-                                  background: 'transparent',
-                                }}
-                                onMouseEnter={e => e.currentTarget.style.background = 'rgba(58,66,86,0.2)'}
-                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                              >
-                                {city}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      {/* Save and Cancel buttons at the bottom of the card */}
-                      <div style={{ display: 'flex', gap: '8px', marginTop: '24px', justifyContent: 'flex-end' }}>
-                        <button onClick={handleEditProvinceSave} style={{ padding: '6px 12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Save</button>
-                        <button onClick={handleEditProvinceCancel} style={{ padding: '6px 12px', background: '#3a4256', color: '#cfd8e3', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
-                      </div>
-                    </>
-                  : province.districts.map((district, index) => (
-                      <div
-                        key={index}
-                        style={{
-                          padding: '10px 12px',
-                          background: colors.inputBg,
-                          borderRadius: '6px',
-                          color: colors.textPrimary,
-                          fontSize: '14px'
-                        }}
-                      >
-                        {district}
                       </div>
                     ))}
+                    {/* Add City Dropdown (fallback to native select) */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setAddCityDropdown('open')}
+                        style={{ padding: '8px 12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: '500', cursor: 'pointer', fontSize: '14px', width: '100%' }}
+                      >
+                        Add City
+                      </button>
+                      {addCityDropdown === 'open' && (
+                        <div style={{
+                          position: 'relative',
+                          zIndex: 10,
+                          background: 'rgba(58, 66, 86, 0.5)',
+                          borderRadius: '6px',
+                          boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+                          backdropFilter: 'blur(8px)',
+                          WebkitBackdropFilter: 'blur(8px)',
+                          border: `1px solid ${colors.border}`,
+                          maxHeight: '180px',
+                          overflowY: 'auto',
+                          marginTop: '4px',
+                        }}>
+                          {allCities.filter(city => !editDistricts.includes(city)).map(city => (
+                            <div
+                              key={city}
+                              onClick={() => {
+                                setEditDistricts([...editDistricts, city]);
+                                setAddCityDropdown('');
+                              }}
+                              style={{
+                                padding: '10px 12px',
+                                color: colors.textPrimary,
+                                fontSize: '14px',
+                                cursor: 'pointer',
+                                borderBottom: `1px solid ${colors.border}`,
+                                background: 'transparent',
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.background = 'rgba(58,66,86,0.2)'}
+                              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                            >
+                              {city}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {/* Save and Cancel buttons at the bottom of the card */}
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '24px', justifyContent: 'flex-end' }}>
+                      <button onClick={handleEditProvinceSave} style={{ padding: '6px 12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Save</button>
+                      <button onClick={handleEditProvinceCancel} style={{ padding: '6px 12px', background: '#3a4256', color: '#cfd8e3', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
+                    </div>
+                  </>
+                  : province.districts.map((district, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        padding: '10px 12px',
+                        background: colors.inputBg,
+                        borderRadius: '6px',
+                        color: colors.textPrimary,
+                        fontSize: '14px'
+                      }}
+                    >
+                      {district}
+                    </div>
+                  ))}
               </div>
             </div>
           ))}

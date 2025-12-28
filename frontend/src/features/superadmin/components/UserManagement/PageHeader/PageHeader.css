@@ -1,28 +1,70 @@
+/**
+ * Page Header - Mobile-First Responsive
+ * Mobile: Stacked title and button
+ * Tablet+: Flex row layout
+ */
+
 .user-management-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: stretch;
+  margin-bottom: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .user-management-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
 }
 
 .user-management-header__title {
-  font-size: 24px;
+  font-size: 1.25rem;
   font-weight: 600;
+  line-height: 1.3;
+}
+
+@media (min-width: 768px) {
+  .user-management-header__title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .user-management-header__title {
+    font-size: 1.75rem;
+  }
 }
 
 .user-management-header__add-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.25rem;
   background: #10b981;
   color: #fff;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 0.9375rem;
   font-weight: 500;
   transition: all 0.2s ease;
+  min-height: 44px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .user-management-header__add-btn {
+    width: auto;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    min-height: auto;
+  }
 }
 
 .user-management-header__add-btn:hover {

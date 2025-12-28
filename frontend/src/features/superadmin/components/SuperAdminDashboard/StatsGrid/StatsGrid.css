@@ -1,12 +1,31 @@
+/**
+ * SuperAdmin Stats Grid - Mobile-First Responsive
+ * Optimized for 3 stat cards
+ * Breakpoints: < 768px (mobile), 768px-1024px (tablet), > 1024px (desktop)
+ */
+
 .superadmin-stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  margin-bottom: 32px;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
 }
 
-@media (max-width: 768px) {
+/* Tablet: 2 columns (3rd card wraps to next row) */
+@media (min-width: 768px) {
   .superadmin-stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+}
+
+/* Desktop: 3 columns for perfect layout with 3 cards */
+@media (min-width: 1024px) {
+  .superadmin-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
   }
 }

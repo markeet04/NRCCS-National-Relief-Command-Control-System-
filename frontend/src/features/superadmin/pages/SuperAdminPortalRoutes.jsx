@@ -1,20 +1,19 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { 
-  SuperAdminDashboard, 
-  UserManagement, 
+import {
+  SuperAdminDashboard,
   ProvinceManagement,
-  SystemStats, 
-  ManageAlerts, 
-  ManageResources, 
-  ManageShelters, 
-  AuditLogs 
+  SystemStats,
+  ManageAlerts,
+  ManageResources,
+  ManageShelters,
+  AuditLogs
 } from '.';
 
 const SuperAdminPortalRoutes = () => (
   <Routes>
     <Route path="" element={<SuperAdminDashboard />} />
-    <Route path="users" element={<UserManagement />} />
+    {/* User Management is now integrated into the main dashboard */}
     <Route path="provinces" element={<ProvinceManagement />} />
     <Route path="stats" element={<SystemStats />} />
     <Route path="alerts" element={<ManageAlerts />} />
