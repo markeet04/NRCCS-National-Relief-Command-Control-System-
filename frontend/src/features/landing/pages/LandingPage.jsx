@@ -1,7 +1,12 @@
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@app/providers/AuthProvider';
+
+// localStorage keys for remember me functionality
+const REMEMBER_ME_KEY = 'nrccs_remember_me';
+const REMEMBERED_EMAIL_KEY = 'nrccs_remembered_email';
+const REMEMBERED_ROLE_KEY = 'nrccs_remembered_role';
 
 
 const LandingPage = () => {
@@ -24,6 +29,18 @@ const LandingPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [loginError, setLoginError] = useState('');
+
+  // Load remembered credentials on mount
+  useEffect(() => {
+    const wasRemembered = localStorage.getItem(REMEMBER_ME_KEY) === 'true';
+    if (wasRemembered) {
+      const savedEmail = localStorage.getItem(REMEMBERED_EMAIL_KEY) || '';
+      const savedRole = localStorage.getItem(REMEMBERED_ROLE_KEY) || '';
+      setUsername(savedEmail);
+      setSelectedRole(savedRole);
+      setRememberMe(true);
+    }
+  }, []);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const handleCitizenPortal = () => {
@@ -68,6 +85,17 @@ const LandingPage = () => {
         }
 
         console.log('[LandingPage] Login successful, navigating to:', `/${selectedRole}`);
+
+        // Handle remember me - save or clear credentials
+        if (rememberMe) {
+          localStorage.setItem(REMEMBER_ME_KEY, 'true');
+          localStorage.setItem(REMEMBERED_EMAIL_KEY, username);
+          localStorage.setItem(REMEMBERED_ROLE_KEY, selectedRole);
+        } else {
+          localStorage.removeItem(REMEMBER_ME_KEY);
+          localStorage.removeItem(REMEMBERED_EMAIL_KEY);
+          localStorage.removeItem(REMEMBERED_ROLE_KEY);
+        }
 
         // Close modal
         setShowLoginModal(false);
