@@ -56,15 +56,6 @@ export const transformStatsForUI = (apiStats) => {
       trendDirection: null,
       gradientKey: STAT_GRADIENT_KEYS.warning,
     },
-    {
-      title: 'DAMAGE REPORTS',
-      value: apiStats.damageReports?.toString() || '0',
-      icon: FileText,
-      trend: null,
-      trendLabel: null,
-      trendDirection: null,
-      gradientKey: STAT_GRADIENT_KEYS.default,
-    },
   ];
 };
 

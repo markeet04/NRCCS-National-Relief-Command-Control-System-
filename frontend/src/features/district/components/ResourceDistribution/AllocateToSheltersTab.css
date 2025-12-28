@@ -216,6 +216,7 @@
 .district-allocate-priority-option.priority-low {
   border-color: #334155;
 }
+
 .district-allocate-priority-option.priority-low.active {
   background: #475569;
   border-color: #475569;
@@ -225,6 +226,7 @@
 .district-allocate-priority-option.priority-normal {
   border-color: #334155;
 }
+
 .district-allocate-priority-option.priority-normal.active {
   background: #22c55e;
   border-color: #22c55e;
@@ -234,6 +236,7 @@
 .district-allocate-priority-option.priority-high {
   border-color: #334155;
 }
+
 .district-allocate-priority-option.priority-high.active {
   background: #f97316;
   border-color: #f97316;
@@ -243,6 +246,7 @@
 .district-allocate-priority-option.priority-critical {
   border-color: #334155;
 }
+
 .district-allocate-priority-option.priority-critical.active {
   background: #dc2626;
   border-color: #dc2626;

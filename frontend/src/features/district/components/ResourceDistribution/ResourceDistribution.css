@@ -45,14 +45,37 @@
     transform: translateY(-2px);
 }
 
-.district-stat-card:nth-child(1) { border-left-color: #3b82f6; }
-.district-stat-card:nth-child(1):hover { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(59, 130, 246, 0.2); }
-.district-stat-card:nth-child(2) { border-left-color: #22c55e; }
-.district-stat-card:nth-child(2):hover { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(34, 197, 94, 0.2); }
-.district-stat-card:nth-child(3) { border-left-color: #f59e0b; }
-.district-stat-card:nth-child(3):hover { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(245, 158, 11, 0.2); }
-.district-stat-card:nth-child(4) { border-left-color: #ef4444; }
-.district-stat-card:nth-child(4):hover { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(239, 68, 68, 0.2); }
+.district-stat-card:nth-child(1) {
+    border-left-color: #3b82f6;
+}
+
+.district-stat-card:nth-child(1):hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(59, 130, 246, 0.2);
+}
+
+.district-stat-card:nth-child(2) {
+    border-left-color: #22c55e;
+}
+
+.district-stat-card:nth-child(2):hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(34, 197, 94, 0.2);
+}
+
+.district-stat-card:nth-child(3) {
+    border-left-color: #f59e0b;
+}
+
+.district-stat-card:nth-child(3):hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(245, 158, 11, 0.2);
+}
+
+.district-stat-card:nth-child(4) {
+    border-left-color: #ef4444;
+}
+
+.district-stat-card:nth-child(4):hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), -2px 0 15px rgba(239, 68, 68, 0.2);
+}
 
 .district-stat-header {
     display: flex;

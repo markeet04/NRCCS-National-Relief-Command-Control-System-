@@ -16,7 +16,8 @@ import {
   DistrictRequestsSection,
   DistrictStockTab,
   AllocateResourcesTab,
-  ResourceHistoryModal
+  ResourceHistoryModal,
+  ProvincialStockTab,
 } from '../components';
 import { useResourceDistributionState } from '../hooks';
 import {
@@ -27,6 +28,9 @@ import {
 } from '../utils';
 import '../styles/resource-distribution.css';
 import '@styles/css/main.css';
+// Import NDMA styles for stock cards
+import '@features/ndma/styles/resource-allocation.css';
+
 
 const ResourceDistribution = () => {
   // Get authenticated user
@@ -342,18 +346,12 @@ const ResourceDistribution = () => {
 
         {/* Section Content */}
         {activeTab === 'provincial' && (
-          <div className="pdma-stock-section">
-            {/* Resource Stock Grid - NDMA Style Cards */}
-            <div className="pdma-stock-grid">
-              {filteredResources.map((resource) => (
-                <ResourceStockCard
-                  key={resource.id}
-                  resource={resource}
-                  onAllocate={handleOpenAllocateForm}
-                  onViewHistory={handleViewHistory}
-                />
-              ))}
-            </div>
+          <div className="pdma-stock-section" style={{ marginTop: '16px' }}>
+            {/* NDMA-style Provincial Stock Grid */}
+            <ProvincialStockTab
+              provincialStock={filteredResources}
+              onViewHistory={handleViewHistory}
+            />
           </div>
         )}
         {activeTab === 'district' && (

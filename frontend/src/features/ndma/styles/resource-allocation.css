@@ -3401,6 +3401,125 @@
 }
 
 /* ============================================================================
+   NATIONAL STOCK CARD - LIGHT MODE
+   ============================================================================ */
+
+[data-theme="light"] .national-stock-section {
+  background-color: transparent !important;
+}
+
+[data-theme="light"] .national-stock-card {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .national-stock-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .national-stock-title {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .national-stock-percentage {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .national-stock-percentage-label {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .national-stock-stats {
+  background-color: #f8fafc !important;
+}
+
+[data-theme="light"] .national-stock-stat-label {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .national-stock-stat-value {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .national-stock-stat-unit {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .national-stock-history-btn {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .national-stock-history-btn:hover {
+  background-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+/* ============================================================================
+   DISTRICT RESOURCE CARD V2 - LIGHT MODE
+   ============================================================================ */
+
+[data-theme="light"] .district-resource-card-v2 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .district-resource-card-v2:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .district-resource-card-v2 .district-card-name {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .district-resource-card-v2 .district-card-location {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .district-resource-card-v2 .district-gauge-label {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .district-resource-card-v2 .district-gauge-sublabel {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .district-resource-card-v2 .district-resource-item {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .district-resource-card-v2 .district-resource-label {
+  color: #374151 !important;
+}
+
+[data-theme="light"] .district-resource-card-v2 .district-resource-percentage {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .district-resource-card-v2 .district-resource-value {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .district-resource-card-v2 .district-resource-progress-bg {
+  background-color: #e5e7eb !important;
+}
+
+[data-theme="light"] .district-resource-card-v2 .view-history-btn {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .district-resource-card-v2 .view-history-btn:hover {
+  background-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+/* ============================================================================
    ADD RESOURCES BUTTON
    ============================================================================ */
 .resources-add-btn {

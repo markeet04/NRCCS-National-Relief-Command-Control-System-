@@ -21,6 +21,8 @@ export { default as DistrictStockTab } from './ResourceDistribution/DistrictStoc
 export { default as DistrictResourceCardV2 } from './ResourceDistribution/DistrictResourceCardV2';
 export { default as CircularResourceGauge } from './ResourceDistribution/CircularResourceGauge';
 export { default as AllocateResourcesTab } from './ResourceDistribution/AllocateResourcesTab';
+export { default as ProvincialStockCard } from './ResourceDistribution/ProvincialStockCard';
+export { default as ProvincialStockTab } from './ResourceDistribution/ProvincialStockTab';
 
 // DistrictCoordination components
 export { default as DistrictSearchBar } from './DistrictCoordination/SearchBar';

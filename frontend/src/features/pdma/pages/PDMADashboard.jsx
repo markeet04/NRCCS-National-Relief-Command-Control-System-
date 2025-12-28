@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { useMemo } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { MapContainer as SharedMapContainer } from '@shared/components/dashboard';
@@ -15,7 +16,6 @@ import {
 import {
   StatisticsSection,
   AlertsSection,
-  DistrictStatusSection,
   FloodMapSection
 } from '../components';
 import { usePDMADashboardState } from '../hooks';
@@ -25,6 +25,7 @@ import {
   transformDistrictsForDashboard
 } from '../utils';
 import '@styles/css/main.css';
+import '@features/ndma/styles/national-dashboard.css'; // Import NDMA styles for stat cards
 
 /**
  * PDMADashboard Component
@@ -60,7 +61,7 @@ const PDMADashboard = () => {
     error,
   } = usePDMADashboardState();
 
-  const provinceName = 'Sindh'; // This would come from auth context
+  const provinceName = user?.provinceName || 'Province';
 
   // Theme support
   const { theme } = useSettings();
@@ -124,33 +125,24 @@ const PDMADashboard = () => {
         {/* Main Content */}
         {!loading && !error && (
           <>
-            {/* Statistics Section */}
+            {/* Statistics Section - NDMA Style Cards */}
             <StatisticsSection stats={stats} colors={colors} />
 
-            {/* Alerts and District Status Section */}
-            <div
-              className="grid grid-cols-1 lg:grid-cols-5"
-              style={{ gap: '20px', marginBottom: '24px' }}
-            >
-              <div className="lg:col-span-3">
+            {/* Map and Alerts Section - Map on left, Alerts column on right */}
+            <div className="national-main-grid" style={{ marginBottom: '24px' }}>
+              {/* Flood Map Section - Left Side */}
+              <FloodMapSection provinceName={provinceName} colors={colors} isLight={isLight} />
+
+              {/* Alerts Section - Right Side Column */}
+              <div className="national-sidebar">
                 <AlertsSection
                   alerts={alerts}
                   colors={colors}
                   isLight={isLight}
-                  onResolveAlert={handleResolveAlert}
-                />
-              </div>
-              <div className="lg:col-span-2">
-                <DistrictStatusSection
-                  districts={districts}
-                  colors={colors}
-                  isLight={isLight}
+                  showAllAlerts={true}
                 />
               </div>
             </div>
-
-            {/* Flood Map Section */}
-            <FloodMapSection provinceName={provinceName} colors={colors} isLight={isLight} />
           </>
         )}
       </div>
