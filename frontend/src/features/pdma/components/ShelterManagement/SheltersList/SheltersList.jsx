@@ -5,9 +5,6 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) =>
     <div
       className="shelter-cards-grid"
       style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))',
-        gap: '1rem',
         marginBottom: '1.25rem'
       }}>
       {shelters.map((shelter, index) => {

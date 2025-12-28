@@ -2,12 +2,11 @@ import { Users, AlertTriangle, Activity } from 'lucide-react';
 
 const DistrictsList = ({ districts, selectedDistrict, onSelectDistrict, colors }) => {
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-      gap: '16px',
-      marginBottom: '20px'
-    }}>
+    <div
+      className="districts-cards-grid"
+      style={{
+        marginBottom: '20px'
+      }}>
       {districts.map((district, index) => {
         // Rotating colors like stats cards: blue, green, amber, red
         const borderColors = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444'];

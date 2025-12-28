@@ -6,7 +6,7 @@
 
 .pdma-container {
   width: 100%;
-  max-width: 1600px;
+  max-width: 100%;
 }
 
 .pdma-section {
@@ -738,9 +738,29 @@
 
 /* Shelter cards grid */
 .shelter-cards-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+  gap: 1.5rem !important;
+  width: 100% !important;
+  isolation: isolate;
+}
+
+.shelter-cards-grid .shelter-card {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: visible;
+  box-sizing: border-box !important;
+}
+
+/* Districts cards grid */
+.districts-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  isolation: isolate;
 }
 
 @media (max-width: 767px) {
