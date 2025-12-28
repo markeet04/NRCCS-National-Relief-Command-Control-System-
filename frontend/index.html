@@ -5,6 +5,21 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>frontend</title>
+    <!-- Load theme from localStorage before React renders to prevent flash -->
+    <script>
+      (function() {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        const savedFontSize = localStorage.getItem('fontSize') || 'medium';
+        const fontSizePx = { small: '14px', medium: '16px', large: '18px' };
+        const fontScale = { small: 0.875, medium: 1, large: 1.125 };
+        
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.documentElement.setAttribute('data-font-size', savedFontSize);
+        document.documentElement.setAttribute('data-fontsize', savedFontSize);
+        document.documentElement.style.setProperty('--font-scale', fontScale[savedFontSize] || 1);
+        document.documentElement.style.setProperty('font-size', fontSizePx[savedFontSize] || '16px', 'important');
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

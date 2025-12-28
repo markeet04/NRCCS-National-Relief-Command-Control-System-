@@ -40,7 +40,7 @@ export const SUPERADMIN_MENU_ITEMS = [
 
 
 // Get menu items by role
-export const getMenuItemsByRole = (role, badgeCount = 0, provincialRequestsCount = 0) => {
+export const getMenuItemsByRole = (role, badgeCount = 0, provincialRequestsCount = 0, districtRequestsCount = 0) => {
   const menuMap = {
     ndma: NDMA_MENU_ITEMS.map(item => {
       if (item.route === 'alerts') {
@@ -51,7 +51,12 @@ export const getMenuItemsByRole = (role, badgeCount = 0, provincialRequestsCount
       }
       return item;
     }),
-    pdma: PDMA_MENU_ITEMS,
+    pdma: PDMA_MENU_ITEMS.map(item => {
+      if (item.route === 'resources') {
+        return { ...item, badge: districtRequestsCount || undefined };
+      }
+      return item;
+    }),
     district: DISTRICT_MENU_ITEMS,
     superadmin: SUPERADMIN_MENU_ITEMS,
   };

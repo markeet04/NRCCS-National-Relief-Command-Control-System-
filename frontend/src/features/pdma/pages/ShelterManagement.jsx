@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
-import { Home } from 'lucide-react';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { getMenuItemsByRole } from '@shared/constants/dashboardConfig';
@@ -11,7 +10,7 @@ import {
   SheltersList,
   ShelterStats
 } from '../components';
-import { useShelterManagementState } from '../hooks';
+import { useShelterManagementState, usePendingRequestsCount } from '../hooks';
 import { transformSheltersForUI } from '../utils';
 import '@styles/css/main.css';
 
@@ -19,6 +18,9 @@ const ShelterManagement = () => {
   // Get authenticated user
   const { user } = useAuth();
   const userName = user?.name || user?.username || 'PDMA User';
+
+  // Get pending district requests count for badge
+  const { pendingCount } = usePendingRequestsCount();
 
   // Use custom hook for shelter management state
   const {
@@ -39,8 +41,8 @@ const ShelterManagement = () => {
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
 
-  // Get menu items from shared config
-  const menuItems = useMemo(() => getMenuItemsByRole('pdma'), []);
+  // Get menu items from shared config with pending requests badge
+  const menuItems = useMemo(() => getMenuItemsByRole('pdma', 0, 0, pendingCount), [pendingCount]);
 
   // Transform backend data to UI format
   const shelters = transformSheltersForUI(apiShelters);
@@ -56,8 +58,6 @@ const ShelterManagement = () => {
       onNavigate={setActiveRoute}
       pageTitle="Shelters"
       pageSubtitle="Emergency shelter management"
-      pageIcon={Home}
-      pageIconColor="#8b5cf6"
       userRole="pdma"
       userName={userName}
     >

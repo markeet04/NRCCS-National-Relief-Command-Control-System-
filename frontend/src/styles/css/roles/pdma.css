@@ -816,97 +816,335 @@
 
 /* ============================================================================
    LIGHT MODE OVERRIDES - PDMA Dashboard
+   Matching NDMA dashboard light mode styling
    ============================================================================ */
 
 [data-theme="light"] .pdma-container {
   background-color: transparent !important;
 }
 
-/* PDMA Cards */
+/* =========================
+   PDMA Cards - Enhanced Light Mode
+   ========================= */
 [data-theme="light"] .pdma-card {
   background-color: #ffffff !important;
-  border-color: #e2e8f0 !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  background-image: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%) !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+  transition: all 0.25s ease !important;
 }
 
 [data-theme="light"] .pdma-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  background-color: #fafbfd !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-2px) !important;
+  border-color: #c6f6d5 !important;
 }
 
 [data-theme="light"] .pdma-card-header {
-  border-bottom-color: #e2e8f0 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  background-color: #f7f9fc !important;
+  padding: 1rem 1.25rem !important;
+  border-radius: 12px 12px 0 0 !important;
 }
 
 /* PDMA Section titles */
 [data-theme="light"] .pdma-section-title-text {
-  color: #1e293b !important;
+  color: #1a365d !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) !important;
 }
 
-/* PDMA Alerts */
+/* =========================
+   PDMA Stat Cards - Enhanced Light Mode
+   ========================= */
+[data-theme="light"] .pdma-stat-card,
+[data-theme="light"] .pdma-stock-card,
+[data-theme="light"] .national-stat-card {
+  background-color: #ffffff !important;
+  background-image: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%) !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="light"] .pdma-stat-card:hover,
+[data-theme="light"] .pdma-stock-card:hover,
+[data-theme="light"] .national-stat-card:hover {
+  background-color: #fafbfd !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-2px) !important;
+  border-color: #c6f6d5 !important;
+}
+
+/* =========================
+   PDMA Left Border Accents - Light Mode
+   ========================= */
+[data-theme="light"] .pdma-card.border-left-red,
+[data-theme="light"] .pdma-stat-card.border-left-red {
+  border-left: 4px solid #e53e3e !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), -3px 0 12px -2px rgba(229, 62, 62, 0.15) !important;
+}
+
+[data-theme="light"] .pdma-card.border-left-green,
+[data-theme="light"] .pdma-stat-card.border-left-green {
+  border-left: 4px solid #48bb78 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), -3px 0 12px -2px rgba(72, 187, 120, 0.15) !important;
+}
+
+[data-theme="light"] .pdma-card.border-left-blue,
+[data-theme="light"] .pdma-stat-card.border-left-blue {
+  border-left: 4px solid #4299e1 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), -3px 0 12px -2px rgba(66, 153, 225, 0.15) !important;
+}
+
+[data-theme="light"] .pdma-card.border-left-purple,
+[data-theme="light"] .pdma-stat-card.border-left-purple {
+  border-left: 4px solid #9f7aea !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), -3px 0 12px -2px rgba(159, 122, 234, 0.15) !important;
+}
+
+[data-theme="light"] .pdma-card.border-left-cyan,
+[data-theme="light"] .pdma-stat-card.border-left-cyan {
+  border-left: 4px solid #38b2ac !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), -3px 0 12px -2px rgba(56, 178, 172, 0.15) !important;
+}
+
+[data-theme="light"] .pdma-card.border-left-orange,
+[data-theme="light"] .pdma-stat-card.border-left-orange {
+  border-left: 4px solid #ed8936 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), -3px 0 12px -2px rgba(237, 137, 54, 0.15) !important;
+}
+
+[data-theme="light"] .pdma-card.border-left-yellow,
+[data-theme="light"] .pdma-stat-card.border-left-yellow {
+  border-left: 4px solid #ecc94b !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), -3px 0 12px -2px rgba(236, 201, 75, 0.15) !important;
+}
+
+/* =========================
+   PDMA Typography - Light Mode
+   ========================= */
+[data-theme="light"] .pdma-stat-value,
+[data-theme="light"] .pdma-stock-stat-value,
+[data-theme="light"] .pdma-stock-card-title,
+[data-theme="light"] .pdma-stock-percentage,
+[data-theme="light"] .national-stat-card-value {
+  color: #1a202c !important;
+}
+
+[data-theme="light"] .pdma-stat-label,
+[data-theme="light"] .pdma-stock-stat-label,
+[data-theme="light"] .national-stat-card-label {
+  color: #718096 !important;
+}
+
+[data-theme="light"] .pdma-stat-value-container,
+[data-theme="light"] .pdma-stock-stats {
+  background-color: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+/* =========================
+   PDMA Alerts - Light Mode
+   ========================= */
 [data-theme="light"] .pdma-alert-item {
   background-color: #ffffff !important;
-  border-color: #e2e8f0 !important;
+  background-image: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%) !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
 }
 
 [data-theme="light"] .pdma-alert-item:hover {
-  background-color: #f8fafc !important;
+  background-color: #f0f7f4 !important;
+  border-color: #c6f6d5 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
 }
 
 [data-theme="light"] .pdma-alert-item-title {
-  color: #1e293b !important;
+  color: #1a202c !important;
 }
 
 [data-theme="light"] .pdma-alert-item-description {
-  color: #475569 !important;
+  color: #4a5568 !important;
 }
 
-/* PDMA Tables */
+/* =========================
+   PDMA Tables - Light Mode
+   ========================= */
+[data-theme="light"] .pdma-table-container {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
 [data-theme="light"] .pdma-table th {
-  background-color: #f1f5f9 !important;
-  color: #64748b !important;
+  background: linear-gradient(180deg, #f7f9fc 0%, #edf2f7 100%) !important;
+  color: #4a5568 !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
 }
 
 [data-theme="light"] .pdma-table td {
-  color: #1e293b !important;
-  border-color: #e2e8f0 !important;
+  color: #1a202c !important;
+  border-color: #edf2f7 !important;
+}
+
+[data-theme="light"] .pdma-table tr:nth-child(even) {
+  background-color: #fafbfc !important;
 }
 
 [data-theme="light"] .pdma-table tr:hover {
-  background-color: #f8fafc !important;
+  background-color: rgba(72, 187, 120, 0.08) !important;
 }
 
-/* PDMA List items */
+/* =========================
+   PDMA List items - Light Mode
+   ========================= */
 [data-theme="light"] .pdma-list-item {
   background-color: #ffffff !important;
-  border-color: #e2e8f0 !important;
+  background-image: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%) !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
 }
 
 [data-theme="light"] .pdma-list-item:hover {
-  background-color: #f8fafc !important;
+  background-color: #f0f7f4 !important;
+  border-color: #c6f6d5 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
 }
 
 [data-theme="light"] .pdma-list-item-title {
-  color: #1e293b !important;
+  color: #1a202c !important;
 }
 
 [data-theme="light"] .pdma-list-item-subtitle {
-  color: #64748b !important;
+  color: #718096 !important;
 }
 
-/* PDMA Activity items */
+/* =========================
+   PDMA Activity items - Light Mode
+   ========================= */
 [data-theme="light"] .pdma-activity-item {
   background-color: #ffffff !important;
-  border-color: #e2e8f0 !important;
+  border: 1px solid #e2e8f0 !important;
 }
 
 [data-theme="light"] .pdma-activity-item-title {
-  color: #1e293b !important;
+  color: #1a202c !important;
 }
 
 [data-theme="light"] .pdma-activity-item-description {
-  color: #475569 !important;
+  color: #4a5568 !important;
 }
 
 [data-theme="light"] .pdma-activity-item-time {
-  color: #94a3b8 !important;
+  color: #a0aec0 !important;
+}
+
+/* =========================
+   PDMA Badges - Light Mode
+   ========================= */
+[data-theme="light"] .pdma-stock-badge.status-adequate,
+[data-theme="light"] .pdma-badge-adequate {
+  background-color: rgba(72, 187, 120, 0.12) !important;
+  color: #276749 !important;
+  border: 1px solid rgba(72, 187, 120, 0.2) !important;
+}
+
+[data-theme="light"] .pdma-stock-badge.status-moderate,
+[data-theme="light"] .pdma-badge-moderate {
+  background-color: rgba(236, 201, 75, 0.12) !important;
+  color: #975a16 !important;
+  border: 1px solid rgba(236, 201, 75, 0.2) !important;
+}
+
+[data-theme="light"] .pdma-stock-badge.status-low,
+[data-theme="light"] .pdma-badge-low {
+  background-color: rgba(237, 137, 54, 0.12) !important;
+  color: #c05621 !important;
+  border: 1px solid rgba(237, 137, 54, 0.2) !important;
+}
+
+[data-theme="light"] .pdma-stock-badge.status-critical,
+[data-theme="light"] .pdma-badge-critical {
+  background-color: rgba(252, 129, 129, 0.12) !important;
+  color: #c53030 !important;
+  border: 1px solid rgba(252, 129, 129, 0.2) !important;
+}
+
+/* =========================
+   PDMA Buttons - Light Mode
+   ========================= */
+[data-theme="light"] .pdma-stock-history-btn {
+  background-color: #f7f9fc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #4a5568 !important;
+}
+
+[data-theme="light"] .pdma-stock-history-btn:hover {
+  background-color: rgba(72, 187, 120, 0.08) !important;
+  border-color: #c6f6d5 !important;
+  color: #276749 !important;
+}
+
+[data-theme="light"] .pdma-stock-allocate-btn {
+  background: linear-gradient(180deg, #48bb78 0%, #38a169 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 2px 4px rgba(72, 187, 120, 0.25) !important;
+}
+
+[data-theme="light"] .pdma-stock-allocate-btn:hover {
+  background: linear-gradient(180deg, #68d391 0%, #48bb78 100%) !important;
+  box-shadow: 0 4px 12px rgba(72, 187, 120, 0.35) !important;
+}
+
+/* =========================
+   PDMA Tabs - Light Mode
+   ========================= */
+[data-theme="light"] .pdma-tabs {
+  border-bottom: 2px solid #e2e8f0 !important;
+  background-color: #f7f9fc !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+[data-theme="light"] .pdma-tab {
+  color: #718096 !important;
+}
+
+[data-theme="light"] .pdma-tab:hover {
+  color: #4a5568 !important;
+  background-color: rgba(72, 187, 120, 0.05) !important;
+}
+
+[data-theme="light"] .pdma-tab-active,
+[data-theme="light"] .pdma-tab.active {
+  color: #276749 !important;
+  border-bottom: 2px solid #48bb78 !important;
+  background-color: #ffffff !important;
+}
+
+/* =========================
+   PDMA Inputs - Light Mode
+   ========================= */
+[data-theme="light"] .pdma-input,
+[data-theme="light"] .pdma-search-input {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #1a202c !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .pdma-input:focus,
+[data-theme="light"] .pdma-search-input:focus {
+  border-color: #48bb78 !important;
+  box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .pdma-search-input::placeholder {
+  color: #a0aec0 !important;
 }

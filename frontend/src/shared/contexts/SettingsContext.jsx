@@ -11,9 +11,25 @@ export const useSettings = () => {
   return context;
 };
 
+// Helper to get initial theme from localStorage (runs synchronously)
+const getInitialTheme = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('theme') || 'dark';
+  }
+  return 'dark';
+};
+
+// Helper to get initial font size from localStorage (runs synchronously)
+const getInitialFontSize = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('fontSize') || 'medium';
+  }
+  return 'medium';
+};
+
 export const SettingsProvider = ({ children }) => {
-  const [theme, setTheme] = useState('dark');
-  const [fontSize, setFontSize] = useState('medium');
+  const [theme, setTheme] = useState(getInitialTheme);
+  const [fontSize, setFontSize] = useState(getInitialFontSize);
 
   const fontScaleMap = {
     small: 0.9,
@@ -21,15 +37,7 @@ export const SettingsProvider = ({ children }) => {
     large: 1.1,
   };
 
-  // Load settings from localStorage on mount
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    const savedFontSize = localStorage.getItem('fontSize') || 'medium';
-    setTheme(savedTheme);
-    setFontSize(savedFontSize);
-  }, []);
-
-  // Save theme to localStorage
+  // Save theme to localStorage and apply to DOM
   useEffect(() => {
     localStorage.setItem('theme', theme);
     document.documentElement.setAttribute('data-theme', theme);

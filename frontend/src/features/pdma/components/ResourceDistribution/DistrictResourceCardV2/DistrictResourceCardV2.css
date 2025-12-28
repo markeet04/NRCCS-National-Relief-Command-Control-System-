@@ -249,22 +249,35 @@
 }
 
 /* ============================================================================
-   LIGHT MODE OVERRIDES
+   LIGHT MODE OVERRIDES - Enhanced to match NDMA style
    ============================================================================ */
 
 [data-theme="light"] .district-card-v2 {
   background-color: #ffffff !important;
-  border-color: #e2e8f0 !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-image: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%) !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+  transition: all 0.25s ease !important;
+}
+
+[data-theme="light"] .district-card-v2::before {
+  opacity: 0.8 !important;
 }
 
 [data-theme="light"] .district-card-v2:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  border-color: #d1d5db !important;
+  background-color: #fafbfd !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+  border-color: #c6f6d5 !important;
+  transform: translateY(-2px) !important;
 }
 
 [data-theme="light"] .district-card-v2-title {
-  color: #1e293b !important;
+  color: #1a202c !important;
+}
+
+[data-theme="light"] .district-card-v2-icon {
+  color: #38a169 !important;
 }
 
 [data-theme="light"] .district-main-gauge-v2 .main-gauge-track {
@@ -272,23 +285,25 @@
 }
 
 [data-theme="light"] .district-main-gauge-label {
-  color: #64748b !important;
+  color: #718096 !important;
 }
 
 [data-theme="light"] .district-card-v2-resources {
   border-top-color: #e2e8f0 !important;
+  background-color: #f7f9fc !important;
+  border-radius: 8px !important;
 }
 
 [data-theme="light"] .district-resource-row-label {
-  color: #64748b !important;
+  color: #718096 !important;
 }
 
 [data-theme="light"] .district-resource-row-value {
-  color: #1e293b !important;
+  color: #1a202c !important;
 }
 
 [data-theme="light"] .district-resource-row-unit {
-  color: #94a3b8 !important;
+  color: #a0aec0 !important;
 }
 
 [data-theme="light"] .district-card-v2-actions {
@@ -296,15 +311,40 @@
 }
 
 [data-theme="light"] .district-card-v2-history-btn {
-  background-color: #f1f5f9 !important;
-  border-color: #e2e8f0 !important;
-  color: #475569 !important;
+  background-color: #f7f9fc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #4a5568 !important;
 }
 
 [data-theme="light"] .district-card-v2-history-btn:hover {
-  background-color: rgba(34, 197, 94, 0.1) !important;
-  border-color: rgba(34, 197, 94, 0.3) !important;
-  color: #16a34a !important;
+  background-color: rgba(72, 187, 120, 0.08) !important;
+  border-color: #c6f6d5 !important;
+  color: #276749 !important;
+}
+
+/* District Badges - Light Mode */
+[data-theme="light"] .district-badge-adequate {
+  background: rgba(72, 187, 120, 0.12) !important;
+  color: #276749 !important;
+  border: 1px solid rgba(72, 187, 120, 0.2) !important;
+}
+
+[data-theme="light"] .district-badge-moderate {
+  background: rgba(236, 201, 75, 0.12) !important;
+  color: #975a16 !important;
+  border: 1px solid rgba(236, 201, 75, 0.2) !important;
+}
+
+[data-theme="light"] .district-badge-low {
+  background: rgba(237, 137, 54, 0.12) !important;
+  color: #c05621 !important;
+  border: 1px solid rgba(237, 137, 54, 0.2) !important;
+}
+
+[data-theme="light"] .district-badge-critical {
+  background: rgba(252, 129, 129, 0.12) !important;
+  color: #c53030 !important;
+  border: 1px solid rgba(252, 129, 129, 0.2) !important;
 }
 
 /* Circular Gauge - Light mode */

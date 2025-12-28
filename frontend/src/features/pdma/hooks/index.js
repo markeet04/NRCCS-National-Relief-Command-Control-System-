@@ -4,3 +4,4 @@ export { default as useResourceDistributionState } from './useResourceDistributi
 export { default as useDistrictCoordinationState } from './useDistrictCoordinationState';
 export { default as useShelterManagementState } from './useShelterManagementState';
 export { default as useProvincialMapState } from './useProvincialMapState';
+export { default as usePendingRequestsCount } from './usePendingRequestsCount';

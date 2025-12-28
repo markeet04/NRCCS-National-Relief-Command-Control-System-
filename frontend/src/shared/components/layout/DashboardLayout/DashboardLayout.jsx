@@ -52,13 +52,18 @@ const DashboardLayout = ({
   const menuItems = propMenuItems || [];
 
   // Enhance menu items with current badge counts
+  // ONLY apply context badges for NDMA role - PDMA pages provide their own badge counts
   const enhancedMenuItems = menuItems.map(item => {
-    if (item.route === 'alerts' && activeStatusCount > 0) {
-      return { ...item, badge: activeStatusCount };
+    // For NDMA: alerts get activeStatusCount, resources get provincialRequestsCount
+    if (userRole?.toLowerCase() === 'ndma') {
+      if (item.route === 'alerts' && activeStatusCount > 0) {
+        return { ...item, badge: activeStatusCount };
+      }
+      if (item.route === 'resources' && provincialRequestsCount > 0) {
+        return { ...item, badge: provincialRequestsCount };
+      }
     }
-    if (item.route === 'resources' && provincialRequestsCount > 0) {
-      return { ...item, badge: provincialRequestsCount };
-    }
+    // For other roles (PDMA, District), respect the badge passed via menuItems props
     return item;
   });
 

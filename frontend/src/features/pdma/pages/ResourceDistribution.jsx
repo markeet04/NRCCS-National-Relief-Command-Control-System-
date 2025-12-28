@@ -3,7 +3,7 @@ import { DashboardLayout } from '@shared/components/layout';
 import DemoModal from '@shared/components/DemoModal/DemoModal';
 import ResourceForm from '@shared/components/DemoModal/ResourceForm';
 import AllocateResourceForm from '@shared/components/DemoModal/AllocateResourceForm';
-import { Package, Loader2, Send, Plus } from 'lucide-react';
+import { Loader2, Send, Plus } from 'lucide-react';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
@@ -19,7 +19,7 @@ import {
   ResourceHistoryModal,
   ProvincialStockTab,
 } from '../components';
-import { useResourceDistributionState } from '../hooks';
+import { useResourceDistributionState, usePendingRequestsCount } from '../hooks';
 import {
   transformResourcesForUI,
   filterResourcesByStatus,
@@ -36,6 +36,9 @@ const ResourceDistribution = () => {
   // Get authenticated user
   const { user } = useAuth();
   const userName = user?.name || user?.username || 'PDMA User';
+
+  // Get pending district requests count for badge
+  const { pendingCount } = usePendingRequestsCount();
 
   // State for history modal
   const [historyResource, setHistoryResource] = useState(null);
@@ -110,7 +113,7 @@ const ResourceDistribution = () => {
 
   // Get role configuration and menu items from shared config
   const roleConfig = ROLE_CONFIG.pdma;
-  const menuItems = useMemo(() => getMenuItemsByRole('pdma'), []);
+  const menuItems = useMemo(() => getMenuItemsByRole('pdma', 0, 0, pendingCount), [pendingCount]);
 
   // Transform backend data to UI format
   const resources = transformResourcesForUI(apiResources);
@@ -249,8 +252,6 @@ const ResourceDistribution = () => {
         onNavigate={setActiveRoute}
         pageTitle="Resources"
         pageSubtitle="Provincial resource management"
-        pageIcon={Package}
-        pageIconColor="#22c55e"
         userRole="pdma"
         userName={userName}
       >
@@ -270,8 +271,6 @@ const ResourceDistribution = () => {
         onNavigate={setActiveRoute}
         pageTitle="Resources"
         pageSubtitle="Provincial resource management"
-        pageIcon={Package}
-        pageIconColor="#22c55e"
         userRole="pdma"
         userName={userName}
       >
@@ -294,8 +293,6 @@ const ResourceDistribution = () => {
       onNavigate={setActiveRoute}
       pageTitle="Resources"
       pageSubtitle="Provincial resource management"
-      pageIcon={Package}
-      pageIconColor="#22c55e"
       userRole="pdma"
       userName={userName}
     >

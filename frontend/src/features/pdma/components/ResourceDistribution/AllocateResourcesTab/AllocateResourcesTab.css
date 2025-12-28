@@ -447,7 +447,7 @@
 }
 
 /* ============================================================================
-   LIGHT MODE OVERRIDES
+   LIGHT MODE OVERRIDES - Enhanced to match NDMA style
    ============================================================================ */
 
 [data-theme="light"] .pdma-allocate-resources-section {
@@ -455,63 +455,71 @@
 }
 
 [data-theme="light"] .pdma-allocate-section-title {
-  color: #1e293b !important;
+  color: #1a365d !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) !important;
 }
 
 [data-theme="light"] .pdma-allocate-section-subtitle {
-  color: #64748b !important;
+  color: #718096 !important;
 }
 
 [data-theme="light"] .pdma-allocate-form-card {
   background-color: #ffffff !important;
-  border-color: #e2e8f0 !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-image: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%) !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="light"] .pdma-allocate-form-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
 }
 
 [data-theme="light"] .pdma-allocate-form-label {
-  color: #374151 !important;
+  color: #4a5568 !important;
 }
 
 [data-theme="light"] .pdma-allocate-form-select,
 [data-theme="light"] .pdma-allocate-form-input,
 [data-theme="light"] .pdma-allocate-form-textarea {
-  background-color: #f8fafc !important;
-  border-color: #d1d5db !important;
-  color: #1e293b !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #1a202c !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04) !important;
 }
 
 [data-theme="light"] .pdma-allocate-form-select:focus,
 [data-theme="light"] .pdma-allocate-form-input:focus,
 [data-theme="light"] .pdma-allocate-form-textarea:focus {
-  border-color: #22c55e !important;
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15) !important;
+  border-color: #48bb78 !important;
+  box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.04) !important;
 }
 
 [data-theme="light"] .pdma-allocate-form-select::placeholder,
 [data-theme="light"] .pdma-allocate-form-input::placeholder,
 [data-theme="light"] .pdma-allocate-form-textarea::placeholder {
-  color: #9ca3af !important;
+  color: #a0aec0 !important;
 }
 
 [data-theme="light"] .pdma-allocate-select-icon {
-  color: #6b7280 !important;
+  color: #718096 !important;
 }
 
 [data-theme="light"] .pdma-allocate-resource-option {
-  background-color: #f8fafc !important;
-  border-color: #e2e8f0 !important;
-  color: #475569 !important;
+  background-color: #f7f9fc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #4a5568 !important;
 }
 
 [data-theme="light"] .pdma-allocate-resource-option:hover {
-  background-color: rgba(34, 197, 94, 0.1) !important;
-  border-color: rgba(34, 197, 94, 0.3) !important;
+  background-color: rgba(72, 187, 120, 0.08) !important;
+  border-color: #c6f6d5 !important;
 }
 
 [data-theme="light"] .pdma-allocate-resource-option.active {
-  background-color: rgba(34, 197, 94, 0.15) !important;
-  border-color: #22c55e !important;
-  color: #16a34a !important;
+  background-color: rgba(72, 187, 120, 0.12) !important;
+  border-color: #48bb78 !important;
+  color: #276749 !important;
 }
 
 [data-theme="light"] .pdma-allocate-priority-option {

@@ -11,15 +11,18 @@ import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
 import { useAuth } from '@shared/hooks';
-import { Map, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import ProvincialWeatherMap from '../components/ProvincialMap/ProvincialWeatherMap/ProvincialWeatherMap';
-import { useProvincialMapState } from '../hooks';
+import { useProvincialMapState, usePendingRequestsCount } from '../hooks';
 import '@styles/css/main.css';
 
 const ProvincialMap = () => {
   // Get authenticated user
   const { user } = useAuth();
   const userName = user?.name || user?.username || 'PDMA User';
+
+  // Get pending district requests count for badge
+  const { pendingCount } = usePendingRequestsCount();
 
   const {
     activeRoute,
@@ -34,7 +37,7 @@ const ProvincialMap = () => {
   const colors = getThemeColors(isLight);
 
   const roleConfig = ROLE_CONFIG.pdma;
-  const menuItems = useMemo(() => getMenuItemsByRole('pdma'), []);
+  const menuItems = useMemo(() => getMenuItemsByRole('pdma', 0, 0, pendingCount), [pendingCount]);
 
   // Use backend data for flood zones
   const floodZones = mapData.zones || [];
@@ -50,8 +53,6 @@ const ProvincialMap = () => {
         onNavigate={setActiveRoute}
         pageTitle="Map"
         pageSubtitle="Flood risk monitoring"
-        pageIcon={Map}
-        pageIconColor="#3b82f6"
         userRole="pdma"
         userName={userName}
       >
@@ -71,8 +72,6 @@ const ProvincialMap = () => {
         onNavigate={setActiveRoute}
         pageTitle="Map"
         pageSubtitle="Flood risk monitoring"
-        pageIcon={Map}
-        pageIconColor="#3b82f6"
         userRole="pdma"
         userName={userName}
       >
@@ -95,8 +94,6 @@ const ProvincialMap = () => {
       onNavigate={setActiveRoute}
       pageTitle="Map"
       pageSubtitle="Flood risk monitoring and visualization"
-      pageIcon={Map}
-      pageIconColor="#10b981"
       userRole="pdma"
       userName={userName}
     >

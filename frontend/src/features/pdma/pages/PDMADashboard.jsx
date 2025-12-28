@@ -7,7 +7,6 @@ import AlertForm from '@shared/components/DemoModal/AlertForm';
 import ResourceForm from '@shared/components/DemoModal/ResourceForm';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
-import { Shield } from 'lucide-react';
 import { useAuth } from '@shared/hooks';
 import { PageLoader } from '@shared/components/ui';
 import {
@@ -19,7 +18,7 @@ import {
   AlertsSection,
   FloodMapSection
 } from '../components';
-import { usePDMADashboardState } from '../hooks';
+import { usePDMADashboardState, usePendingRequestsCount } from '../hooks';
 import {
   transformStatsForUI,
   transformAlertsForUI,
@@ -38,6 +37,9 @@ const PDMADashboard = () => {
   // Get authenticated user
   const { user } = useAuth();
   const userName = user?.name || user?.username || 'PDMA User';
+
+  // Get pending district requests count for badge
+  const { pendingCount } = usePendingRequestsCount();
 
   // Use custom hook for dashboard state management
   const {
@@ -72,8 +74,8 @@ const PDMADashboard = () => {
   // Get role configuration from shared config
   const roleConfig = ROLE_CONFIG.pdma;
 
-  // Get menu items from shared config
-  const menuItems = useMemo(() => getMenuItemsByRole('pdma'), []);
+  // Get menu items from shared config with pending requests badge
+  const menuItems = useMemo(() => getMenuItemsByRole('pdma', 0, 0, pendingCount), [pendingCount]);
 
   // Transform backend data to UI format
   const stats = transformStatsForUI(apiStats);
@@ -90,8 +92,6 @@ const PDMADashboard = () => {
       userName={userName}
       pageTitle="Dashboard"
       pageSubtitle="Provincial coordination and resource management"
-      pageIcon={Shield}
-      pageIconColor="#6366f1"
       notificationCount={alerts?.length || 0}
     >
       <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary }}>

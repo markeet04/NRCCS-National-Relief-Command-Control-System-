@@ -6,13 +6,12 @@ import { getThemeColors } from '@shared/utils/themeColors';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
 import { useAuth } from '@shared/hooks';
 import { PageLoader } from '@shared/components/ui';
-import { MapPin } from 'lucide-react';
 import {
   DistrictSearchBar,
   DistrictsList,
   DetailPanel
 } from '../components';
-import { useDistrictCoordinationState } from '../hooks';
+import { useDistrictCoordinationState, usePendingRequestsCount } from '../hooks';
 import { transformDistrictsForCoordination } from '../utils';
 import '@styles/css/main.css';
 
@@ -20,6 +19,9 @@ const DistrictCoordination = () => {
   // Get authenticated user
   const { user } = useAuth();
   const userName = user?.name || user?.username || 'PDMA User';
+
+  // Get pending district requests count for badge
+  const { pendingCount } = usePendingRequestsCount();
 
   // Use custom hook for district coordination state
   const {
@@ -41,9 +43,9 @@ const DistrictCoordination = () => {
   const isLight = theme === 'light';
   const colors = getThemeColors(isLight);
 
-  // Get role configuration and menu items from shared config
+  // Get role configuration and menu items from shared config with pending requests badge
   const roleConfig = ROLE_CONFIG.pdma;
-  const menuItems = useMemo(() => getMenuItemsByRole('pdma'), []);
+  const menuItems = useMemo(() => getMenuItemsByRole('pdma', 0, 0, pendingCount), [pendingCount]);
 
   // Transform backend data to UI format
   const districts = transformDistrictsForCoordination(apiDistricts);
@@ -58,8 +60,6 @@ const DistrictCoordination = () => {
       onNavigate={setActiveRoute}
       pageTitle="Districts"
       pageSubtitle="District coordination and oversight"
-      pageIcon={MapPin}
-      pageIconColor="#f59e0b"
       userRole="pdma"
       userName={userName}
     >

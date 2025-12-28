@@ -211,3 +211,97 @@
 .animate-spin {
     animation: spin 1s linear infinite;
 }
+
+/* ============================================================================
+   LIGHT MODE OVERRIDES - District Requests Section
+   ============================================================================ */
+[data-theme="light"] .district-requests-section {
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="light"] .section-header {
+    background-color: #f7f9fc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .section-header h3 {
+    color: #1a202c !important;
+}
+
+[data-theme="light"] .refresh-btn {
+    color: #4a5568 !important;
+}
+
+[data-theme="light"] .refresh-btn:hover {
+    background: rgba(72, 187, 120, 0.1) !important;
+    color: #276749 !important;
+}
+
+[data-theme="light"] .list-title {
+    color: #718096 !important;
+}
+
+[data-theme="light"] .request-card {
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .request-card:hover {
+    background-color: #f0f7f4 !important;
+    border-color: #c6f6d5 !important;
+}
+
+[data-theme="light"] .district-name {
+    color: #1a202c !important;
+}
+
+[data-theme="light"] .request-date {
+    color: #718096 !important;
+}
+
+[data-theme="light"] .item-row {
+    color: #4a5568 !important;
+}
+
+[data-theme="light"] .request-reason {
+    color: #718096 !important;
+}
+
+[data-theme="light"] .empty-state {
+    color: #718096 !important;
+}
+
+[data-theme="light"] .status-badge.approved {
+    background: rgba(72, 187, 120, 0.12) !important;
+    color: #276749 !important;
+    border: 1px solid rgba(72, 187, 120, 0.2) !important;
+}
+
+[data-theme="light"] .status-badge.rejected {
+    background: rgba(252, 129, 129, 0.12) !important;
+    color: #c53030 !important;
+    border: 1px solid rgba(252, 129, 129, 0.2) !important;
+}
+
+[data-theme="light"] .action-btn.approve {
+    background: linear-gradient(180deg, #48bb78 0%, #38a169 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 4px rgba(72, 187, 120, 0.25) !important;
+}
+
+[data-theme="light"] .action-btn.approve:hover {
+    background: linear-gradient(180deg, #68d391 0%, #48bb78 100%) !important;
+}
+
+[data-theme="light"] .action-btn.reject {
+    border-color: #e53e3e !important;
+    color: #e53e3e !important;
+}
+
+[data-theme="light"] .action-btn.reject:hover {
+    background: #e53e3e !important;
+    color: #ffffff !important;
+}

@@ -588,37 +588,177 @@
 }
 
 /* ============================================================================
-   LIGHT THEME OVERRIDES
+   LIGHT THEME - SECTION TABS
    ============================================================================ */
+
+[data-theme="light"] .pdma-section-tabs {
+  border-bottom: 1.5px solid #e2e8f0;
+}
+
+[data-theme="light"] .pdma-section-tab {
+  color: #64748b;
+}
+
+[data-theme="light"] .pdma-section-tab.active {
+  color: #16a34a;
+  background: transparent;
+  border-bottom: 2.5px solid #16a34a;
+}
+
+[data-theme="light"] .pdma-section-tab:not(.active):hover {
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.08);
+}
+
+/* Light mode dropdown tabs */
+[data-theme="light"] .pdma-tab-dropdown {
+  color: #16a34a;
+  background-color: #ffffff;
+  border: 1.5px solid #16a34a;
+}
+
+[data-theme="light"] .pdma-tab-dropdown option {
+  background-color: #ffffff;
+  color: #1e293b;
+}
+
+/* ============================================================================
+   LIGHT THEME OVERRIDES - Matching NDMA Dashboard Style
+   ============================================================================ */
+
+/* Base stat and stock cards */
 [data-theme="light"] .pdma-stat-card,
 [data-theme="light"] .pdma-stock-card {
-  background-color: #ffffff;
-  border-color: #e2e8f0;
+  background-color: #ffffff !important;
+  background-image: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%) !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+  transition: all 0.25s ease !important;
 }
 
 [data-theme="light"] .pdma-stat-card:hover,
 [data-theme="light"] .pdma-stock-card:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  background-color: #fafbfd !important;
+  border-color: #c6f6d5 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-2px) !important;
 }
 
+/* Stats container backgrounds */
 [data-theme="light"] .pdma-stat-value-container,
 [data-theme="light"] .pdma-stock-stats {
-  background-color: #f1f5f9;
+  background-color: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
 }
 
+/* Labels */
 [data-theme="light"] .pdma-stat-label,
-[data-theme="light"] .pdma-stock-stat-label {
-  color: #64748b;
+[data-theme="light"] .pdma-stock-stat-label,
+[data-theme="light"] .pdma-stock-percentage-label {
+  color: #718096 !important;
 }
 
+/* Values and titles */
 [data-theme="light"] .pdma-stat-value,
 [data-theme="light"] .pdma-stock-stat-value,
 [data-theme="light"] .pdma-stock-card-title,
-[data-theme="light"] .pdma-stock-percentage {
-  color: #1e293b;
+[data-theme="light"] .pdma-stock-percentage,
+[data-theme="light"] .pdma-stock-title {
+  color: #1a202c !important;
 }
 
-[data-theme="light"] .pdma-stock-title {
-  color: #1e293b;
+/* Stock icons in light mode */
+[data-theme="light"] .pdma-stock-icon {
+  background-color: rgba(72, 187, 120, 0.1) !important;
+  border: 1px solid rgba(72, 187, 120, 0.15) !important;
+}
+
+[data-theme="light"] .pdma-stock-icon.status-adequate {
+  background-color: rgba(72, 187, 120, 0.1) !important;
+  color: #38a169 !important;
+}
+
+[data-theme="light"] .pdma-stock-icon.status-moderate {
+  background-color: rgba(236, 201, 75, 0.1) !important;
+  color: #d69e2e !important;
+}
+
+[data-theme="light"] .pdma-stock-icon.status-low {
+  background-color: rgba(237, 137, 54, 0.1) !important;
+  color: #dd6b20 !important;
+}
+
+[data-theme="light"] .pdma-stock-icon.status-critical {
+  background-color: rgba(252, 129, 129, 0.1) !important;
+  color: #e53e3e !important;
+}
+
+/* Stock badges in light mode */
+[data-theme="light"] .pdma-stock-badge.status-adequate {
+  background-color: rgba(72, 187, 120, 0.12) !important;
+  color: #276749 !important;
+  border: 1px solid rgba(72, 187, 120, 0.2) !important;
+}
+
+[data-theme="light"] .pdma-stock-badge.status-moderate {
+  background-color: rgba(236, 201, 75, 0.12) !important;
+  color: #975a16 !important;
+  border: 1px solid rgba(236, 201, 75, 0.2) !important;
+}
+
+[data-theme="light"] .pdma-stock-badge.status-low {
+  background-color: rgba(237, 137, 54, 0.12) !important;
+  color: #c05621 !important;
+  border: 1px solid rgba(237, 137, 54, 0.2) !important;
+}
+
+[data-theme="light"] .pdma-stock-badge.status-critical {
+  background-color: rgba(252, 129, 129, 0.12) !important;
+  color: #c53030 !important;
+  border: 1px solid rgba(252, 129, 129, 0.2) !important;
+}
+
+/* Stock buttons in light mode */
+[data-theme="light"] .pdma-stock-history-btn {
+  background-color: #f7f9fc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #4a5568 !important;
+}
+
+[data-theme="light"] .pdma-stock-history-btn:hover {
+  background-color: rgba(72, 187, 120, 0.08) !important;
+  border-color: #c6f6d5 !important;
+  color: #276749 !important;
+}
+
+[data-theme="light"] .pdma-stock-allocate-btn {
+  background: linear-gradient(180deg, #48bb78 0%, #38a169 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 2px 4px rgba(72, 187, 120, 0.25) !important;
+}
+
+[data-theme="light"] .pdma-stock-allocate-btn:hover {
+  background: linear-gradient(180deg, #68d391 0%, #48bb78 100%) !important;
+  box-shadow: 0 4px 12px rgba(72, 187, 120, 0.35) !important;
+}
+
+/* Request NDMA button in light mode */
+[data-theme="light"] .request-ndma-btn {
+  background: linear-gradient(180deg, #4299e1 0%, #3182ce 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 2px 4px rgba(66, 153, 225, 0.25) !important;
+}
+
+[data-theme="light"] .request-ndma-btn:hover {
+  background: linear-gradient(180deg, #63b3ed 0%, #4299e1 100%) !important;
+  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.35) !important;
+}
+
+/* Chart center text in light mode */
+[data-theme="light"] .pdma-stock-chart-center {
+  color: #1a202c !important;
 }
