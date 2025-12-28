@@ -85,10 +85,10 @@ const PDMADashboard = () => {
       menuItems={menuItems}
       activeRoute={activeRoute}
       onNavigate={handleNavigate}
-      userRole={`${roleConfig.userRole} ${provinceName}`}
+      userRole="pdma"
       userName={userName}
-      pageTitle={roleConfig.title}
-      pageSubtitle={`${provinceName} ${roleConfig.subtitle}`}
+      pageTitle="Dashboard"
+      pageSubtitle="Provincial coordination and resource management"
       pageIcon={Shield}
       pageIconColor="#6366f1"
       notificationCount={alerts?.length || 0}
@@ -125,6 +125,16 @@ const PDMADashboard = () => {
         {/* Main Content */}
         {!loading && !error && (
           <>
+            {/* Page Title */}
+            <div style={{ marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '2rem', fontWeight: 700, color: colors.textPrimary, marginBottom: '4px' }}>
+                Provincial Overview
+              </h2>
+              <p style={{ fontSize: '0.9rem', color: colors.textMuted }}>
+                Real-time disaster monitoring and coordination for {provinceName}
+              </p>
+            </div>
+
             {/* Statistics Section - NDMA Style Cards */}
             <StatisticsSection stats={stats} colors={colors} />
 

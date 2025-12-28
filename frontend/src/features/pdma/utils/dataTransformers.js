@@ -47,15 +47,6 @@ export const transformStatsForUI = (apiStats) => {
       trendDirection: null,
       gradientKey: 'blue',
     },
-    {
-      title: 'LOCAL RESOURCES',
-      value: apiStats.localResources?.toString() || '0',
-      icon: Package,
-      trend: null,
-      trendLabel: null,
-      trendDirection: null,
-      gradientKey: STAT_GRADIENT_KEYS.warning,
-    },
   ];
 };
 

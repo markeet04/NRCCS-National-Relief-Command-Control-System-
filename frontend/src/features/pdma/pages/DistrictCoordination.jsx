@@ -55,11 +55,11 @@ const DistrictCoordination = () => {
       menuItems={menuItems}
       activeRoute={activeRoute}
       onNavigate={setActiveRoute}
-      pageTitle="District Coordination"
-      pageSubtitle="Coordinate with district authorities and oversee operations"
+      pageTitle="Districts"
+      pageSubtitle="District coordination and oversight"
       pageIcon={MapPin}
       pageIconColor="#f59e0b"
-      userRole="PDMA"
+      userRole="pdma"
       userName={userName}
     >
       <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary, minHeight: 'calc(100vh - 200px)' }}>
@@ -94,6 +94,16 @@ const DistrictCoordination = () => {
         {/* Main Content */}
         {!loading && !error && (
           <>
+            {/* Page Title */}
+            <div style={{ marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '2rem', fontWeight: 700, color: colors.textPrimary, marginBottom: '4px' }}>
+                District Coordination
+              </h2>
+              <p style={{ fontSize: '0.9rem', color: colors.textMuted }}>
+                Coordinate with district authorities and oversee operations
+              </p>
+            </div>
+
             {/* Search Bar Component */}
             <DistrictSearchBar
               searchTerm={searchQuery}

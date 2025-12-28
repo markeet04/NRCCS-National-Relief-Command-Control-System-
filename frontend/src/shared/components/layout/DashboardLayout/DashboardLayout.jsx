@@ -40,14 +40,14 @@ const DashboardLayout = ({
 }) => {
   // Use SidebarContext for persistent collapse state
   const { isCollapsed, toggleCollapse } = useSidebar();
-  
+
   // Get badge counts from BadgeContext for global badge visibility
   const { activeStatusCount, provincialRequestsCount } = useBadge();
 
   // Generate menu items with current badge counts if not provided
   // This ensures badges are always visible on all pages
   const menuItems = propMenuItems || [];
-  
+
   // Enhance menu items with current badge counts
   const enhancedMenuItems = menuItems.map(item => {
     if (item.route === 'alerts' && activeStatusCount > 0) {
@@ -80,6 +80,7 @@ const DashboardLayout = ({
           subtitle={pageSubtitle}
           icon={pageIcon}
           iconColor={pageIconColor}
+          userRole={userRole}
           notificationCount={notificationCount}
         />
 

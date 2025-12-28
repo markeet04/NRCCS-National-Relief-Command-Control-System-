@@ -5,16 +5,31 @@ import SettingsModal from '../SettingsModal';
 
 /**
  * Header Component
- * Top navigation bar with title, subtitle, and action buttons
+ * Top navigation bar with NRCCS branding and page info
  * @param {Object} props - Component props
- * @param {string} props.title - Main page title
+ * @param {string} props.title - Page title (shown on page, not in header)
  * @param {string} props.subtitle - Page subtitle/description
- * @param {React.ElementType} props.icon - Icon component to display with title
+ * @param {React.ElementType} props.icon - Icon component
  * @param {string} props.iconColor - Icon color
+ * @param {string} props.userRole - User role (pdma, ndma, district)
  * @param {number} props.notificationCount - Number of unread notifications
  */
-const Header = ({ title, subtitle, icon: IconComponent, iconColor, notificationCount = 0 }) => {
+const Header = ({ title, subtitle, icon: IconComponent, iconColor, userRole, notificationCount = 0 }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Get authority name based on role
+  const getAuthorityName = () => {
+    switch (userRole?.toLowerCase()) {
+      case 'pdma':
+        return 'Provincial Disaster Management Authority';
+      case 'ndma':
+        return 'National Disaster Management Authority';
+      case 'district':
+        return 'District Disaster Management Authority';
+      default:
+        return 'Disaster Management Authority';
+    }
+  };
 
   return (
     <>
@@ -25,8 +40,8 @@ const Header = ({ title, subtitle, icon: IconComponent, iconColor, notificationC
           borderBottom: '1px solid var(--border-color)',
           paddingLeft: '24px',
           paddingRight: '24px',
-          paddingTop: '10px',
-          paddingBottom: '10px',
+          paddingTop: '12px',
+          paddingBottom: '12px',
         }}
       >
         <div className="flex items-center justify-between">
@@ -38,10 +53,14 @@ const Header = ({ title, subtitle, icon: IconComponent, iconColor, notificationC
               </div>
             )}
             <div>
-              <h1 className="font-bold tracking-tight" style={{ color: 'var(--text-primary)', fontSize: '1.3rem', lineHeight: 1.1 }}>{title}</h1>
-              {subtitle && (
-                <p className="mt-1" style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: 1.2 }}>{subtitle}</p>
-              )}
+              {/* Main NRCCS Branding */}
+              <h1 className="font-bold tracking-tight" style={{ color: 'var(--text-primary)', fontSize: '1.1rem', lineHeight: 1.2 }}>
+                National Rescue & Crisis Coordination System
+              </h1>
+              {/* Authority Name + Page Subtitle */}
+              <p className="mt-0.5" style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: 1.3 }}>
+                {getAuthorityName()}{subtitle ? ` — ${subtitle}` : ''}
+              </p>
             </div>
           </div>
 
@@ -63,10 +82,11 @@ const Header = ({ title, subtitle, icon: IconComponent, iconColor, notificationC
 };
 
 Header.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   subtitle: PropTypes.string,
   icon: PropTypes.elementType,
   iconColor: PropTypes.string,
+  userRole: PropTypes.string,
   notificationCount: PropTypes.number,
 };
 

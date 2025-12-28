@@ -21,13 +21,14 @@ const SearchBar = ({ searchTerm, onSearchChange, placeholder = 'Search districts
           placeholder={placeholder}
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
+          className="pdma-search-input"
           style={{
             width: '100%',
             padding: '10px 40px 10px 40px',
             border: `1px solid ${colors.border}`,
-            borderRadius: '6px',
+            borderRadius: '8px',
             fontSize: '14px',
-            fontFamily: 'Outfit',
+            fontFamily: 'Outfit, sans-serif',
             outline: 'none',
             backgroundColor: colors.bgSecondary,
             color: colors.textPrimary,
