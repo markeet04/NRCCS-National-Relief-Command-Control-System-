@@ -618,39 +618,179 @@
    Responsive Utilities
    ====================== */
 
-@media (max-width: 768px) {
+/* Tablet */
+@media (max-width: 1024px) {
+  .pdma-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pdma-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
   .pdma-container {
-    padding: 16px;
+    padding: 0;
+  }
+
+  .pdma-section {
+    margin-bottom: 1.25rem;
   }
 
   .pdma-banner {
-    padding: 24px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+    border-radius: 0.75rem;
   }
 
   .pdma-banner-title {
-    font-size: 24px;
+    font-size: 1.25rem;
+  }
+
+  .pdma-banner-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .pdma-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .pdma-main-grid {
+    gap: 1rem;
+  }
+
+  .pdma-card-header,
+  .pdma-card-body {
+    padding: 1rem;
+  }
+
+  .pdma-section-title {
+    gap: 0.625rem;
+    margin-bottom: 0.875rem;
+  }
+
+  .pdma-section-title-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .pdma-section-title-text {
+    font-size: 1rem;
+  }
+
+  .pdma-alert-item {
+    padding: 0.875rem;
+  }
+
+  .pdma-button {
+    padding: 0.625rem 1rem;
+    font-size: 0.75rem;
+  }
+
+  .pdma-table th,
+  .pdma-table td {
+    padding: 0.625rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .pdma-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pdma-banner {
+    padding: 1rem;
+  }
+
+  .pdma-banner-title {
+    font-size: 1.125rem;
+  }
+
+  .pdma-resources-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .pdma-section-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .pdma-section-header-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .pdma-section-header-actions>* {
+    flex: 1;
+  }
+}
+
+/* ============================================================================
+   SHELTER & DISTRICT CARDS RESPONSIVE
+   ============================================================================ */
+
+/* Shelter cards grid */
+.shelter-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 767px) {
+  .shelter-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 0.875rem;
+  }
+
+  .shelter-card {
+    padding: 0.875rem !important;
+    min-height: auto !important;
+  }
+
+  .shelter-card h3 {
+    font-size: 0.9375rem !important;
+  }
+
+  /* Stat cards for shelter page - make 2 columns */
+  .district-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+
+  .stat-card {
+    padding: 0.875rem !important;
+    min-height: auto !important;
+  }
+
+  .stat-card__value {
+    font-size: 1.375rem !important;
+  }
+
+  .stat-card__title {
+    font-size: 0.625rem !important;
+  }
+
+  .stat-card__icon {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+
+  .stat-card__icon svg {
+    width: 1rem !important;
+    height: 1rem !important;
   }
 }
 
 @media (max-width: 480px) {
-  .pdma-container {
-    padding: 12px;
-  }
-
-  .pdma-section {
-    margin-bottom: 24px;
-  }
-
-  .pdma-banner {
-    padding: 20px;
-  }
-
-  .pdma-banner-title {
-    font-size: 20px;
-  }
-
-  .pdma-main-grid {
-    gap: 16px;
+  .district-stats-grid {
+    grid-template-columns: 1fr !important;
   }
 }
 

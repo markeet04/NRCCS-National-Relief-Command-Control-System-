@@ -405,8 +405,8 @@
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 @media (max-width: 1280px) {
@@ -415,7 +415,40 @@
     }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 767px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    /* Smaller stat cards on mobile */
+    .stat-card {
+        padding: 1rem 1rem 0.875rem 1.25rem;
+        min-height: 100px;
+    }
+
+    .stat-card__value {
+        font-size: 1.5rem;
+    }
+
+    .stat-card__title {
+        font-size: 0.6875rem;
+    }
+
+    .stat-card__icon {
+        width: 2rem;
+        height: 2rem;
+        min-width: 2rem;
+        min-height: 2rem;
+    }
+
+    .stat-card__icon svg {
+        width: 1rem;
+        height: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
     .stats-grid {
         grid-template-columns: 1fr;
     }
@@ -425,8 +458,21 @@
 .district-stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-bottom: 24px;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 767px) {
+    .district-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .district-stats-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ============================================================================

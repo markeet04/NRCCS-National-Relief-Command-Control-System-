@@ -1171,3 +1171,257 @@ div.national-weather-card.border-left-cyan {
 }
 
 /* Alert banner stays red in both modes (it's an alert) */
+
+/* ============================================================================
+   MOBILE RESPONSIVE STYLES
+   ============================================================================ */
+
+/* Tablet breakpoint */
+@media (max-width: 1024px) {
+  .national-main-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .national-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.875rem;
+  }
+
+  .national-sidebar {
+    gap: 1.25rem;
+  }
+}
+
+/* Mobile breakpoint */
+@media (max-width: 767px) {
+
+  /* Page header responsive */
+  .national-page-title {
+    font-size: 1.5rem !important;
+    margin-bottom: 0.25rem;
+  }
+
+  .national-page-subtitle {
+    font-size: 0.8rem !important;
+  }
+
+  .national-page-header {
+    margin-bottom: 1rem;
+  }
+
+  /* Stats grid - 2 columns on mobile */
+  .national-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Stat cards compact */
+  .national-stat-card {
+    padding: 0.875rem 0.875rem 0.875rem 1rem;
+  }
+
+  .national-stat-card-value {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .national-stat-card-label {
+    font-size: 0.625rem;
+  }
+
+  .national-stat-card-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .national-stat-card-trend {
+    font-size: 0.6875rem;
+  }
+
+  /* Main grid stacks on mobile */
+  .national-main-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Map card responsive */
+  .national-map-card {
+    border-radius: 0.75rem;
+  }
+
+  .national-map-header {
+    padding: 0.875rem 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .national-map-title {
+    font-size: 1rem;
+  }
+
+  .national-map-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .national-map-controls {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .national-map-container {
+    height: 300px;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .national-map-legend {
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .national-map-legend-item {
+    gap: 0.375rem;
+  }
+
+  .national-map-legend-label {
+    font-size: 0.6875rem;
+  }
+
+  /* Weather bar responsive */
+  .national-map-weather-bar {
+    margin: 0 0.75rem 0.75rem 0;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+  }
+
+  .national-map-location-row {
+    margin-bottom: 0.75rem;
+  }
+
+  .national-map-location-name {
+    font-size: 0.875rem;
+  }
+
+  .national-map-weather-data {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .national-map-weather-value {
+    font-size: 0.8125rem;
+  }
+
+  /* Resource card responsive */
+  .national-resource-card {
+    padding: 1rem;
+  }
+
+  .national-resource-header {
+    margin-bottom: 1rem;
+  }
+
+  .national-resource-title {
+    font-size: 0.9375rem;
+  }
+
+  .national-resource-list {
+    gap: 0.875rem;
+  }
+
+  .national-resource-item-name {
+    font-size: 0.8125rem;
+  }
+
+  /* Weather card responsive */
+  .national-weather-card {
+    padding: 1rem;
+  }
+
+  .national-weather-title {
+    font-size: 0.9375rem;
+    margin-bottom: 0.875rem;
+  }
+
+  .national-weather-list {
+    gap: 0.75rem;
+  }
+
+  .national-weather-label,
+  .national-weather-value {
+    font-size: 0.8125rem;
+  }
+
+  /* Sidebar stacks content */
+  .national-sidebar {
+    gap: 1rem;
+  }
+
+  /* Alert banner responsive */
+  .national-alert-banner {
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+
+  .national-alert-banner-content {
+    gap: 0.625rem;
+  }
+
+  .national-alert-banner-title {
+    font-size: 0.8125rem;
+  }
+
+  .national-alert-banner-desc {
+    font-size: 0.75rem;
+  }
+
+  .national-alert-banner-action {
+    width: 100%;
+    justify-content: center;
+    padding: 0.625rem 1rem;
+  }
+
+  /* Map buttons touch-friendly */
+  .national-map-btn {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0.625rem;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .national-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .national-stat-card {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.75rem;
+  }
+
+  .national-stat-card-header {
+    margin-bottom: 0;
+    gap: 0.5rem;
+  }
+
+  .national-map-container {
+    height: 250px;
+  }
+
+  .national-map-weather-data {
+    gap: 0.5rem;
+  }
+
+  .national-map-weather-item {
+    gap: 0.375rem;
+  }
+}

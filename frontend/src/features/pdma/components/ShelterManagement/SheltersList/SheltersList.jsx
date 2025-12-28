@@ -2,12 +2,14 @@ import { Building, AlertTriangle, MapPin } from 'lucide-react';
 
 const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) => {
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-      gap: '16px',
-      marginBottom: '20px'
-    }}>
+    <div
+      className="shelter-cards-grid"
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))',
+        gap: '1rem',
+        marginBottom: '1.25rem'
+      }}>
       {shelters.map((shelter, index) => {
         // Rotating colors like stats cards: blue, green, amber, red
         const borderColors = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444'];
@@ -23,11 +25,12 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) =>
         return (
           <div
             key={shelter.id}
+            className="shelter-card"
             style={{
-              padding: '16px',
+              padding: '1rem',
               border: `1px solid ${colors.border}`,
               borderLeft: `4px solid ${borderColor}`,
-              borderRadius: '12px',
+              borderRadius: '0.75rem',
               backgroundColor: colors.cardBg,
               cursor: 'pointer',
               transition: 'all 0.3s ease',
@@ -35,7 +38,7 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) =>
               display: 'flex',
               flexDirection: 'column',
               height: '100%',
-              minHeight: '180px',
+              minHeight: '160px',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.boxShadow = `0 8px 32px ${glowColor}, 0 4px 12px rgba(0, 0, 0, 0.3)`;

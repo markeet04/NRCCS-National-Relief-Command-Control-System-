@@ -41,6 +41,9 @@ const DashboardLayout = ({
   // Use SidebarContext for persistent collapse state
   const { isCollapsed, toggleCollapse } = useSidebar();
 
+  // Mobile sidebar state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   // Get badge counts from BadgeContext for global badge visibility
   const { activeStatusCount, provincialRequestsCount } = useBadge();
 
@@ -59,8 +62,41 @@ const DashboardLayout = ({
     return item;
   });
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [activeRoute]);
+
+  // Close mobile menu on escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, []);
+
+  // Toggle mobile menu
+  const handleMobileMenuToggle = () => {
+    setIsMobileMenuOpen(prev => !prev);
+  };
+
+  // Close mobile menu
+  const handleMobileMenuClose = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <div className="min-h-screen dashboard-layout" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      {/* Mobile backdrop */}
+      <div
+        className={`sidebar-backdrop ${isMobileMenuOpen ? 'sidebar-backdrop-visible' : ''}`}
+        onClick={handleMobileMenuClose}
+        aria-hidden="true"
+      />
+
       {/* Sidebar */}
       <Sidebar
         menuItems={enhancedMenuItems}
@@ -70,6 +106,8 @@ const DashboardLayout = ({
         userName={userName}
         isCollapsed={isCollapsed}
         onToggleCollapse={toggleCollapse}
+        isMobileOpen={isMobileMenuOpen}
+        onMobileClose={handleMobileMenuClose}
       />
 
       {/* Main Content Area - uses CSS margin to account for sidebar */}
@@ -82,10 +120,11 @@ const DashboardLayout = ({
           iconColor={pageIconColor}
           userRole={userRole}
           notificationCount={notificationCount}
+          onToggleMobileMenu={handleMobileMenuToggle}
         />
 
         {/* Page Content */}
-        <main style={{ padding: '24px 32px' }}>
+        <main style={{ padding: 'var(--content-padding-y) var(--content-padding-x)' }}>
           {children}
         </main>
 

@@ -1,0 +1,547 @@
+/**
+ * NRCCS Design System - Responsive Utilities
+ * 
+ * Mobile-first responsive design system
+ * Breakpoints: Mobile (< 768px), Tablet (768px - 1024px), Desktop (> 1024px)
+ */
+
+/* ============================================================================
+   RESPONSIVE CUSTOM PROPERTIES
+   ============================================================================ */
+:root {
+    /* Sidebar dimensions */
+    --sidebar-width: 16.25rem;
+    /* 260px */
+    --sidebar-collapsed-width: 4.5rem;
+    /* 72px */
+
+    /* Touch-friendly sizes */
+    --touch-target-min: 2.75rem;
+    /* 44px - minimum touch target */
+    --touch-target-comfortable: 3rem;
+    /* 48px - comfortable touch target */
+
+    /* Responsive spacing scale (rem-based) */
+    --space-xs: 0.25rem;
+    /* 4px */
+    --space-sm: 0.5rem;
+    /* 8px */
+    --space-md: 1rem;
+    /* 16px */
+    --space-lg: 1.5rem;
+    /* 24px */
+    --space-xl: 2rem;
+    /* 32px */
+    --space-2xl: 3rem;
+    /* 48px */
+
+    /* Content padding - adjusts per breakpoint */
+    --content-padding-x: 2rem;
+    --content-padding-y: 1.5rem;
+
+    /* Mobile-specific */
+    --mobile-header-height: 3.5rem;
+}
+
+/* ============================================================================
+   MOBILE-FIRST LAYOUT ADJUSTMENTS
+   ============================================================================ */
+
+/* Mobile: Full-width content, no sidebar margin */
+@media (max-width: 767px) {
+    :root {
+        --content-padding-x: 1rem;
+        --content-padding-y: 1rem;
+    }
+
+    /* Sidebar becomes overlay - OVERRIDE ALL collapsed state */
+    .sidebar-container,
+    .sidebar-container.sidebar-collapsed {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        width: var(--sidebar-width) !important;
+        min-width: var(--sidebar-width) !important;
+        max-width: var(--sidebar-width) !important;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+    }
+
+    .sidebar-container.sidebar-mobile-open,
+    .sidebar-container.sidebar-collapsed.sidebar-mobile-open {
+        transform: translateX(0);
+    }
+
+    /* Main content takes full width */
+    .sidebar-content,
+    .sidebar-content.sidebar-content-collapsed {
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Ensure all containers take full width */
+    body,
+    #root,
+    .min-h-screen,
+    .dashboard-layout,
+    main {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Prevent horizontal scroll/zoom */
+    html,
+    body {
+        overflow-x: hidden !important;
+    }
+
+    /* Content padding handled by main element */
+    main {
+        padding: 1rem !important;
+    }
+
+    /* PDMA and other page containers */
+    .pdma-container,
+    .pdma-resources-page,
+    .ndma-page {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+
+    /* Mobile backdrop overlay */
+    .sidebar-backdrop {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.6);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .sidebar-backdrop.sidebar-backdrop-visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Hide desktop toggle button on mobile */
+    .sidebar-toggle-btn {
+        display: none !important;
+    }
+
+    /* Show hamburger menu */
+    .mobile-menu-toggle {
+        display: flex !important;
+    }
+
+    /* Show mobile close button */
+    .sidebar-mobile-close {
+        display: flex !important;
+    }
+
+    /* FORCE full sidebar styling on mobile - override ALL collapsed states */
+    .sidebar-container .sidebar-logo-text,
+    .sidebar-container.sidebar-collapsed .sidebar-logo-text,
+    .sidebar-collapsed .sidebar-logo-text {
+        display: block !important;
+    }
+
+    .sidebar-container .sidebar-nav-label,
+    .sidebar-container.sidebar-collapsed .sidebar-nav-label,
+    .sidebar-collapsed .sidebar-nav-label {
+        display: block !important;
+    }
+
+    .sidebar-container .sidebar-nav-badge,
+    .sidebar-container.sidebar-collapsed .sidebar-nav-badge,
+    .sidebar-collapsed .sidebar-nav-badge {
+        display: inline-flex !important;
+    }
+
+    .sidebar-container .sidebar-active-dot,
+    .sidebar-container.sidebar-collapsed .sidebar-active-dot,
+    .sidebar-collapsed .sidebar-active-dot {
+        display: block !important;
+    }
+
+    .sidebar-container .sidebar-user-info,
+    .sidebar-container.sidebar-collapsed .sidebar-user-info,
+    .sidebar-collapsed .sidebar-user-info {
+        display: block !important;
+    }
+
+    .sidebar-container .sidebar-logo-wrapper,
+    .sidebar-container.sidebar-collapsed .sidebar-logo-wrapper,
+    .sidebar-collapsed .sidebar-logo-wrapper {
+        justify-content: flex-start !important;
+    }
+
+    .sidebar-container .sidebar-nav-btn,
+    .sidebar-container.sidebar-collapsed .sidebar-nav-btn,
+    .sidebar-collapsed .sidebar-nav-btn {
+        justify-content: flex-start !important;
+        padding: 0.75rem 0.875rem !important;
+        gap: 0.875rem !important;
+    }
+
+    .sidebar-container .sidebar-user-wrapper,
+    .sidebar-container.sidebar-collapsed .sidebar-user-wrapper,
+    .sidebar-collapsed .sidebar-user-wrapper {
+        flex-direction: row !important;
+        gap: 0.875rem !important;
+        padding: 0.625rem !important;
+    }
+
+    /* Hide collapsed badge on mobile */
+    .sidebar-nav-badge-collapsed {
+        display: none !important;
+    }
+}
+
+/* Tablet: Auto-collapsed sidebar */
+@media (min-width: 768px) and (max-width: 1023px) {
+    :root {
+        --content-padding-x: 1.5rem;
+        --content-padding-y: 1.25rem;
+    }
+
+    /* Force collapsed state on tablet BY DEFAULT */
+    .sidebar-container {
+        width: var(--sidebar-collapsed-width) !important;
+        min-width: var(--sidebar-collapsed-width) !important;
+        max-width: var(--sidebar-collapsed-width) !important;
+    }
+
+    .sidebar-content {
+        margin-left: var(--sidebar-collapsed-width) !important;
+    }
+
+    /* Hide mobile menu on tablet by default */
+    .mobile-menu-toggle {
+        display: none !important;
+    }
+
+    /* WHEN SIDEBAR IS OPENED VIA HAMBURGER AT TABLET - show full sidebar */
+    .sidebar-container.sidebar-mobile-open {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        width: var(--sidebar-width) !important;
+        min-width: var(--sidebar-width) !important;
+        max-width: var(--sidebar-width) !important;
+        z-index: 1000;
+    }
+
+    /* Show labels when sidebar is explicitly opened */
+    .sidebar-container.sidebar-mobile-open .sidebar-logo-text,
+    .sidebar-container.sidebar-mobile-open .sidebar-nav-label,
+    .sidebar-container.sidebar-mobile-open .sidebar-active-dot,
+    .sidebar-container.sidebar-mobile-open .sidebar-user-info {
+        display: block !important;
+    }
+
+    .sidebar-container.sidebar-mobile-open .sidebar-nav-badge {
+        display: inline-flex !important;
+    }
+
+    .sidebar-container.sidebar-mobile-open .sidebar-nav-badge-collapsed {
+        display: none !important;
+    }
+
+    .sidebar-container.sidebar-mobile-open .sidebar-logo-wrapper {
+        justify-content: flex-start !important;
+    }
+
+    .sidebar-container.sidebar-mobile-open .sidebar-nav-btn {
+        justify-content: flex-start !important;
+        padding: 0.75rem 0.875rem !important;
+        gap: 0.875rem !important;
+    }
+
+    .sidebar-container.sidebar-mobile-open .sidebar-user-wrapper {
+        flex-direction: row !important;
+        gap: 0.875rem !important;
+    }
+
+    .sidebar-container.sidebar-mobile-open .sidebar-mobile-close {
+        display: flex !important;
+    }
+}
+
+/* Desktop: Full control */
+@media (min-width: 1024px) {
+    :root {
+        --content-padding-x: 2rem;
+        --content-padding-y: 1.5rem;
+    }
+
+    /* Hide mobile menu */
+    .mobile-menu-toggle {
+        display: none !important;
+    }
+}
+
+/* ============================================================================
+   TOUCH-FRIENDLY UTILITIES
+   ============================================================================ */
+
+/* Minimum touch target sizing */
+.touch-target {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+}
+
+.touch-target-comfortable {
+    min-height: var(--touch-target-comfortable);
+    min-width: var(--touch-target-comfortable);
+}
+
+/* Touch-friendly buttons on mobile */
+@media (max-width: 767px) {
+
+    button,
+    .btn,
+    [role="button"],
+    a.clickable {
+        min-height: var(--touch-target-min);
+        padding-top: 0.625rem;
+        padding-bottom: 0.625rem;
+    }
+
+    /* Touch-friendly form inputs */
+    input,
+    select,
+    textarea {
+        min-height: var(--touch-target-min);
+        font-size: 1rem;
+        /* Prevents iOS zoom on focus */
+    }
+}
+
+/* ============================================================================
+   RESPONSIVE GRID UTILITIES
+   ============================================================================ */
+
+/* Stack on mobile, grid on larger screens */
+.responsive-grid {
+    display: grid;
+    gap: var(--space-md);
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+    .responsive-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .responsive-grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .responsive-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .responsive-grid-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .responsive-grid-5 {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+/* ============================================================================
+   RESPONSIVE SPACING UTILITIES
+   ============================================================================ */
+
+/* Responsive padding */
+.p-responsive {
+    padding: var(--content-padding-y) var(--content-padding-x);
+}
+
+.px-responsive {
+    padding-left: var(--content-padding-x);
+    padding-right: var(--content-padding-x);
+}
+
+.py-responsive {
+    padding-top: var(--content-padding-y);
+    padding-bottom: var(--content-padding-y);
+}
+
+/* Responsive gaps */
+.gap-responsive {
+    gap: var(--space-md);
+}
+
+@media (min-width: 768px) {
+    .gap-responsive {
+        gap: var(--space-lg);
+    }
+}
+
+@media (min-width: 1024px) {
+    .gap-responsive {
+        gap: var(--space-xl);
+    }
+}
+
+/* ============================================================================
+   RESPONSIVE TYPOGRAPHY
+   ============================================================================ */
+
+/* Fluid heading sizes */
+.heading-responsive {
+    font-size: clamp(1.25rem, 4vw, 1.75rem);
+    line-height: 1.2;
+}
+
+.subheading-responsive {
+    font-size: clamp(1rem, 3vw, 1.25rem);
+    line-height: 1.3;
+}
+
+/* ============================================================================
+   RESPONSIVE TABLE UTILITIES
+   ============================================================================ */
+
+/* Horizontal scroll wrapper for tables on mobile */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 767px) {
+    .table-responsive {
+        margin-left: calc(-1 * var(--content-padding-x));
+        margin-right: calc(-1 * var(--content-padding-x));
+        padding-left: var(--content-padding-x);
+        padding-right: var(--content-padding-x);
+        width: calc(100% + 2 * var(--content-padding-x));
+    }
+}
+
+/* ============================================================================
+   VISIBILITY UTILITIES
+   ============================================================================ */
+
+/* Hide on mobile */
+.hide-mobile {
+    display: block;
+}
+
+@media (max-width: 767px) {
+    .hide-mobile {
+        display: none !important;
+    }
+}
+
+/* Hide on tablet */
+.hide-tablet {
+    display: block;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .hide-tablet {
+        display: none !important;
+    }
+}
+
+/* Hide on desktop */
+.hide-desktop {
+    display: block;
+}
+
+@media (min-width: 1024px) {
+    .hide-desktop {
+        display: none !important;
+    }
+}
+
+/* Show only on mobile */
+.show-mobile-only {
+    display: none !important;
+}
+
+@media (max-width: 767px) {
+    .show-mobile-only {
+        display: block !important;
+    }
+
+    .show-mobile-only.flex {
+        display: flex !important;
+    }
+}
+
+/* ============================================================================
+   MOBILE HEADER STYLES
+   ============================================================================ */
+
+.mobile-menu-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+    padding: 0.5rem;
+    margin-right: 0.75rem;
+    background: transparent;
+    border: none;
+    border-radius: 0.5rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.mobile-menu-toggle:hover,
+.mobile-menu-toggle:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.mobile-menu-toggle svg {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+/* ============================================================================
+   RESPONSIVE HEADER TEXT
+   ============================================================================ */
+
+@media (max-width: 767px) {
+    .header-title {
+        font-size: 0.95rem !important;
+        line-height: 1.3;
+    }
+
+    .header-subtitle {
+        font-size: 0.75rem !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 60vw;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .header-title {
+        font-size: 1rem !important;
+    }
+
+    .header-subtitle {
+        font-size: 0.8rem !important;
+    }
+}

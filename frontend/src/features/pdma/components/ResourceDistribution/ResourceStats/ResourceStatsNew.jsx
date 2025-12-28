@@ -43,7 +43,7 @@ const ResourceStatsNew = ({ totalResources, totalQuantity, allocatedPercent, ava
   ];
 
   return (
-    <div className="district-stats-grid">
+    <div className="national-stats-grid">
       {statCards.map((card) => {
         const Icon = card.icon;
         return (

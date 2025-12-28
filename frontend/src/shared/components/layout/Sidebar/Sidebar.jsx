@@ -18,7 +18,8 @@ import {
   PanelLeftClose,
   PanelLeft,
   Home,
-  Search
+  Search,
+  X
 } from 'lucide-react';
 
 /**
@@ -33,8 +34,20 @@ import {
  * @param {string} props.userName - User name for display
  * @param {boolean} props.isCollapsed - Whether sidebar is collapsed
  * @param {Function} props.onToggleCollapse - Handler to toggle collapse state
+ * @param {boolean} props.isMobileOpen - Whether mobile sidebar is open
+ * @param {Function} props.onMobileClose - Handler to close mobile sidebar
  */
-const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Admin', isCollapsed = false, onToggleCollapse }) => {
+const Sidebar = ({
+  menuItems,
+  activeRoute,
+  onNavigate,
+  userRole,
+  userName = 'Admin',
+  isCollapsed = false,
+  onToggleCollapse,
+  isMobileOpen = false,
+  onMobileClose
+}) => {
   const [hoveredItem, setHoveredItem] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -52,6 +65,11 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
 
     // Navigate using the helper function
     navigate(getNavigationPath(route));
+
+    // Close mobile menu after navigation
+    if (onMobileClose) {
+      onMobileClose();
+    }
   };
 
   const iconMap = {
@@ -76,10 +94,37 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
     return `/${basePath}/${route}`;
   };
 
+  // Build sidebar container classes
+  const sidebarClasses = [
+    'sidebar-container',
+    isCollapsed ? 'sidebar-collapsed' : '',
+    isMobileOpen ? 'sidebar-mobile-open' : ''
+  ].filter(Boolean).join(' ');
+
   return (
-    <div
-      className={`sidebar-container ${isCollapsed ? 'sidebar-collapsed' : ''}`}
-    >
+    <div className={sidebarClasses}>
+      {/* Mobile close button */}
+      <button
+        onClick={onMobileClose}
+        className="sidebar-mobile-close show-mobile-only"
+        title="Close Menu"
+        style={{
+          position: 'absolute',
+          top: '1rem',
+          right: '1rem',
+          zIndex: 51,
+          background: 'transparent',
+          border: 'none',
+          color: 'rgba(255, 255, 255, 0.7)',
+          cursor: 'pointer',
+          padding: '0.5rem',
+          borderRadius: '0.5rem',
+          display: 'none'
+        }}
+      >
+        <X size={24} />
+      </button>
+
       {/* Collapse Toggle Button */}
       <button
         onClick={onToggleCollapse}
@@ -99,7 +144,7 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
           <div className="sidebar-logo-icon">
             <Shield className="text-white" />
           </div>
-          {!isCollapsed && (
+          {(!isCollapsed || isMobileOpen) && (
             <div className="sidebar-logo-text">
               <h1 className="sidebar-logo-title">NRCCS</h1>
               <p className="sidebar-logo-role">{userRole}</p>
@@ -128,7 +173,7 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
                   <Icon
                     className={`sidebar-nav-icon ${isActive ? 'sidebar-icon-glow' : ''}`}
                   />
-                  {!isCollapsed && (
+                  {(!isCollapsed || isMobileOpen) && (
                     <>
                       <span className="sidebar-nav-label">{item.label}</span>
                       {item.badge && (
@@ -141,7 +186,7 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
                       )}
                     </>
                   )}
-                  {isCollapsed && item.badge && (
+                  {isCollapsed && !isMobileOpen && item.badge && (
                     <span className="sidebar-nav-badge-collapsed">
                       {item.badge}
                     </span>
@@ -159,7 +204,7 @@ const Sidebar = ({ menuItems, activeRoute, onNavigate, userRole, userName = 'Adm
           <div className="sidebar-user-avatar">
             {userName.charAt(0).toUpperCase()}
           </div>
-          {!isCollapsed && (
+          {(!isCollapsed || isMobileOpen) && (
             <div className="sidebar-user-info">
               <p className="sidebar-user-name">{userName}</p>
               <p className="sidebar-user-role">{userRole}</p>
@@ -193,6 +238,8 @@ Sidebar.propTypes = {
   userName: PropTypes.string,
   isCollapsed: PropTypes.bool,
   onToggleCollapse: PropTypes.func,
+  isMobileOpen: PropTypes.bool,
+  onMobileClose: PropTypes.func,
 };
 
 export default Sidebar;

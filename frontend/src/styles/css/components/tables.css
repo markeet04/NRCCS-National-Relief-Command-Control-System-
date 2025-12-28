@@ -98,8 +98,73 @@
    TABLE RESPONSIVE WRAPPER
    ============================================================================ */
 .table-responsive {
+    width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile table adjustments */
+@media (max-width: 767px) {
+    .table-responsive {
+        margin: 0 -1rem;
+        padding: 0 1rem;
+        width: calc(100% + 2rem);
+    }
+
+    /* More compact table cells on mobile */
+    .table th,
+    .table td {
+        padding: 0.75rem 0.625rem;
+        font-size: 0.8125rem;
+    }
+
+    .table th {
+        font-size: 0.6875rem;
+    }
+
+    /* Truncate long text in cells */
+    .table td {
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Allow wrapping for description cells */
+    .table td.table__cell--wrap {
+        white-space: normal;
+        max-width: none;
+    }
+
+    /* Touch-friendly row height */
+    .table tbody tr {
+        min-height: 3rem;
+    }
+
+    /* Grid-based tables responsive */
+    .table__header,
+    .table__row-content {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    .table__header>div:nth-child(n+3),
+    .table__row-content>div:nth-child(n+3) {
+        display: none;
+    }
+
+    /* Pagination stacks on mobile */
+    .table-pagination {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 0.75rem;
+    }
+
+    .table-pagination__controls {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
 }
 
 /* ============================================================================
