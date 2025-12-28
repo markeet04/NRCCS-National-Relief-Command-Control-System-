@@ -54,13 +54,13 @@ const ShelterManagement = () => {
       activeRoute={activeRoute}
       onNavigate={setActiveRoute}
       pageTitle="Shelter Registry"
-      pageSubtitle="View emergency shelters across the province (read-only)"
+      pageSubtitle="View emergency shelters across the province "
       pageIcon={Home}
       pageIconColor="#8b5cf6"
       userRole="PDMA"
       userName={userName}
     >
-      <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary }}>
+      <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary, minHeight: 'calc(100vh - 200px)' }}>
         {/* Loading State */}
         {loading && (
           <div style={{

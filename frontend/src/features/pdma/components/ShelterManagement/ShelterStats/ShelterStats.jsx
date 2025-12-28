@@ -1,5 +1,10 @@
-import { Building, Users, AlertTriangle, TrendingUp } from 'lucide-react';
+import { Building, Users, UserCheck, Percent } from 'lucide-react';
+import '@features/ndma/styles/national-dashboard.css';
 
+/**
+ * ShelterStats Component
+ * NDMA Dashboard-style stats cards with glow effects for Shelter Registry
+ */
 const ShelterStats = ({ totalShelters = 0, totalCapacity = 0, currentOccupancy = 0, avgOccupancyPercent = 0, colors }) => {
   // Ensure values are numbers and not NaN
   const safeTotal = Number(totalShelters) || 0;
@@ -7,144 +12,63 @@ const ShelterStats = ({ totalShelters = 0, totalCapacity = 0, currentOccupancy =
   const safeOccupancy = Number(currentOccupancy) || 0;
   const safePercent = Number(avgOccupancyPercent) || 0;
 
+  // Stats configuration with proper icons and colors
+  const stats = [
+    {
+      title: 'TOTAL SHELTERS',
+      value: safeTotal,
+      icon: Building,
+      borderClass: 'border-left-blue',
+      iconClass: 'icon-blue',
+      subtitle: 'Active facilities',
+    },
+    {
+      title: 'TOTAL CAPACITY',
+      value: safeCapacity.toLocaleString(),
+      icon: Users,
+      borderClass: 'border-left-green',
+      iconClass: 'icon-green',
+      subtitle: 'Maximum capacity',
+    },
+    {
+      title: 'CURRENT OCCUPANCY',
+      value: safeOccupancy.toLocaleString(),
+      icon: UserCheck,
+      borderClass: 'border-left-yellow',
+      iconClass: 'icon-yellow',
+      subtitle: 'People sheltered',
+    },
+    {
+      title: 'AVG OCCUPANCY %',
+      value: `${safePercent}%`,
+      icon: Percent,
+      borderClass: safePercent > 80 ? 'border-left-red' : safePercent > 60 ? 'border-left-yellow' : 'border-left-green',
+      iconClass: safePercent > 80 ? 'icon-red' : safePercent > 60 ? 'icon-yellow' : 'icon-green',
+      subtitle: safePercent > 80 ? 'Near capacity' : safePercent > 60 ? 'Moderate usage' : 'Available',
+    },
+  ];
+
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-      gap: '16px',
-      marginBottom: '20px'
-    }}>
-      <div style={{
-        padding: '16px',
-        backgroundColor: colors.cardBg,
-        borderRadius: '6px',
-        border: `1px solid ${colors.border}`,
-        borderLeft: `4px solid ${colors.primary}`
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '8px'
-        }}>
-          <label style={{
-            fontSize: '12px',
-            color: colors.textMuted,
-            fontWeight: '600',
-            margin: 0
-          }}>
-            TOTAL SHELTERS
-          </label>
-          <Building size={18} color={colors.primary} />
-        </div>
-        <p style={{
-          fontSize: '28px',
-          fontWeight: '700',
-          margin: 0,
-          color: colors.textPrimary
-        }}>
-          {safeTotal}
-        </p>
-      </div>
-
-      <div style={{
-        padding: '16px',
-        backgroundColor: colors.cardBg,
-        borderRadius: '6px',
-        border: `1px solid ${colors.border}`,
-        borderLeft: `4px solid ${colors.success}`
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '8px'
-        }}>
-          <label style={{
-            fontSize: '12px',
-            color: colors.textMuted,
-            fontWeight: '600',
-            margin: 0
-          }}>
-            TOTAL CAPACITY
-          </label>
-          <Users size={18} color={colors.success} />
-        </div>
-        <p style={{
-          fontSize: '28px',
-          fontWeight: '700',
-          margin: 0,
-          color: colors.textPrimary
-        }}>
-          {safeCapacity.toLocaleString()}
-        </p>
-      </div>
-
-      <div style={{
-        padding: '16px',
-        backgroundColor: colors.cardBg,
-        borderRadius: '6px',
-        border: `1px solid ${colors.border}`,
-        borderLeft: `4px solid ${colors.warning}`
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '8px'
-        }}>
-          <label style={{
-            fontSize: '12px',
-            color: colors.textMuted,
-            fontWeight: '600',
-            margin: 0
-          }}>
-            CURRENT OCCUPANCY
-          </label>
-          <TrendingUp size={18} color={colors.warning} />
-        </div>
-        <p style={{
-          fontSize: '28px',
-          fontWeight: '700',
-          margin: 0,
-          color: colors.textPrimary
-        }}>
-          {safeOccupancy.toLocaleString()}
-        </p>
-      </div>
-
-      <div style={{
-        padding: '16px',
-        backgroundColor: colors.cardBg,
-        borderRadius: '6px',
-        border: `1px solid ${colors.border}`,
-        borderLeft: `4px solid ${colors.danger}`
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '8px'
-        }}>
-          <label style={{
-            fontSize: '12px',
-            color: colors.textMuted,
-            fontWeight: '600',
-            margin: 0
-          }}>
-            AVG OCCUPANCY %
-          </label>
-          <AlertTriangle size={18} color={colors.danger} />
-        </div>
-        <p style={{
-          fontSize: '28px',
-          fontWeight: '700',
-          margin: 0,
-          color: colors.textPrimary
-        }}>
-          {safePercent}%
-        </p>
-      </div>
+    <div className="national-stats-grid" style={{ marginBottom: '24px' }}>
+      {stats.map((stat, index) => {
+        const IconComponent = stat.icon;
+        return (
+          <div key={index} className={`national-stat-card ${stat.borderClass}`}>
+            <div className="national-stat-card-header">
+              <span className="national-stat-card-label">{stat.title}</span>
+              <div className={`national-stat-card-icon ${stat.iconClass}`}>
+                <IconComponent className="w-5 h-5" />
+              </div>
+            </div>
+            <div className="national-stat-card-value">
+              {stat.value}
+            </div>
+            <div className="national-stat-card-trend neutral">
+              {stat.subtitle}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 };

@@ -18,7 +18,11 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) =>
             backgroundColor: selectedShelter === shelter.id ? colors.bgSecondary : colors.cardBg,
             cursor: 'pointer',
             transition: 'all 0.2s ease',
-            boxShadow: selectedShelter === shelter.id ? `0 4px 12px rgba(59, 130, 246, 0.1)` : 'none'
+            boxShadow: selectedShelter === shelter.id ? `0 4px 12px rgba(59, 130, 246, 0.1)` : 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            minHeight: '180px',
           }}
           onMouseEnter={(e) => {
             if (selectedShelter !== shelter.id) {
@@ -80,6 +84,7 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) =>
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
             gap: '12px',
+            marginTop: 'auto',
             marginBottom: '12px',
             paddingBottom: '12px',
             borderBottom: `1px solid ${colors.border}`
@@ -129,7 +134,7 @@ const SheltersList = ({ shelters, colors, onSelectShelter, selectedShelter }) =>
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            fontSize: '13px'
+            fontSize: '13px',
           }}>
             <AlertTriangle size={16} color={shelter.capacity > 0 && Math.round((shelter.currentOccupancy / shelter.capacity) * 100) >= 100 ? colors.danger : shelter.capacity > 0 && Math.round((shelter.currentOccupancy / shelter.capacity) * 100) > 80 ? colors.warning : colors.success} />
             <span style={{ color: colors.textSecondary }}>
