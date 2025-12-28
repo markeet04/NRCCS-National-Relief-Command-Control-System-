@@ -67,6 +67,7 @@
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -406,6 +407,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -416,6 +418,7 @@
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -423,9 +426,12 @@
 }
 
 @keyframes bounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -522,18 +528,42 @@
   border: 1px solid #bfdbfe;
 }
 
-.team-info-card h3 {
-  font-size: 1.3rem;
-  color: #1e293b;
+.team-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   margin-bottom: 16px;
-  font-weight: 700;
 }
 
-.team-details p {
-  margin: 8px 0;
+.team-header h3 {
+  font-size: 1.3rem;
+  color: #1e293b;
+  font-weight: 700;
+  margin: 0;
+}
+
+.team-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.team-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   font-size: 0.95rem;
   color: #475569;
-  line-height: 1.6;
+}
+
+.team-detail-row strong {
+  color: #1e293b;
+}
+
+.team-detail-row span {
+  font-family: 'Courier New', monospace;
 }
 
 .success-actions {
@@ -593,12 +623,15 @@
     opacity: 0;
     transform: scale(0.3);
   }
+
   50% {
     transform: scale(1.05);
   }
+
   70% {
     transform: scale(0.9);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
@@ -610,6 +643,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
