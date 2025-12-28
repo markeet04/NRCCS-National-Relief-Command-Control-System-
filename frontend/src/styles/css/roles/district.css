@@ -30,45 +30,24 @@
 }
 
 /* ============================================================================
-   DISTRICT STATS GRID - FORCE FULL WIDTH CARDS
+   DISTRICT STATS GRID - Now uses unified styles from cards.css
    ============================================================================ */
 .district-stats-grid {
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: var(--spacing-4) !important;
-    margin-bottom: var(--spacing-6) !important;
-    width: 100% !important;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
 }
 
-/* Force wider stat cards - override any max-width */
-.district-stats-grid .stat-card {
-    min-width: 0 !important;
-    width: 100% !important;
-    min-height: 150px !important;
-    padding: var(--spacing-6) var(--spacing-5) !important;
-    flex-grow: 1 !important;
-}
-
-/* Responsive adjustments for stat cards */
-@media (min-width: 1200px) {
+@media (max-width: 1280px) {
     .district-stats-grid {
-        grid-template-columns: repeat(3, 1fr) !important;
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 640px) {
     .district-stats-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-    }
-}
-
-@media (max-width: 768px) {
-    .district-stats-grid {
-        grid-template-columns: 1fr !important;
-    }
-    
-    .district-stats-grid .stat-card {
-        min-height: 130px !important;
+        grid-template-columns: 1fr;
     }
 }
 
@@ -206,8 +185,8 @@
 }
 
 /* Force top glow on the table card - subtle effect */
-.sos-table-container > div:first-child,
-.sos-table-container > .card,
+.sos-table-container>div:first-child,
+.sos-table-container>.card,
 .sos-table-container .card {
     box-shadow: 0 -2px 8px rgba(239, 68, 68, 0.15), var(--card-shadow) !important;
     border-top: 2px solid rgba(239, 68, 68, 0.4) !important;
@@ -215,8 +194,8 @@
     overflow: visible !important;
 }
 
-[data-theme="dark"] .sos-table-container > div:first-child,
-[data-theme="dark"] .sos-table-container > .card,
+[data-theme="dark"] .sos-table-container>div:first-child,
+[data-theme="dark"] .sos-table-container>.card,
 [data-theme="dark"] .sos-table-container .card {
     box-shadow: 0 -3px 10px rgba(239, 68, 68, 0.2), var(--card-shadow) !important;
     border-top: 2px solid rgba(239, 68, 68, 0.5) !important;

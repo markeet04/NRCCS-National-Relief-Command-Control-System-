@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@shared/components/layout';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { useBadge } from '@shared/contexts/BadgeContext';
+import { useAuth } from '@shared/hooks';
 import NdmaApiService from '@shared/services/NdmaApiService';
 
 // Import modular components
@@ -31,6 +32,7 @@ import '../../styles/national-dashboard.css';
  */
 const NDMADashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { activeStatusCount, provincialRequestsCount, updateActiveStatusCount } = useBadge();
   const [activeRoute, setActiveRoute] = useState('dashboard');
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
@@ -105,14 +107,14 @@ const NDMADashboard = () => {
       activeRoute={activeRoute}
       onNavigate={handleNavigate}
       userRole={roleConfig.userRole}
-      userName={roleConfig.userName}
+      userName={user?.name || 'User'}
       pageTitle={roleConfig.title}
       pageSubtitle={roleConfig.subtitle}
       notificationCount={activeStatusCount || 5}
     >
       <div className={`ndma-page ${isLight ? 'light' : ''}`}>
         <DashboardPageHeader
-          title="National Overview - NDMA"
+          title="National Overview"
         />
 
         <DashboardAlertBanner

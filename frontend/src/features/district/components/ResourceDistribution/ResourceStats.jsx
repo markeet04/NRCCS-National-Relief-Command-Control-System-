@@ -1,9 +1,10 @@
 /**
  * ResourceStats Component
  * KPI cards for resource distribution statistics
+ * Refactored to use unified stat card CSS classes
  */
+import { Package, BarChart3, TrendingUp, AlertCircle } from 'lucide-react';
 import '@styles/css/main.css';
-import './ResourceDistribution.css';
 
 const ResourceStats = ({
     totalResources,
@@ -16,48 +17,63 @@ const ResourceStats = ({
         return qty.toString();
     };
 
-    const stats = [
-        {
-            title: 'Resource Types',
-            value: totalResources,
-            subtitle: 'Different types',
-            color: '#3b82f6'
-        },
-        {
-            title: 'Total Quantity',
-            value: formatQuantity(totalQuantity),
-            subtitle: 'Units available',
-            color: '#10b981'
-        },
-        {
-            title: 'Distributed',
-            value: `${allocatedPercent}%`,
-            subtitle: 'To shelters',
-            color: '#f59e0b'
-        },
-        {
-            title: 'Available',
-            value: formatQuantity(availableQuantity),
-            subtitle: 'For allocation',
-            color: '#ef4444'
-        }
-    ];
-
     return (
-        <div className="resource-stats-grid">
-            {stats.map((stat, index) => (
-                <div
-                    key={index}
-                    className="resource-stat-card"
-                    style={{ borderLeftColor: stat.color }}
-                >
-                    <p className="resource-stat-card__title">{stat.title}</p>
-                    <p className="resource-stat-card__value" style={{ color: stat.color }}>
-                        {stat.value}
-                    </p>
-                    <p className="resource-stat-card__subtitle">{stat.subtitle}</p>
+        <div className="district-stats-grid">
+            {/* Resource Types */}
+            <div className="stat-card stat-card--blue">
+                <div className="flex items-center gap-4">
+                    <div className="stat-card__icon stat-card__icon--blue">
+                        <Package />
+                    </div>
+                    <div>
+                        <p className="stat-card__title">Resource Types</p>
+                        <p className="stat-card__value">{totalResources}</p>
+                        <p className="text-xs text-muted mt-1">Different types</p>
+                    </div>
                 </div>
-            ))}
+            </div>
+
+            {/* Total Quantity */}
+            <div className="stat-card stat-card--green">
+                <div className="flex items-center gap-4">
+                    <div className="stat-card__icon stat-card__icon--green">
+                        <BarChart3 />
+                    </div>
+                    <div>
+                        <p className="stat-card__title">Total Quantity</p>
+                        <p className="stat-card__value">{formatQuantity(totalQuantity)}</p>
+                        <p className="text-xs text-muted mt-1">Units available</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Distributed */}
+            <div className="stat-card stat-card--amber">
+                <div className="flex items-center gap-4">
+                    <div className="stat-card__icon stat-card__icon--amber">
+                        <TrendingUp />
+                    </div>
+                    <div>
+                        <p className="stat-card__title">Distributed</p>
+                        <p className="stat-card__value">{allocatedPercent}%</p>
+                        <p className="text-xs text-muted mt-1">To shelters</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Available */}
+            <div className="stat-card stat-card--red">
+                <div className="flex items-center gap-4">
+                    <div className="stat-card__icon stat-card__icon--red">
+                        <AlertCircle />
+                    </div>
+                    <div>
+                        <p className="stat-card__title">Available</p>
+                        <p className="stat-card__value">{formatQuantity(availableQuantity)}</p>
+                        <p className="text-xs text-muted mt-1">For allocation</p>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

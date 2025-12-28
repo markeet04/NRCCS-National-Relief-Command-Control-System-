@@ -1,151 +1,66 @@
 /**
  * MissingPersonsKPICards Component
- * Displays summary statistics for missing persons cases
+ * KPI cards for missing persons management
+ * EXACT NDMA Layout: Header (Title LEFT, Icon RIGHT) → Value → Subtitle
  */
-import { Users, UserCheck, UserX, AlertTriangle } from 'lucide-react';
+
+import { Users, Search, CheckCircle, AlertTriangle } from 'lucide-react';
 import '@styles/css/main.css';
 
 const MissingPersonsKPICards = ({
     totalCases,
     activeCases,
     foundCases,
-    criticalCases,
-    colors
+    criticalCases
 }) => {
     return (
-        <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            gap: '20px',
-            marginBottom: '24px'
-        }}>
+        <div className="district-stats-grid">
             {/* Total Cases */}
-            <div style={{
-                background: colors.cardBg,
-                border: `2px solid ${colors.border}`,
-                borderLeft: `4px solid #3b82f6`,
-                borderRadius: '16px',
-                padding: '24px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '16px',
-                transition: 'transform 0.2s'
-            }}>
-                <div style={{
-                    width: '64px',
-                    height: '64px',
-                    borderRadius: '16px',
-                    background: 'rgba(59, 130, 246, 0.15)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}>
-                    <Users size={32} color="#3b82f6" />
+            <div className="stat-card stat-card--blue">
+                <div className="stat-card__header">
+                    <span className="stat-card__title">Total Reports</span>
+                    <div className="stat-card__icon stat-card__icon--blue">
+                        <Users />
+                    </div>
                 </div>
-                <div>
-                    <p style={{ color: colors.textSecondary, fontSize: '13px', fontWeight: '500', textTransform: 'uppercase' }}>
-                        Total Cases
-                    </p>
-                    <p style={{ color: colors.textPrimary, fontSize: '32px', fontWeight: '700' }}>
-                        {totalCases}
-                    </p>
-                </div>
+                <div className="stat-card__value">{totalCases}</div>
+                <span className="stat-card__subtitle">all reported cases</span>
             </div>
 
-            {/* Active (Missing) */}
-            <div style={{
-                background: colors.cardBg,
-                border: `2px solid ${colors.border}`,
-                borderLeft: `4px solid #ef4444`,
-                borderRadius: '16px',
-                padding: '24px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '16px'
-            }}>
-                <div style={{
-                    width: '64px',
-                    height: '64px',
-                    borderRadius: '16px',
-                    background: 'rgba(239, 68, 68, 0.15)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}>
-                    <AlertTriangle size={32} color="#ef4444" />
+            {/* Active Cases */}
+            <div className="stat-card stat-card--amber">
+                <div className="stat-card__header">
+                    <span className="stat-card__title">Active Search</span>
+                    <div className="stat-card__icon stat-card__icon--amber">
+                        <Search />
+                    </div>
                 </div>
-                <div>
-                    <p style={{ color: colors.textSecondary, fontSize: '13px', fontWeight: '500', textTransform: 'uppercase' }}>
-                        Active Cases
-                    </p>
-                    <p style={{ color: colors.textPrimary, fontSize: '32px', fontWeight: '700' }}>
-                        {activeCases}
-                    </p>
-                </div>
+                <div className="stat-card__value">{activeCases}</div>
+                <span className="stat-card__subtitle">ongoing investigations</span>
             </div>
 
-            {/* Found */}
-            <div style={{
-                background: colors.cardBg,
-                border: `2px solid ${colors.border}`,
-                borderLeft: `4px solid #10b981`,
-                borderRadius: '16px',
-                padding: '24px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '16px'
-            }}>
-                <div style={{
-                    width: '64px',
-                    height: '64px',
-                    borderRadius: '16px',
-                    background: 'rgba(16, 185, 129, 0.15)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}>
-                    <UserCheck size={32} color="#10b981" />
+            {/* Found Cases */}
+            <div className="stat-card stat-card--green">
+                <div className="stat-card__header">
+                    <span className="stat-card__title">Found</span>
+                    <div className="stat-card__icon stat-card__icon--green">
+                        <CheckCircle />
+                    </div>
                 </div>
-                <div>
-                    <p style={{ color: colors.textSecondary, fontSize: '13px', fontWeight: '500', textTransform: 'uppercase' }}>
-                        Found Alive
-                    </p>
-                    <p style={{ color: colors.textPrimary, fontSize: '32px', fontWeight: '700' }}>
-                        {foundCases}
-                    </p>
-                </div>
+                <div className="stat-card__value">{foundCases}</div>
+                <span className="stat-card__subtitle">located safely</span>
             </div>
 
-            {/* Critical (20+ days) */}
-            <div style={{
-                background: colors.cardBg,
-                border: `2px solid ${colors.border}`,
-                borderLeft: `4px solid #f59e0b`,
-                borderRadius: '16px',
-                padding: '24px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '16px'
-            }}>
-                <div style={{
-                    width: '64px',
-                    height: '64px',
-                    borderRadius: '16px',
-                    background: 'rgba(245, 158, 11, 0.15)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}>
-                    <UserX size={32} color="#f59e0b" />
+            {/* Critical Cases */}
+            <div className="stat-card stat-card--red">
+                <div className="stat-card__header">
+                    <span className="stat-card__title">Critical</span>
+                    <div className="stat-card__icon stat-card__icon--red">
+                        <AlertTriangle />
+                    </div>
                 </div>
-                <div>
-                    <p style={{ color: colors.textSecondary, fontSize: '13px', fontWeight: '500', textTransform: 'uppercase' }}>
-                        Critical (20+ Days)
-                    </p>
-                    <p style={{ color: colors.textPrimary, fontSize: '32px', fontWeight: '700' }}>
-                        {criticalCases}
-                    </p>
-                </div>
+                <div className="stat-card__value">{criticalCases}</div>
+                <span className="stat-card__subtitle">urgent attention needed</span>
             </div>
         </div>
     );

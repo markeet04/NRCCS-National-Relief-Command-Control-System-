@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import NdmaApiService from '@shared/services/NdmaApiService';
 import { NotificationService } from '@services/NotificationService';
+import { useAuth } from '@shared/hooks';
 
 // Import modular components
 
@@ -33,15 +34,18 @@ import '../../styles/resource-allocation.css';
  * Modular component-based architecture
  */
 const ResourcesPage = () => {
+  // Get authenticated user
+  const { user } = useAuth();
+
   // History modal state
   const [historyProvince, setHistoryProvince] = useState(null);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
-  
+
   // Resource history modal state
   const [resourceHistoryType, setResourceHistoryType] = useState(null);
   const [resourceHistoryLabel, setResourceHistoryLabel] = useState(null);
   const [isResourceHistoryOpen, setIsResourceHistoryOpen] = useState(false);
-  
+
   // Resource form modal state
   const [isResourceFormOpen, setIsResourceFormOpen] = useState(false);
 
@@ -121,15 +125,15 @@ const ResourcesPage = () => {
 
     setAllocating(true);
     try {
-      const selectedProvinceObj = provinces.find(p => 
+      const selectedProvinceObj = provinces.find(p =>
         p.name?.toLowerCase().trim() === allocateForm.targetProvince?.toLowerCase().trim()
       );
-      
+
       if (!selectedProvinceObj) {
-        const provinceFromAllocations = provincialAllocations.find(a => 
+        const provinceFromAllocations = provincialAllocations.find(a =>
           a.province?.toLowerCase().trim() === allocateForm.targetProvince?.toLowerCase().trim()
         );
-        
+
         if (!provinceFromAllocations) {
           NotificationService.showError(`Province "${allocateForm.targetProvince}" not found.`);
           setAllocating(false);
@@ -185,14 +189,14 @@ const ResourcesPage = () => {
         activeRoute="resources"
         onNavigate={(route) => console.log('Navigate to:', route)}
         userRole="NDMA"
-        userName="Admin"
+        userName={user?.name || 'User'}
         pageTitle="National Rescue & Crisis Coordination System"
         pageSubtitle="Resource Management System"
         notificationCount={pendingRequestsCount}
       >
         <div className="resources-page">
           {/* Page Header */}
-          <ResourcesPageHeader />
+          <ResourcesPageHeader title="Resource Management" />
 
           {/* Resource Statistics */}
           <ResourceStats stats={resourceStats} />
@@ -247,7 +251,7 @@ const ResourcesPage = () => {
           )}
 
           {activeTab === 'ai-suggestions' && (
-            <div style={{marginTop: 24}}>
+            <div style={{ marginTop: 24 }}>
               <SuggestionsTab />
             </div>
           )}

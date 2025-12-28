@@ -1,8 +1,12 @@
 /**
  * ResourceDistribution Component-Specific Styles
+ * 
+ * NOTE: Stats cards now use unified .stat-card classes from cards.css
+ * The district-stats-grid layout is defined in roles/district.css
  */
 
 /* ============================================================================
+<<<<<<< Updated upstream
    DISTRICT STATS GRID (NDMA Style)
    ============================================================================ */
 .district-stats-grid {
@@ -764,42 +768,10 @@
 }
 
 /* ============================================================================
-   LEGACY STYLES (Keep for backward compatibility)
+   LEGACY STYLES - DEPRECATED
+   Note: Stats cards now use unified .stat-card classes from main.css
+   The resource-stats-grid class has been moved to cards.css as district-stats-grid
    ============================================================================ */
-
-/* Resource Stats Grid */
-.resource-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
-    margin-bottom: 28px;
-}
-
-.resource-stat-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 8px;
-    padding: 16px;
-    border-left-width: 4px;
-    border-left-style: solid;
-}
-
-.resource-stat-card__title {
-    font-size: 12px;
-    color: var(--text-secondary);
-    margin-bottom: 6px;
-}
-
-.resource-stat-card__value {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 6px;
-}
-
-.resource-stat-card__subtitle {
-    font-size: 11px;
-    color: var(--text-muted);
-}
 
 /* Resource Filters */
 .resource-filters {

@@ -1,57 +1,63 @@
 import React from 'react';
 import { Clock, CheckCircle, XCircle, TrendingUp } from 'lucide-react';
+import '@styles/css/main.css';
 
+/**
+ * StatsCards Component for AI Suggestions
+ * EXACT NDMA Layout: Header (Title LEFT, Icon RIGHT) → Value → Subtitle
+ */
 const StatsCards = ({ stats }) => {
   const cards = [
     {
       label: 'Total Suggestions',
       value: stats.total,
       icon: TrendingUp,
-      color: 'var(--primary)',
+      colorClass: 'blue',
     },
     {
       label: 'Pending Review',
       value: stats.pending,
       icon: Clock,
-      color: 'var(--warning)',
+      colorClass: 'amber',
     },
     {
       label: 'Approved',
       value: stats.approved,
       icon: CheckCircle,
-      color: 'var(--success)',
+      colorClass: 'green',
+      subtitle: stats.approvalRate ? `${stats.approvalRate}% approval rate` : null,
     },
     {
       label: 'Rejected',
       value: stats.rejected,
       icon: XCircle,
-      color: 'var(--error)',
+      colorClass: 'red',
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="district-stats-grid">
       {cards.map((card) => {
         const Icon = card.icon;
         return (
           <div
             key={card.label}
-            className="p-4 rounded-lg"
-            style={{ backgroundColor: 'var(--surface-elevated)' }}
+            className={`stat-card stat-card--${card.colorClass}`}
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                {card.label}
-              </span>
-              <Icon size={20} style={{ color: card.color }} />
-            </div>
-            <div className="text-3xl font-bold" style={{ color: card.color }}>
-              {card.value}
-            </div>
-            {card.label === 'Approved' && stats.approvalRate && (
-              <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                {stats.approvalRate}% approval rate
+            {/* Header: Title LEFT, Icon RIGHT */}
+            <div className="stat-card__header">
+              <span className="stat-card__title">{card.label}</span>
+              <div className={`stat-card__icon stat-card__icon--${card.colorClass}`}>
+                <Icon size={20} />
               </div>
+            </div>
+
+            {/* Value */}
+            <div className="stat-card__value">{card.value}</div>
+
+            {/* Subtitle (if any) */}
+            {card.subtitle && (
+              <span className="stat-card__subtitle">{card.subtitle}</span>
             )}
           </div>
         );

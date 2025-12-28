@@ -1,85 +1,54 @@
 /**
  * KPICard Component
- * Reusable KPI card with icon, value, and optional chart
- * 
- * CSS Migration: Now uses external CSS classes from design system
+ * Reusable KPI card with EXACT NDMA layout
+ * Structure: Header (Title LEFT, Icon RIGHT) → Value → Subtitle
  */
 
-import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import '@styles/css/main.css';
+
+// Color mapping from prop to CSS class
+const colorToClass = {
+  '#ef4444': 'red',
+  '#f44336': 'red',
+  '#dc2626': 'red',
+  '#10b981': 'green',
+  '#22c55e': 'green',
+  '#4caf50': 'green',
+  '#f59e0b': 'amber',
+  '#ffc107': 'amber',
+  '#eab308': 'amber',
+  '#3b82f6': 'blue',
+  '#2196f3': 'blue',
+  '#0ea5e9': 'blue',
+  '#8b5cf6': 'purple',
+  '#9c27b0': 'purple',
+  '#06b6d4': 'cyan',
+};
 
 const KPICard = ({
   title,
   value,
-  icon: Icon,
   subtitle,
+  icon: IconComponent,
   borderColor = '#3b82f6',
-  chartData,
-  chartType = 'ring', // 'ring' or 'number'
-  className = ''
 }) => {
-  // Ring chart rendering
-  const renderRingChart = () => {
-    if (!chartData || chartType !== 'ring') return null;
-
-    const centerValue = chartData[0]?.value || 0;
-
-    return (
-      <div style={{ width: '90px', height: '90px', minWidth: '90px', minHeight: '90px', position: 'relative' }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={chartData}
-              cx="50%"
-              cy="50%"
-              innerRadius={28}
-              outerRadius={40}
-              paddingAngle={2}
-              dataKey="value"
-              startAngle={90}
-              endAngle={-270}
-              animationDuration={1000}
-            >
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.fill || entry.color} />
-              ))}
-            </Pie>
-          </PieChart>
-        </ResponsiveContainer>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-sm font-bold text-primary">
-            {centerValue}%
-          </span>
-        </div>
-      </div>
-    );
-  };
+  // Determine color class from borderColor prop
+  const colorName = colorToClass[borderColor] || 'blue';
 
   return (
-    <div
-      className={`stat-card transition-all ${className}`}
-      style={{ borderLeftColor: borderColor }}
-    >
-      <div className="flex items-center gap-4">
-        {chartData && chartType === 'ring' ? (
-          renderRingChart()
-        ) : Icon && (
-          <div
-            className="stat-card__icon"
-            style={{ background: `${borderColor}20` }}
-          >
-            <Icon style={{ width: '28px', height: '28px', color: borderColor }} />
+    <div className={`stat-card stat-card--${colorName}`}>
+      <div className="stat-card__header">
+        <span className="stat-card__title">{title}</span>
+        {IconComponent && (
+          <div className={`stat-card__icon stat-card__icon--${colorName}`}>
+            <IconComponent />
           </div>
         )}
-        <div>
-          <p className="stat-card__title">{title}</p>
-          <p className="stat-card__value">{value}</p>
-          {subtitle && <p className="text-xs text-muted mt-0.5">{subtitle}</p>}
-        </div>
       </div>
+      <div className="stat-card__value">{value}</div>
+      {subtitle && <span className="stat-card__subtitle">{subtitle}</span>}
     </div>
   );
 };
 
 export default KPICard;
-

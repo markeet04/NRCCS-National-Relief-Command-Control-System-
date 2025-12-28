@@ -1,6 +1,7 @@
 import { DashboardLayout } from '@shared/components/layout';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils';
+import { useAuth } from '@shared/hooks';
 
 // Import modular components
 import {
@@ -26,6 +27,9 @@ import '../../styles/global-ndma.css';
  * Modular component-based architecture
  */
 const AlertsPage = () => {
+  // Get authenticated user
+  const { user } = useAuth();
+
   // Get theme from settings
   const { theme } = useSettings();
   const isLight = theme === 'light';
@@ -69,6 +73,7 @@ const AlertsPage = () => {
       <AlertsLoadingState
         menuItems={menuItems}
         activeAlertsCount={activeAlertsCount}
+        userName={user?.name || 'User'}
       />
     );
   }
@@ -81,6 +86,7 @@ const AlertsPage = () => {
         activeAlertsCount={activeAlertsCount}
         error={error}
         onRetry={() => loadAlerts()}
+        userName={user?.name || 'User'}
       />
     );
   }
@@ -92,7 +98,7 @@ const AlertsPage = () => {
         activeRoute="alerts"
         onNavigate={(route) => console.log('Navigate to:', route)}
         userRole="NDMA"
-        userName="Admin"
+        userName={user?.name || 'User'}
         pageTitle="National Rescue & Crisis Coordination System"
         pageSubtitle="Alert Management System"
         notificationCount={activeAlertsCount}

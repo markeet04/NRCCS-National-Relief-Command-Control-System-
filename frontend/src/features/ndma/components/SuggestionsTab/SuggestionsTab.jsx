@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  AlertCircle, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
+import {
+  AlertCircle,
+  CheckCircle,
+  XCircle,
+  Clock,
   TrendingUp,
   Droplet,
   Package,
@@ -16,6 +16,7 @@ import SuggestionCard from './SuggestionCard';
 import ApproveModal from './ApproveModal';
 import RejectModal from './RejectModal';
 import StatsCards from './StatsCards';
+import Dropdown from '../../../../shared/components/ui/Dropdown';
 
 const RESOURCE_ICONS = {
   water: Droplet,
@@ -23,6 +24,21 @@ const RESOURCE_ICONS = {
   medical: Heart,
   shelter: Home,
 };
+
+const STATUS_OPTIONS = [
+  { value: '', label: 'All Status' },
+  { value: 'PENDING', label: 'Pending' },
+  { value: 'APPROVED', label: 'Approved' },
+  { value: 'REJECTED', label: 'Rejected' },
+];
+
+const RESOURCE_OPTIONS = [
+  { value: '', label: 'All Resources' },
+  { value: 'water', label: 'Water' },
+  { value: 'food', label: 'Food' },
+  { value: 'medical', label: 'Medical' },
+  { value: 'shelter', label: 'Shelter' },
+];
 
 const SuggestionsTab = () => {
   const {
@@ -70,17 +86,12 @@ const SuggestionsTab = () => {
   const hasPending = pendingSuggestions.length > 0;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-4">
+      {/* Header - Reduced spacing */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-            AI Resource Allocation Suggestions
-          </h2>
-          <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
-            Review and approve AI-generated resource allocation recommendations
-          </p>
-        </div>
+        <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
+          AI Resource Allocation Suggestions
+        </h2>
         <button
           onClick={refresh}
           className="px-4 py-2 rounded-lg transition-colors"
@@ -96,61 +107,57 @@ const SuggestionsTab = () => {
       {/* Stats Cards */}
       {stats && <StatsCards stats={stats} />}
 
-      {/* Filters */}
-      <div className="flex gap-4 items-center">
-        <select
-          value={filters.status || 'PENDING'}
-          onChange={(e) => updateFilters({ status: e.target.value || undefined })}
-          className="px-4 py-2 rounded-lg border"
-          style={{
-            backgroundColor: 'var(--surface-elevated)',
-            borderColor: 'var(--border-subtle)',
-            color: 'var(--text-primary)',
-          }}
-        >
-          <option value="">All Status</option>
-          <option value="PENDING">Pending</option>
-          <option value="APPROVED">Approved</option>
-          <option value="REJECTED">Rejected</option>
-        </select>
+      {/* Filters - Custom Dropdown components */}
+      <div className="flex gap-3 items-center" style={{ marginTop: '20px', marginBottom: '16px' }}>
+        <Dropdown
+          value={filters.status || ''}
+          options={STATUS_OPTIONS}
+          onChange={(value) => updateFilters({ status: value || undefined })}
+        />
 
-        <select
+        <Dropdown
           value={filters.resourceType || ''}
-          onChange={(e) => updateFilters({ resourceType: e.target.value || undefined })}
-          className="px-4 py-2 rounded-lg border"
-          style={{
-            backgroundColor: 'var(--surface-elevated)',
-            borderColor: 'var(--border-subtle)',
-            color: 'var(--text-primary)',
-          }}
-        >
-          <option value="">All Resources</option>
-          <option value="water">Water</option>
-          <option value="food">Food</option>
-          <option value="medical">Medical</option>
-          <option value="shelter">Shelter</option>
-        </select>
+          options={RESOURCE_OPTIONS}
+          onChange={(value) => updateFilters({ resourceType: value || undefined })}
+        />
       </div>
 
       {/* Loading State */}
       {loading && (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto" 
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto"
             style={{ borderColor: 'var(--primary)' }}>
           </div>
           <p className="mt-4" style={{ color: 'var(--text-muted)' }}>Loading suggestions...</p>
         </div>
       )}
 
-      {/* Empty State */}
+      {/* Empty State - Improved design */}
       {!loading && suggestions.length === 0 && (
-        <div className="text-center py-12 rounded-lg" style={{ backgroundColor: 'var(--surface-elevated)' }}>
-          <CheckCircle className="mx-auto h-16 w-16 mb-4" style={{ color: 'var(--success)' }} />
-          <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+        <div
+          className="text-center py-16 rounded-xl"
+          style={{
+            backgroundColor: '#0f1114',
+            border: '1px solid #1e2228',
+            marginTop: '20px'
+          }}
+        >
+          <div
+            className="mx-auto mb-5 flex items-center justify-center"
+            style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '16px',
+              backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            }}
+          >
+            <CheckCircle size={32} style={{ color: '#22c55e' }} />
+          </div>
+          <h3 className="text-lg font-semibold mb-2" style={{ color: '#ffffff' }}>
             No suggestions found
           </h3>
-          <p style={{ color: 'var(--text-muted)' }}>
-            {filters.status === 'PENDING' 
+          <p className="text-sm" style={{ color: '#64748b', maxWidth: '400px', margin: '0 auto' }}>
+            {filters.status === 'PENDING'
               ? 'All suggestions have been reviewed. New suggestions will appear here when ML detects flood risks.'
               : 'No suggestions match the selected filters.'}
           </p>
@@ -159,7 +166,7 @@ const SuggestionsTab = () => {
 
       {/* Suggestions List */}
       {!loading && suggestions.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {suggestions.map((suggestion) => (
             <SuggestionCard
               key={suggestion.id}

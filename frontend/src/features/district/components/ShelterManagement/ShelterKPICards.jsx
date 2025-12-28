@@ -1,100 +1,76 @@
 /**
  * ShelterKPICards Component
- * KPI summary cards for shelter statistics
+ * KPI cards for shelter management
+ * EXACT NDMA Layout: Header (Title LEFT, Icon RIGHT) → Value → Subtitle
  */
-import { Home } from 'lucide-react';
-import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+
+import { Building2, Users, BarChart2, PieChart } from 'lucide-react';
 import '@styles/css/main.css';
-import './ShelterManagement.css';
 
-const ShelterKPICards = ({
-    stats = {},
-    capacityRingData = [],
-    statusPieData = []
-}) => {
-    const { totalShelters = 0, totalCapacity = 0, totalOccupancy = 0 } = stats;
-    const occupancyPercent = totalCapacity > 0
-        ? Math.round((totalOccupancy / totalCapacity) * 100)
-        : 0;
+const ShelterKPICards = ({ stats, capacityRingData, statusPieData }) => {
+    const totalShelters = stats?.totalShelters || 0;
+    const totalCapacity = stats?.totalCapacity || 0;
+    const totalOccupancy = stats?.totalOccupancy || 0;
+    const occupancyPercent = totalCapacity > 0 ? Math.round((totalOccupancy / totalCapacity) * 100) : 0;
 
-    // Count shelters by status
-    const availableCount = statusPieData.find(d => d.name === 'Available')?.value || 0;
-    const nearFullCount = statusPieData.find(d => d.name === 'Near Full')?.value || 0;
-    const fullCount = statusPieData.find(d => d.name === 'Full')?.value || 0;
+    // Calculate status breakdown
+    const available = statusPieData?.find(s => s.name === 'Available')?.value || 0;
+    const nearFull = statusPieData?.find(s => s.name === 'Near Full')?.value || 0;
+    const full = statusPieData?.find(s => s.name === 'Full')?.value || 0;
 
     return (
-        <div className="shelter-kpi-grid">
-            {/* Total Shelters Card */}
-            <div className="stat-card" style={{ borderLeftColor: '#3b82f6' }}>
-                <div className="flex items-center gap-5">
-                    <div className="stat-card__icon" style={{ background: 'rgba(59, 130, 246, 0.15)' }}>
-                        <Home style={{ width: 32, height: 32, color: '#3b82f6' }} />
+        <div className="district-stats-grid">
+            {/* Total Shelters */}
+            <div className="stat-card stat-card--blue">
+                <div className="stat-card__header">
+                    <span className="stat-card__title">Total Shelters</span>
+                    <div className="stat-card__icon stat-card__icon--blue">
+                        <Building2 />
                     </div>
-                    <div>
-                        <p className="stat-card__title">Total Shelters</p>
-                        <p className="stat-card__value">{totalShelters}</p>
+                </div>
+                <div className="stat-card__value">{totalShelters}</div>
+                <span className="stat-card__subtitle">active shelters</span>
+            </div>
+
+            {/* Total Capacity */}
+            <div className="stat-card stat-card--purple">
+                <div className="stat-card__header">
+                    <span className="stat-card__title">Total Capacity</span>
+                    <div className="stat-card__icon stat-card__icon--purple">
+                        <Users />
                     </div>
+                </div>
+                <div className="stat-card__value">{totalCapacity.toLocaleString()}</div>
+                <span className="stat-card__subtitle">{totalOccupancy} occupied ({occupancyPercent}%)</span>
+            </div>
+
+            {/* Status Breakdown */}
+            <div className="stat-card stat-card--green">
+                <div className="stat-card__header">
+                    <span className="stat-card__title">Status Breakdown</span>
+                    <div className="stat-card__icon stat-card__icon--green">
+                        <PieChart />
+                    </div>
+                </div>
+                <div className="stat-card__value" style={{ fontSize: '20px' }}>
+                    <span style={{ color: '#22c55e' }}>● </span>{available} Available
+                </div>
+                <div className="stat-card__subtitle">
+                    <span style={{ color: '#f59e0b' }}>● </span>{nearFull} Near Full &nbsp;
+                    <span style={{ color: '#ef4444' }}>● </span>{full} Full
                 </div>
             </div>
 
-            {/* Total Capacity with Ring Gauge */}
-            <div className="stat-card" style={{ borderLeftColor: '#8b5cf6' }}>
-                <div className="flex items-center gap-4">
-                    <div style={{ width: 100, height: 100, minWidth: 100, minHeight: 100, position: 'relative' }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie
-                                    data={capacityRingData}
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={32}
-                                    outerRadius={45}
-                                    paddingAngle={2}
-                                    dataKey="value"
-                                    startAngle={90}
-                                    endAngle={-270}
-                                    animationDuration={1000}
-                                >
-                                    {capacityRingData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                                    ))}
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-primary font-bold">{occupancyPercent}%</span>
-                        </div>
-                    </div>
-                    <div>
-                        <p className="stat-card__title">Total Capacity</p>
-                        <p className="stat-card__value">{totalCapacity.toLocaleString()}</p>
-                        <p className="text-xs text-muted">{totalOccupancy.toLocaleString()} occupied</p>
+            {/* Population Stats */}
+            <div className="stat-card stat-card--amber">
+                <div className="stat-card__header">
+                    <span className="stat-card__title">Current Occupancy</span>
+                    <div className="stat-card__icon stat-card__icon--amber">
+                        <BarChart2 />
                     </div>
                 </div>
-            </div>
-
-            {/* Status Breakdown Card */}
-            <div className="stat-card" style={{ borderLeftColor: '#22c55e' }}>
-                <div>
-                    <p className="stat-card__title mb-3">Status Breakdown</p>
-                    <div className="status-breakdown">
-                        <div className="status-breakdown__item">
-                            <span className="status-breakdown__dot" style={{ background: '#22c55e' }} />
-                            <span className="status-breakdown__label">Available:</span>
-                            <span className="status-breakdown__value">{availableCount}</span>
-                        </div>
-                        <div className="status-breakdown__item">
-                            <span className="status-breakdown__dot" style={{ background: '#f59e0b' }} />
-                            <span className="status-breakdown__label">Near Full:</span>
-                            <span className="status-breakdown__value">{nearFullCount}</span>
-                        </div>
-                        <div className="status-breakdown__item">
-                            <span className="status-breakdown__dot" style={{ background: '#ef4444' }} />
-                            <span className="status-breakdown__label">Full:</span>
-                            <span className="status-breakdown__value">{fullCount}</span>
-                        </div>
-                    </div>
-                </div>
+                <div className="stat-card__value">{occupancyPercent}%</div>
+                <span className="stat-card__subtitle">{totalOccupancy.toLocaleString()} people sheltered</span>
             </div>
         </div>
     );

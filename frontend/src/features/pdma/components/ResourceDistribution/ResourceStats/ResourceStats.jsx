@@ -1,68 +1,71 @@
-const ResourceStats = ({ totalResources, totalQuantity, allocatedPercent, availableQuantity, colors }) => {
+/**
+ * ResourceStats Component
+ * KPI cards for PDMA resource distribution
+ * EXACT NDMA Layout: Header (Title LEFT, Icon RIGHT) → Value → Subtitle
+ */
+
+import { Package, BarChart3, TrendingUp, AlertCircle } from 'lucide-react';
+import '@styles/css/main.css';
+
+const ResourceStats = ({
+  totalResources = 0,
+  totalQuantity = 0,
+  allocatedPercent = 0,
+  availableQuantity = 0
+}) => {
+  const formatQuantity = (qty) => {
+    if (qty >= 1000) return `${(qty / 1000).toFixed(1)}K`;
+    return qty.toString();
+  };
+
   return (
-    <div className="pdma-stats-grid" style={{ marginBottom: '28px' }}>
-      <div
-        className="pdma-card"
-        style={{
-          background: colors.cardBg,
-          borderColor: colors.border,
-          padding: '16px',
-          borderLeft: '4px solid #3b82f6'
-        }}
-      >
-        <p style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '6px' }}>Total Resources</p>
-        <p style={{ fontSize: '24px', fontWeight: '700', color: '#3b82f6', marginBottom: '6px' }}>
-          {totalResources}
-        </p>
-        <p style={{ fontSize: '11px', color: colors.textMuted }}>Types</p>
+    <div className="district-stats-grid">
+      {/* Total Resources */}
+      <div className="stat-card stat-card--blue">
+        <div className="stat-card__header">
+          <span className="stat-card__title">Total Resources</span>
+          <div className="stat-card__icon stat-card__icon--blue">
+            <Package size={20} />
+          </div>
+        </div>
+        <div className="stat-card__value">{totalResources}</div>
+        <span className="stat-card__subtitle">resource types</span>
       </div>
 
-      <div
-        className="pdma-card"
-        style={{
-          background: colors.cardBg,
-          borderColor: colors.border,
-          padding: '16px',
-          borderLeft: '4px solid #10b981'
-        }}
-      >
-        <p style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '6px' }}>Total Quantity</p>
-        <p style={{ fontSize: '24px', fontWeight: '700', color: '#10b981', marginBottom: '6px' }}>
-          {(totalQuantity / 1000).toFixed(1)}K
-        </p>
-        <p style={{ fontSize: '11px', color: colors.textMuted }}>Units</p>
+      {/* Total Quantity */}
+      <div className="stat-card stat-card--green">
+        <div className="stat-card__header">
+          <span className="stat-card__title">Total Quantity</span>
+          <div className="stat-card__icon stat-card__icon--green">
+            <BarChart3 size={20} />
+          </div>
+        </div>
+        <div className="stat-card__value">{formatQuantity(totalQuantity)}</div>
+        <span className="stat-card__subtitle">units</span>
       </div>
 
-      <div
-        className="pdma-card"
-        style={{
-          background: colors.cardBg,
-          borderColor: colors.border,
-          padding: '16px',
-          borderLeft: '4px solid #f59e0b'
-        }}
-      >
-        <p style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '6px' }}>Allocated %</p>
-        <p style={{ fontSize: '24px', fontWeight: '700', color: '#f59e0b', marginBottom: '6px' }}>
-          {allocatedPercent}%
-        </p>
-        <p style={{ fontSize: '11px', color: colors.textMuted }}>Distributed</p>
+      {/* Allocated % */}
+      <div className="stat-card stat-card--amber">
+        <div className="stat-card__header">
+          <span className="stat-card__title">Allocated</span>
+          <div className="stat-card__icon stat-card__icon--amber">
+            <TrendingUp size={20} />
+          </div>
+        </div>
+        <div className="stat-card__value">{allocatedPercent}%</div>
+        <span className="stat-card__subtitle">distributed</span>
       </div>
 
-      <div
-        className="pdma-card"
-        style={{
-          background: colors.cardBg,
-          borderColor: colors.border,
-          padding: '16px',
-          borderLeft: '4px solid #ef4444'
-        }}
-      >
-        <p style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '6px' }}>Available</p>
-        <p style={{ fontSize: '24px', fontWeight: '700', color: '#ef4444', marginBottom: '6px' }}>
-          {(availableQuantity / 1000).toFixed(1)}K
-        </p>
-        <p style={{ fontSize: '11px', color: colors.textMuted }}>Units</p>
+      {/* Available */}
+      <div className="stat-card stat-card--red">
+        <div className="stat-card__header">
+          <span className="stat-card__title">Available</span>
+          <div className="stat-card__icon stat-card__icon--red">
+            <AlertCircle size={20} />
+          </div>
+        </div>
+        <div className="stat-card__value">{formatQuantity(availableQuantity)}</div>
+        <span className="stat-card__subtitle">units</span>
       </div>
     </div>
   );

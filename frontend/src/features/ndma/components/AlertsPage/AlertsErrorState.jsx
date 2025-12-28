@@ -6,14 +6,14 @@ import { DashboardLayout } from '@shared/components/layout';
  * AlertsErrorState Component
  * Error state UI for the alerts page
  */
-const AlertsErrorState = ({ menuItems, activeAlertsCount, error, onRetry }) => {
+const AlertsErrorState = ({ menuItems, activeAlertsCount, error, onRetry, userName }) => {
   return (
     <DashboardLayout
       menuItems={menuItems}
       activeRoute="alerts"
       onNavigate={(route) => console.log('Navigate to:', route)}
       userRole="NDMA"
-      userName="Admin"
+      userName={userName}
       pageTitle="National Rescue & Crisis Coordination System"
       pageSubtitle="Alert Management System"
       notificationCount={activeAlertsCount}
@@ -38,10 +38,13 @@ AlertsErrorState.propTypes = {
   activeAlertsCount: PropTypes.number,
   error: PropTypes.string.isRequired,
   onRetry: PropTypes.func.isRequired,
+  userName: PropTypes.string,
 };
 
 AlertsErrorState.defaultProps = {
   activeAlertsCount: 0,
+  userName: 'User',
 };
 
 export default AlertsErrorState;
+

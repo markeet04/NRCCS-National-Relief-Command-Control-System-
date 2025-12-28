@@ -1,74 +1,73 @@
-import { Building, Users, UserCheck, Percent } from 'lucide-react';
-import '@features/ndma/styles/national-dashboard.css';
-
 /**
  * ShelterStats Component
- * NDMA Dashboard-style stats cards with glow effects for Shelter Registry
+ * KPI cards for PDMA shelter management
+ * EXACT NDMA Layout: Header (Title LEFT, Icon RIGHT) → Value → Subtitle
  */
-const ShelterStats = ({ totalShelters = 0, totalCapacity = 0, currentOccupancy = 0, avgOccupancyPercent = 0, colors }) => {
+
+import { Building, Users, TrendingUp, AlertTriangle } from 'lucide-react';
+import '@styles/css/main.css';
+
+const ShelterStats = ({
+  totalShelters = 0,
+  totalCapacity = 0,
+  currentOccupancy = 0,
+  avgOccupancyPercent = 0
+}) => {
   // Ensure values are numbers and not NaN
   const safeTotal = Number(totalShelters) || 0;
   const safeCapacity = Number(totalCapacity) || 0;
   const safeOccupancy = Number(currentOccupancy) || 0;
   const safePercent = Number(avgOccupancyPercent) || 0;
 
-  // Stats configuration with proper icons and colors
-  const stats = [
-    {
-      title: 'TOTAL SHELTERS',
-      value: safeTotal,
-      icon: Building,
-      borderClass: 'border-left-blue',
-      iconClass: 'icon-blue',
-      subtitle: 'Active facilities',
-    },
-    {
-      title: 'TOTAL CAPACITY',
-      value: safeCapacity.toLocaleString(),
-      icon: Users,
-      borderClass: 'border-left-green',
-      iconClass: 'icon-green',
-      subtitle: 'Maximum capacity',
-    },
-    {
-      title: 'CURRENT OCCUPANCY',
-      value: safeOccupancy.toLocaleString(),
-      icon: UserCheck,
-      borderClass: 'border-left-yellow',
-      iconClass: 'icon-yellow',
-      subtitle: 'People sheltered',
-    },
-    {
-      title: 'AVG OCCUPANCY %',
-      value: `${safePercent}%`,
-      icon: Percent,
-      borderClass: safePercent > 80 ? 'border-left-red' : safePercent > 60 ? 'border-left-yellow' : 'border-left-green',
-      iconClass: safePercent > 80 ? 'icon-red' : safePercent > 60 ? 'icon-yellow' : 'icon-green',
-      subtitle: safePercent > 80 ? 'Near capacity' : safePercent > 60 ? 'Moderate usage' : 'Available',
-    },
-  ];
-
   return (
-    <div className="national-stats-grid" style={{ marginBottom: '24px' }}>
-      {stats.map((stat, index) => {
-        const IconComponent = stat.icon;
-        return (
-          <div key={index} className={`national-stat-card ${stat.borderClass}`}>
-            <div className="national-stat-card-header">
-              <span className="national-stat-card-label">{stat.title}</span>
-              <div className={`national-stat-card-icon ${stat.iconClass}`}>
-                <IconComponent className="w-5 h-5" />
-              </div>
-            </div>
-            <div className="national-stat-card-value">
-              {stat.value}
-            </div>
-            <div className="national-stat-card-trend neutral">
-              {stat.subtitle}
-            </div>
+    <div className="district-stats-grid">
+      {/* Total Shelters */}
+      <div className="stat-card stat-card--blue">
+        <div className="stat-card__header">
+          <span className="stat-card__title">Total Shelters</span>
+          <div className="stat-card__icon stat-card__icon--blue">
+            <Building size={20} />
           </div>
-        );
-      })}
+        </div>
+        <div className="stat-card__value">{safeTotal}</div>
+        <span className="stat-card__subtitle">active shelters</span>
+      </div>
+
+      {/* Total Capacity */}
+      <div className="stat-card stat-card--green">
+        <div className="stat-card__header">
+          <span className="stat-card__title">Total Capacity</span>
+          <div className="stat-card__icon stat-card__icon--green">
+            <Users size={20} />
+          </div>
+        </div>
+        <div className="stat-card__value">{safeCapacity.toLocaleString()}</div>
+        <span className="stat-card__subtitle">max capacity</span>
+      </div>
+
+      {/* Current Occupancy */}
+      <div className="stat-card stat-card--amber">
+        <div className="stat-card__header">
+          <span className="stat-card__title">Current Occupancy</span>
+          <div className="stat-card__icon stat-card__icon--amber">
+            <TrendingUp size={20} />
+          </div>
+        </div>
+        <div className="stat-card__value">{safeOccupancy.toLocaleString()}</div>
+        <span className="stat-card__subtitle">people sheltered</span>
+      </div>
+
+      {/* Average Occupancy % */}
+      <div className="stat-card stat-card--red">
+        <div className="stat-card__header">
+          <span className="stat-card__title">Avg Occupancy</span>
+          <div className="stat-card__icon stat-card__icon--red">
+            <AlertTriangle size={20} />
+          </div>
+        </div>
+        <div className="stat-card__value">{safePercent}%</div>
+        <span className="stat-card__subtitle">utilization rate</span>
+      </div>
     </div>
   );
 };

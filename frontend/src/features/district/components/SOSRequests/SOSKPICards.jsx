@@ -1,21 +1,15 @@
 /**
  * SOSKPICards Component
  * Displays KPI summary cards for SOS requests
- * 
- * CSS Migration: Now uses external CSS classes from design system
+ * EXACT NDMA Layout: Header (Title LEFT, Icon RIGHT) → Value → Subtitle
  */
 
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Clock, Truck, CheckCircle } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import '@styles/css/main.css';
 
 const SOSKPICards = ({ totalRequests, pendingCount, assignedCount, enrouteCount, rescuedCount }) => {
   const pendingPercent = totalRequests > 0 ? Math.round((pendingCount / totalRequests) * 100) : 0;
-
-  const pendingRingData = [
-    { name: 'Pending', value: pendingPercent, fill: '#ef4444' },
-    { name: 'Others', value: 100 - pendingPercent, fill: 'var(--card-border)' }
-  ];
 
   const statusPieData = [
     { name: 'Pending', value: pendingCount, color: '#ef4444' },
@@ -26,91 +20,52 @@ const SOSKPICards = ({ totalRequests, pendingCount, assignedCount, enrouteCount,
 
   return (
     <div className="district-stats-grid">
-      {/* Total Requests */}
-      <div className="stat-card stat-card--info transition-all">
-        <div className="flex items-center gap-4">
-          <div className="stat-card__icon stat-card__icon--info">
+      {/* Total Requests Card */}
+      <div className="stat-card stat-card--blue">
+        <div className="stat-card__header">
+          <span className="stat-card__title">All SOS Requests</span>
+          <div className="stat-card__icon stat-card__icon--blue">
             <AlertTriangle />
           </div>
-          <div>
-            <p className="stat-card__title">All SOS Requests</p>
-            <p className="stat-card__value">{totalRequests}</p>
-          </div>
         </div>
+        <div className="stat-card__value">{totalRequests}</div>
+        <span className="stat-card__subtitle">total requests</span>
       </div>
 
-      {/* Pending Ring Gauge */}
-      <div className="stat-card stat-card--danger transition-all">
-        <div className="flex items-center gap-4">
-          <div className="stat-card__chart relative">
-            <ResponsiveContainer width={100} height={100}>
-              <PieChart width={100} height={100}>
-                <Pie
-                  data={pendingRingData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={32}
-                  outerRadius={45}
-                  paddingAngle={2}
-                  dataKey="value"
-                  startAngle={90}
-                  endAngle={-270}
-                  animationDuration={1000}
-                >
-                  {pendingRingData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="stat-card__chart-label">
-              <span className="text-danger font-bold">{pendingPercent}%</span>
-            </div>
-          </div>
-          <div>
-            <p className="stat-card__title">Pending</p>
-            <p className="stat-card__value">{pendingCount}</p>
-            <p className="text-xs text-muted mt-1">Urgent attention needed</p>
+      {/* Pending Card */}
+      <div className="stat-card stat-card--red">
+        <div className="stat-card__header">
+          <span className="stat-card__title">Pending</span>
+          <div className="stat-card__icon stat-card__icon--red">
+            <Clock />
           </div>
         </div>
+        <div className="stat-card__value">{pendingCount}</div>
+        <span className="stat-card__subtitle">urgent attention needed</span>
       </div>
 
-      {/* Status Breakdown Pie */}
-      <div className="stat-card stat-card--success transition-all">
-        <div className="flex items-center gap-4">
-          <div className="stat-card__chart">
-            <ResponsiveContainer width={100} height={100}>
-              <PieChart width={100} height={100}>
-                <Pie
-                  data={statusPieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={25}
-                  outerRadius={45}
-                  paddingAngle={3}
-                  dataKey="value"
-                  animationDuration={1000}
-                >
-                  {statusPieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div>
-            <p className="stat-card__title">Status Breakdown</p>
-            <div className="flex flex-col gap-1">
-              {statusPieData.map((item, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <div className="stat-card__legend-dot" style={{ background: item.color }} />
-                  <span className="text-sm text-primary">{item.name}: {item.value}</span>
-                </div>
-              ))}
-            </div>
+      {/* Assigned/En-route Card */}
+      <div className="stat-card stat-card--amber">
+        <div className="stat-card__header">
+          <span className="stat-card__title">In Progress</span>
+          <div className="stat-card__icon stat-card__icon--amber">
+            <Truck />
           </div>
         </div>
+        <div className="stat-card__value">{assignedCount + enrouteCount}</div>
+        <span className="stat-card__subtitle">assigned & en-route</span>
+      </div>
+
+      {/* Rescued Card */}
+      <div className="stat-card stat-card--green">
+        <div className="stat-card__header">
+          <span className="stat-card__title">Rescued</span>
+          <div className="stat-card__icon stat-card__icon--green">
+            <CheckCircle />
+          </div>
+        </div>
+        <div className="stat-card__value">{rescuedCount}</div>
+        <span className="stat-card__subtitle">successfully rescued</span>
       </div>
     </div>
   );

@@ -1,0 +1,110 @@
+/**
+ * NDMA Dropdown - Custom Dark Theme Dropdown
+ * Fully styled dropdown menu that matches NDMA design
+ */
+
+.ndma-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Trigger Button */
+.ndma-dropdown__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 12px;
+    min-width: 140px;
+    background-color: #1a1d21;
+    border: 1px solid #2d3238;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ndma-dropdown__trigger:hover {
+    background-color: #1e2227;
+    border-color: #3d4248;
+}
+
+.ndma-dropdown__trigger--open {
+    border-color: #3b82f6;
+    background-color: #1e2227;
+}
+
+.ndma-dropdown__trigger svg {
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+.ndma-dropdown__label {
+    flex: 1;
+    text-align: left;
+}
+
+/* Dropdown Menu */
+.ndma-dropdown__menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 100%;
+    background-color: #1a1d21;
+    border: 1px solid #2d3238;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    z-index: 100;
+    overflow: hidden;
+    animation: dropdownFadeIn 0.15s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Dropdown Item */
+.ndma-dropdown__item {
+    display: block;
+    width: 100%;
+    padding: 10px 14px;
+    background: none;
+    border: none;
+    color: #e2e8f0;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.ndma-dropdown__item:hover {
+    background-color: #2d3238;
+}
+
+.ndma-dropdown__item--selected {
+    background-color: #3b82f6;
+    color: #ffffff;
+}
+
+.ndma-dropdown__item--selected:hover {
+    background-color: #2563eb;
+}
+
+/* Separator between items (optional) */
+.ndma-dropdown__item+.ndma-dropdown__item {
+    border-top: 1px solid #2d3238;
+}
+
+.ndma-dropdown__item--selected+.ndma-dropdown__item,
+.ndma-dropdown__item+.ndma-dropdown__item--selected {
+    border-top-color: transparent;
+}

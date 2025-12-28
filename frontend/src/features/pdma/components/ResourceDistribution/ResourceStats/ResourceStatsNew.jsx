@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 import { Package, Truck, Box, MapPin } from 'lucide-react';
+import '@styles/css/main.css';
 
 /**
  * ResourceStatsNew Component
- * Displays resource statistics in a responsive grid with status cards
- * Similar design to NDMA ResourceStats with glowing borders
+ * EXACT NDMA Layout: Header (Title LEFT, Icon RIGHT) → Value → Subtitle
  */
 const ResourceStatsNew = ({ totalResources, totalQuantity, allocatedPercent, availableQuantity, districtsCount = 0 }) => {
   const statCards = [
@@ -14,8 +14,7 @@ const ResourceStatsNew = ({ totalResources, totalQuantity, allocatedPercent, ava
       value: totalResources,
       unit: 'Types',
       icon: Package,
-      borderClass: 'border-left-blue',
-      iconClass: 'icon-blue',
+      colorClass: 'blue',
     },
     {
       key: 'totalQuantity',
@@ -23,8 +22,7 @@ const ResourceStatsNew = ({ totalResources, totalQuantity, allocatedPercent, ava
       value: totalQuantity >= 1000 ? `${(totalQuantity / 1000).toFixed(1)}K` : totalQuantity,
       unit: 'Units',
       icon: Truck,
-      borderClass: 'border-left-green',
-      iconClass: 'icon-green',
+      colorClass: 'green',
     },
     {
       key: 'allocated',
@@ -32,8 +30,7 @@ const ResourceStatsNew = ({ totalResources, totalQuantity, allocatedPercent, ava
       value: `${allocatedPercent}%`,
       unit: 'Distributed',
       icon: Box,
-      borderClass: 'border-left-yellow',
-      iconClass: 'icon-yellow',
+      colorClass: 'amber',
     },
     {
       key: 'available',
@@ -41,33 +38,32 @@ const ResourceStatsNew = ({ totalResources, totalQuantity, allocatedPercent, ava
       value: availableQuantity >= 1000 ? `${(availableQuantity / 1000).toFixed(1)}K` : availableQuantity,
       unit: 'In Stock',
       icon: MapPin,
-      borderClass: 'border-left-purple',
-      iconClass: 'icon-purple',
+      colorClass: 'purple',
     },
   ];
 
   return (
-    <div className="pdma-resource-stats-grid">
+    <div className="district-stats-grid">
       {statCards.map((card) => {
         const Icon = card.icon;
         return (
-          <div 
-            key={card.key} 
-            className={`pdma-stat-card ${card.borderClass}`}
+          <div
+            key={card.key}
+            className={`stat-card stat-card--${card.colorClass}`}
           >
-            {/* Header with icon and label */}
-            <div className="pdma-stat-header">
-              <div className={`pdma-stat-icon ${card.iconClass}`}>
-                <Icon className="w-5 h-5" />
+            {/* Header: Title LEFT, Icon RIGHT */}
+            <div className="stat-card__header">
+              <span className="stat-card__title">{card.label}</span>
+              <div className={`stat-card__icon stat-card__icon--${card.colorClass}`}>
+                <Icon size={20} />
               </div>
-              <span className="pdma-stat-label">{card.label}</span>
             </div>
-            
-            {/* Value display with dark inner background */}
-            <div className="pdma-stat-value-container">
-              <span className="pdma-stat-value">{card.value}</span>
-              <span className="pdma-stat-unit">{card.unit}</span>
-            </div>
+
+            {/* Value */}
+            <div className="stat-card__value">{card.value}</div>
+
+            {/* Subtitle */}
+            <span className="stat-card__subtitle">{card.unit}</span>
           </div>
         );
       })}

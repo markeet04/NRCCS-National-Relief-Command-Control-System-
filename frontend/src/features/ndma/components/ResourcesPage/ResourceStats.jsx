@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types';
 import { Package, Truck, Box, Map } from 'lucide-react';
 import { formatNumber } from '@utils/formatUtils';
+import '@styles/css/main.css';
 
 /**
  * ResourceStats Component
- * Displays resource statistics in a responsive grid
- * Uses CSS classes from global-ndma.css and resource-allocation.css
- * Now includes colored left border with glow effect
+ * EXACT NDMA Layout: Header (Title LEFT, Icon RIGHT) → Value → Subtitle
+ * Uses unified stat-card CSS classes for consistency
  */
 const ResourceStats = ({ stats }) => {
   const statCards = [
@@ -16,9 +16,7 @@ const ResourceStats = ({ stats }) => {
       value: stats.totalResources,
       unit: 'units',
       icon: Package,
-      iconClass: 'ndma-stat-icon ndma-stat-icon-blue',
-      borderClass: 'border-left-blue',
-      glowClass: 'glow-blue',
+      colorClass: 'green',
     },
     {
       key: 'totalAllocated',
@@ -26,9 +24,7 @@ const ResourceStats = ({ stats }) => {
       value: stats.totalAllocated,
       unit: 'distributed',
       icon: Truck,
-      iconClass: 'ndma-stat-icon ndma-stat-icon-green',
-      borderClass: 'border-left-green',
-      glowClass: 'glow-green',
+      colorClass: 'amber',
     },
     {
       key: 'totalAvailable',
@@ -36,9 +32,7 @@ const ResourceStats = ({ stats }) => {
       value: stats.totalAvailable,
       unit: 'in stock',
       icon: Box,
-      iconClass: 'ndma-stat-icon ndma-stat-icon-yellow',
-      borderClass: 'border-left-yellow',
-      glowClass: 'glow-yellow',
+      colorClass: 'cyan',
     },
     {
       key: 'provincesCount',
@@ -46,38 +40,38 @@ const ResourceStats = ({ stats }) => {
       value: stats.provincesCount,
       unit: 'regions',
       icon: Map,
-      iconClass: 'ndma-stat-icon ndma-stat-icon-purple',
-      borderClass: 'border-left-purple',
-      glowClass: 'glow-purple',
+      colorClass: 'purple',
     },
   ];
 
   return (
-    <div className="resources-stats-grid">
+    <div className="district-stats-grid">
       {statCards.map((card) => {
         const Icon = card.icon;
         return (
-          <div 
-            key={card.key} 
-            className={`ndma-card ndma-stat-card-glow resources-stat-card ${card.borderClass} ${card.glowClass}`}
+          <div
+            key={card.key}
+            className={`stat-card stat-card--${card.colorClass}`}
           >
-            {/* Header with icon and label */}
-            <div className="resources-stat-header">
-              <div className={card.iconClass}>
-                <Icon className="w-5 h-5" />
+            {/* Header: Title LEFT, Icon RIGHT */}
+            <div className="stat-card__header">
+              <span className="stat-card__title">{card.label}</span>
+              <div className={`stat-card__icon stat-card__icon--${card.colorClass}`}>
+                <Icon size={20} />
               </div>
-              <span className="resources-stat-label">{card.label}</span>
             </div>
-            
-            {/* Value display with dark inner background */}
-            <div className="ndma-card-inner resources-stat-value-container">
-              <span className="resources-stat-value">
-                {typeof card.value === 'number'
-                  ? formatNumber(card.value)
-                  : card.value}
-              </span>
-              <span className="resources-stat-unit">{card.unit}</span>
+
+            {/* Value */}
+            <div className="stat-card__value">
+              {typeof card.value === 'number'
+                ? formatNumber(card.value)
+                : card.value}
             </div>
+
+            {/* Subtitle */}
+            <span className="stat-card__subtitle">
+              {card.unit}
+            </span>
           </div>
         );
       })}

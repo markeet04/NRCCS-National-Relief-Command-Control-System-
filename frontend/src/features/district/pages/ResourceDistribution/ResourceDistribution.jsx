@@ -273,43 +273,54 @@ const ResourceDistribution = () => {
       notificationCount={districtStats?.pendingSOS || 0}
     >
       <div className="district-resource-distribution">
-        {/* Stats Grid - NDMA Style */}
+        {/* Stats Grid - EXACT NDMA Layout */}
         <div className="district-stats-grid">
-          <div className="district-stat-card">
-            <div className="district-stat-icon" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
-              <Layers size={20} style={{ color: '#3b82f6' }} />
+          {/* Resource Types */}
+          <div className="stat-card stat-card--blue">
+            <div className="stat-card__header">
+              <span className="stat-card__title">Resource Types</span>
+              <div className="stat-card__icon stat-card__icon--blue">
+                <Layers size={20} />
+              </div>
             </div>
-            <div className="district-stat-content">
-              <span className="district-stat-value" style={{ color: '#3b82f6' }}>{stats.resourceTypes}</span>
-              <span className="district-stat-label">Resource Types</span>
-            </div>
+            <div className="stat-card__value">{stats.resourceTypes}</div>
+            <span className="stat-card__subtitle">different types</span>
           </div>
-          <div className="district-stat-card">
-            <div className="district-stat-icon" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
-              <Package size={20} style={{ color: '#10b981' }} />
+
+          {/* Total Quantity */}
+          <div className="stat-card stat-card--green">
+            <div className="stat-card__header">
+              <span className="stat-card__title">Total Quantity</span>
+              <div className="stat-card__icon stat-card__icon--green">
+                <Package size={20} />
+              </div>
             </div>
-            <div className="district-stat-content">
-              <span className="district-stat-value" style={{ color: '#10b981' }}>{formatQuantity(stats.totalQuantity)}</span>
-              <span className="district-stat-label">Total Quantity</span>
-            </div>
+            <div className="stat-card__value">{formatQuantity(stats.totalQuantity)}</div>
+            <span className="stat-card__subtitle">units in stock</span>
           </div>
-          <div className="district-stat-card">
-            <div className="district-stat-icon" style={{ background: 'rgba(245, 158, 11, 0.1)' }}>
-              <Droplets size={20} style={{ color: '#f59e0b' }} />
+
+          {/* Distributed */}
+          <div className="stat-card stat-card--amber">
+            <div className="stat-card__header">
+              <span className="stat-card__title">Distributed</span>
+              <div className="stat-card__icon stat-card__icon--amber">
+                <Droplets size={20} />
+              </div>
             </div>
-            <div className="district-stat-content">
-              <span className="district-stat-value" style={{ color: '#f59e0b' }}>{stats.distributed}%</span>
-              <span className="district-stat-label">Distributed</span>
-            </div>
+            <div className="stat-card__value">{stats.distributed}%</div>
+            <span className="stat-card__subtitle">to shelters</span>
           </div>
-          <div className="district-stat-card">
-            <div className="district-stat-icon" style={{ background: 'rgba(239, 68, 68, 0.1)' }}>
-              <Stethoscope size={20} style={{ color: '#ef4444' }} />
+
+          {/* Available */}
+          <div className="stat-card stat-card--purple">
+            <div className="stat-card__header">
+              <span className="stat-card__title">Available</span>
+              <div className="stat-card__icon stat-card__icon--purple">
+                <Stethoscope size={20} />
+              </div>
             </div>
-            <div className="district-stat-content">
-              <span className="district-stat-value" style={{ color: '#ef4444' }}>{formatQuantity(stats.available)}</span>
-              <span className="district-stat-label">Available</span>
-            </div>
+            <div className="stat-card__value">{formatQuantity(stats.available)}</div>
+            <span className="stat-card__subtitle">for allocation</span>
           </div>
         </div>
 

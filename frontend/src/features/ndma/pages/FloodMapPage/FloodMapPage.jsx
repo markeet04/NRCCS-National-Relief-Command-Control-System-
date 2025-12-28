@@ -1,4 +1,5 @@
 import { DashboardLayout } from '@shared/components/layout';
+import { useAuth } from '@shared/hooks';
 
 // Import custom hook for flood map logic
 import { useFloodMapLogic } from '../../hooks';
@@ -26,6 +27,9 @@ import '../../styles/global-ndma.css';
  * Refactored to modular architecture - all UI sections are now separate components
  */
 const FloodMapPage = () => {
+  // Get authenticated user
+  const { user } = useAuth();
+
   // Use custom hook for all flood map logic
   const {
     // State
@@ -70,7 +74,7 @@ const FloodMapPage = () => {
       activeRoute="map"
       onNavigate={(route) => console.log('Navigate to:', route)}
       userRole="NDMA"
-      userName="Admin"
+      userName={user?.name || 'User'}
       pageTitle="National Rescue & Crisis Coordination System"
       pageSubtitle="Flood Risk Map"
       notificationCount={5}
