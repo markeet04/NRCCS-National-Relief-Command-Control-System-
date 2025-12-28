@@ -1935,3 +1935,268 @@ body[data-theme="light"] {
 [data-theme="light"] .sidebar-nav-item-active .sidebar-nav-icon {
   filter: drop-shadow(0 0 4px rgba(134, 239, 172, 0.5)) !important;
 }
+
+/* ============================================================================
+   MOBILE-FIRST RESPONSIVE STYLES - GLOBAL NDMA COMPONENTS
+   Breakpoints: Mobile (< 768px), Tablet (768px - 1024px), Desktop (> 1024px)
+   ============================================================================ */
+
+/* Tablet breakpoint - Global NDMA components */
+@media (max-width: 1024px) {
+  .ndma-page {
+    padding: 0.5rem;
+  }
+
+  /* Stat cards grid responsive */
+  .ndma-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.875rem;
+  }
+
+  /* Card padding adjustments */
+  .ndma-card {
+    padding: 1rem;
+  }
+
+  /* Buttons touch-friendly */
+  .ndma-btn {
+    min-height: 2.5rem;
+    padding: 0.625rem 1rem;
+  }
+
+  /* Form inputs */
+  .ndma-input,
+  .ndma-select,
+  .ndma-textarea {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+  }
+
+  /* Modal adjustments */
+  .ndma-modal {
+    max-width: 90vw;
+    margin: 1rem;
+  }
+}
+
+/* Mobile breakpoint - Global NDMA components */
+@media (max-width: 767px) {
+  .ndma-page {
+    padding: 0.25rem;
+    min-height: auto;
+  }
+
+  /* Stats grid mobile */
+  .ndma-stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  /* Card compact */
+  .ndma-card {
+    padding: 0.875rem;
+    border-radius: 0.625rem;
+  }
+
+  .ndma-card-header {
+    padding: 0.75rem;
+  }
+
+  .ndma-card-body {
+    padding: 0.75rem;
+  }
+
+  /* Button touch-friendly */
+  .ndma-btn {
+    min-height: 2.75rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .ndma-btn-sm {
+    min-height: 2.25rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .ndma-btn-icon {
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+  }
+
+  /* Form inputs touch-friendly */
+  .ndma-input,
+  .ndma-select,
+  .ndma-textarea {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    min-height: 2.75rem;
+  }
+
+  .ndma-label {
+    font-size: 0.8125rem;
+    margin-bottom: 0.375rem;
+  }
+
+  .ndma-form-group {
+    margin-bottom: 0.875rem;
+  }
+
+  /* Modal full-width on mobile */
+  .ndma-modal-overlay {
+    padding: 0.5rem;
+    align-items: flex-end;
+  }
+
+  .ndma-modal {
+    max-width: 100%;
+    max-height: 90vh;
+    margin: 0;
+    border-radius: 1rem 1rem 0 0;
+  }
+
+  .ndma-modal-header {
+    padding: 0.875rem 1rem;
+  }
+
+  .ndma-modal-body {
+    padding: 1rem;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  .ndma-modal-footer {
+    padding: 0.875rem 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .ndma-modal-footer .ndma-btn {
+    width: 100%;
+  }
+
+  /* Table responsive */
+  .ndma-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ndma-table {
+    min-width: 600px;
+  }
+
+  .ndma-table th,
+  .ndma-table td {
+    padding: 0.625rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  /* Badge compact */
+  .ndma-badge {
+    padding: 0.1875rem 0.5rem;
+    font-size: 0.625rem;
+  }
+
+  /* Stat card icon */
+  .ndma-stat-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  /* Dropdown touch-friendly */
+  .ndma-dropdown-menu {
+    min-width: 160px;
+  }
+
+  .ndma-dropdown-item {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+  }
+
+  /* Alert/notification compact */
+  .ndma-alert {
+    padding: 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  /* Tooltips disabled on mobile (use modals instead) */
+  .ndma-tooltip {
+    display: none;
+  }
+
+  /* Empty state */
+  .ndma-empty-state {
+    padding: 2rem 1rem;
+  }
+
+  .ndma-empty-state-icon {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .ndma-empty-state-title {
+    font-size: 1rem;
+    margin-bottom: 0.375rem;
+  }
+
+  .ndma-empty-state-text {
+    font-size: 0.8125rem;
+  }
+
+  /* Progress bar */
+  .ndma-progress {
+    height: 0.375rem;
+  }
+
+  /* Tabs scrollable */
+  .ndma-tabs-list {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    flex-wrap: nowrap;
+    padding-bottom: 0.25rem;
+  }
+
+  .ndma-tabs-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ndma-tab {
+    flex-shrink: 0;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .ndma-page {
+    padding: 0;
+  }
+
+  .ndma-stats-grid {
+    gap: 0.375rem;
+  }
+
+  .ndma-card {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+  }
+
+  .ndma-btn {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+
+  .ndma-modal-body {
+    padding: 0.875rem;
+  }
+
+  .ndma-tab {
+    padding: 0.4375rem 0.625rem;
+    font-size: 0.6875rem;
+  }
+}

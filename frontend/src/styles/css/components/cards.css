@@ -593,3 +593,177 @@
     gap: var(--spacing-2);
     z-index: 10;
 }
+
+/* ============================================================================
+   MOBILE-FIRST RESPONSIVE STYLES - CARD COMPONENTS
+   Breakpoints: Mobile (< 768px), Tablet (768px - 1024px), Desktop (> 1024px)
+   ============================================================================ */
+
+/* Stats grid - uses common class across all dashboards */
+.district-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+/* Tablet breakpoint */
+@media (max-width: 1024px) {
+    .district-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.875rem;
+    }
+
+    .card-body {
+        padding: var(--spacing-4);
+    }
+
+    .data-card__header {
+        padding: var(--spacing-4);
+    }
+
+    .map-card__container {
+        height: 320px;
+    }
+}
+
+/* Mobile breakpoint */
+@media (max-width: 767px) {
+    /* Stats grid - 2 columns on mobile */
+    .district-stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.625rem;
+    }
+
+    /* Stat card compact */
+    .stat-card {
+        padding: 0.875rem 0.875rem 0.75rem 1rem;
+        min-height: 100px;
+        border-left-width: 3px;
+    }
+
+    .stat-card__header {
+        margin-bottom: 0.5rem;
+        gap: 0.5rem;
+    }
+
+    .stat-card__title {
+        font-size: 0.625rem;
+    }
+
+    .stat-card__value {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-card__subtitle,
+    .stat-card__trend {
+        font-size: 0.6875rem;
+    }
+
+    .stat-card__icon {
+        width: 2rem;
+        height: 2rem;
+        min-width: 2rem;
+        min-height: 2rem;
+        border-radius: 0.5rem;
+    }
+
+    .stat-card__icon svg {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    /* Base card compact */
+    .card {
+        border-radius: var(--radius-md);
+    }
+
+    .card-body {
+        padding: var(--spacing-3);
+    }
+
+    .card-header,
+    .card-footer {
+        padding: var(--spacing-3);
+    }
+
+    /* Data card compact */
+    .data-card__header {
+        padding: var(--spacing-3);
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .data-card__title {
+        font-size: var(--text-base);
+    }
+
+    .data-card__footer {
+        padding: var(--spacing-3);
+    }
+
+    /* Map card responsive */
+    .map-card__header {
+        padding: var(--spacing-3);
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .map-card__container {
+        height: 280px;
+    }
+
+    .map-card__controls {
+        top: var(--spacing-2);
+        right: var(--spacing-2);
+        gap: var(--spacing-1);
+    }
+
+    /* Alert cards compact */
+    .alert-card {
+        padding: var(--spacing-3);
+        margin-bottom: var(--spacing-3);
+    }
+
+    .alert-card__title {
+        font-size: var(--text-sm);
+    }
+
+    .alert-card__message {
+        font-size: var(--text-xs);
+    }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+    .district-stats-grid {
+        gap: 0.5rem;
+    }
+
+    .stat-card {
+        padding: 0.75rem;
+        min-height: 90px;
+    }
+
+    .stat-card__value {
+        font-size: 1.25rem;
+    }
+
+    .stat-card__icon {
+        width: 1.75rem;
+        height: 1.75rem;
+        min-width: 1.75rem;
+        min-height: 1.75rem;
+    }
+
+    .stat-card__icon svg {
+        width: 0.875rem;
+        height: 0.875rem;
+    }
+
+    .map-card__container {
+        height: 240px;
+    }
+}

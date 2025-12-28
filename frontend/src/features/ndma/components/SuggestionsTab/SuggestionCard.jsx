@@ -43,32 +43,32 @@ const SuggestionCard = ({ suggestion, onApprove, onReject }) => {
 
   return (
     <div
-      className="p-6 rounded-lg border transition-all"
+      className="suggestion-card"
       style={{
         backgroundColor: 'var(--surface-elevated)',
         borderColor: isPending ? 'var(--primary)' : 'var(--border-subtle)',
         borderWidth: isPending ? '2px' : '1px',
       }}
     >
-      <div className="flex items-start justify-between">
+      <div className="suggestion-card-content">
         {/* Left: Icon and Info */}
-        <div className="flex gap-4 flex-1">
+        <div className="suggestion-card-main">
           {/* Resource Icon */}
           <div
-            className="w-12 h-12 rounded-lg flex items-center justify-center"
+            className="suggestion-card-icon"
             style={{ backgroundColor: `${resourceColor}20` }}
           >
-            <ResourceIcon size={24} style={{ color: resourceColor }} />
+            <ResourceIcon className="suggestion-icon-svg" style={{ color: resourceColor }} />
           </div>
 
           {/* Content */}
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+          <div className="suggestion-card-info">
+            <div className="suggestion-card-header">
+              <h3 className="suggestion-card-title" style={{ color: 'var(--text-primary)' }}>
                 {suggestion.provinceName || `Province ${suggestion.provinceId}`}
               </h3>
               <span
-                className="px-2 py-0.5 rounded text-xs font-medium"
+                className="suggestion-card-badge"
                 style={{
                   backgroundColor: `${resourceColor}20`,
                   color: resourceColor,
@@ -78,7 +78,7 @@ const SuggestionCard = ({ suggestion, onApprove, onReject }) => {
               </span>
               {isPending && (
                 <span
-                  className="px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1"
+                  className="suggestion-card-badge suggestion-card-badge--pending"
                   style={{
                     backgroundColor: 'var(--warning-bg)',
                     color: 'var(--warning)',
@@ -91,36 +91,36 @@ const SuggestionCard = ({ suggestion, onApprove, onReject }) => {
             </div>
 
             {/* Quantity */}
-            <div className="text-2xl font-bold mb-2" style={{ color: resourceColor }}>
+            <div className="suggestion-card-quantity" style={{ color: resourceColor }}>
               {suggestion.suggestedQuantity.toLocaleString()} units
             </div>
 
             {/* Reasoning */}
-            <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>
+            <p className="suggestion-card-reasoning" style={{ color: 'var(--text-secondary)' }}>
               {suggestion.reasoning}
             </p>
 
             {/* Metadata */}
-            <div className="flex flex-wrap gap-4 text-xs" style={{ color: 'var(--text-muted)' }}>
-              <div className="flex items-center gap-1">
+            <div className="suggestion-card-meta" style={{ color: 'var(--text-muted)' }}>
+              <div className="suggestion-meta-item">
                 <TrendingUp size={14} />
                 <span>Confidence: {(suggestion.confidenceScore * 100).toFixed(1)}%</span>
               </div>
-              <div>
+              <div className="suggestion-meta-item">
                 Rules: {suggestion.ruleIds.join(', ')}
               </div>
-              <div>
+              <div className="suggestion-meta-item">
                 Created: {formatDate(suggestion.createdAt)}
               </div>
             </div>
 
             {/* Flags */}
             {hasFlags && (
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="suggestion-card-flags">
                 {suggestion.flags.map((flag) => (
                   <span
                     key={flag}
-                    className="px-2 py-1 rounded text-xs font-medium flex items-center gap-1"
+                    className="suggestion-card-flag"
                     style={{
                       backgroundColor: 'var(--warning-bg)',
                       color: 'var(--warning)',
@@ -135,9 +135,9 @@ const SuggestionCard = ({ suggestion, onApprove, onReject }) => {
 
             {/* Status for non-pending */}
             {!isPending && (
-              <div className="mt-3">
+              <div className="suggestion-card-status">
                 {suggestion.status === 'APPROVED' && (
-                  <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--success)' }}>
+                  <div className="suggestion-status-approved" style={{ color: 'var(--success)' }}>
                     <CheckCircle size={16} />
                     <span>Approved on {formatDate(suggestion.reviewedAt)}</span>
                     {suggestion.allocationId && (
@@ -148,8 +148,8 @@ const SuggestionCard = ({ suggestion, onApprove, onReject }) => {
                   </div>
                 )}
                 {suggestion.status === 'REJECTED' && (
-                  <div className="text-sm" style={{ color: 'var(--error)' }}>
-                    <div className="flex items-center gap-2 mb-1">
+                  <div className="suggestion-status-rejected" style={{ color: 'var(--error)' }}>
+                    <div className="suggestion-status-rejected-header">
                       <XCircle size={16} />
                       <span>Rejected on {formatDate(suggestion.reviewedAt)}</span>
                     </div>
@@ -167,10 +167,10 @@ const SuggestionCard = ({ suggestion, onApprove, onReject }) => {
 
         {/* Right: Actions */}
         {isPending && (
-          <div className="flex gap-2">
+          <div className="suggestion-card-actions">
             <button
               onClick={() => onApprove(suggestion)}
-              className="px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+              className="suggestion-btn suggestion-btn--approve"
               style={{
                 backgroundColor: hasInsufficientStock ? 'var(--border-subtle)' : 'var(--success)',
                 color: hasInsufficientStock ? 'var(--text-muted)' : 'white',
@@ -185,7 +185,7 @@ const SuggestionCard = ({ suggestion, onApprove, onReject }) => {
             </button>
             <button
               onClick={() => onReject(suggestion)}
-              className="px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+              className="suggestion-btn suggestion-btn--reject"
               style={{
                 backgroundColor: 'var(--error)',
                 color: 'white',
@@ -197,6 +197,269 @@ const SuggestionCard = ({ suggestion, onApprove, onReject }) => {
           </div>
         )}
       </div>
+
+      <style>{`
+        .suggestion-card {
+          padding: 1.5rem;
+          border-radius: 0.5rem;
+          border-style: solid;
+          transition: all 0.2s;
+        }
+
+        .suggestion-card-content {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 1rem;
+        }
+
+        .suggestion-card-main {
+          display: flex;
+          gap: 1rem;
+          flex: 1;
+        }
+
+        .suggestion-card-icon {
+          width: 3rem;
+          height: 3rem;
+          border-radius: 0.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .suggestion-icon-svg {
+          width: 1.5rem;
+          height: 1.5rem;
+        }
+
+        .suggestion-card-info {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .suggestion-card-header {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+          margin-bottom: 0.25rem;
+        }
+
+        .suggestion-card-title {
+          font-size: 1.125rem;
+          font-weight: 600;
+        }
+
+        .suggestion-card-badge {
+          padding: 0.125rem 0.5rem;
+          border-radius: 0.25rem;
+          font-size: 0.75rem;
+          font-weight: 500;
+        }
+
+        .suggestion-card-badge--pending {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+        }
+
+        .suggestion-card-quantity {
+          font-size: 1.5rem;
+          font-weight: 700;
+          margin-bottom: 0.5rem;
+        }
+
+        .suggestion-card-reasoning {
+          font-size: 0.875rem;
+          line-height: 1.5;
+          margin-bottom: 0.75rem;
+        }
+
+        .suggestion-card-meta {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1rem;
+          font-size: 0.75rem;
+        }
+
+        .suggestion-meta-item {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+        }
+
+        .suggestion-card-flags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          margin-top: 0.75rem;
+        }
+
+        .suggestion-card-flag {
+          padding: 0.25rem 0.5rem;
+          border-radius: 0.25rem;
+          font-size: 0.75rem;
+          font-weight: 500;
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+        }
+
+        .suggestion-card-status {
+          margin-top: 0.75rem;
+        }
+
+        .suggestion-status-approved {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.875rem;
+          flex-wrap: wrap;
+        }
+
+        .suggestion-status-rejected {
+          font-size: 0.875rem;
+        }
+
+        .suggestion-status-rejected-header {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .suggestion-card-actions {
+          display: flex;
+          gap: 0.5rem;
+          flex-shrink: 0;
+        }
+
+        .suggestion-btn {
+          padding: 0.5rem 1rem;
+          border-radius: 0.5rem;
+          font-weight: 500;
+          font-size: 0.875rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          border: none;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        /* Tablet */
+        @media (max-width: 1024px) {
+          .suggestion-card {
+            padding: 1.25rem;
+          }
+
+          .suggestion-card-quantity {
+            font-size: 1.375rem;
+          }
+        }
+
+        /* Mobile */
+        @media (max-width: 767px) {
+          .suggestion-card {
+            padding: 1rem;
+          }
+
+          .suggestion-card-content {
+            flex-direction: column;
+          }
+
+          .suggestion-card-main {
+            width: 100%;
+          }
+
+          .suggestion-card-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+          }
+
+          .suggestion-icon-svg {
+            width: 1.25rem;
+            height: 1.25rem;
+          }
+
+          .suggestion-card-title {
+            font-size: 1rem;
+          }
+
+          .suggestion-card-badge {
+            padding: 0.125rem 0.375rem;
+            font-size: 0.6875rem;
+          }
+
+          .suggestion-card-quantity {
+            font-size: 1.25rem;
+            margin-bottom: 0.375rem;
+          }
+
+          .suggestion-card-reasoning {
+            font-size: 0.8125rem;
+            margin-bottom: 0.5rem;
+          }
+
+          .suggestion-card-meta {
+            gap: 0.5rem 0.75rem;
+            font-size: 0.6875rem;
+          }
+
+          .suggestion-card-flags {
+            gap: 0.375rem;
+            margin-top: 0.5rem;
+          }
+
+          .suggestion-card-flag {
+            padding: 0.1875rem 0.375rem;
+            font-size: 0.6875rem;
+          }
+
+          .suggestion-card-actions {
+            width: 100%;
+            margin-top: 0.75rem;
+          }
+
+          .suggestion-btn {
+            flex: 1;
+            justify-content: center;
+            padding: 0.625rem 0.75rem;
+            font-size: 0.8125rem;
+          }
+        }
+
+        /* Small mobile */
+        @media (max-width: 480px) {
+          .suggestion-card-main {
+            flex-direction: column;
+          }
+
+          .suggestion-card-icon {
+            width: 2.25rem;
+            height: 2.25rem;
+          }
+
+          .suggestion-card-header {
+            gap: 0.375rem;
+          }
+
+          .suggestion-card-meta {
+            flex-direction: column;
+            gap: 0.375rem;
+          }
+
+          .suggestion-card-actions {
+            flex-direction: column;
+          }
+
+          .suggestion-btn {
+            width: 100%;
+          }
+        }
+      `}</style>
     </div>
   );
 };

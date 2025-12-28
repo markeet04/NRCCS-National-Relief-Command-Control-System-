@@ -1077,3 +1077,306 @@
   background: rgba(59, 130, 246, 0.08) !important;
   border-color: rgba(59, 130, 246, 0.2) !important;
 }
+
+/* ============================================================================
+   MOBILE-FIRST RESPONSIVE STYLES
+   Breakpoints: Mobile (< 768px), Tablet (768px - 1024px), Desktop (> 1024px)
+   ============================================================================ */
+
+/* Tablet breakpoint */
+@media (max-width: 1024px) {
+  .flood-map-container {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: auto;
+    gap: 1rem;
+  }
+
+  .flood-map-section {
+    min-height: 400px;
+  }
+
+  .flood-province-panel {
+    max-height: none;
+    height: auto;
+  }
+
+  .flood-map-header {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .flood-map-controls {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .flood-map-search-input {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .flood-province-item {
+    padding: 0.875rem;
+  }
+}
+
+/* Mobile breakpoint */
+@media (max-width: 767px) {
+  .flood-map-container {
+    gap: 0.75rem;
+  }
+
+  .flood-map-section {
+    min-height: 320px;
+    border-radius: 0.75rem;
+  }
+
+  /* Map Card */
+  .flood-map-card {
+    border-radius: 0.75rem;
+  }
+
+  .flood-map-header {
+    padding: 0.875rem 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .flood-map-title-icon {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+  }
+
+  .flood-map-title h2 {
+    font-size: 1rem;
+  }
+
+  .flood-map-title-subtitle {
+    font-size: 0.6875rem;
+  }
+
+  .flood-map-controls {
+    width: 100%;
+  }
+
+  .flood-map-search-input {
+    width: 100%;
+    padding: 0.625rem 0.875rem 0.625rem 2rem;
+    font-size: 0.8125rem;
+  }
+
+  .flood-map-select {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
+    min-width: unset;
+  }
+
+  .flood-map-content {
+    padding: 1.5rem;
+  }
+
+  .flood-map-placeholder-icon {
+    width: 3.5rem;
+    height: 3.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .flood-map-placeholder h3 {
+    font-size: 1.125rem;
+  }
+
+  .flood-map-placeholder p {
+    font-size: 0.8125rem;
+  }
+
+  /* Legend */
+  .flood-map-legend {
+    padding: 0.5rem 0.625rem;
+    bottom: 0.5rem;
+    left: 0.5rem;
+  }
+
+  .flood-map-legend-title {
+    font-size: 0.5rem;
+    margin-bottom: 0.375rem;
+  }
+
+  .flood-map-legend-items {
+    gap: 0.25rem;
+  }
+
+  .flood-map-legend-color {
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+
+  .flood-map-legend-label {
+    font-size: 0.5625rem;
+  }
+
+  /* Layer controls */
+  .flood-map-layers {
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.625rem;
+  }
+
+  .flood-map-layers-title {
+    font-size: 0.5625rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .flood-map-layer-toggle span {
+    font-size: 0.75rem;
+  }
+
+  /* Province Panel */
+  .flood-province-panel {
+    gap: 0.75rem;
+  }
+
+  .flood-province-card {
+    border-radius: 0.75rem;
+  }
+
+  .flood-province-header {
+    padding: 0.625rem 0.875rem;
+  }
+
+  .flood-province-header h3 {
+    font-size: 0.75rem;
+  }
+
+  .flood-province-count {
+    font-size: 0.5625rem;
+    padding: 0.125rem 0.5rem;
+  }
+
+  .flood-province-list {
+    padding: 0.625rem;
+  }
+
+  /* Province Item */
+  .flood-province-item {
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+  }
+
+  .flood-province-item-header {
+    margin-bottom: 0.75rem;
+  }
+
+  .flood-province-name {
+    font-size: 0.875rem;
+  }
+
+  .flood-risk-badge {
+    padding: 0.1875rem 0.5rem;
+    font-size: 0.5625rem;
+  }
+
+  /* Water Level */
+  .flood-water-level {
+    margin-bottom: 0.75rem;
+  }
+
+  .flood-water-level-label {
+    font-size: 0.6875rem;
+  }
+
+  .flood-water-level-value {
+    font-size: 0.75rem;
+  }
+
+  .flood-progress-bar {
+    height: 0.375rem;
+  }
+
+  /* Province Stats */
+  .flood-province-stats {
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .flood-province-stat {
+    gap: 0.375rem;
+  }
+
+  .flood-province-stat-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .flood-province-stat-value {
+    font-size: 0.75rem;
+  }
+
+  .flood-province-stat-label {
+    font-size: 0.625rem;
+  }
+
+  /* Modal */
+  .flood-modal-overlay {
+    padding: 1rem;
+  }
+
+  .flood-modal {
+    max-width: 100%;
+  }
+
+  .flood-modal-header {
+    padding: 0.875rem 1rem;
+  }
+
+  .flood-modal-header h3 {
+    font-size: 1rem;
+  }
+
+  .flood-modal-body {
+    padding: 1rem;
+    max-height: 300px;
+  }
+
+  .flood-modal-footer {
+    padding: 0.875rem 1rem;
+  }
+
+  /* Action buttons */
+  .flood-action-btn {
+    padding: 0.625rem 1rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .flood-map-section {
+    min-height: 280px;
+  }
+
+  .flood-map-header {
+    padding: 0.75rem;
+  }
+
+  .flood-map-title h2 {
+    font-size: 0.9375rem;
+  }
+
+  .flood-map-content {
+    padding: 1rem;
+  }
+
+  .flood-province-stats {
+    gap: 0.5rem;
+  }
+
+  .flood-province-stat {
+    flex: 1;
+    min-width: calc(50% - 0.25rem);
+  }
+}

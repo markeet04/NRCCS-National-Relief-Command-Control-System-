@@ -24,92 +24,279 @@ const RejectModal = ({ isOpen, onClose, onConfirm, suggestion }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-      <div className="rounded-lg max-w-md w-full p-6" style={{ backgroundColor: 'var(--surface)' }}>
-        {/* Header */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--error-bg)' }}>
-              <XCircle size={20} style={{ color: 'var(--error)' }} />
+    <>
+      <div className="reject-modal-overlay" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        <div className="reject-modal" style={{ backgroundColor: 'var(--surface)' }}>
+          {/* Header */}
+          <div className="reject-modal-header">
+            <div className="reject-modal-header-left">
+              <div className="reject-modal-icon" style={{ backgroundColor: 'var(--error-bg)' }}>
+                <XCircle size={20} style={{ color: 'var(--error)' }} />
+              </div>
+              <div>
+                <h3 className="reject-modal-title" style={{ color: 'var(--text-primary)' }}>
+                  Reject Suggestion
+                </h3>
+                <p className="reject-modal-subtitle" style={{ color: 'var(--text-muted)' }}>
+                  Provide a reason for rejection
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                Reject Suggestion
-              </h3>
-              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                Provide a reason for rejection
-              </p>
-            </div>
-          </div>
-          <button onClick={handleClose} style={{ color: 'var(--text-muted)' }}>
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="space-y-4 mb-6">
-          <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--surface-elevated)' }}>
-            <div className="text-sm mb-2" style={{ color: 'var(--text-muted)' }}>
-              Province: <span style={{ color: 'var(--text-primary)' }}>{suggestion.provinceName}</span>
-            </div>
-            <div className="text-sm" style={{ color: 'var(--text-muted)' }}>
-              Resource: <span style={{ color: 'var(--text-primary)' }}>{suggestion.resourceType}</span> 
-              {' '}({suggestion.suggestedQuantity.toLocaleString()} units)
-            </div>
+            <button onClick={handleClose} className="reject-modal-close" style={{ color: 'var(--text-muted)' }}>
+              <X size={20} />
+            </button>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-              Reason for Rejection *
-            </label>
-            <textarea
-              value={reason}
-              onChange={(e) => {
-                setReason(e.target.value);
-                setError('');
-              }}
-              placeholder="Explain why this suggestion is being rejected (min. 10 characters)..."
-              rows={4}
-              className="w-full px-3 py-2 rounded-lg border resize-none"
+          {/* Content */}
+          <div className="reject-modal-content">
+            <div className="reject-modal-info" style={{ backgroundColor: 'var(--surface-elevated)' }}>
+              <div className="reject-modal-info-row" style={{ color: 'var(--text-muted)' }}>
+                Province: <span style={{ color: 'var(--text-primary)' }}>{suggestion.provinceName}</span>
+              </div>
+              <div className="reject-modal-info-row" style={{ color: 'var(--text-muted)' }}>
+                Resource: <span style={{ color: 'var(--text-primary)' }}>{suggestion.resourceType}</span> 
+                {' '}({suggestion.suggestedQuantity.toLocaleString()} units)
+              </div>
+            </div>
+
+            <div className="reject-modal-textarea-container">
+              <label className="reject-modal-label" style={{ color: 'var(--text-primary)' }}>
+                Reason for Rejection *
+              </label>
+              <textarea
+                value={reason}
+                onChange={(e) => {
+                  setReason(e.target.value);
+                  setError('');
+                }}
+                placeholder="Explain why this suggestion is being rejected (min. 10 characters)..."
+                rows={4}
+                className="reject-modal-textarea"
+                style={{
+                  backgroundColor: 'var(--surface-elevated)',
+                  borderColor: error ? 'var(--error)' : 'var(--border-subtle)',
+                  color: 'var(--text-primary)',
+                }}
+              />
+              {error && (
+                <p className="reject-modal-error" style={{ color: 'var(--error)' }}>
+                  {error}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="reject-modal-actions">
+            <button
+              onClick={handleClose}
+              className="reject-modal-btn reject-modal-btn--cancel"
               style={{
                 backgroundColor: 'var(--surface-elevated)',
-                borderColor: error ? 'var(--error)' : 'var(--border-subtle)',
                 color: 'var(--text-primary)',
               }}
-            />
-            {error && (
-              <p className="text-sm mt-1" style={{ color: 'var(--error)' }}>
-                {error}
-              </p>
-            )}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirm}
+              className="reject-modal-btn reject-modal-btn--confirm"
+              style={{
+                backgroundColor: 'var(--error)',
+                color: 'white',
+              }}
+            >
+              Reject Suggestion
+            </button>
           </div>
         </div>
-
-        {/* Actions */}
-        <div className="flex gap-3">
-          <button
-            onClick={handleClose}
-            className="flex-1 px-4 py-2 rounded-lg font-medium transition-colors"
-            style={{
-              backgroundColor: 'var(--surface-elevated)',
-              color: 'var(--text-primary)',
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleConfirm}
-            className="flex-1 px-4 py-2 rounded-lg font-medium transition-colors"
-            style={{
-              backgroundColor: 'var(--error)',
-              color: 'white',
-            }}
-          >
-            Reject Suggestion
-          </button>
-        </div>
       </div>
-    </div>
+
+      <style>{`
+        .reject-modal-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 50;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1rem;
+        }
+
+        .reject-modal {
+          border-radius: 0.5rem;
+          max-width: 28rem;
+          width: 100%;
+          padding: 1.5rem;
+        }
+
+        .reject-modal-header {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          margin-bottom: 1rem;
+        }
+
+        .reject-modal-header-left {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        .reject-modal-icon {
+          width: 2.5rem;
+          height: 2.5rem;
+          border-radius: 9999px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .reject-modal-title {
+          font-size: 1.125rem;
+          font-weight: 600;
+        }
+
+        .reject-modal-subtitle {
+          font-size: 0.875rem;
+        }
+
+        .reject-modal-close {
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0.25rem;
+        }
+
+        .reject-modal-content {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .reject-modal-info {
+          padding: 1rem;
+          border-radius: 0.5rem;
+        }
+
+        .reject-modal-info-row {
+          font-size: 0.875rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .reject-modal-info-row:last-child {
+          margin-bottom: 0;
+        }
+
+        .reject-modal-textarea-container {
+          width: 100%;
+        }
+
+        .reject-modal-label {
+          display: block;
+          font-size: 0.875rem;
+          font-weight: 500;
+          margin-bottom: 0.5rem;
+        }
+
+        .reject-modal-textarea {
+          width: 100%;
+          padding: 0.5rem 0.75rem;
+          border-radius: 0.5rem;
+          border-width: 1px;
+          border-style: solid;
+          resize: none;
+          font-family: inherit;
+          font-size: 0.875rem;
+        }
+
+        .reject-modal-textarea:focus {
+          outline: none;
+          border-color: var(--primary);
+        }
+
+        .reject-modal-error {
+          font-size: 0.875rem;
+          margin-top: 0.25rem;
+        }
+
+        .reject-modal-actions {
+          display: flex;
+          gap: 0.75rem;
+        }
+
+        .reject-modal-btn {
+          flex: 1;
+          padding: 0.5rem 1rem;
+          border-radius: 0.5rem;
+          font-weight: 500;
+          border: none;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        /* Tablet */
+        @media (max-width: 1024px) {
+          .reject-modal {
+            padding: 1.25rem;
+          }
+        }
+
+        /* Mobile */
+        @media (max-width: 767px) {
+          .reject-modal-overlay {
+            padding: 0.75rem;
+            align-items: flex-end;
+          }
+
+          .reject-modal {
+            padding: 1rem;
+            border-radius: 0.75rem 0.75rem 0 0;
+            max-width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+          }
+
+          .reject-modal-icon {
+            width: 2.25rem;
+            height: 2.25rem;
+          }
+
+          .reject-modal-title {
+            font-size: 1rem;
+          }
+
+          .reject-modal-subtitle {
+            font-size: 0.8125rem;
+          }
+
+          .reject-modal-info-row {
+            font-size: 0.8125rem;
+          }
+
+          .reject-modal-actions {
+            flex-direction: column-reverse;
+          }
+
+          .reject-modal-btn {
+            padding: 0.75rem 1rem;
+          }
+        }
+
+        /* Small Mobile */
+        @media (max-width: 480px) {
+          .reject-modal-header-left {
+            gap: 0.5rem;
+          }
+
+          .reject-modal-icon {
+            width: 2rem;
+            height: 2rem;
+          }
+        }
+      `}</style>
+    </>
   );
 };
 
