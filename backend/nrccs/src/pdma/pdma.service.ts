@@ -703,11 +703,12 @@ export class PdmaService {
       throw new BadRequestException(`Only ${available} ${provinceResource.unit} available for allocation`);
     }
 
-    // Update province-level allocation tracking
+    // Decrement provincial quantity and update allocation tracking
+    provinceResource.quantity -= allocateDto.quantity;
     provinceResource.allocated += allocateDto.quantity;
 
-    // Update province resource status based on allocation percentage
-    const usagePercentage = (provinceResource.allocated / provinceResource.quantity) * 100;
+    // Update province resource status based on remaining quantity
+    const usagePercentage = provinceResource.quantity > 0 ? ((provinceResource.allocated / (provinceResource.quantity + provinceResource.allocated)) * 100) : 100;
 
     if (usagePercentage >= 100) {
       provinceResource.status = ResourceStatus.ALLOCATED;
@@ -1258,7 +1259,8 @@ export class PdmaService {
           throw new BadRequestException(`Only ${available} ${standard.unit} of ${standard.name} available for allocation`);
         }
 
-        // Deduct from province resource
+        // Decrement provincial quantity and update allocation tracking
+        provinceResource!.quantity -= item.quantity;
         provinceResource!.allocated = (provinceResource!.allocated || 0) + item.quantity;
         await this.resourceRepository.save(provinceResource!);
 
