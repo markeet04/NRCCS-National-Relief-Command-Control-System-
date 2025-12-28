@@ -43,17 +43,18 @@
     flex-direction: column;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
+    border-left: 4px solid #6b7280;
     border-radius: 12px;
     padding: 20px 20px 16px 24px;
     transition: all 0.2s ease;
     min-height: 120px;
 }
 
-/* Dark mode: left border accent with glow */
+/* Dark mode: darker background */
 [data-theme="dark"] .stat-card {
     background: #0f1114;
-    border: none;
-    border-left: 4px solid #6b7280;
+    border-color: transparent;
+    border-left-width: 4px;
 }
 
 .stat-card:hover {
@@ -186,7 +187,40 @@
 }
 
 /* ======================
-   CARD COLOR VARIANTS (border + glow)
+   CARD COLOR VARIANTS - LIGHT MODE (border only, no glow)
+   ====================== */
+.stat-card--red,
+.stat-card--danger {
+    border-left-color: #ef4444;
+}
+
+.stat-card--blue,
+.stat-card--info {
+    border-left-color: #3b82f6;
+}
+
+.stat-card--green,
+.stat-card--success {
+    border-left-color: #22c55e;
+}
+
+.stat-card--amber,
+.stat-card--warning {
+    border-left-color: #f59e0b;
+}
+
+.stat-card--purple,
+.stat-card--violet {
+    border-left-color: #8b5cf6;
+}
+
+.stat-card--cyan,
+.stat-card--teal {
+    border-left-color: #06b6d4;
+}
+
+/* ======================
+   CARD COLOR VARIANTS - DARK MODE (border + glow)
    ====================== */
 [data-theme="dark"] .stat-card--red,
 [data-theme="dark"] .stat-card--danger {

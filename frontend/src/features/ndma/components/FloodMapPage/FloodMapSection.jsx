@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { MapPin, Thermometer, Wind, Droplets, CloudRain, RefreshCw, Navigation } from 'lucide-react';
 import NdmaFloodMap from './NdmaFloodMap';
+import { useSettings } from '@app/providers/ThemeProvider';
 
 // Major cities for Quick Jump
 const QUICK_JUMP_CITIES = [
@@ -14,6 +15,28 @@ const QUICK_JUMP_CITIES = [
   { name: 'Faisalabad', lat: 31.4504, lon: 73.1350 },
   { name: 'Rawalpindi', lat: 33.5651, lon: 73.0169 },
 ];
+
+// Theme-aware colors
+const getThemeColors = (theme) => ({
+  headerBg: theme === 'light'
+    ? 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)'
+    : 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)',
+  weatherBarBg: theme === 'light'
+    ? 'rgba(241, 245, 249, 0.95)'
+    : 'rgba(30, 58, 95, 0.8)',
+  quickJumpBg: theme === 'light'
+    ? 'rgba(248, 250, 252, 0.95)'
+    : 'rgba(15, 23, 42, 0.9)',
+  titleColor: theme === 'light' ? '#1e293b' : '#fff',
+  subtitleColor: theme === 'light' ? '#64748b' : '#94a3b8',
+  textPrimary: theme === 'light' ? '#1e293b' : '#fff',
+  textMuted: theme === 'light' ? '#64748b' : '#94a3b8',
+  buttonBg: theme === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)',
+  buttonBorder: theme === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
+  buttonColor: theme === 'light' ? '#475569' : '#94a3b8',
+  badgeBg: theme === 'light' ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255,255,255,0.1)',
+  borderColor: theme === 'light' ? '#cbd5e1' : 'rgba(59, 130, 246, 0.3)',
+});
 
 // Open-Meteo API
 const WEATHER_API_URL = 'https://api.open-meteo.com/v1/forecast';
@@ -28,6 +51,10 @@ const FloodMapSection = ({
   onRunPrediction,
   activeLayers,
 }) => {
+  // Theme support
+  const { theme } = useSettings();
+  const colors = getThemeColors(theme);
+
   // State for weather and pin mode
   const [pinMode, setPinMode] = useState(false);
   const [weatherData, setWeatherData] = useState(null);
@@ -112,22 +139,22 @@ const FloodMapSection = ({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '12px 16px',
-        background: 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)',
+        background: colors.headerBg,
         borderRadius: '12px 12px 0 0',
-        borderBottom: '1px solid rgba(59, 130, 246, 0.3)'
+        borderBottom: `1px solid ${colors.borderColor}`
       }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#fff' }}>
+          <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: colors.titleColor }}>
             National Flood Monitoring Map
           </h2>
-          <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#94a3b8' }}>
+          <p style={{ margin: '2px 0 0', fontSize: '11px', color: colors.subtitleColor }}>
             Real-time weather & flood risk across Pakistan
           </p>
         </div>
 
         {/* Pin Mode Toggle */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '10px', color: '#94a3b8' }}>Pin Mode</span>
+          <span style={{ fontSize: '10px', color: colors.textMuted }}>Pin Mode</span>
           <button
             onClick={() => setPinMode(!pinMode)}
             style={{
@@ -136,9 +163,9 @@ const FloodMapSection = ({
               gap: '4px',
               padding: '6px 10px',
               borderRadius: '6px',
-              border: pinMode ? '1px solid #22c55e' : '1px solid #475569',
-              background: pinMode ? 'rgba(34, 197, 94, 0.15)' : 'rgba(71, 85, 105, 0.15)',
-              color: pinMode ? '#22c55e' : '#94a3b8',
+              border: pinMode ? '1px solid #22c55e' : `1px solid ${colors.buttonBorder}`,
+              background: pinMode ? 'rgba(34, 197, 94, 0.15)' : colors.buttonBg,
+              color: pinMode ? '#22c55e' : colors.buttonColor,
               fontSize: '11px',
               fontWeight: '500',
               cursor: 'pointer',
@@ -157,18 +184,18 @@ const FloodMapSection = ({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '10px 16px',
-        background: 'rgba(30, 58, 95, 0.8)',
-        borderBottom: '1px solid rgba(59, 130, 246, 0.2)',
+        background: colors.weatherBarBg,
+        borderBottom: `1px solid ${colors.borderColor}`,
         flexWrap: 'wrap',
         gap: '8px'
       }}>
         {/* Location Info */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Navigation size={14} style={{ color: '#60a5fa' }} />
-          <span style={{ fontWeight: '600', color: '#fff', fontSize: '13px' }}>
+          <span style={{ fontWeight: '600', color: colors.textPrimary, fontSize: '13px' }}>
             {selectedLocation.name}
           </span>
-          <span style={{ color: '#64748b', fontSize: '11px' }}>
+          <span style={{ color: colors.textMuted, fontSize: '11px' }}>
             ({selectedLocation.lat.toFixed(2)}°N, {selectedLocation.lon.toFixed(2)}°E)
           </span>
         </div>
@@ -178,33 +205,33 @@ const FloodMapSection = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Thermometer size={14} style={{ color: '#f97316' }} />
-              <span style={{ color: '#fff', fontSize: '12px', fontWeight: '500' }}>
+              <span style={{ color: colors.textPrimary, fontSize: '12px', fontWeight: '500' }}>
                 {weatherData.temperature}°C
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Wind size={14} style={{ color: '#94a3b8' }} />
-              <span style={{ color: '#fff', fontSize: '12px' }}>
+              <Wind size={14} style={{ color: colors.textMuted }} />
+              <span style={{ color: colors.textPrimary, fontSize: '12px' }}>
                 {weatherData.windSpeed} km/h {weatherData.windDirection}
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <CloudRain size={14} style={{ color: '#3b82f6' }} />
-              <span style={{ color: '#fff', fontSize: '12px' }}>
+              <span style={{ color: colors.textPrimary, fontSize: '12px' }}>
                 {weatherData.precipitation} mm
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Droplets size={14} style={{ color: '#06b6d4' }} />
-              <span style={{ color: '#fff', fontSize: '12px' }}>
+              <span style={{ color: colors.textPrimary, fontSize: '12px' }}>
                 {weatherData.humidity}%
               </span>
             </div>
             <span style={{
-              color: '#94a3b8',
+              color: colors.textMuted,
               fontSize: '11px',
               padding: '2px 8px',
-              background: 'rgba(255,255,255,0.1)',
+              background: colors.badgeBg,
               borderRadius: '4px'
             }}>
               {weatherData.condition}
@@ -215,7 +242,7 @@ const FloodMapSection = ({
               style={{
                 background: 'none',
                 border: 'none',
-                color: '#64748b',
+                color: colors.textMuted,
                 cursor: 'pointer',
                 padding: '4px',
                 display: 'flex',
@@ -235,11 +262,11 @@ const FloodMapSection = ({
         alignItems: 'center',
         gap: '8px',
         padding: '8px 16px',
-        background: 'rgba(15, 23, 42, 0.9)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        background: colors.quickJumpBg,
+        borderBottom: `1px solid ${colors.borderColor}`,
         overflowX: 'auto'
       }}>
-        <span style={{ fontSize: '10px', color: '#64748b', whiteSpace: 'nowrap' }}>
+        <span style={{ fontSize: '10px', color: colors.textMuted, whiteSpace: 'nowrap' }}>
           ↗ Quick Jump:
         </span>
         {QUICK_JUMP_CITIES.map(city => (
@@ -250,9 +277,9 @@ const FloodMapSection = ({
               padding: '4px 10px',
               fontSize: '11px',
               fontWeight: '500',
-              color: selectedLocation.name === city.name ? '#fff' : '#94a3b8',
-              background: selectedLocation.name === city.name ? 'rgba(59, 130, 246, 0.3)' : 'rgba(255, 255, 255, 0.05)',
-              border: selectedLocation.name === city.name ? '1px solid rgba(59, 130, 246, 0.5)' : '1px solid rgba(255, 255, 255, 0.1)',
+              color: selectedLocation.name === city.name ? colors.textPrimary : colors.buttonColor,
+              background: selectedLocation.name === city.name ? 'rgba(59, 130, 246, 0.3)' : colors.buttonBg,
+              border: selectedLocation.name === city.name ? '1px solid rgba(59, 130, 246, 0.5)' : `1px solid ${colors.buttonBorder}`,
               borderRadius: '4px',
               cursor: 'pointer',
               transition: 'all 0.2s',

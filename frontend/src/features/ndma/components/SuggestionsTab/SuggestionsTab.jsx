@@ -17,6 +17,7 @@ import ApproveModal from './ApproveModal';
 import RejectModal from './RejectModal';
 import StatsCards from './StatsCards';
 import Dropdown from '../../../../shared/components/ui/Dropdown';
+import { useSettings } from '@app/providers/ThemeProvider';
 
 const RESOURCE_ICONS = {
   water: Droplet,
@@ -41,6 +42,10 @@ const RESOURCE_OPTIONS = [
 ];
 
 const SuggestionsTab = () => {
+  // Theme support
+  const { theme } = useSettings();
+  const isLight = theme === 'light';
+
   const {
     suggestions,
     stats,
@@ -137,8 +142,8 @@ const SuggestionsTab = () => {
         <div
           className="text-center py-16 rounded-xl"
           style={{
-            backgroundColor: '#0f1114',
-            border: '1px solid #1e2228',
+            backgroundColor: isLight ? '#f8fafc' : '#0f1114',
+            border: isLight ? '1px solid #e2e8f0' : '1px solid #1e2228',
             marginTop: '20px'
           }}
         >
@@ -148,15 +153,15 @@ const SuggestionsTab = () => {
               width: '64px',
               height: '64px',
               borderRadius: '16px',
-              backgroundColor: 'rgba(34, 197, 94, 0.1)',
+              backgroundColor: isLight ? 'rgba(34, 197, 94, 0.1)' : 'rgba(34, 197, 94, 0.1)',
             }}
           >
             <CheckCircle size={32} style={{ color: '#22c55e' }} />
           </div>
-          <h3 className="text-lg font-semibold mb-2" style={{ color: '#ffffff' }}>
+          <h3 className="text-lg font-semibold mb-2" style={{ color: isLight ? '#1e293b' : '#ffffff' }}>
             No suggestions found
           </h3>
-          <p className="text-sm" style={{ color: '#64748b', maxWidth: '400px', margin: '0 auto' }}>
+          <p className="text-sm" style={{ color: isLight ? '#64748b' : '#64748b', maxWidth: '400px', margin: '0 auto' }}>
             {filters.status === 'PENDING'
               ? 'All suggestions have been reviewed. New suggestions will appear here when ML detects flood risks.'
               : 'No suggestions match the selected filters.'}

@@ -762,6 +762,71 @@
    LIGHT MODE OVERRIDES - Flood Map
    ============================================================================ */
 
+[data-theme="light"] .flood-map-section {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Override all inline dark backgrounds inside flood-map-section */
+[data-theme="light"] .flood-map-section>div[style*="linear-gradient"] {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+}
+
+[data-theme="light"] .flood-map-section>div[style*="rgba(30, 58, 95"] {
+  background: rgba(241, 245, 249, 0.95) !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .flood-map-section>div[style*="rgba(15, 23, 42"] {
+  background: rgba(248, 250, 252, 0.95) !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Text colors in flood map section - light mode */
+[data-theme="light"] .flood-map-section h2 {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .flood-map-section p {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .flood-map-section span[style*="color: #fff"],
+[data-theme="light"] .flood-map-section span[style*="color:#fff"] {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .flood-map-section span[style*="color: #94a3b8"],
+[data-theme="light"] .flood-map-section span[style*="color:#94a3b8"] {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .flood-map-section span[style*="color: #64748b"] {
+  color: #475569 !important;
+}
+
+/* Quick jump buttons light mode */
+[data-theme="light"] .flood-map-section button[style*="rgba(255, 255, 255, 0.05)"] {
+  background: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .flood-map-section button[style*="rgba(59, 130, 246, 0.3)"] {
+  background: rgba(59, 130, 246, 0.15) !important;
+}
+
+/* Pin mode toggle light mode */
+[data-theme="light"] .flood-map-section button[style*="rgba(71, 85, 105"] {
+  background: rgba(100, 116, 139, 0.1) !important;
+}
+
+/* Weather condition badge light mode */
+[data-theme="light"] .flood-map-section span[style*="rgba(255,255,255,0.1)"] {
+  background: rgba(0, 0, 0, 0.08) !important;
+  color: #475569 !important;
+}
+
 [data-theme="light"] .flood-map-card {
   background-color: #ffffff !important;
   border-color: #e2e8f0 !important;
@@ -969,4 +1034,46 @@
 
 [data-theme="light"] .flood-map-layer-toggle span {
   color: #475569 !important;
+}
+
+/* ============================================================================
+   ML PREDICTION PANEL - LIGHT MODE OVERRIDES
+   ============================================================================ */
+/* Force light backgrounds on the ML prediction panel */
+[data-theme="light"] .flood-province-card[style*="linear-gradient"] {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .flood-province-header[style*="rgba(59, 130, 246"] {
+  border-bottom-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Override text colors in ML panel */
+[data-theme="light"] .flood-province-card span[style*="color: #94a3b8"],
+[data-theme="light"] .flood-province-card span[style*="color:#94a3b8"] {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .flood-province-card strong[style*="color: #fff"],
+[data-theme="light"] .flood-province-card strong[style*="color:#fff"] {
+  color: #1e293b !important;
+}
+
+/* Select dropdown in ML panel */
+[data-theme="light"] .flood-province-card select {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .flood-province-card select option {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+}
+
+/* Live weather widget light mode */
+[data-theme="light"] .flood-province-card div[style*="rgba(59, 130, 246, 0.1)"] {
+  background: rgba(59, 130, 246, 0.08) !important;
+  border-color: rgba(59, 130, 246, 0.2) !important;
 }

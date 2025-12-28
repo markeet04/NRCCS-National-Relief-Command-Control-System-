@@ -647,23 +647,80 @@ const NdmaFloodMap = ({
                         // Use ArcGIS reverse geocoding to get actual place name
                         try {
                             const result = await locator.locationToAddress(geocodeServiceUrl, {
-                                location: mapPoint
+                                location: mapPoint,
                             });
 
-                            // Extract place name from result
-                            const placeName = result?.address ||
-                                result?.attributes?.PlaceName ||
-                                result?.attributes?.City ||
-                                result?.attributes?.Match_addr ||
-                                `${mapPoint.latitude.toFixed(4)}°N, ${mapPoint.longitude.toFixed(4)}°E`;
+                            console.log('📍 Full geocode result:', result);
+                            console.log('📍 Address string:', result?.address);
+                            console.log('📍 Attributes:', result?.attributes);
 
-                            console.log('📍 Reverse geocoded:', placeName);
+                            // Extract place name with multiple fallback strategies
+                            let placeName = '';
+                            const attrs = result?.attributes || {};
 
-                            // Call callback with actual place name (use ref)
+                            // Strategy 1: Use City attribute directly if available
+                            if (attrs.City && attrs.City.trim()) {
+                                placeName = attrs.City.trim();
+                                console.log('📍 Using City attribute:', placeName);
+                            }
+                            // Strategy 2: Use Neighborhood attribute
+                            else if (attrs.Nbrhd && attrs.Nbrhd.trim()) {
+                                placeName = attrs.Nbrhd.trim();
+                                console.log('📍 Using Neighborhood attribute:', placeName);
+                            }
+                            // Strategy 3: Use Match_addr and parse it
+                            else if (attrs.Match_addr && attrs.Match_addr.trim()) {
+                                const parts = attrs.Match_addr.split(',').map(p => p.trim());
+                                placeName = parts[0] || '';
+                                console.log('📍 Using Match_addr first part:', placeName);
+                            }
+                            // Strategy 4: Use ShortLabel
+                            else if (attrs.ShortLabel && attrs.ShortLabel.trim()) {
+                                placeName = attrs.ShortLabel.trim();
+                                console.log('📍 Using ShortLabel:', placeName);
+                            }
+                            // Strategy 5: Parse the address string
+                            else if (result?.address && result.address.trim()) {
+                                const addressParts = result.address.split(',').map(p => p.trim());
+                                const pakistanProvinces = ['Punjab', 'Sindh', 'Balochistan', 'Khyber Pakhtunkhwa', 'Gilgit-Baltistan', 'Azad Jammu and Kashmir', 'Islamabad Capital Territory', 'Pakistan'];
+
+                                // Find first part that is NOT a province or country name
+                                for (const part of addressParts) {
+                                    if (part && !pakistanProvinces.some(prov => part.toLowerCase().includes(prov.toLowerCase()))) {
+                                        placeName = part;
+                                        break;
+                                    }
+                                }
+                                // If all parts were provinces, use first part anyway
+                                if (!placeName && addressParts.length > 0) {
+                                    placeName = addressParts[0];
+                                }
+                                console.log('📍 Parsed from address:', placeName);
+                            }
+                            // Strategy 6: Use Subregion (district level)
+                            else if (attrs.Subregion && attrs.Subregion.trim()) {
+                                placeName = attrs.Subregion.trim();
+                                console.log('📍 Using Subregion:', placeName);
+                            }
+                            // Strategy 7: Use Region (province level) as last resort
+                            else if (attrs.Region && attrs.Region.trim()) {
+                                placeName = attrs.Region.trim();
+                                console.log('📍 Using Region:', placeName);
+                            }
+
+                            // Final fallback if nothing found
+                            if (!placeName || placeName.length === 0) {
+                                placeName = `${mapPoint.latitude.toFixed(4)}°N, ${mapPoint.longitude.toFixed(4)}°E`;
+                                console.log('📍 Using coordinates fallback');
+                            }
+
+                            console.log('📍 Final place name:', placeName);
+
+                            // Call callback with actual place name
                             onMapClickRef.current(mapPoint.latitude, mapPoint.longitude, placeName);
                         } catch (error) {
-                            console.warn('Reverse geocoding failed, using coordinates:', error);
-                            // Fallback to coordinates if geocoding fails (use ref)
+                            console.error('❌ Reverse geocoding failed:', error);
+                            // Fallback to coordinates if geocoding fails
                             onMapClickRef.current(mapPoint.latitude, mapPoint.longitude,
                                 `${mapPoint.latitude.toFixed(4)}°N, ${mapPoint.longitude.toFixed(4)}°E`);
                         }

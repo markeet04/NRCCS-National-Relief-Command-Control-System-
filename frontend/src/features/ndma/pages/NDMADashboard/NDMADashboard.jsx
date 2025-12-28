@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@shared/components/layout';
 import { useSettings } from '@app/providers/ThemeProvider';
@@ -18,7 +18,7 @@ import {
 // Import custom hook for dashboard logic
 import { useDashboardLogic } from '../../hooks';
 
-// Import constants
+// Import constants (fallback only)
 import { RESOURCE_STATUS } from '../../constants';
 
 // Import styles
@@ -44,6 +44,43 @@ const NDMADashboard = () => {
   const [loading, setLoading] = useState(true);
   const [dashboardStats, setDashboardStats] = useState(null);
   const [resourceStats, setResourceStats] = useState(null);
+
+  // Transform resource stats byType data to format expected by DashboardResourceStatus
+  const liveResourceStatus = useMemo(() => {
+    if (!resourceStats?.byType || resourceStats.byType.length === 0) {
+      return RESOURCE_STATUS; // Fallback to hardcoded values
+    }
+
+    // Resource type name mapping
+    const typeNameMap = {
+      food: 'Food Supplies',
+      water: 'Clean Water',
+      medical: 'Medical Kits',
+      shelter: 'Shelter Materials',
+      equipment: 'Equipment',
+      clothing: 'Clothing',
+    };
+
+    return resourceStats.byType.map((item) => {
+      const quantity = parseInt(item.quantity) || 0;
+      const allocated = parseInt(item.allocated) || 0;
+      const availablePercent = quantity > 0 ? Math.round(((quantity - allocated) / quantity) * 100) : 0;
+
+      // Determine status based on available percentage
+      let status = 'adequate';
+      if (availablePercent < 25) status = 'critical';
+      else if (availablePercent < 50) status = 'low';
+      else if (availablePercent < 75) status = 'moderate';
+
+      return {
+        type: typeNameMap[item.type?.toLowerCase()] || item.type || 'Unknown',
+        allocated: availablePercent,
+        status,
+        unit: item.unit || 'units',
+        lastUpdated: 'just now',
+      };
+    });
+  }, [resourceStats]);
 
   // Use custom hook for dashboard logic
   const { roleConfig, menuItems } = useDashboardLogic(activeStatusCount, provincialRequestsCount);
@@ -131,7 +168,7 @@ const NDMADashboard = () => {
           />
 
           <div className={`national-sidebar ${isMapFullscreen ? 'sidebar-hidden' : ''}`}>
-            <DashboardResourceStatus resources={RESOURCE_STATUS} />
+            <DashboardResourceStatus resources={liveResourceStatus} />
           </div>
         </div>
       </div>

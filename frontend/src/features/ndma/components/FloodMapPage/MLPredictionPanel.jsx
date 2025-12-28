@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { useSettings } from '@app/providers/ThemeProvider';
 
 /**
  * Province ID mapping for backend
@@ -21,6 +22,22 @@ const PROVINCE_ID_MAP = {
 };
 
 /**
+ * Theme-aware colors for ML Prediction Panel
+ */
+const getThemeColors = (theme) => ({
+  panelBg: theme === 'light'
+    ? 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)'
+    : 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+  borderColor: theme === 'light' ? '#cbd5e1' : 'rgba(59, 130, 246, 0.3)',
+  textPrimary: theme === 'light' ? '#1e293b' : '#fff',
+  textMuted: theme === 'light' ? '#64748b' : '#94a3b8',
+  selectBg: theme === 'light' ? '#ffffff' : '#1e293b',
+  selectBorder: theme === 'light' ? '#cbd5e1' : '#475569',
+  weatherWidgetBg: theme === 'light' ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.1)',
+  weatherWidgetBorder: theme === 'light' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.3)',
+});
+
+/**
  * MLPredictionPanel Component
  * ML Flood Prediction control panel with simulation mode toggle
  */
@@ -35,6 +52,10 @@ const MLPredictionPanel = ({
   selectedProvince,
   onRunPrediction,
 }) => {
+  // Theme support
+  const { theme } = useSettings();
+  const colors = getThemeColors(theme);
+
   const handleRunPrediction = () => {
     const provinceId = selectedProvince?.id ?
       (PROVINCE_ID_MAP[selectedProvince.id.toLowerCase()] || 1) : 1;
@@ -42,9 +63,9 @@ const MLPredictionPanel = ({
   };
 
   return (
-    <div className="flood-province-card" style={{ marginBottom: '10px', background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', flex: '0 0 auto' }}>
+    <div className="flood-province-card" style={{ marginBottom: '10px', background: colors.panelBg, flex: '0 0 auto' }}>
       {/* Compact Header */}
-      <div className="flood-province-header" style={{ borderBottom: '1px solid rgba(59, 130, 246, 0.3)', padding: '8px 12px' }}>
+      <div className="flood-province-header" style={{ borderBottom: `1px solid ${colors.borderColor}`, padding: '8px 12px' }}>
         <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
           🔮 ML Flood Prediction
         </h3>
@@ -63,7 +84,7 @@ const MLPredictionPanel = ({
       <div style={{ padding: '10px' }}>
         {/* Simulation Mode Toggle - Compact */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-          <span style={{ color: '#94a3b8', fontSize: '10px' }}>Simulation Mode</span>
+          <span style={{ color: colors.textMuted, fontSize: '10px' }}>Simulation Mode</span>
           <label style={{
             position: 'relative',
             display: 'inline-block',
@@ -101,7 +122,7 @@ const MLPredictionPanel = ({
         {/* Scenario Selector (only when simulation enabled) - Compact */}
         {simulationEnabled && (
           <div style={{ marginBottom: '8px' }}>
-            <label style={{ color: '#94a3b8', fontSize: '9px', display: 'block', marginBottom: '3px' }}>
+            <label style={{ color: colors.textMuted, fontSize: '9px', display: 'block', marginBottom: '3px' }}>
               Scenario
             </label>
             <select
@@ -111,9 +132,9 @@ const MLPredictionPanel = ({
                 width: '100%',
                 padding: '6px 8px',
                 borderRadius: '5px',
-                border: '1px solid #475569',
-                backgroundColor: '#1e293b',
-                color: '#f1f5f9',
+                border: `1px solid ${colors.selectBorder}`,
+                backgroundColor: colors.selectBg,
+                color: colors.textPrimary,
                 fontSize: '10px',
                 cursor: 'pointer'
               }}
@@ -131,8 +152,8 @@ const MLPredictionPanel = ({
             marginBottom: '10px',
             padding: '8px',
             borderRadius: '6px',
-            background: 'rgba(59, 130, 246, 0.1)',
-            border: '1px solid rgba(59, 130, 246, 0.3)'
+            background: colors.weatherWidgetBg,
+            border: `1px solid ${colors.weatherWidgetBorder}`
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
               <span style={{ color: '#60a5fa', fontSize: '11px', fontWeight: '600' }}>
@@ -142,11 +163,11 @@ const MLPredictionPanel = ({
                 {new Date(liveWeatherData.fetchedAt).toLocaleTimeString()}
               </span>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', fontSize: '10px', color: '#94a3b8' }}>
-              <span>🌧️ 24h: <strong style={{ color: '#fff' }}>{liveWeatherData.rainfall_24h}mm</strong></span>
-              <span>🌧️ 48h: <strong style={{ color: '#fff' }}>{liveWeatherData.rainfall_48h}mm</strong></span>
-              <span>🌡️ <strong style={{ color: '#fff' }}>{liveWeatherData.temperature}°C</strong></span>
-              <span>💧 <strong style={{ color: '#fff' }}>{liveWeatherData.humidity}%</strong></span>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', fontSize: '10px', color: colors.textMuted }}>
+              <span>🌧️ 24h: <strong style={{ color: colors.textPrimary }}>{liveWeatherData.rainfall_24h}mm</strong></span>
+              <span>🌧️ 48h: <strong style={{ color: colors.textPrimary }}>{liveWeatherData.rainfall_48h}mm</strong></span>
+              <span>🌡️ <strong style={{ color: colors.textPrimary }}>{liveWeatherData.temperature}°C</strong></span>
+              <span>💧 <strong style={{ color: colors.textPrimary }}>{liveWeatherData.humidity}%</strong></span>
             </div>
           </div>
         )}
@@ -196,7 +217,7 @@ const MLPredictionPanel = ({
               {predictionResult.flood_risk === 'High' ? '🚨' :
                 predictionResult.flood_risk === 'Medium' ? '⚠️' : '✅'} {predictionResult.flood_risk} Risk
             </div>
-            <div style={{ color: '#94a3b8', fontSize: '11px' }}>
+            <div style={{ color: colors.textMuted, fontSize: '11px' }}>
               Confidence: {(predictionResult.confidence * 100).toFixed(1)}%
             </div>
             {predictionResult.simulationMode && (
@@ -207,11 +228,11 @@ const MLPredictionPanel = ({
             {/* Show real weather data in LIVE mode */}
             {!predictionResult.simulationMode && liveWeatherData && (
               <div style={{
-                color: '#60a5fa',
+                color: '#3b82f6',
                 fontSize: '10px',
                 marginTop: '6px',
                 padding: '6px',
-                background: 'rgba(59, 130, 246, 0.1)',
+                background: colors.weatherWidgetBg,
                 borderRadius: '4px'
               }}>
                 🌤️ <strong>Live Weather ({liveWeatherData.provinceName}):</strong><br />
