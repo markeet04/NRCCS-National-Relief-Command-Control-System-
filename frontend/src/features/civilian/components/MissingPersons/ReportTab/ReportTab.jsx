@@ -8,6 +8,10 @@ const ReportTab = ({
   onPhotoUpload,
   onRemovePhoto,
   onSubmit,
+  provinces,
+  districts,
+  loadingProvinces,
+  loadingDistricts,
 }) => {
   return (
     <div className="report-tab">
@@ -25,6 +29,10 @@ const ReportTab = ({
           onPhotoUpload={onPhotoUpload}
           onRemovePhoto={onRemovePhoto}
           onSubmit={onSubmit}
+          provinces={provinces}
+          districts={districts}
+          loadingProvinces={loadingProvinces}
+          loadingDistricts={loadingDistricts}
         />
       </div>
     </div>
@@ -32,3 +40,4 @@ const ReportTab = ({
 };
 
 export default ReportTab;
+

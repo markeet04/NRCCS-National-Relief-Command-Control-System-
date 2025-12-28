@@ -1,8 +1,54 @@
-const LastSeenSection = ({ formData, errors, onInputChange }) => {
+const LastSeenSection = ({ formData, errors, onInputChange, provinces, districts, loadingProvinces, loadingDistricts }) => {
   return (
     <div className="form-section">
       <h3 className="section-label">Last Seen Information</h3>
       <div className="form-grid">
+        <div className="form-group">
+          <label>
+            Province <span className="required">*</span>
+          </label>
+          <select
+            name="provinceId"
+            value={formData.provinceId}
+            onChange={onInputChange}
+            className={errors.provinceId ? 'error' : ''}
+            disabled={loadingProvinces}
+          >
+            <option value="">
+              {loadingProvinces ? 'Loading...' : 'Select Province'}
+            </option>
+            {provinces.map((province) => (
+              <option key={province.id} value={province.id}>
+                {province.name}
+              </option>
+            ))}
+          </select>
+          {errors.provinceId && <span className="error-message">{errors.provinceId}</span>}
+        </div>
+
+        <div className="form-group">
+          <label>
+            District <span className="required">*</span>
+          </label>
+          <select
+            name="districtId"
+            value={formData.districtId}
+            onChange={onInputChange}
+            className={errors.districtId ? 'error' : ''}
+            disabled={!formData.provinceId || loadingDistricts}
+          >
+            <option value="">
+              {loadingDistricts ? 'Loading...' : !formData.provinceId ? 'Select province first' : 'Select District'}
+            </option>
+            {districts.map((district) => (
+              <option key={district.id} value={district.id}>
+                {district.name}
+              </option>
+            ))}
+          </select>
+          {errors.districtId && <span className="error-message">{errors.districtId}</span>}
+        </div>
+
         <div className="form-group full-width">
           <label>
             Location <span className="required">*</span>
@@ -53,3 +99,4 @@ const LastSeenSection = ({ formData, errors, onInputChange }) => {
 };
 
 export default LastSeenSection;
+

@@ -23,7 +23,7 @@ export const useShelterData = () => {
   const notification = useNotification?.() || null;
   const showSuccess = notification?.success || console.log;
   const showError = notification?.error || console.error;
-  
+
   // Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -35,7 +35,7 @@ export const useShelterData = () => {
     try {
       const response = await districtApi.getAllShelters();
       const data = response.data || response || [];
-      
+
       // Transform API data to match component expectations
       setShelters(data.map(shelter => ({
         id: shelter.id,
@@ -107,18 +107,18 @@ export const useShelterData = () => {
   // Computed statistics
   const stats = useMemo(() => {
     const totalShelters = shelters.length;
-    const totalCapacity = shelters.reduce((sum, s) => sum + s.capacity, 0);
-    const currentOccupancy = shelters.reduce((sum, s) => sum + s.occupancy, 0);
-    const occupancyPercent = Math.round((currentOccupancy / totalCapacity) * 100);
-    
-    const availableShelters = shelters.filter(s => (s.occupancy / s.capacity) < 0.9).length;
-    const nearFullShelters = shelters.filter(s => (s.occupancy / s.capacity) >= 0.9 && (s.occupancy / s.capacity) < 1).length;
-    const fullShelters = shelters.filter(s => (s.occupancy / s.capacity) >= 1).length;
+    const totalCapacity = shelters.reduce((sum, s) => sum + (s.capacity || 0), 0);
+    const totalOccupancy = shelters.reduce((sum, s) => sum + (s.occupancy || 0), 0);
+    const occupancyPercent = totalCapacity > 0 ? Math.round((totalOccupancy / totalCapacity) * 100) : 0;
+
+    const availableShelters = shelters.filter(s => s.capacity > 0 && (s.occupancy / s.capacity) < 0.9).length;
+    const nearFullShelters = shelters.filter(s => s.capacity > 0 && (s.occupancy / s.capacity) >= 0.9 && (s.occupancy / s.capacity) < 1).length;
+    const fullShelters = shelters.filter(s => s.capacity > 0 && (s.occupancy / s.capacity) >= 1).length;
 
     return {
       totalShelters,
       totalCapacity,
-      currentOccupancy,
+      totalOccupancy,
       occupancyPercent,
       availableShelters,
       nearFullShelters,
@@ -138,10 +138,10 @@ export const useShelterData = () => {
   const capacityRingData = useMemo(() => {
     const occupancyPercent = stats.occupancyPercent;
     return [
-      { 
-        name: 'Occupied', 
-        value: occupancyPercent, 
-        fill: occupancyPercent > 80 ? '#ef4444' : occupancyPercent > 60 ? '#f59e0b' : '#10b981' 
+      {
+        name: 'Occupied',
+        value: occupancyPercent,
+        fill: occupancyPercent > 80 ? '#ef4444' : occupancyPercent > 60 ? '#f59e0b' : '#10b981'
       },
       { name: 'Available', value: 100 - occupancyPercent, fill: '#374151' }
     ];
@@ -151,7 +151,7 @@ export const useShelterData = () => {
   const filteredShelters = useMemo(() => {
     return shelters.filter(shelter => {
       const matchesSearch = shelter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            shelter.address.toLowerCase().includes(searchQuery.toLowerCase());
+        shelter.address.toLowerCase().includes(searchQuery.toLowerCase());
       if (statusFilter === 'all') return matchesSearch;
       return matchesSearch && getStatus(shelter.occupancy, shelter.capacity) === statusFilter;
     });
@@ -164,7 +164,7 @@ export const useShelterData = () => {
     try {
       await districtApi.createShelter(shelterData);
       showSuccess('Shelter created successfully');
-      
+
       // Refetch to get updated list from backend
       await fetchShelters();
     } catch (err) {
@@ -183,7 +183,7 @@ export const useShelterData = () => {
     try {
       await districtApi.updateShelter(shelterId, shelterData);
       showSuccess('Shelter updated successfully');
-      
+
       // Refetch to get updated status and fields from backend
       await fetchShelters();
     } catch (err) {
@@ -201,10 +201,10 @@ export const useShelterData = () => {
     setError(null);
     try {
       await districtApi.updateShelterSupplies(shelterId, supplies);
-      setShelters(prev => 
-        prev.map(s => s.id === shelterId ? { 
-          ...s, 
-          resources: { ...s.resources, ...supplies } 
+      setShelters(prev =>
+        prev.map(s => s.id === shelterId ? {
+          ...s,
+          resources: { ...s.resources, ...supplies }
         } : s)
       );
       showSuccess('Shelter supplies updated');
@@ -224,7 +224,7 @@ export const useShelterData = () => {
     try {
       await districtApi.updateShelterOccupancy(shelterId, occupancy);
       showSuccess('Shelter occupancy updated');
-      
+
       // Refetch to get updated status (backend auto-updates status based on occupancy)
       await fetchShelters();
     } catch (err) {
@@ -243,7 +243,7 @@ export const useShelterData = () => {
     try {
       await districtApi.deleteShelter(shelterId);
       showSuccess('Shelter deleted successfully');
-      
+
       // Refetch to get updated list from backend
       await fetchShelters();
     } catch (err) {
@@ -267,20 +267,20 @@ export const useShelterData = () => {
     stats,
     statusPieData,
     capacityRingData,
-    
+
     // Filter state
     searchQuery,
     setSearchQuery,
     statusFilter,
     setStatusFilter,
-    
+
     // Helper functions
     getStatus,
     getStatusInfo,
     getResourceColor,
     getResourceGaugeData,
     getAverageResources,
-    
+
     // Actions
     addShelter,
     updateShelter,
@@ -288,7 +288,7 @@ export const useShelterData = () => {
     updateShelterOccupancy,
     deleteShelter,
     refresh,
-    
+
     // Loading state
     loading,
     error

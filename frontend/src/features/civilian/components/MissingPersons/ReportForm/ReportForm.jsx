@@ -11,6 +11,10 @@ const ReportForm = ({
   onPhotoUpload,
   onRemovePhoto,
   onSubmit,
+  provinces,
+  districts,
+  loadingProvinces,
+  loadingDistricts,
 }) => {
   return (
     <form onSubmit={onSubmit} className="report-form">
@@ -31,6 +35,10 @@ const ReportForm = ({
         formData={reportForm}
         errors={reportErrors}
         onInputChange={onInputChange}
+        provinces={provinces}
+        districts={districts}
+        loadingProvinces={loadingProvinces}
+        loadingDistricts={loadingDistricts}
       />
 
       <ContactInfoSection
@@ -54,3 +62,4 @@ const ReportForm = ({
 };
 
 export default ReportForm;
+
