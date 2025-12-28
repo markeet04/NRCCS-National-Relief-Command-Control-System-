@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Settings } from 'lucide-react';
+import { Settings, Menu } from 'lucide-react';
 import SettingsModal from '../SettingsModal';
 
 /**
@@ -13,8 +13,9 @@ import SettingsModal from '../SettingsModal';
  * @param {string} props.iconColor - Icon color
  * @param {string} props.userRole - User role (pdma, ndma, district)
  * @param {number} props.notificationCount - Number of unread notifications
+ * @param {Function} props.onToggleMobileMenu - Mobile menu toggle handler
  */
-const Header = ({ title, subtitle, icon: IconComponent, iconColor, userRole, notificationCount = 0 }) => {
+const Header = ({ title, subtitle, icon: IconComponent, iconColor, userRole, notificationCount = 0, onToggleMobileMenu }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Get authority name based on role
@@ -45,8 +46,19 @@ const Header = ({ title, subtitle, icon: IconComponent, iconColor, userRole, not
         }}
       >
         <div className="flex items-center justify-between">
-          {/* Title Section */}
+          {/* Mobile Menu Toggle + Title Section */}
           <div className="flex items-center gap-3">
+            {/* Hamburger menu for mobile */}
+            {onToggleMobileMenu && (
+              <button
+                onClick={onToggleMobileMenu}
+                className="mobile-menu-toggle p-2 rounded-lg transition-colors hover:bg-opacity-10"
+                style={{ backgroundColor: 'transparent', color: 'var(--text-primary)' }}
+                title="Open Menu"
+              >
+                <Menu size={24} />
+              </button>
+            )}
             {IconComponent && (
               <div className={`header-icon-wrapper ${iconColor === '#ef4444' ? 'header-icon-wrapper--urgent' : ''}`}>
                 <IconComponent size={20} color={iconColor || 'var(--text-primary)'} />
@@ -88,6 +100,7 @@ Header.propTypes = {
   iconColor: PropTypes.string,
   userRole: PropTypes.string,
   notificationCount: PropTypes.number,
+  onToggleMobileMenu: PropTypes.func,
 };
 
 export default Header;

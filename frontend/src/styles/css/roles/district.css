@@ -332,3 +332,174 @@
     max-width: 300px;
     margin: 0 auto;
 }
+
+/* ============================================================================
+   DISTRICT MOBILE RESPONSIVE STYLES
+   ============================================================================ */
+
+/* Tablet breakpoint */
+@media (max-width: 1024px) {
+    .district-page {
+        padding: var(--spacing-4);
+    }
+
+    .district-page__title {
+        font-size: 24px;
+    }
+
+    .district-dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .district-map-panel {
+        height: 350px;
+    }
+}
+
+/* Mobile breakpoint */
+@media (max-width: 767px) {
+    .district-page {
+        padding: 1rem;
+    }
+
+    .district-page__header {
+        margin-bottom: 1rem;
+    }
+
+    .district-page__title {
+        font-size: 1.25rem;
+    }
+
+    .district-page__subtitle {
+        font-size: 0.75rem;
+    }
+
+    /* Map panel - shorter on mobile */
+    .district-map-panel {
+        height: 280px;
+    }
+
+    .district-map-controls {
+        top: 0.5rem;
+        right: 0.5rem;
+    }
+
+    /* Quick actions - stack on mobile */
+    .district-quick-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    .district-quick-actions button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Table styles - responsive */
+    .district-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .district-table th,
+    .district-table td {
+        padding: 0.625rem 0.75rem;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+
+    /* Team cards - stack vertically */
+    .district-team-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 0.75rem;
+    }
+
+    .district-team-card__avatar {
+        width: 48px;
+        height: 48px;
+    }
+
+    .district-team-card__info {
+        text-align: center;
+    }
+
+    /* SOS specific mobile styles */
+    .sos-page-content {
+        padding: 0 0 1rem 0 !important;
+    }
+
+    .sos-page-header {
+        margin-bottom: 0.5rem !important;
+    }
+
+    .sos-title,
+    .sos-page-header .page-title {
+        font-size: 1.25rem !important;
+    }
+
+    .sos-table-container {
+        margin-top: 0.75rem !important;
+    }
+
+    /* Priority indicator */
+    .district-sos-priority {
+        gap: 0.25rem;
+        font-size: 0.75rem;
+    }
+
+    /* SOS table scrollable on mobile */
+    .sos-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .sos-table-container table,
+    .sos-table-container .table {
+        min-width: 600px;
+    }
+
+    .sos-table-container th,
+    .sos-table-container td {
+        padding: 0.625rem 0.75rem;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+
+    /* Loading and empty states */
+    .district-loading,
+    .district-empty {
+        padding: 2rem 1rem;
+    }
+
+    .district-empty__icon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .district-empty__title {
+        font-size: 1rem;
+    }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+    .district-page {
+        padding: 0.75rem;
+    }
+
+    .district-page__title {
+        font-size: 1.125rem;
+    }
+
+    .district-map-panel {
+        height: 220px;
+    }
+
+    .district-team-card__avatar {
+        width: 40px;
+        height: 40px;
+    }
+}

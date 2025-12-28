@@ -210,3 +210,138 @@
 .no-data p {
     color: #64748b;
 }
+
+/* ============================================================================
+   MISSING PERSONS - MOBILE RESPONSIVE
+   ============================================================================ */
+
+/* Tablet breakpoint */
+@media (max-width: 1024px) {
+    .missing-persons-page {
+        padding: 1rem;
+        max-width: 100%;
+    }
+
+    .page-header h1 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Mobile breakpoint */
+@media (max-width: 767px) {
+    .missing-persons-page {
+        padding: 0.75rem;
+    }
+
+    .page-header {
+        margin-bottom: 1rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .page-header p {
+        font-size: 0.75rem;
+    }
+
+    /* Filters - stack on mobile */
+    .filters-section {
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .search-box {
+        min-width: 100%;
+    }
+
+    .search-box input {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .status-filter {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .status-filter label {
+        font-size: 0.75rem;
+    }
+
+    .status-filter select {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+        min-width: 100%;
+    }
+
+    /* Table - responsive wrapper */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 10px;
+    }
+
+    .missing-persons-table th,
+    .missing-persons-table td {
+        padding: 0.75rem;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+
+    .missing-persons-table th {
+        font-size: 0.625rem;
+    }
+
+    .table-photo,
+    .no-photo {
+        width: 36px;
+        height: 36px;
+    }
+
+    .location-cell {
+        max-width: 120px;
+    }
+
+    .update-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+    }
+
+    /* Loading and error states */
+    .loading-state,
+    .error-state {
+        padding: 2rem 1rem;
+    }
+
+    .no-data {
+        padding: 2rem 1rem !important;
+    }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+    .missing-persons-page {
+        padding: 0.5rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.125rem;
+    }
+
+    .missing-persons-table th,
+    .missing-persons-table td {
+        padding: 0.5rem;
+        font-size: 0.6875rem;
+    }
+
+    .table-photo,
+    .no-photo {
+        width: 32px;
+        height: 32px;
+    }
+}

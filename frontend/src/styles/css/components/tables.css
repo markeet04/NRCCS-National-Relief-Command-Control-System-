@@ -122,18 +122,23 @@
         font-size: 0.6875rem;
     }
 
-    /* Truncate long text in cells */
+    /* Ensure cells don't truncate - allow horizontal scroll instead */
     .table td {
-        max-width: 150px;
-        overflow: hidden;
-        text-overflow: ellipsis;
         white-space: nowrap;
     }
 
-    /* Allow wrapping for description cells */
+    /* Allow wrapping for description cells only */
     .table td.table__cell--wrap {
         white-space: normal;
-        max-width: none;
+    }
+
+    /* Action buttons always visible */
+    .table td.table__cell--actions,
+    .table td:last-child {
+        position: sticky;
+        right: 0;
+        background: var(--card-bg, #0f1114);
+        box-shadow: -4px 0 8px rgba(0, 0, 0, 0.3);
     }
 
     /* Touch-friendly row height */
@@ -141,17 +146,10 @@
         min-height: 3rem;
     }
 
-    /* Grid-based tables responsive */
+    /* Grid-based tables responsive - use scroll wrapper instead */
     .table__header,
     .table__row-content {
-        grid-template-columns: 1fr 1fr;
-        gap: 0.5rem;
-        padding: 0.75rem;
-    }
-
-    .table__header>div:nth-child(n+3),
-    .table__row-content>div:nth-child(n+3) {
-        display: none;
+        /* Keep original grid, scroll is handled by parent wrapper */
     }
 
     /* Pagination stacks on mobile */

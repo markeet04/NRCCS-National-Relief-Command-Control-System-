@@ -91,136 +91,139 @@ const SOSVirtualTable = ({
 
   return (
     <div>
-      <div className="card overflow-hidden">
-        {/* Table Header */}
-        <div className="table__header">
-          <div
-            onClick={() => handleSort('id')}
-            className="cursor-pointer select-none"
-          >
-            ID<SortIcon columnKey="id" />
+      {/* Scrollable wrapper for mobile */}
+      <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <div className="card overflow-hidden">
+          {/* Table Header */}
+          <div className="table__header">
+            <div
+              onClick={() => handleSort('id')}
+              className="cursor-pointer select-none"
+            >
+              ID<SortIcon columnKey="id" />
+            </div>
+            <div onClick={() => handleSort('name')} className="cursor-pointer select-none">
+              Name<SortIcon columnKey="name" />
+            </div>
+            <div onClick={() => handleSort('location')} className="cursor-pointer select-none">
+              Location<SortIcon columnKey="location" />
+            </div>
+            <div onClick={() => handleSort('time')} className="cursor-pointer select-none">
+              Time<SortIcon columnKey="time" />
+            </div>
+            <div onClick={() => handleSort('status')} className="cursor-pointer select-none">
+              Status<SortIcon columnKey="status" />
+            </div>
+            <div>Assigned Team</div>
+            <div>Actions</div>
           </div>
-          <div onClick={() => handleSort('name')} className="cursor-pointer select-none">
-            Name<SortIcon columnKey="name" />
-          </div>
-          <div onClick={() => handleSort('location')} className="cursor-pointer select-none">
-            Location<SortIcon columnKey="location" />
-          </div>
-          <div onClick={() => handleSort('time')} className="cursor-pointer select-none">
-            Time<SortIcon columnKey="time" />
-          </div>
-          <div onClick={() => handleSort('status')} className="cursor-pointer select-none">
-            Status<SortIcon columnKey="status" />
-          </div>
-          <div>Assigned Team</div>
-          <div>Actions</div>
-        </div>
 
-        {/* Table Body with native scrolling */}
-        <div className="table__body overflow-y-auto">
-          {paginatedRequests.map((request, index) => {
-            const isExpanded = expandedRows.has(request.id);
-            const statusStyle = getStatusStyle(request.status);
-            const isEven = index % 2 === 0;
+          {/* Table Body with native scrolling */}
+          <div className="table__body overflow-y-auto">
+            {paginatedRequests.map((request, index) => {
+              const isExpanded = expandedRows.has(request.id);
+              const statusStyle = getStatusStyle(request.status);
+              const isEven = index % 2 === 0;
 
-            return (
-              <div
-                key={request.id}
-                className={`table__row ${isEven ? '' : 'table__row--alt'}`}
-              >
-                {/* Row Content */}
-                <div className="table__row-content">
-                  {/* ID with expand button */}
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => toggleExpand(request.id)}
-                      className="btn btn--icon"
-                    >
-                      {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                    </button>
-                    <span className="font-semibold text-primary">{request.id}</span>
-                  </div>
-
-                  {/* Name & Phone */}
-                  <div>
-                    <div className="font-medium text-primary mb-1">{request.name}</div>
-                    <div className="text-xs text-muted flex items-center gap-1">
-                      <Phone size={12} />
-                      {request.phone}
-                    </div>
-                  </div>
-
-                  {/* Location & People */}
-                  <div>
-                    <div className="text-primary mb-1 flex items-center gap-1">
-                      <MapPin size={14} className="text-muted" />
-                      {request.location}
-                    </div>
-                    <div className="text-xs text-muted flex items-center gap-1">
-                      <Users size={12} />
-                      {request.people} people
-                    </div>
-                  </div>
-
-                  {/* Time */}
-                  <div className="text-xs text-muted flex items-center gap-1">
-                    <Clock size={12} />
-                    {new Date(request.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </div>
-
-                  {/* Status */}
-                  <div>
-                    <span
-                      className="badge"
-                      style={{
-                        background: statusStyle.bg,
-                        color: statusStyle.color,
-                        border: `1px solid ${statusStyle.border}30`
-                      }}
-                    >
-                      {request.status}
-                    </span>
-                  </div>
-
-                  {/* Assigned Team */}
-                  <div className="text-sm text-secondary">
-                    {request.assignedTeam || '—'}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => onViewDetails && onViewDetails(request)}
-                      className="btn btn--blue btn--sm flex-1"
-                    >
-                      <Eye size={14} />
-                      View
-                    </button>
-                    {request.status === 'Pending' && (
+              return (
+                <div
+                  key={request.id}
+                  className={`table__row ${isEven ? '' : 'table__row--alt'}`}
+                >
+                  {/* Row Content */}
+                  <div className="table__row-content">
+                    {/* ID with expand button */}
+                    <div className="flex items-center gap-2">
                       <button
-                        onClick={() => onAssign && onAssign(request)}
-                        className="btn btn--success btn--sm flex-1"
+                        onClick={() => toggleExpand(request.id)}
+                        className="btn btn--icon"
                       >
-                        Assign
+                        {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                       </button>
-                    )}
-                  </div>
-                </div>
+                      <span className="font-semibold text-primary">{request.id}</span>
+                    </div>
 
-                {/* Expanded Details */}
-                {isExpanded && (
-                  <div className="table__row-expanded">
-                    <p className="text-sm text-secondary font-semibold mb-2">Description:</p>
-                    <p className="text-sm text-primary" style={{ lineHeight: '1.6' }}>
-                      {request.description || 'No description available.'}
-                    </p>
+                    {/* Name & Phone */}
+                    <div>
+                      <div className="font-medium text-primary mb-1">{request.name}</div>
+                      <div className="text-xs text-muted flex items-center gap-1">
+                        <Phone size={12} />
+                        {request.phone}
+                      </div>
+                    </div>
+
+                    {/* Location & People */}
+                    <div>
+                      <div className="text-primary mb-1 flex items-center gap-1">
+                        <MapPin size={14} className="text-muted" />
+                        {request.location}
+                      </div>
+                      <div className="text-xs text-muted flex items-center gap-1">
+                        <Users size={12} />
+                        {request.people} people
+                      </div>
+                    </div>
+
+                    {/* Time */}
+                    <div className="text-xs text-muted flex items-center gap-1">
+                      <Clock size={12} />
+                      {new Date(request.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+
+                    {/* Status */}
+                    <div>
+                      <span
+                        className="badge"
+                        style={{
+                          background: statusStyle.bg,
+                          color: statusStyle.color,
+                          border: `1px solid ${statusStyle.border}30`
+                        }}
+                      >
+                        {request.status}
+                      </span>
+                    </div>
+
+                    {/* Assigned Team */}
+                    <div className="text-sm text-secondary">
+                      {request.assignedTeam || '—'}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => onViewDetails && onViewDetails(request)}
+                        className="btn btn--blue btn--sm flex-1"
+                      >
+                        <Eye size={14} />
+                        View
+                      </button>
+                      {request.status === 'Pending' && (
+                        <button
+                          onClick={() => onAssign && onAssign(request)}
+                          className="btn btn--success btn--sm flex-1"
+                        >
+                          Assign
+                        </button>
+                      )}
+                    </div>
                   </div>
-                )}
-              </div>
-            );
-          })}
+
+                  {/* Expanded Details */}
+                  {isExpanded && (
+                    <div className="table__row-expanded">
+                      <p className="text-sm text-secondary font-semibold mb-2">Description:</p>
+                      <p className="text-sm text-primary" style={{ lineHeight: '1.6' }}>
+                        {request.description || 'No description available.'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </div>{/* End scrollable wrapper */}
 
       {/* Pagination */}
       <div className="card card-body mt-5 flex justify-between items-center">
