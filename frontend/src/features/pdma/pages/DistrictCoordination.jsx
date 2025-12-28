@@ -62,7 +62,7 @@ const DistrictCoordination = () => {
       userRole="PDMA"
       userName={userName}
     >
-      <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary }}>
+      <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary, minHeight: 'calc(100vh - 200px)' }}>
         {/* Loading State */}
         {loading && (
           <div style={{

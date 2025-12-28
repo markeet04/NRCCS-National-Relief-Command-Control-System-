@@ -19,7 +19,10 @@ const DistrictsList = ({ districts, selectedDistrict, onSelectDistrict, colors }
             backgroundColor: selectedDistrict === district.id ? colors.bgSecondary : colors.cardBg,
             cursor: 'pointer',
             transition: 'all 0.2s ease',
-            boxShadow: selectedDistrict === district.id ? `0 4px 12px rgba(59, 130, 246, 0.1)` : 'none'
+            boxShadow: selectedDistrict === district.id ? `0 4px 12px rgba(59, 130, 246, 0.1)` : 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '140px',
           }}
           onMouseEnter={(e) => {
             if (selectedDistrict !== district.id) {
@@ -63,7 +66,8 @@ const DistrictsList = ({ districts, selectedDistrict, onSelectDistrict, colors }
           <div style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            gap: '12px'
+            gap: '12px',
+            marginTop: 'auto',
           }}>
             <div style={{
               display: 'flex',
