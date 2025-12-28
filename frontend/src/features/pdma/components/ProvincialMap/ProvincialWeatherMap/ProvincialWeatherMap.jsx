@@ -49,6 +49,9 @@ import { GIS_LAYERS } from '@config/gisLayerConfig';
 // Open Data Service for OSM gauging stations
 import { fetchGaugingStations } from '@shared/services/openDataService';
 
+// PDMA API Service for flood zones
+import pdmaApi from '../../../services/pdmaApi';
+
 // Weather Animation Service IMPORT REMOVED - no longer used
 // import weatherAnimationService from '@shared/services/weatherAnimationService';
 
@@ -348,6 +351,64 @@ const ProvincialWeatherMap = ({
           }
         };
         loadGaugingStationsFromOSM();
+
+        // ============================================================
+        // FLOOD ZONES from Database via PDMA API
+        // Color-coded markers based on risk level
+        // ============================================================
+        const loadFloodZonesFromAPI = async () => {
+          try {
+            const floodZones = await pdmaApi.getFloodZones();
+
+            if (floodZones && floodZones.length > 0) {
+              // Risk level color mapping
+              const riskColors = {
+                critical: [239, 68, 68, 255],   // Red
+                high: [249, 115, 22, 255],      // Orange
+                medium: [234, 179, 8, 255],     // Yellow
+                stable: [34, 197, 94, 255],     // Green
+                low: [59, 130, 246, 255],       // Blue
+              };
+
+              floodZones.forEach(zone => {
+                if (!zone.lat || !zone.lng) return; // Skip zones without coordinates
+
+                const color = riskColors[zone.riskLevel] || riskColors.medium;
+
+                floodZonesLayer.add(new Graphic({
+                  geometry: new Point({ longitude: zone.lng, latitude: zone.lat }),
+                  symbol: new SimpleMarkerSymbol({
+                    style: 'circle',
+                    color: color,
+                    size: 16,
+                    outline: { color: [255, 255, 255], width: 2 }
+                  }),
+                  attributes: zone,
+                  popupTemplate: {
+                    title: `🌊 ${zone.name}`,
+                    content: `
+                      <div style="font-size: 13px; line-height: 1.6;">
+                        <b>Risk Level:</b> <span style="text-transform: uppercase; color: ${zone.riskLevel === 'critical' ? '#ef4444' : zone.riskLevel === 'high' ? '#f97316' : '#22c55e'};">${zone.riskLevel}</span><br>
+                        <b>District:</b> ${zone.districtName || 'N/A'}<br>
+                        <b>Affected Population:</b> ${zone.affectedPopulation?.toLocaleString() || 0}<br>
+                        <b>Shelter Count:</b> ${zone.shelterCount || 0}<br>
+                        <b>Description:</b> ${zone.description || 'No description'}<br>
+                        <i style="color: #888;">Last Assessment: ${zone.lastAssessment ? new Date(zone.lastAssessment).toLocaleDateString() : 'N/A'}</i>
+                      </div>
+                    `
+                  }
+                }));
+              });
+              console.log(`✓ Loaded ${floodZones.length} flood zones from database`);
+            } else {
+              console.log('⚠️ No flood zones found for this province');
+            }
+          } catch (error) {
+            console.warn('⚠️ Failed to load flood zones from API:', error);
+            // Graceful failure - layer will be empty but map won't crash
+          }
+        };
+        loadFloodZonesFromAPI();
 
         // REMOVED: riversLayer - Raster TileLayer causes blurriness
         // Vector basemaps (arcgis/navigation) include water features by default

@@ -13,6 +13,7 @@ import { RescueTeam } from '../common/entities/rescue-team.entity';
 import { ActivityLog } from '../common/entities/activity-log.entity';
 import { AuditLog } from '../common/entities/audit-log.entity';
 import { ResourceRequest } from '../common/entities/resource-request.entity';
+import { FloodZone } from '../common/entities/flood-zone.entity';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ResourceRequest } from '../common/entities/resource-request.entity';
       ActivityLog,
       AuditLog,
       ResourceRequest,
+      FloodZone,
     ]),
   ],
   controllers: [PdmaController],

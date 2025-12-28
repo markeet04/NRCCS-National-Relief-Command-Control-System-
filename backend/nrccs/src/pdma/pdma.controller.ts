@@ -296,4 +296,11 @@ export class PdmaController {
   async getMapData(@CurrentUser() user: User) {
     return await this.pdmaService.getMapData(user);
   }
+
+  // ==================== FLOOD ZONES ====================
+
+  @Get('flood-zones')
+  async getFloodZones(@CurrentUser() user: User) {
+    return await this.pdmaService.getFloodZones(user);
+  }
 }
