@@ -638,6 +638,8 @@ div.national-weather-card.border-left-cyan {
   border-radius: 0 !important;
   margin: 0 !important;
   border: none !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
 }
 
 .national-map-card.map-fullscreen .national-map-header {
