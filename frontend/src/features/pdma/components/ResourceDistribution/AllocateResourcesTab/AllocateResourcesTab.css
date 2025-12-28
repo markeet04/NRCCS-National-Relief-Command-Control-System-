@@ -585,3 +585,122 @@
 [data-theme="light"] .pdma-allocate-empty-text {
   color: #6b7280 !important;
 }
+
+/* ============================================================================
+   MOBILE RESPONSIVE STYLES
+   ============================================================================ */
+
+@media (max-width: 767px) {
+  .pdma-allocate-resources-section {
+    gap: 1rem;
+  }
+
+  .pdma-allocate-section-title {
+    font-size: 1.125rem;
+  }
+
+  .pdma-allocate-section-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .pdma-allocate-content-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Remove min-width on mobile */
+  .pdma-allocate-form-card {
+    min-width: auto !important;
+    padding: 1rem;
+  }
+
+  .pdma-allocate-form {
+    gap: 1rem;
+  }
+
+  .pdma-allocate-form-label {
+    font-size: 0.8125rem;
+  }
+
+  .pdma-allocate-form-select,
+  .pdma-allocate-form-input {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  /* Stack resource type options on mobile */
+  .pdma-allocate-resource-options {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem;
+  }
+
+  .pdma-allocate-resource-option {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  /* Priority options - smaller on mobile */
+  .pdma-allocate-priority-options {
+    gap: 0.5rem;
+  }
+
+  .pdma-allocate-priority-option {
+    padding: 0.375rem 0.875rem;
+    font-size: 0.75rem;
+  }
+
+  /* Submit button */
+  .pdma-allocate-submit-btn {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.875rem;
+  }
+
+  /* Stats panel */
+  .pdma-allocate-stats-panel {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .pdma-allocate-stats-title {
+    font-size: 0.875rem;
+  }
+
+  .pdma-allocate-stat-label {
+    font-size: 0.75rem;
+  }
+
+  /* Recent allocations - improved mobile layout */
+  .pdma-allocate-recent-title {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .pdma-allocate-recent-list {
+    gap: 0.625rem;
+  }
+
+  .pdma-allocate-recent-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    padding: 0.75rem;
+  }
+
+  .pdma-allocate-recent-district {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #22c55e;
+  }
+
+  .pdma-allocate-recent-resource {
+    font-size: 0.75rem;
+    text-align: left;
+    line-height: 1.4;
+    color: #94a3b8;
+  }
+
+  .pdma-allocate-recent-status {
+    margin-top: 0.25rem;
+    font-size: 0.625rem;
+  }
+}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import DemoModal from '@shared/components/DemoModal/DemoModal';
 import ResourceForm from '@shared/components/DemoModal/ResourceForm';
@@ -61,6 +61,16 @@ const ResourceDistribution = () => {
     { id: 'allocate', label: 'Allocate Resources' },
     { id: 'requests', label: 'District Requests' },
   ];
+
+  // Mobile detection for dropdown tabs
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 767);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Use custom hook for resource distribution state
   const {
@@ -310,43 +320,61 @@ const ResourceDistribution = () => {
 
 
 
-        {/* PDMA Section Tabs with right-aligned action buttons for provincial tab */}
+        {/* PDMA Section Tabs - Dropdown on mobile, Buttons on desktop */}
         <div className="pdma-section-tabs">
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            {pdmaTabs.map(tab => (
-              <button
-                key={tab.id}
-                className={`pdma-section-tab${activeTab === tab.id ? ' active' : ''}`}
-                onClick={() => setActiveTab(tab.id)}
-                type="button"
+          {isMobile ? (
+            // Mobile: Dropdown selector
+            <div className="pdma-mobile-tab-selector">
+              <select
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value)}
+                className="pdma-tab-dropdown"
               >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+                {pdmaTabs.map(tab => (
+                  <option key={tab.id} value={tab.id}>
+                    {tab.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            // Desktop: Button tabs
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              {pdmaTabs.map(tab => (
+                <button
+                  key={tab.id}
+                  className={`pdma-section-tab${activeTab === tab.id ? ' active' : ''}`}
+                  onClick={() => setActiveTab(tab.id)}
+                  type="button"
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          )}
           {activeTab === 'provincial' && (
             <div style={{ display: 'flex', gap: '12px' }}>
-              {/* Add Resources button removed as requested */}
               <button
                 onClick={() => setIsRequestModalOpen(true)}
+                className="pdma-request-btn"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  padding: '10px 16px',
+                  padding: isMobile ? '8px 12px' : '10px 16px',
                   background: 'linear-gradient(135deg, #22c55e, #16a34a)',
                   border: 'none',
                   borderRadius: '8px',
                   color: 'white',
                   fontWeight: '500',
-                  fontSize: '14px',
+                  fontSize: isMobile ? '12px' : '14px',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
                   marginBottom: '0.18rem'
                 }}
               >
-                <Send size={16} />
-                Request from NDMA
+                <Send size={isMobile ? 14 : 16} />
+                {isMobile ? 'Request' : 'Request from NDMA'}
               </button>
             </div>
           )}
