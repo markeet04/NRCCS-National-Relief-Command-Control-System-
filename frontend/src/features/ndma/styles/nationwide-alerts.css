@@ -153,8 +153,8 @@
 .alerts-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  /* Compact operational display */
+  gap: 2px;
+  /* More compact operational display */
 }
 
 .alerts-list-empty {
@@ -378,27 +378,62 @@
 
 /* Primary Button (Blue - Create Alert) */
 .alerts-btn-primary {
-  background-color: #0ea5e9;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
   color: #ffffff;
+  border: none;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
 }
 
 .alerts-btn-primary:hover:not(:disabled) {
-  background-color: #0284c7;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.alerts-btn-primary:active {
+  transform: translateY(0);
 }
 
 /* Secondary Button (Toggle) */
 .alerts-btn-secondary {
-  background-color: rgba(148, 163, 184, 0.12);
-  color: #e2e8f0;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
 }
+
 
 .alerts-btn-secondary:hover:not(:disabled) {
-  background-color: rgba(148, 163, 184, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #ffffff;
 }
 
+/* Show Resolved (active) - Orange */
 .alerts-btn-secondary.active {
-  background-color: #0ea5e9;
+  /* Default active state for secondary buttons (green) */
+  background: linear-gradient(135deg, #16a34a, #22c55e);
   color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+/* Show Resolved button is orange when inactive, green when active */
+.alerts-btn-secondary.show-resolved-btn {
+  background: linear-gradient(135deg, #f59e42, #fbbf24);
+  color: #fff7ed;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.18);
+  border: none;
+  /* Muted but visible orange for inactive state */
+}
+.alerts-btn-secondary.active.show-resolved-btn {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.alerts-btn-secondary:active {
+  transform: translateY(0);
 }
 
 /* Outline Button (View Details) */
@@ -413,13 +448,22 @@
 }
 
 /* Success Button (Resolve) */
+
 .alerts-btn-success {
-  background-color: #059669;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
   color: #ffffff;
+  border: none;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
 }
 
 .alerts-btn-success:hover:not(:disabled) {
-  background-color: #047857;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+}
+
+.alerts-btn-success:active {
+  transform: translateY(0);
 }
 
 /* Warning Button (Reopen) */

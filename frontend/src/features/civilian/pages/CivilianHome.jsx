@@ -18,11 +18,11 @@ const CivilianHome = () => {
     <div className="civilian-home">
       <HeroSection isVisible={isVisible} />
       <QuickActionsOverlay />
-      
+
       <div className="content-container">
         <RecentAlertsSection />
         <SafetyTipsSection />
-        <HelpSection />
+
       </div>
     </div>
   );

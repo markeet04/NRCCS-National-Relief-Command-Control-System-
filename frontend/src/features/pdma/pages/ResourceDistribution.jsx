@@ -134,13 +134,32 @@ const ResourceDistribution = () => {
       status: 'critical', // No resources = critical
     })) || [];
 
-  // Provincial stock for allocate tab
-  const provincialStock = {
-    food: { available: totalQuantity * 0.3, allocated: totalAllocated * 0.3, unit: 'tons' },
-    water: { available: totalQuantity * 0.25, allocated: totalAllocated * 0.25, unit: 'liters' },
-    medical: { available: totalQuantity * 0.25, allocated: totalAllocated * 0.25, unit: 'kits' },
-    shelter: { available: totalQuantity * 0.2, allocated: totalAllocated * 0.2, unit: 'units' },
-  };
+  // Provincial stock aggregated by type from actual backend data
+  const provincialStock = useMemo(() => {
+    const stockByType = {};
+    
+    // Aggregate resources by type
+    resources.forEach(resource => {
+      const type = resource.type || resource.category || resource.name?.toLowerCase();
+      if (!type) return;
+      
+      if (!stockByType[type]) {
+        stockByType[type] = {
+          name: resource.name,
+          available: 0,
+          allocated: 0,
+          unit: resource.unit || 'units',
+          quantity: 0,
+        };
+      }
+      
+      stockByType[type].available += (resource.quantity || 0);
+      stockByType[type].allocated += (resource.allocated || 0);
+      stockByType[type].quantity += (resource.quantity || 0);
+    });
+    
+    return stockByType;
+  }, [resources]);
 
   // Filter allocation-related activity logs for history
   const allocationHistory = useMemo(() => {
@@ -384,7 +403,7 @@ const ResourceDistribution = () => {
           <div className="pdma-stock-section" style={{ marginTop: '16px' }}>
             {/* NDMA-style Provincial Stock Grid */}
             <ProvincialStockTab
-              provincialStock={filteredResources}
+              provincialStock={provincialStock}
               onViewHistory={handleViewHistory}
             />
           </div>
