@@ -16,6 +16,7 @@ import { CreateResourceDto, UpdateResourceDto, AllocateResourceDto } from './dto
 import { AssignTeamDto } from './dtos/sos.dto';
 import { CreateResourceRequestDto } from './dtos/resource-request.dto';
 import { ResourceRequest, ResourceRequestStatus, ResourceRequestPriority } from '../common/entities/resource-request.entity';
+import { FloodZone } from '../common/entities/flood-zone.entity';
 
 @Injectable()
 export class PdmaService {
@@ -38,6 +39,8 @@ export class PdmaService {
     private activityLogRepository: Repository<ActivityLog>,
     @InjectRepository(ResourceRequest)
     private resourceRequestRepository: Repository<ResourceRequest>,
+    @InjectRepository(FloodZone)
+    private floodZoneRepository: Repository<FloodZone>,
   ) { }
 
   // ==================== HELPER METHODS ====================
@@ -1314,5 +1317,45 @@ export class PdmaService {
 
     await this.resourceRequestRepository.save(request);
     return request;
+  }
+
+  // ==================== FLOOD ZONES ====================
+
+  /**
+   * Get all flood zones for the user's province
+   * Returns flood zones with district information for map display
+   */
+  async getFloodZones(user: User) {
+    const districtIds = await this.getProvinceDistrictIds(user.provinceId);
+
+    if (districtIds.length === 0) {
+      return [];
+    }
+
+    const floodZones = await this.floodZoneRepository.find({
+      where: {
+        districtId: In(districtIds),
+      },
+      relations: ['district'],
+      order: {
+        riskLevel: 'ASC', // critical first
+        name: 'ASC',
+      },
+    });
+
+    // Map to frontend-friendly format
+    return floodZones.map(zone => ({
+      id: zone.id,
+      name: zone.name,
+      riskLevel: zone.riskLevel,
+      lat: zone.lat || zone.latitude,
+      lng: zone.lng || zone.longitude,
+      affectedPopulation: zone.affectedPopulation,
+      shelterCount: zone.shelterCount,
+      description: zone.description,
+      districtId: zone.districtId,
+      districtName: zone.district?.name,
+      lastAssessment: zone.lastAssessment,
+    }));
   }
 }

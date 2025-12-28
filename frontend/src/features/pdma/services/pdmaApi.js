@@ -202,6 +202,17 @@ const pdmaApi = {
     return response.data;
   },
 
+  // ==================== FLOOD ZONES ====================
+
+  /**
+   * Get all flood zones for the user's province
+   * Returns flood zones with coordinates and risk levels for map display
+   */
+  async getFloodZones() {
+    const response = await apiClient.get('/pdma/flood-zones');
+    return response.data;
+  },
+
   // Alias for convenience
   getDistricts: async function () {
     return this.getAllDistricts();
