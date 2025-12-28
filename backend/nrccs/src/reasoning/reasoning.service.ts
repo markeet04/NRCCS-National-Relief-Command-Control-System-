@@ -143,19 +143,19 @@ export class ReasoningService {
 
     // Get current province resources (PDMA level)
     const provinceResources = await this.resourceRepo.find({
-      where: { 
-        provinceId, 
-        districtId: IsNull(), 
-        shelterId: IsNull() 
+      where: {
+        provinceId,
+        districtId: IsNull(),
+        shelterId: IsNull()
       },
     });
 
     // Get national stock (NDMA level)
     const nationalResources = await this.resourceRepo.find({
-      where: { 
-        provinceId: IsNull(), 
-        districtId: IsNull(), 
-        shelterId: IsNull() 
+      where: {
+        provinceId: IsNull(),
+        districtId: IsNull(),
+        shelterId: IsNull()
       },
     });
 
@@ -187,6 +187,10 @@ export class ReasoningService {
     };
 
     for (const resource of resources) {
+      // Skip resources with null or undefined resourceType
+      if (!resource.resourceType) {
+        continue;
+      }
       const type = resource.resourceType.toLowerCase();
       if (type in stock) {
         stock[type as keyof ResourceStock] += resource.quantity;
