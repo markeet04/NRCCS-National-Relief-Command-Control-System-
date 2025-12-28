@@ -108,3 +108,53 @@
 .ndma-dropdown__item+.ndma-dropdown__item--selected {
     border-top-color: transparent;
 }
+
+/* ================================
+   LIGHT MODE OVERRIDES
+   ================================ */
+[data-theme="light"] .ndma-dropdown__trigger {
+    background-color: #ffffff;
+    border-color: #e2e8f0;
+    color: #1e293b;
+}
+
+[data-theme="light"] .ndma-dropdown__trigger:hover {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+[data-theme="light"] .ndma-dropdown__trigger--open {
+    border-color: #3b82f6;
+    background-color: #f8fafc;
+}
+
+[data-theme="light"] .ndma-dropdown__trigger svg {
+    color: #64748b;
+}
+
+[data-theme="light"] .ndma-dropdown__menu {
+    background-color: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .ndma-dropdown__item {
+    color: #1e293b;
+}
+
+[data-theme="light"] .ndma-dropdown__item:hover {
+    background-color: #f1f5f9;
+}
+
+[data-theme="light"] .ndma-dropdown__item--selected {
+    background-color: #3b82f6;
+    color: #ffffff;
+}
+
+[data-theme="light"] .ndma-dropdown__item--selected:hover {
+    background-color: #2563eb;
+}
+
+[data-theme="light"] .ndma-dropdown__item+.ndma-dropdown__item {
+    border-top-color: #e2e8f0;
+}

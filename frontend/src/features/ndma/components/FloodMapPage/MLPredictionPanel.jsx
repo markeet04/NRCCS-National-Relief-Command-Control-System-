@@ -63,7 +63,7 @@ const MLPredictionPanel = ({
   };
 
   return (
-    <div className="flood-province-card" style={{ marginBottom: '10px', background: colors.panelBg, flex: '0 0 auto' }}>
+    <div className="flood-province-card ml-prediction-card" style={{ marginBottom: '10px', background: colors.panelBg, flex: '0 0 auto' }}>
       {/* Compact Header */}
       <div className="flood-province-header" style={{ borderBottom: `1px solid ${colors.borderColor}`, padding: '8px 12px' }}>
         <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>

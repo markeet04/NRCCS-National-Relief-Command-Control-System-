@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { X, Sun, Moon, Type } from 'lucide-react';
 import PropTypes from 'prop-types';
 import { useSettings } from '@hooks';
-import { getThemeColors } from '@shared/utils/themeColors';
 
 const SettingsModal = ({ isOpen, onClose }) => {
   const { theme, fontSize, toggleTheme, increaseFontSize, decreaseFontSize } = useSettings();
@@ -47,14 +46,21 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  const isDark = pendingTheme === 'dark';
-  const colors = getThemeColors(!isDark);
-  const modalBg = isDark ? colors.elevatedBg : '#ffffff';
-  const cardBg = isDark ? colors.elevatedBg2 : '#f8fafc';
-  const cardBorder = isDark ? colors.borderMedium : '#e2e8f0';
-  const textPrimary = isDark ? colors.textPrimary : '#0f172a';
-  const textSecondary = isDark ? colors.textSecondary : '#64748b';
-  const sliderTrack = isDark ? colors.borderMedium : '#e2e8f0';
+  // Use pendingTheme to preview colors (not actual theme)
+  const isLightPreview = pendingTheme === 'light';
+  
+  // Define colors directly for each theme to avoid missing properties
+  const modalBg = isLightPreview ? '#ffffff' : '#1a1d21';
+  const cardBg = isLightPreview ? '#f8fafc' : '#262a2f';
+  const cardBorder = isLightPreview ? '#e2e8f0' : '#3d4248';
+  const textPrimary = isLightPreview ? '#1e293b' : '#ffffff';
+  const textSecondary = isLightPreview ? '#64748b' : '#94a3b8';
+  const sliderTrack = isLightPreview ? '#e2e8f0' : '#3d4248';
+  const accentColor = '#10b981';
+  const sunIconColor = isLightPreview ? '#f59e0b' : '#f59e0b';
+  const moonIconColor = isLightPreview ? '#64748b' : '#60a5fa';
+  const iconBgLight = isLightPreview ? '#f1f5f9' : '#3d4248';
+  const iconBgDark = isLightPreview ? '#e2e8f0' : '#1a1d21';
 
   return (
     <div 
@@ -129,17 +135,17 @@ const SettingsModal = ({ isOpen, onClose }) => {
                   padding: '16px 12px',
                   borderRadius: '12px',
                   backgroundColor: cardBg,
-                  border: pendingTheme === 'light' ? `2px solid ${colors.brandAccent}` : `1.5px solid ${cardBorder}`,
+                  border: pendingTheme === 'light' ? `2px solid ${accentColor}` : `1.5px solid ${cardBorder}`,
                   cursor: 'pointer',
                   transition: 'all 0.15s ease'
                 }}
               >
                 <div style={{ 
                   width: '44px', height: '44px', borderRadius: '10px',
-                  backgroundColor: isDark ? colors.borderMedium : '#f1f5f9',
+                  backgroundColor: iconBgLight,
                   display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}>
-                  <Sun style={{ width: '22px', height: '22px', color: colors.high }} />
+                  <Sun style={{ width: '22px', height: '22px', color: sunIconColor }} />
                 </div>
                 <span style={{ fontSize: '13px', fontWeight: 500, color: textPrimary }}>Light</span>
               </button>
@@ -155,17 +161,17 @@ const SettingsModal = ({ isOpen, onClose }) => {
                   padding: '16px 12px',
                   borderRadius: '12px',
                   backgroundColor: cardBg,
-                  border: pendingTheme === 'dark' ? `2px solid ${colors.brandAccent}` : `1.5px solid ${cardBorder}`,
+                  border: pendingTheme === 'dark' ? `2px solid ${accentColor}` : `1.5px solid ${cardBorder}`,
                   cursor: 'pointer',
                   transition: 'all 0.15s ease'
                 }}
               >
                 <div style={{ 
                   width: '44px', height: '44px', borderRadius: '10px',
-                  backgroundColor: isDark ? colors.pageBg : colors.elevatedBg,
+                  backgroundColor: iconBgDark,
                   display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}>
-                  <Moon style={{ width: '22px', height: '22px', color: colors.lowText }} />
+                  <Moon style={{ width: '22px', height: '22px', color: moonIconColor }} />
                 </div>
                 <span style={{ fontSize: '13px', fontWeight: 500, color: textPrimary }}>Dark</span>
               </button>
