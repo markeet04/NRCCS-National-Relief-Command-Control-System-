@@ -6,9 +6,7 @@
 
 .pdma-container {
   width: 100%;
-  padding: 24px;
   max-width: 1600px;
-  margin: 0 auto;
 }
 
 .pdma-section {
@@ -545,6 +543,22 @@
 
 .pdma-search-box input::placeholder {
   opacity: 0.5;
+}
+
+/* PDMA Search Input (standalone) */
+.pdma-search-input {
+  font-family: 'Outfit', sans-serif;
+}
+
+.pdma-search-input::placeholder {
+  color: #64748b !important;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+[data-theme="light"] .pdma-search-input::placeholder {
+  color: #9ca3af !important;
 }
 
 /* ======================

@@ -1139,4 +1139,35 @@ div.national-weather-card.border-left-cyan {
   color: #64748b !important;
 }
 
+/* Light mode fullscreen map header */
+[data-theme="light"] .national-map-card.map-fullscreen .national-map-header {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .national-map-card.map-fullscreen .national-map-title {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .national-map-card.map-fullscreen .national-map-subtitle {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .national-map-card.map-fullscreen .national-map-btn {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+[data-theme="light"] .national-map-card.map-fullscreen .national-map-btn:hover {
+  background-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .national-map-card.map-fullscreen .national-map-legend {
+  background-color: #f8fafc !important;
+}
+
+[data-theme="light"] .national-map-card.map-fullscreen .national-map-legend-label {
+  color: #475569 !important;
+}
+
 /* Alert banner stays red in both modes (it's an alert) */

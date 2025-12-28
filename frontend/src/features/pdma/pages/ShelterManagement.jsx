@@ -53,11 +53,11 @@ const ShelterManagement = () => {
       menuItems={menuItems}
       activeRoute={activeRoute}
       onNavigate={setActiveRoute}
-      pageTitle="Shelter Registry"
-      pageSubtitle="View emergency shelters across the province "
+      pageTitle="Shelters"
+      pageSubtitle="Emergency shelter management"
       pageIcon={Home}
       pageIconColor="#8b5cf6"
-      userRole="PDMA"
+      userRole="pdma"
       userName={userName}
     >
       <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary, minHeight: 'calc(100vh - 200px)' }}>
@@ -92,6 +92,16 @@ const ShelterManagement = () => {
         {/* Main Content */}
         {!loading && !error && (
           <>
+            {/* Page Title */}
+            <div style={{ marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '2rem', fontWeight: 700, color: colors.textPrimary, marginBottom: '4px' }}>
+                Shelter Registry
+              </h2>
+              <p style={{ fontSize: '0.9rem', color: colors.textMuted }}>
+                View and monitor emergency shelters across the province
+              </p>
+            </div>
+
             {/* Shelter Stats Component */}
             <ShelterStats
               totalShelters={shelters.length}

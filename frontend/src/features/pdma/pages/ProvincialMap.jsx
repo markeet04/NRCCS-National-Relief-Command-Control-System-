@@ -48,11 +48,11 @@ const ProvincialMap = () => {
         menuItems={menuItems}
         activeRoute={activeRoute}
         onNavigate={setActiveRoute}
-        pageTitle="Flood Risk Map - Pakistan"
-        pageSubtitle="Real-time flood risk monitoring and visualization"
+        pageTitle="Map"
+        pageSubtitle="Flood risk monitoring"
         pageIcon={Map}
         pageIconColor="#3b82f6"
-        userRole="PDMA"
+        userRole="pdma"
         userName={userName}
       >
         <div className="h-96 flex items-center justify-center">
@@ -69,11 +69,11 @@ const ProvincialMap = () => {
         menuItems={menuItems}
         activeRoute={activeRoute}
         onNavigate={setActiveRoute}
-        pageTitle="Flood Risk Map - Pakistan"
-        pageSubtitle="Real-time flood risk monitoring"
+        pageTitle="Map"
+        pageSubtitle="Flood risk monitoring"
         pageIcon={Map}
         pageIconColor="#3b82f6"
-        userRole="PDMA"
+        userRole="pdma"
         userName={userName}
       >
         <div className="h-96 flex items-center justify-center">
@@ -93,14 +93,24 @@ const ProvincialMap = () => {
       menuItems={menuItems}
       activeRoute={activeRoute}
       onNavigate={setActiveRoute}
-      pageTitle="Flood Risk Map - Pakistan"
-      pageSubtitle="Real-time flood risk monitoring and visualization"
+      pageTitle="Map"
+      pageSubtitle="Flood risk monitoring and visualization"
       pageIcon={Map}
       pageIconColor="#10b981"
-      userRole="PDMA"
+      userRole="pdma"
       userName={userName}
     >
       <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary }}>
+        {/* Page Title */}
+        <div style={{ marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '2rem', fontWeight: 700, color: colors.textPrimary, marginBottom: '4px' }}>
+            Flood Risk Map
+          </h2>
+          <p style={{ fontSize: '0.9rem', color: colors.textMuted }}>
+            Real-time flood risk monitoring and visualization
+          </p>
+        </div>
+
         {/* ArcGIS Map Component */}
         <div style={{ marginBottom: '24px' }}>
           <ProvincialWeatherMap

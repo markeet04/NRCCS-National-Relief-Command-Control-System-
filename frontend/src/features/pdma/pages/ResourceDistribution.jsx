@@ -237,11 +237,11 @@ const ResourceDistribution = () => {
         menuItems={menuItems}
         activeRoute={activeRoute}
         onNavigate={setActiveRoute}
-        pageTitle="Resource Inventory"
-        pageSubtitle="Manage and distribute provincial resources"
+        pageTitle="Resources"
+        pageSubtitle="Provincial resource management"
         pageIcon={Package}
         pageIconColor="#22c55e"
-        userRole="PDMA"
+        userRole="pdma"
         userName={userName}
       >
         <div className="h-96 flex items-center justify-center">
@@ -258,11 +258,11 @@ const ResourceDistribution = () => {
         menuItems={menuItems}
         activeRoute={activeRoute}
         onNavigate={setActiveRoute}
-        pageTitle="Resource Inventory"
-        pageSubtitle="Manage and distribute provincial resources"
+        pageTitle="Resources"
+        pageSubtitle="Provincial resource management"
         pageIcon={Package}
         pageIconColor="#22c55e"
-        userRole="PDMA"
+        userRole="pdma"
         userName={userName}
       >
         <div className="h-96 flex items-center justify-center">
@@ -282,14 +282,24 @@ const ResourceDistribution = () => {
       menuItems={menuItems}
       activeRoute={activeRoute}
       onNavigate={setActiveRoute}
-      pageTitle="Resource Inventory"
-      pageSubtitle="Manage and distribute provincial resources"
+      pageTitle="Resources"
+      pageSubtitle="Provincial resource management"
       pageIcon={Package}
       pageIconColor="#22c55e"
-      userRole="PDMA"
+      userRole="pdma"
       userName={userName}
     >
       <div className="pdma-resources-page">
+        {/* Page Title */}
+        <div style={{ marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '2rem', fontWeight: 700, color: colors.textPrimary, marginBottom: '4px' }}>
+            Resource Distribution
+          </h2>
+          <p style={{ fontSize: '0.9rem', color: colors.textMuted }}>
+            Manage and distribute provincial resources to districts
+          </p>
+        </div>
+
         {/* Resource Stats - NDMA Style Cards */}
         <ResourceStatsNew
           totalResources={resources.length}
