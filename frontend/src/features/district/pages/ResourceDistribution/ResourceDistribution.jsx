@@ -318,7 +318,7 @@ const ResourceDistribution = () => {
           <div className="district-section-actions">
             <button
               onClick={() => setIsRequestModalOpen(true)}
-              className="btn btn--primary"
+              className="btn btn--success"
             >
               <Send size={16} />
               Request from PDMA

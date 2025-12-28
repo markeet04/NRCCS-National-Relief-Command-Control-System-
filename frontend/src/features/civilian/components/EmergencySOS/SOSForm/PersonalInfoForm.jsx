@@ -1,3 +1,5 @@
+import { FIELD_LIMITS } from '@shared/utils/validationSchema';
+
 const PersonalInfoForm = ({ 
   formData, 
   errors, 
@@ -22,6 +24,8 @@ const PersonalInfoForm = ({
           value={formData.fullName}
           onChange={onInputChange}
           placeholder="Enter your full name"
+          minLength={FIELD_LIMITS.sosName.minLength}
+          maxLength={FIELD_LIMITS.sosName.maxLength}
           className={`form-input ${errors.fullName ? 'error' : ''}`}
         />
         {errors.fullName && <span className="error-message">{errors.fullName}</span>}
@@ -37,10 +41,14 @@ const PersonalInfoForm = ({
           name="cnic"
           value={formData.cnic}
           onChange={onInputChange}
-          placeholder="12345-1234567-1"
-          maxLength="15"
+          placeholder="1234512345671"
+          minLength={FIELD_LIMITS.cnic.minLength}
+          maxLength={FIELD_LIMITS.cnic.maxLength}
+          pattern="\d{13}|\d{5}-\d{7}-\d{1}"
+          title="Enter 13-digit CNIC (with or without dashes)"
           className={`form-input ${errors.cnic ? 'error' : ''}`}
         />
+        <small className="field-hint">Enter 13 digits (e.g., 1234512345671)</small>
         {errors.cnic && <span className="error-message">{errors.cnic}</span>}
       </div>
 
@@ -54,10 +62,13 @@ const PersonalInfoForm = ({
           name="phoneNumber"
           value={formData.phoneNumber}
           onChange={onInputChange}
-          placeholder="0300-1234567"
-          maxLength="12"
+          placeholder="03001234567"
+          pattern="^(0?3|92|\+92)?\s?-?\d{9,10}$"
+          title="Enter a valid Pakistani phone number"
+          maxLength="14"
           className={`form-input ${errors.phoneNumber ? 'error' : ''}`}
         />
+        <small className="field-hint">Pakistani number (e.g., 03001234567)</small>
         {errors.phoneNumber && <span className="error-message">{errors.phoneNumber}</span>}
       </div>
 

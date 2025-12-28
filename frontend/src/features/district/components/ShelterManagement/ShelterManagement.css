@@ -2,44 +2,22 @@
  * ShelterManagement Component-Specific Styles
  */
 
-/* Resource Gauge - Half speedometer style */
-.resource-gauge-wrapper {
+/* Resource Donut Chart Styles */
+.resource-donut-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 220px;
+    width: 100px;
     flex-shrink: 0;
 }
 
-.resource-gauge-chart {
-    width: 220px;
-    height: 150px;
+.resource-donut-chart {
+    width: 100px;
+    height: 100px;
+    position: relative;
 }
 
-.resource-gauge-avg {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 4px;
-}
-
-.resource-gauge-avg__value {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1;
-}
-
-.resource-gauge-avg__label {
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 2px;
-}
-
-.resource-gauge__center {
+.resource-donut-center {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -48,22 +26,36 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    pointer-events: none;
 }
 
-.resource-gauge__value {
-    font-size: 14px;
+.resource-donut-center__value {
+    font-size: 16px;
     font-weight: 700;
     color: var(--text-primary);
     line-height: 1;
 }
 
-.resource-gauge__label {
-    font-size: 8px;
+.resource-donut-center__label {
+    font-size: 9px;
     font-weight: 500;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     margin-top: 2px;
+}
+
+/* Shelter Card Donut Container */
+.shelter-card__donut {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 100px;
+}
+
+.shelter-card__quantities {
+    flex: 1;
+    min-width: 0;
 }
 
 /* Chart Tooltip */
@@ -570,18 +562,18 @@
         gap: 0.75rem;
     }
 
-    .shelter-card__gauge {
+    .shelter-card__donut {
         margin-top: 0;
         align-self: center;
     }
 
-    .resource-gauge-wrapper {
-        width: 180px;
+    .resource-donut-wrapper {
+        width: 90px;
     }
 
-    .resource-gauge-chart {
-        width: 180px;
-        height: 120px;
+    .resource-donut-chart {
+        width: 90px;
+        height: 90px;
     }
 
     .shelter-card__levels-grid {
@@ -674,13 +666,13 @@
         grid-template-columns: 1fr;
     }
 
-    .resource-gauge-wrapper {
-        width: 160px;
+    .resource-donut-wrapper {
+        width: 80px;
     }
 
-    .resource-gauge-chart {
-        width: 160px;
-        height: 100px;
+    .resource-donut-chart {
+        width: 80px;
+        height: 80px;
     }
 
     .shelter-card__title {

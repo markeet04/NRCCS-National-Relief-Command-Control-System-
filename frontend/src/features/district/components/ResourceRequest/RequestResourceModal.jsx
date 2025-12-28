@@ -12,10 +12,6 @@ const RESOURCE_TYPES = [
     { value: 'water', label: 'Water', unit: 'liters' },
     { value: 'medical', label: 'Medical Supplies', unit: 'kits' },
     { value: 'shelter', label: 'Shelter Materials', unit: 'units' },
-    { value: 'clothing', label: 'Clothing', unit: 'pieces' },
-    { value: 'blankets', label: 'Blankets', unit: 'units' },
-    { value: 'fuel', label: 'Fuel', unit: 'liters' },
-    { value: 'equipment', label: 'Equipment', unit: 'units' },
 ];
 
 const PRIORITIES = [

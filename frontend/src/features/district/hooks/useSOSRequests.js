@@ -35,8 +35,13 @@ export const useSOSRequests = () => {
         name: sos.name || sos.requesterName || sos.reporterName || sos.user?.name || 'Unknown',
         phone: sos.phone || sos.contactNumber || sos.user?.phone || 'N/A',
         location: sos.locationAddress || sos.location || 'Unknown location',
-        coordinates: sos.locationCoordinates,
-        people: sos.numberOfPeople || 1,
+        // Map coordinates from various possible backend formats
+        coordinates: sos.coordinates || (sos.locationLat && sos.locationLng 
+          ? { lat: parseFloat(sos.locationLat), lng: parseFloat(sos.locationLng) } 
+          : null),
+        latitude: sos.locationLat ? parseFloat(sos.locationLat) : null,
+        longitude: sos.locationLng ? parseFloat(sos.locationLng) : null,
+        people: sos.numberOfPeople || sos.peopleCount || 1,
         status: sos.status,
         time: sos.createdAt,
         description: sos.description || '',

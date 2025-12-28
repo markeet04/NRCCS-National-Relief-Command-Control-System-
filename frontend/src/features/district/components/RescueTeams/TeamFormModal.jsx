@@ -9,6 +9,7 @@ const TeamFormModal = ({
     isOpen,
     isUpdateMode,
     formData,
+    formErrors = {},
     onInputChange,
     onSubmit,
     onClose,
@@ -93,11 +94,12 @@ const TeamFormModal = ({
                             value={formData.name}
                             onChange={onInputChange}
                             placeholder="Enter team name"
+                            maxLength={150}
                             style={{
                                 width: '100%',
                                 padding: '12px 14px',
                                 background: colors.inputBg,
-                                border: `1px solid ${colors.inputBorder}`,
+                                border: `1px solid ${formErrors.name ? '#ef4444' : colors.inputBorder}`,
                                 borderRadius: '10px',
                                 color: colors.textPrimary,
                                 fontSize: '14px',
@@ -105,6 +107,11 @@ const TeamFormModal = ({
                                 boxSizing: 'border-box'
                             }}
                         />
+                        {formErrors.name && (
+                            <span style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px', display: 'block' }}>
+                                {formErrors.name}
+                            </span>
+                        )}
                     </div>
 
                     <div>
@@ -144,11 +151,12 @@ const TeamFormModal = ({
                             value={formData.leader}
                             onChange={onInputChange}
                             placeholder="Enter leader name"
+                            maxLength={150}
                             style={{
                                 width: '100%',
                                 padding: '12px 14px',
                                 background: colors.inputBg,
-                                border: `1px solid ${colors.inputBorder}`,
+                                border: `1px solid ${formErrors.leader ? '#ef4444' : colors.inputBorder}`,
                                 borderRadius: '10px',
                                 color: colors.textPrimary,
                                 fontSize: '14px',
@@ -156,6 +164,11 @@ const TeamFormModal = ({
                                 boxSizing: 'border-box'
                             }}
                         />
+                        {formErrors.leader && (
+                            <span style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px', display: 'block' }}>
+                                {formErrors.leader}
+                            </span>
+                        )}
                     </div>
 
                     <div>
@@ -163,16 +176,18 @@ const TeamFormModal = ({
                             Contact Number
                         </label>
                         <input
-                            type="text"
+                            type="tel"
                             name="contact"
                             value={formData.contact}
                             onChange={onInputChange}
-                            placeholder="+92-300-0000000"
+                            placeholder="03001234567"
+                            pattern="^(0?3|92)\d{9,10}$"
+                            maxLength={12}
                             style={{
                                 width: '100%',
                                 padding: '12px 14px',
                                 background: colors.inputBg,
-                                border: `1px solid ${colors.inputBorder}`,
+                                border: `1px solid ${formErrors.contact ? '#ef4444' : colors.inputBorder}`,
                                 borderRadius: '10px',
                                 color: colors.textPrimary,
                                 fontSize: '14px',
@@ -180,6 +195,11 @@ const TeamFormModal = ({
                                 boxSizing: 'border-box'
                             }}
                         />
+                        {formErrors.contact && (
+                            <span style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px', display: 'block' }}>
+                                {formErrors.contact}
+                            </span>
+                        )}
                     </div>
 
                     <div style={{ marginBottom: '16px' }}>

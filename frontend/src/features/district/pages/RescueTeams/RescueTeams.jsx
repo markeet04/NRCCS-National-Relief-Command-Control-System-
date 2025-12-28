@@ -9,6 +9,7 @@ import { DashboardLayout } from '@shared/components/layout';
 import { useAuth } from '../../../../app/providers/AuthProvider';
 import { useSettings } from '../../../../app/providers/ThemeProvider';
 import { getThemeColors } from '../../../../shared/utils/themeColors';
+import { validateRescueTeamForm, validatePhone, FIELD_LIMITS } from '@shared/utils/validationSchema';
 import { DISTRICT_MENU_ITEMS } from '../../constants';
 import { useRescueTeamData, TEAM_STATUS_OPTIONS, useDistrictData } from '../../hooks';
 import {
@@ -66,6 +67,8 @@ const RescueTeams = () => {
         status: 'available',
         location: ''
     });
+
+    const [formErrors, setFormErrors] = useState({});
 
     // Animate team cards on mount
     useEffect(() => {
@@ -142,13 +145,48 @@ const RescueTeams = () => {
             ...prev,
             [name]: (name === 'medical' || name === 'rescue' || name === 'support') ? parseInt(value) || 0 : value
         }));
+
+        // Real-time validation
+        if (name === 'contact' && value) {
+            const phoneResult = validatePhone(value, false);
+            setFormErrors(prev => ({
+                ...prev,
+                contact: phoneResult.valid ? undefined : phoneResult.message
+            }));
+        } else if (name === 'name' && !value.trim()) {
+            setFormErrors(prev => ({ ...prev, name: 'Team name is required' }));
+        } else if (name === 'name') {
+            setFormErrors(prev => ({ ...prev, name: undefined }));
+        } else if (name === 'leader' && !value.trim()) {
+            setFormErrors(prev => ({ ...prev, leader: 'Team leader is required' }));
+        } else if (name === 'leader') {
+            setFormErrors(prev => ({ ...prev, leader: undefined }));
+        }
     };
 
     const handleSubmit = () => {
-        if (!formData.name || !formData.leader) {
-            alert('Please fill in required fields');
+        // Validate using centralized schema
+        const { isValid, errors } = validateRescueTeamForm(formData);
+        
+        // Additional phone validation if provided
+        if (formData.contact) {
+            const phoneResult = validatePhone(formData.contact, false);
+            if (!phoneResult.valid) {
+                errors.contact = phoneResult.message;
+            }
+        }
+        
+        // Check for leader (required)
+        if (!formData.leader?.trim()) {
+            errors.leader = 'Team leader is required';
+        }
+        
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
             return;
         }
+        
+        setFormErrors({});
 
         if (updatingTeam) {
             updateTeam(updatingTeam.id, { ...formData, lastUpdated: 'Just now' });
@@ -222,6 +260,7 @@ const RescueTeams = () => {
                 isOpen={isUpdateModalOpen || isAddModalOpen}
                 isUpdateMode={isUpdateModalOpen}
                 formData={formData}
+                formErrors={formErrors}
                 onInputChange={handleInputChange}
                 onSubmit={handleSubmit}
                 onClose={isUpdateModalOpen ? handleCloseUpdateModal : handleCloseAddModal}

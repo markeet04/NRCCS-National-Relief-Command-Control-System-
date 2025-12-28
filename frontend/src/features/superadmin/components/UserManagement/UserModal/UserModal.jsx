@@ -1,8 +1,46 @@
 import { useState, useEffect } from 'react';
+import { FIELD_LIMITS, validatePhone, validateCNIC, validateEmail } from '@shared/utils/validationSchema';
 import './UserModal.css';
 
 const UserModal = ({ show, onClose, user, editUserId, onInputChange, onSubmit, provincesData, fieldErrors = {} }) => {
   const [districts, setDistricts] = useState([]);
+  const [localErrors, setLocalErrors] = useState({});
+
+  // Combine external fieldErrors with local validation errors
+  const allErrors = { ...localErrors, ...fieldErrors };
+
+  // Real-time field validation
+  const validateField = (name, value) => {
+    let result = { valid: true };
+    
+    switch (name) {
+      case 'email':
+        if (value) result = validateEmail(value);
+        break;
+      case 'phone':
+        if (value) result = validatePhone(value, false);
+        break;
+      case 'cnic':
+        if (value) result = validateCNIC(value, false);
+        break;
+      default:
+        break;
+    }
+    
+    setLocalErrors(prev => ({
+      ...prev,
+      [name]: result.valid ? undefined : result.message
+    }));
+    
+    return result.valid;
+  };
+
+  // Handle input change with validation
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    validateField(name, value);
+    onInputChange(e);
+  };
 
   // Role configuration - determines what fields are required for each role
   const getRoleConfig = (role) => {
@@ -99,10 +137,14 @@ const UserModal = ({ show, onClose, user, editUserId, onInputChange, onSubmit, p
                 type="text"
                 placeholder="Enter full name"
                 value={user.name || ''}
-                onChange={onInputChange}
-                className="user-modal__input"
+                onChange={handleInputChange}
+                className={`user-modal__input ${allErrors.name ? 'user-modal__input--error' : ''}`}
+                maxLength={FIELD_LIMITS.name.maxLength}
                 required
               />
+              {allErrors.name && (
+                <small className="user-modal__error">{allErrors.name}</small>
+              )}
             </div>
 
             <div className="user-modal__field">
@@ -112,11 +154,12 @@ const UserModal = ({ show, onClose, user, editUserId, onInputChange, onSubmit, p
                 type="text"
                 placeholder="Enter username (optional)"
                 value={user.username || ''}
-                onChange={onInputChange}
-                className={`user-modal__input ${fieldErrors.username ? 'user-modal__input--error' : ''}`}
+                onChange={handleInputChange}
+                className={`user-modal__input ${allErrors.username ? 'user-modal__input--error' : ''}`}
+                maxLength={FIELD_LIMITS.username.maxLength}
               />
-              {fieldErrors.username && (
-                <small className="user-modal__error">{fieldErrors.username}</small>
+              {allErrors.username && (
+                <small className="user-modal__error">{allErrors.username}</small>
               )}
             </div>
 
@@ -129,12 +172,13 @@ const UserModal = ({ show, onClose, user, editUserId, onInputChange, onSubmit, p
                 type="email"
                 placeholder="user@example.com"
                 value={user.email || ''}
-                onChange={onInputChange}
-                className={`user-modal__input ${fieldErrors.email ? 'user-modal__input--error' : ''}`}
+                onChange={handleInputChange}
+                className={`user-modal__input ${allErrors.email ? 'user-modal__input--error' : ''}`}
+                maxLength={FIELD_LIMITS.email.maxLength}
                 required
               />
-              {fieldErrors.email && (
-                <small className="user-modal__error">{fieldErrors.email}</small>
+              {allErrors.email && (
+                <small className="user-modal__error">{allErrors.email}</small>
               )}
             </div>
 
@@ -148,12 +192,15 @@ const UserModal = ({ show, onClose, user, editUserId, onInputChange, onSubmit, p
                   type="password"
                   placeholder="Minimum 6 characters"
                   value={user.password || ''}
-                  onChange={onInputChange}
-                  className="user-modal__input"
+                  onChange={handleInputChange}
+                  className={`user-modal__input ${allErrors.password ? 'user-modal__input--error' : ''}`}
                   required={!editUserId}
-                  minLength={6}
+                  minLength={FIELD_LIMITS.password.minLength}
                 />
-                <small className="user-modal__hint">Minimum 6 characters required</small>
+                <small className="user-modal__hint">Minimum {FIELD_LIMITS.password.minLength} characters required</small>
+                {allErrors.password && (
+                  <small className="user-modal__error">{allErrors.password}</small>
+                )}
               </div>
             )}
 
@@ -162,11 +209,18 @@ const UserModal = ({ show, onClose, user, editUserId, onInputChange, onSubmit, p
               <input
                 name="phone"
                 type="tel"
-                placeholder="03XX-XXXXXXX"
+                placeholder="03001234567"
                 value={user.phone || ''}
-                onChange={onInputChange}
-                className="user-modal__input"
+                onChange={handleInputChange}
+                className={`user-modal__input ${allErrors.phone ? 'user-modal__input--error' : ''}`}
+                maxLength={FIELD_LIMITS.phone.maxLength}
+                pattern="^(0?3|92|\+92)?\s?-?\d{9,10}$"
+                title="Enter a valid Pakistani phone number"
               />
+              <small className="user-modal__hint">Pakistani number (e.g., 03001234567)</small>
+              {allErrors.phone && (
+                <small className="user-modal__error">{allErrors.phone}</small>
+              )}
             </div>
 
             <div className="user-modal__field">
@@ -174,14 +228,18 @@ const UserModal = ({ show, onClose, user, editUserId, onInputChange, onSubmit, p
               <input
                 name="cnic"
                 type="text"
-                placeholder="XXXXX-XXXXXXX-X"
+                placeholder="1234512345671"
                 value={user.cnic || ''}
-                onChange={onInputChange}
-                className={`user-modal__input${fieldErrors.cnic ? ' user-modal__input--error' : ''}`}
-                maxLength={15}
+                onChange={handleInputChange}
+                className={`user-modal__input ${allErrors.cnic ? 'user-modal__input--error' : ''}`}
+                minLength={FIELD_LIMITS.cnic.minLength}
+                maxLength={FIELD_LIMITS.cnic.maxLength}
+                pattern="\d{13}|\d{5}-\d{7}-\d{1}"
+                title="Enter 13-digit CNIC (with or without dashes)"
               />
-              {fieldErrors.cnic && (
-                <small className="user-modal__error">{fieldErrors.cnic}</small>
+              <small className="user-modal__hint">Enter 13 digits (e.g., 1234512345671)</small>
+              {allErrors.cnic && (
+                <small className="user-modal__error">{allErrors.cnic}</small>
               )}
             </div>
           </div>
@@ -197,8 +255,8 @@ const UserModal = ({ show, onClose, user, editUserId, onInputChange, onSubmit, p
               <select
                 name="role"
                 value={user.role || ''}
-                onChange={onInputChange}
-                className="user-modal__select"
+                onChange={handleInputChange}
+                className={`user-modal__select ${allErrors.role ? 'user-modal__input--error' : ''}`}
                 required
               >
                 <option value="">Select user role</option>

@@ -1,8 +1,10 @@
-import { IsString, IsInt, IsEnum, IsOptional, IsArray, IsNumber, Min, Max } from 'class-validator';
+import { IsString, IsInt, IsEnum, IsOptional, IsArray, IsNumber, Min, Max, IsNotEmpty, MaxLength } from 'class-validator';
 import { ShelterStatus } from '../../common/entities/shelter.entity';
 
 export class CreateShelterDto {
-  @IsString()
+  @IsString({ message: 'Shelter name must be a string' })
+  @IsNotEmpty({ message: 'Shelter name is required' })
+  @MaxLength(200, { message: 'Shelter name must be less than 200 characters' })
   name: string;
 
   @IsOptional()
@@ -11,27 +13,32 @@ export class CreateShelterDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(255)
   location?: string;
 
   @IsOptional()
-  @IsInt()
+  @IsInt({ message: 'District ID must be an integer' })
   districtId?: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsNumber({}, { message: 'Latitude must be a valid number' })
+  @Min(-90, { message: 'Latitude must be between -90 and 90' })
+  @Max(90, { message: 'Latitude must be between -90 and 90' })
   lat?: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsNumber({}, { message: 'Longitude must be a valid number' })
+  @Min(-180, { message: 'Longitude must be between -180 and 180' })
+  @Max(180, { message: 'Longitude must be between -180 and 180' })
   lng?: number;
 
   @IsOptional()
   @IsInt()
-  @Min(0)
+  @Min(0, { message: 'Capacity must be at least 0' })
   capacity?: number;
 
   @IsOptional()
-  @IsEnum(ShelterStatus)
+  @IsEnum(ShelterStatus, { message: 'Invalid shelter status' })
   status?: ShelterStatus;
 
   @IsOptional()

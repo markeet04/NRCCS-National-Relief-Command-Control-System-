@@ -1,12 +1,13 @@
-import { IsString, IsOptional, IsEnum, IsInt, Min, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsInt, Min, IsArray, IsNotEmpty, MaxLength, Matches } from 'class-validator';
 import { RescueTeamStatus } from '../../common/entities/rescue-team.entity';
 
 export class UpdateTeamStatusDto {
-  @IsEnum(RescueTeamStatus)
+  @IsEnum(RescueTeamStatus, { message: 'Invalid team status' })
   status: RescueTeamStatus;
 
   @IsOptional()
   @IsString()
+  @MaxLength(255)
   currentLocation?: string;
 
   @IsOptional()
@@ -15,7 +16,9 @@ export class UpdateTeamStatusDto {
 }
 
 export class CreateRescueTeamDto {
-  @IsString()
+  @IsString({ message: 'Team name must be a string' })
+  @IsNotEmpty({ message: 'Team name is required' })
+  @MaxLength(150, { message: 'Team name must be less than 150 characters' })
   name: string;
 
   @IsOptional()
@@ -28,28 +31,36 @@ export class CreateRescueTeamDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(150)
   leader?: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(150)
   leaderName?: string;
 
   @IsOptional()
   @IsString()
+  @Matches(/^(0?3|92|\+92)?\s?-?\d{9,10}$/, {
+    message: 'Contact must be a valid Pakistani phone number',
+  })
   contact?: string;
 
   @IsOptional()
   @IsString()
+  @Matches(/^(0?3|92|\+92)?\s?-?\d{9,10}$/, {
+    message: 'Contact number must be a valid Pakistani phone number',
+  })
   contactNumber?: string;
 
   @IsOptional()
-  @IsInt()
-  @Min(0)
+  @IsInt({ message: 'Members must be an integer' })
+  @Min(0, { message: 'Members cannot be negative' })
   members?: number;
 
   @IsOptional()
-  @IsInt()
-  @Min(0)
+  @IsInt({ message: 'Member count must be an integer' })
+  @Min(0, { message: 'Member count cannot be negative' })
   memberCount?: number;
 
   @IsOptional()
@@ -69,14 +80,17 @@ export class CreateRescueTeamDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(255)
   location?: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(255)
   baseLocation?: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(255)
   currentLocation?: string;
 
   @IsOptional()

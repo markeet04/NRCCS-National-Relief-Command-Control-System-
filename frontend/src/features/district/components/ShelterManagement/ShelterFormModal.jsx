@@ -1,33 +1,46 @@
 /**
  * ShelterFormModal Component
- * Modal for adding or editing a shelter with map location picker
+ * Modal for adding or editing a shelter with ArcGIS map location picker
+ * 
+ * Features:
+ * - ArcGIS map restricted to user's district boundary
+ * - Click to set shelter location within district
+ * - Automatic address reverse geocoding
+ * - Boundary validation
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Modal } from '../shared';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { MapPin, Loader2, AlertCircle } from 'lucide-react';
 import '@styles/css/main.css';
 import './ShelterManagement.css';
+import { 
+    validateShelterForm, 
+    validatePhone, 
+    validateString,
+    FIELD_LIMITS 
+} from '@shared/utils/validationSchema';
 
-// Fix leaflet marker icon issue
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-});
+// ArcGIS Core Modules
+import Map from '@arcgis/core/Map';
+import MapView from '@arcgis/core/views/MapView';
+import Graphic from '@arcgis/core/Graphic';
+import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
+import Point from '@arcgis/core/geometry/Point';
+import Polygon from '@arcgis/core/geometry/Polygon';
+import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol';
+import SimpleFillSymbol from '@arcgis/core/symbols/SimpleFillSymbol';
+import * as locator from '@arcgis/core/rest/locator';
 
-// Component to handle map clicks
-const LocationMarker = ({ position, setPosition }) => {
-    useMapEvents({
-        click(e) {
-            setPosition([e.latlng.lat, e.latlng.lng]);
-        },
-    });
+// Theme & Config
+import { useSettings } from '@app/providers/ThemeProvider';
+import { useAuth } from '@shared/hooks';
+import { getBasemapByTheme, getDistrictConfig, DISTRICT_CONFIG } from '@shared/config/mapConfig';
 
-    return position ? <Marker position={position} /> : null;
-};
+// ArcGIS CSS
+import '@arcgis/core/assets/esri/themes/dark/main.css';
+
+// Geocoding service URL
+const GEOCODE_URL = 'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer';
 
 const ShelterFormModal = ({
     isOpen,
@@ -36,8 +49,20 @@ const ShelterFormModal = ({
     editData = null,
     statusOptions = []
 }) => {
-    // Default center: Pakistan
-    const defaultCenter = [30.3753, 69.3451];
+    const { theme } = useSettings();
+    const { user } = useAuth();
+    const isLight = theme === 'light';
+    
+    // Get district config based on logged-in user
+    const districtName = user?.district || user?.districtName || 'Dadu';
+    const districtConfig = getDistrictConfig(districtName);
+    const defaultCenter = districtConfig?.center || [67.77, 26.73];
+
+    const mapRef = useRef(null);
+    const viewRef = useRef(null);
+    const graphicsLayerRef = useRef(null);
+    const markerGraphicRef = useRef(null);
+    const boundaryGraphicRef = useRef(null);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -46,17 +71,203 @@ const ShelterFormModal = ({
         occupancy: 0,
         contactPerson: '',
         contactPhone: '',
-        lat: defaultCenter[0],
-        lng: defaultCenter[1]
+        lat: defaultCenter[1],
+        lng: defaultCenter[0]
     });
 
-    const [markerPosition, setMarkerPosition] = useState(defaultCenter);
+    const [errors, setErrors] = useState({});
+    const [isGeocoding, setIsGeocoding] = useState(false);
+    const [locationError, setLocationError] = useState('');
+    const [mapReady, setMapReady] = useState(false);
+
+    // Create district boundary polygon from bounds
+    const createDistrictBoundary = useCallback(() => {
+        if (!districtConfig?.bounds) return null;
+        
+        const { minLon, minLat, maxLon, maxLat } = districtConfig.bounds;
+        return new Polygon({
+            rings: [[
+                [minLon, minLat],
+                [minLon, maxLat],
+                [maxLon, maxLat],
+                [maxLon, minLat],
+                [minLon, minLat]
+            ]],
+            spatialReference: { wkid: 4326 }
+        });
+    }, [districtConfig]);
+
+    // Check if point is within district bounds
+    const isWithinDistrictBounds = useCallback((lng, lat) => {
+        if (!districtConfig?.bounds) return true;
+        const { minLon, minLat, maxLon, maxLat } = districtConfig.bounds;
+        return lng >= minLon && lng <= maxLon && lat >= minLat && lat <= maxLat;
+    }, [districtConfig]);
+
+    // Reverse geocode to get address
+    const reverseGeocode = useCallback(async (lat, lng) => {
+        setIsGeocoding(true);
+        try {
+            const result = await locator.locationToAddress(GEOCODE_URL, {
+                location: new Point({ longitude: lng, latitude: lat })
+            });
+            
+            if (result?.address) {
+                setFormData(prev => ({
+                    ...prev,
+                    address: result.address
+                }));
+            }
+        } catch (error) {
+            console.warn('Geocoding failed:', error);
+            // Set a basic address from coordinates
+            setFormData(prev => ({
+                ...prev,
+                address: `${districtConfig?.name || 'Location'} (${lat.toFixed(4)}, ${lng.toFixed(4)})`
+            }));
+        } finally {
+            setIsGeocoding(false);
+        }
+    }, [districtConfig]);
+
+    // Update marker position on map
+    const updateMarkerOnMap = useCallback((lng, lat) => {
+        if (!graphicsLayerRef.current || !viewRef.current) return;
+
+        // Remove existing marker
+        if (markerGraphicRef.current) {
+            graphicsLayerRef.current.remove(markerGraphicRef.current);
+        }
+
+        // Create new marker
+        const point = new Point({ longitude: lng, latitude: lat });
+        const symbol = new SimpleMarkerSymbol({
+            style: 'circle',
+            color: [16, 185, 129], // Green
+            size: '20px',
+            outline: {
+                color: [255, 255, 255],
+                width: 3
+            }
+        });
+
+        const graphic = new Graphic({
+            geometry: point,
+            symbol: symbol
+        });
+
+        graphicsLayerRef.current.add(graphic);
+        markerGraphicRef.current = graphic;
+    }, []);
+
+    // Initialize map
+    useEffect(() => {
+        if (!isOpen || !mapRef.current || viewRef.current) return;
+
+        // Create graphics layer
+        graphicsLayerRef.current = new GraphicsLayer({ title: 'Shelter Location' });
+
+        // Create map
+        const map = new Map({
+            basemap: getBasemapByTheme(theme),
+            layers: [graphicsLayerRef.current]
+        });
+
+        // Create view constrained to district
+        const view = new MapView({
+            container: mapRef.current,
+            map: map,
+            center: defaultCenter,
+            zoom: districtConfig?.zoom || 10,
+            constraints: {
+                minZoom: districtConfig?.minZoom || 9,
+                maxZoom: districtConfig?.maxZoom || 16,
+                geometry: createDistrictBoundary()
+            },
+            ui: {
+                components: ['zoom']
+            }
+        });
+
+        viewRef.current = view;
+
+        // Add district boundary visualization
+        view.when(() => {
+            setMapReady(true);
+            
+            // Draw district boundary
+            const boundary = createDistrictBoundary();
+            if (boundary) {
+                const boundarySymbol = new SimpleFillSymbol({
+                    color: [16, 185, 129, 0.1], // Light green fill
+                    outline: {
+                        color: [16, 185, 129, 0.8],
+                        width: 2,
+                        style: 'dash'
+                    }
+                });
+
+                boundaryGraphicRef.current = new Graphic({
+                    geometry: boundary,
+                    symbol: boundarySymbol
+                });
+                graphicsLayerRef.current.add(boundaryGraphicRef.current);
+            }
+
+            // Set initial marker if editing or has default
+            if (formData.lat && formData.lng) {
+                updateMarkerOnMap(formData.lng, formData.lat);
+            }
+        });
+
+        // Handle map click
+        view.on('click', async (event) => {
+            const { longitude, latitude } = event.mapPoint;
+
+            // Validate within district bounds
+            if (!isWithinDistrictBounds(longitude, latitude)) {
+                setLocationError(`Location must be within ${districtConfig?.name || 'district'} boundaries`);
+                setTimeout(() => setLocationError(''), 3000);
+                return;
+            }
+
+            setLocationError('');
+            
+            // Update form data
+            setFormData(prev => ({
+                ...prev,
+                lat: latitude,
+                lng: longitude
+            }));
+
+            // Update marker
+            updateMarkerOnMap(longitude, latitude);
+
+            // Reverse geocode for address
+            await reverseGeocode(latitude, longitude);
+        });
+
+        return () => {
+            if (viewRef.current) {
+                viewRef.current.destroy();
+                viewRef.current = null;
+            }
+            setMapReady(false);
+        };
+    }, [isOpen]);
+
+    // Update basemap on theme change
+    useEffect(() => {
+        if (viewRef.current?.map) {
+            viewRef.current.map.basemap = getBasemapByTheme(theme);
+        }
+    }, [theme]);
 
     // Load edit data when editing
     useEffect(() => {
         if (editData) {
-            const lat = editData.coordinates?.lat || editData.lat || defaultCenter[0];
-            const lng = editData.coordinates?.lng || editData.lng || defaultCenter[1];
+            const lat = editData.coordinates?.lat || editData.lat || defaultCenter[1];
+            const lng = editData.coordinates?.lng || editData.lng || defaultCenter[0];
             setFormData({
                 name: editData.name || '',
                 address: editData.address || '',
@@ -67,7 +278,12 @@ const ShelterFormModal = ({
                 lat: lat,
                 lng: lng
             });
-            setMarkerPosition([lat, lng]);
+            
+            // Update marker on map after it's ready
+            if (mapReady) {
+                updateMarkerOnMap(lng, lat);
+                viewRef.current?.goTo({ center: [lng, lat], zoom: 13 }, { duration: 500 });
+            }
         } else {
             // Reset form for new shelter
             setFormData({
@@ -77,23 +293,11 @@ const ShelterFormModal = ({
                 occupancy: 0,
                 contactPerson: '',
                 contactPhone: '',
-                lat: defaultCenter[0],
-                lng: defaultCenter[1]
+                lat: defaultCenter[1],
+                lng: defaultCenter[0]
             });
-            setMarkerPosition(defaultCenter);
         }
-    }, [editData, isOpen]);
-
-    // Update form when marker position changes
-    useEffect(() => {
-        if (markerPosition) {
-            setFormData(prev => ({
-                ...prev,
-                lat: markerPosition[0],
-                lng: markerPosition[1]
-            }));
-        }
-    }, [markerPosition]);
+    }, [editData, isOpen, mapReady]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -101,10 +305,51 @@ const ShelterFormModal = ({
             ...prev,
             [name]: name === 'capacity' || name === 'occupancy' ? Number(value) : value
         }));
+        
+        // Real-time validation for specific fields
+        if (name === 'contactPhone' && value) {
+            const phoneResult = validatePhone(value, false);
+            setErrors(prev => ({
+                ...prev,
+                contactPhone: phoneResult.valid ? undefined : phoneResult.message
+            }));
+        } else if (name === 'name') {
+            const nameResult = validateString(value, 'Shelter name', { 
+                minLength: 1, 
+                maxLength: FIELD_LIMITS.shelterName.maxLength 
+            });
+            setErrors(prev => ({
+                ...prev,
+                name: nameResult.valid ? undefined : nameResult.message
+            }));
+        }
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        
+        // Validate location is within bounds
+        if (!isWithinDistrictBounds(formData.lng, formData.lat)) {
+            setLocationError(`Shelter must be located within ${districtConfig?.name || 'district'} boundaries`);
+            return;
+        }
+        
+        // Validate entire form before submit
+        const { isValid, errors: validationErrors } = validateShelterForm(formData);
+        
+        // Also validate phone if provided
+        if (formData.contactPhone) {
+            const phoneResult = validatePhone(formData.contactPhone, false);
+            if (!phoneResult.valid) {
+                validationErrors.contactPhone = phoneResult.message;
+            }
+        }
+        
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+        
         onSubmit({
             ...formData,
             id: editData?.id,
@@ -133,49 +378,73 @@ const ShelterFormModal = ({
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
-                            className="input"
+                            className={`input ${errors.name ? 'input--error' : ''}`}
                             placeholder="Enter shelter name"
+                            maxLength={FIELD_LIMITS.shelterName.maxLength}
                             required
                         />
+                        {errors.name && <span className="form-field__error">{errors.name}</span>}
                     </div>
                     <div className="form-field">
-                        <label className="form-field__label">Address</label>
+                        <label className="form-field__label">
+                            Address 
+                            {isGeocoding && <Loader2 size={14} className="ml-2 animate-spin inline" />}
+                        </label>
                         <input
                             type="text"
                             name="address"
                             value={formData.address}
                             onChange={handleChange}
                             className="input"
-                            placeholder="Enter address"
+                            placeholder="Click on map to auto-fill address"
                         />
+                        <small className="form-field__hint">Click on map to auto-fill or enter manually</small>
                     </div>
                 </div>
 
-                {/* Location Picker */}
+                {/* Location Picker with ArcGIS */}
                 <div className="form-field shelter-form__field">
                     <label className="form-field__label shelter-form__label">
-                        📍 Location (Click on map to set shelter location)
+                        <MapPin size={16} className="inline mr-1" style={{ color: '#10b981' }} />
+                        Location in {districtConfig?.name || 'District'}
+                        <span className="text-xs ml-2 text-secondary">(Click on map to set shelter location)</span>
                     </label>
-                    <div className="shelter-form__map-container">
-                        <MapContainer
-                            center={markerPosition}
-                            zoom={6}
-                            style={{ height: '100%', width: '100%' }}
-                            className="shelter-form__map"
-                        >
-                            <TileLayer
-                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            />
-                            <LocationMarker
-                                position={markerPosition}
-                                setPosition={setMarkerPosition}
-                            />
-                        </MapContainer>
+                    
+                    {locationError && (
+                        <div className="flex items-center gap-2 p-2 mb-2 rounded-lg" style={{ 
+                            background: 'rgba(239, 68, 68, 0.1)', 
+                            border: '1px solid rgba(239, 68, 68, 0.3)' 
+                        }}>
+                            <AlertCircle size={16} color="#ef4444" />
+                            <span className="text-sm" style={{ color: '#ef4444' }}>{locationError}</span>
+                        </div>
+                    )}
+                    
+                    <div className="shelter-form__map-container" style={{ 
+                        borderRadius: '12px', 
+                        overflow: 'hidden',
+                        border: locationError ? '2px solid #ef4444' : '1px solid var(--border-color)'
+                    }}>
+                        <div 
+                            ref={mapRef} 
+                            style={{ 
+                                height: '100%', 
+                                width: '100%',
+                                background: isLight ? '#f3f4f6' : '#1f2937'
+                            }}
+                        />
+                        {!mapReady && (
+                            <div className="absolute inset-0 flex items-center justify-center" style={{
+                                background: 'rgba(0,0,0,0.3)'
+                            }}>
+                                <Loader2 size={32} className="animate-spin" color="#10b981" />
+                            </div>
+                        )}
                     </div>
+                    
                     <div className="shelter-form__coords">
-                        <span>Latitude: <strong>{formData.lat?.toFixed(6)}</strong></span>
-                        <span>Longitude: <strong>{formData.lng?.toFixed(6)}</strong></span>
+                        <span>Latitude: <strong style={{ color: '#10b981' }}>{formData.lat?.toFixed(6)}</strong></span>
+                        <span>Longitude: <strong style={{ color: '#10b981' }}>{formData.lng?.toFixed(6)}</strong></span>
                     </div>
                 </div>
 
@@ -218,18 +487,27 @@ const ShelterFormModal = ({
                             onChange={handleChange}
                             className="input"
                             placeholder="Enter contact name"
+                            maxLength={150}
                         />
                     </div>
                     <div className="form-field">
                         <label className="form-field__label">Contact Phone</label>
                         <input
-                            type="text"
+                            type="tel"
                             name="contactPhone"
                             value={formData.contactPhone}
                             onChange={handleChange}
-                            className="input"
-                            placeholder="+92-XXX-XXXXXXX"
+                            className={`input ${errors.contactPhone ? 'input--error' : ''}`}
+                            placeholder="03001234567"
+                            pattern="^(0?3|92|\+92)?\s?-?\d{9,10}$"
+                            title="Enter a valid Pakistani phone number (e.g., 03001234567)"
+                            maxLength={14}
                         />
+                        {errors.contactPhone ? (
+                            <span className="form-field__error">{errors.contactPhone}</span>
+                        ) : (
+                            <small className="form-field__hint">Pakistani number (e.g., 03001234567)</small>
+                        )}
                     </div>
                 </div>
 

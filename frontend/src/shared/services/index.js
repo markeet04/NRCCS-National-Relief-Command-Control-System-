@@ -9,3 +9,16 @@ export { default as DashboardService } from './DashboardService';
 export { default as AuthService } from './AuthService';
 export { default as NotificationService } from './NotificationService';
 export { default as MapService } from './MapService';
+export { default as ValidationService } from './ValidationService';
+
+// Named exports for validation utilities
+export {
+  checkEmailAvailability,
+  checkUsernameAvailability,
+  checkCNICAvailability,
+  parseBackendErrors,
+  validateWithBackend,
+  debouncedCheckEmail,
+  debouncedCheckUsername,
+  debouncedCheckCNIC,
+} from './ValidationService';

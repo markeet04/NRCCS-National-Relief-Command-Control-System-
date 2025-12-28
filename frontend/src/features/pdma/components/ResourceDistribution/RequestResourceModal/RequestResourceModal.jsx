@@ -5,6 +5,11 @@ import { useState } from 'react';
 import { X, Send, Package, AlertCircle } from 'lucide-react';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
+import { 
+    validateResourceRequestForm, 
+    RESOURCE_REQUEST_PRIORITY,
+    FIELD_LIMITS 
+} from '@shared/utils/validationSchema';
 import './RequestResourceModal.css';
 
 const RESOURCE_TYPES = [
@@ -14,11 +19,12 @@ const RESOURCE_TYPES = [
     { value: 'shelter', label: 'Shelter Materials', unit: 'units' },
 ];
 
+// Priority values aligned with backend DTO (ResourceRequestPriority enum)
 const PRIORITIES = [
     { value: 'low', label: 'Low', color: '#22c55e' },
     { value: 'medium', label: 'Medium', color: '#f59e0b' },
     { value: 'high', label: 'High', color: '#ef4444' },
-    { value: 'critical', label: 'Critical', color: '#dc2626' },
+    { value: 'urgent', label: 'Urgent', color: '#dc2626' },
 ];
 
 const RequestResourceModal = ({ isOpen, onClose, onSubmit, loading }) => {
@@ -44,12 +50,10 @@ const RequestResourceModal = ({ isOpen, onClose, onSubmit, loading }) => {
     };
 
     const validate = () => {
-        const newErrors = {};
-        if (!formData.resourceType) newErrors.resourceType = 'Resource type is required';
-        if (!formData.quantity || formData.quantity <= 0) newErrors.quantity = 'Valid quantity is required';
-        if (!formData.reason.trim()) newErrors.reason = 'Justification is required';
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+        // Use centralized validation schema aligned with backend DTO
+        const { isValid, errors: validationErrors } = validateResourceRequestForm(formData);
+        setErrors(validationErrors);
+        return isValid;
     };
 
     const handleSubmit = (e) => {

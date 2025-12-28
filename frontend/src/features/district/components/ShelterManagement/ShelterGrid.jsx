@@ -10,7 +10,6 @@ const ShelterGrid = ({
     shelters = [],
     onView,
     onEdit,
-    getResourceColor,
     animatedShelters = {}
 }) => {
     if (shelters.length === 0) {
@@ -29,7 +28,6 @@ const ShelterGrid = ({
                     shelter={shelter}
                     onView={onView}
                     onEdit={onEdit}
-                    getResourceColor={getResourceColor}
                     animated={animatedShelters[shelter.id]}
                 />
             ))}

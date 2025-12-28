@@ -60,8 +60,7 @@ const ShelterManagement = () => {
         statusPieData,
         capacityRingData,
         addShelter,
-        updateShelter,
-        getResourceColor
+        updateShelter
     } = useShelterData();
 
     // Animate shelter resources on mount
@@ -158,7 +157,7 @@ const ShelterManagement = () => {
                         onStatusFilterChange={setStatusFilter}
                         statusOptions={SHELTER_STATUS_OPTIONS}
                     >
-                        <button onClick={handleOpenAddModal} className="btn btn--primary">
+                        <button onClick={handleOpenAddModal} className="btn btn--success">
                             <Plus style={{ width: 18, height: 18 }} />
                             Add New Shelter
                         </button>
@@ -170,7 +169,6 @@ const ShelterManagement = () => {
                     shelters={filteredShelters}
                     onView={handleOpenViewModal}
                     onEdit={handleOpenEditModal}
-                    getResourceColor={getResourceColor}
                     animatedShelters={animatedShelters}
                 />
             </div>
@@ -189,7 +187,6 @@ const ShelterManagement = () => {
                 isOpen={isViewModalOpen}
                 onClose={handleCloseViewModal}
                 shelter={viewingShelter}
-                getResourceColor={getResourceColor}
             />
         </DashboardLayout>
     );

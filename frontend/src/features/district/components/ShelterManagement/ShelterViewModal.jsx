@@ -4,15 +4,14 @@
  */
 import { Modal } from '../shared';
 import { MapPin, Users, Phone, User } from 'lucide-react';
-import ResourceGauge from './ResourceGauge';
+import ResourceDonut, { getQuantities, RESOURCE_COLORS } from './ResourceGauge';
 import '@styles/css/main.css';
 import './ShelterManagement.css';
 
 const ShelterViewModal = ({
     isOpen,
     onClose,
-    shelter,
-    getResourceColor
+    shelter
 }) => {
     if (!shelter) return null;
 
@@ -29,6 +28,7 @@ const ShelterViewModal = ({
     } = shelter;
 
     const occupancyPercent = capacity > 0 ? Math.round((occupancy / capacity) * 100) : 0;
+    const quantities = getQuantities(resources, capacity);
 
     const getOccupancyColor = () => {
         if (occupancyPercent >= 90) return '#ef4444';
@@ -62,36 +62,35 @@ const ShelterViewModal = ({
                     </span>
                 </div>
 
-                {/* Resource Gauge Section */}
+                {/* Resource Donut Section */}
                 <div className="flex items-center gap-6 p-4 rounded-xl" style={{ background: 'var(--card-bg-secondary)' }}>
-                    <ResourceGauge
+                    <ResourceDonut
                         resources={resources}
-                        getResourceColor={getResourceColor}
+                        capacity={capacity}
                         animated={true}
-                        size="lg"
                     />
                     <div className="flex-1">
-                        <h4 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">Resource Levels</h4>
+                        <h4 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">Resource Stock</h4>
                         <div className="grid grid-cols-2 gap-3">
                             <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full" style={{ background: getResourceColor?.(resources.food) }} />
+                                <span className="w-2 h-2 rounded-full" style={{ background: RESOURCE_COLORS.food }} />
                                 <span className="text-sm text-muted">Food:</span>
-                                <span className="text-sm font-semibold text-primary">{resources.food}%</span>
+                                <span className="text-sm font-semibold text-primary">{quantities.food} units</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full" style={{ background: getResourceColor?.(resources.water) }} />
+                                <span className="w-2 h-2 rounded-full" style={{ background: RESOURCE_COLORS.water }} />
                                 <span className="text-sm text-muted">Water:</span>
-                                <span className="text-sm font-semibold text-primary">{resources.water}%</span>
+                                <span className="text-sm font-semibold text-primary">{quantities.water} units</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full" style={{ background: getResourceColor?.(resources.medical) }} />
+                                <span className="w-2 h-2 rounded-full" style={{ background: RESOURCE_COLORS.medical }} />
                                 <span className="text-sm text-muted">Medical:</span>
-                                <span className="text-sm font-semibold text-primary">{resources.medical}%</span>
+                                <span className="text-sm font-semibold text-primary">{quantities.medical} units</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full" style={{ background: getResourceColor?.(resources.tents) }} />
-                                <span className="text-sm text-muted">Tents:</span>
-                                <span className="text-sm font-semibold text-primary">{resources.tents}%</span>
+                                <span className="w-2 h-2 rounded-full" style={{ background: RESOURCE_COLORS.shelter }} />
+                                <span className="text-sm text-muted">Shelter:</span>
+                                <span className="text-sm font-semibold text-primary">{quantities.shelter} units</span>
                             </div>
                         </div>
                     </div>
