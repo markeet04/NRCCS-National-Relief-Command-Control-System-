@@ -4,12 +4,12 @@ import civilianApi from '../services/civilianApi';
 
 const useSOSLogic = () => {
   const { gpsStatus, location } = useGPSLocation();
-  const { 
-    formData, 
-    errors, 
-    handleInputChange, 
-    validateForm, 
-    resetForm, 
+  const {
+    formData,
+    errors,
+    handleInputChange,
+    validateForm,
+    resetForm,
     setCoordinates,
     provinces,
     districts,
@@ -60,15 +60,27 @@ const useSOSLogic = () => {
 
       const response = await civilianApi.submitSos(payload);
 
+      // Generate a unique SOS ID if not provided by backend
+      const generateSOSId = () => {
+        const timestamp = Date.now().toString(36).toUpperCase();
+        const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+        return `SOS-${timestamp}-${random}`;
+      };
+
+      // Format coordinates for display
+      const formattedCoords = location.latitude && location.longitude
+        ? `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`
+        : 'Location unavailable';
+
       // Success - prepare display data
       const mockRequestData = {
-        id: response.id || 'SOS-XXXX',
+        id: response.id || generateSOSId(),
         timestamp: new Date().toLocaleTimeString(),
         eta: response.estimatedResponse || '15-20 minutes',
         teamInfo: {
           name: 'Emergency Response Team (Pending Assignment)',
           contact: '115',
-          distance: 'Calculating...',
+          coordinates: formattedCoords,
         },
         location: location,
         submittedBy: {

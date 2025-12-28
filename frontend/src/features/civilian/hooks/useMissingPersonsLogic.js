@@ -57,25 +57,25 @@ const useMissingPersonsLogic = () => {
   // Filter by search query and local filters
   const filteredPersons = missingPersons.filter((person) => {
     // Search filter
-    const matchesSearch = !searchQuery || 
+    const matchesSearch = !searchQuery ||
       person.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (person.lastSeen && person.lastSeen.toLowerCase().includes(searchQuery.toLowerCase()));
-    
+
     // Gender filter
-    const matchesGender = filters.gender === 'all' || 
+    const matchesGender = filters.gender === 'all' ||
       person.gender?.toLowerCase() === filters.gender.toLowerCase();
-    
+
     // Age range filter
     let matchesAge = true;
     if (filters.ageRange && filters.ageRange !== 'all') {
       const [minAge, maxAge] = filters.ageRange.split('-').map(Number);
       matchesAge = person.age >= minAge && person.age <= maxAge;
     }
-    
+
     // Status filter
-    const matchesStatus = filters.status === 'all' || 
+    const matchesStatus = filters.status === 'all' ||
       person.status === filters.status;
-    
+
     return matchesSearch && matchesGender && matchesAge && matchesStatus;
   });
 
@@ -112,6 +112,14 @@ const useMissingPersonsLogic = () => {
     // Validate file exists and is a Blob/File
     if (!file || !(file instanceof Blob)) {
       console.error('Invalid file provided to handlePhotoUpload');
+      return;
+    }
+
+    // Validate file size (5 MB limit)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB in bytes
+    if (file.size > MAX_FILE_SIZE) {
+      alert('File size exceeds 5 MB. Please select a smaller file.');
+      e.target.value = ''; // Reset the file input
       return;
     }
 

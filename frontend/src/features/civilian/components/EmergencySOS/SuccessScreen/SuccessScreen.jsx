@@ -32,13 +32,22 @@ const SuccessScreen = ({ requestData, onReset }) => {
           </div>
 
           <div className="team-info-card">
-            <h3><Radio size={20} /> Response Team Assigned</h3>
+            <div className="team-header">
+              <Radio size={20} />
+              <h3>Response Team Assigned</h3>
+            </div>
             <div className="team-details">
-              <p>
+              <div className="team-detail-row">
                 <strong>{requestData.teamInfo.name}</strong>
-              </p>
-              <p><Phone size={16} /> {requestData.teamInfo.contact}</p>
-              <p><MapPin size={16} /> {requestData.teamInfo.distance}</p>
+              </div>
+              <div className="team-detail-row">
+                <Phone size={16} />
+                <span>{requestData.teamInfo.contact}</span>
+              </div>
+              <div className="team-detail-row">
+                <MapPin size={16} />
+                <span>{requestData.teamInfo.coordinates}</span>
+              </div>
             </div>
           </div>
 
