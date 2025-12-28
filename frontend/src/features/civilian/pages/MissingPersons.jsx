@@ -35,6 +35,10 @@ const MissingPersons = () => {
     handleSeenReport,
     handleShare,
     getDaysAgo,
+    provinces,
+    districts,
+    loadingProvinces,
+    loadingDistricts,
   } = useMissingPersonsLogic();
 
   return (
@@ -66,9 +70,13 @@ const MissingPersons = () => {
             onPhotoUpload={handlePhotoUpload}
             onRemovePhoto={removePhoto}
             onSubmit={handleReportSubmit}
+            provinces={provinces}
+            districts={districts}
+            loadingProvinces={loadingProvinces}
+            loadingDistricts={loadingDistricts}
           />
         )}
-      </div>  
+      </div>
 
       {showDetailModal && selectedPerson && (
         <DetailModal

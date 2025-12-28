@@ -48,4 +48,8 @@ export class CreateMissingPersonDto {
     @IsString()
     @IsNotEmpty()
     reporterPhone: string;
+
+    @IsNumber()
+    @IsNotEmpty()
+    districtId: number;
 }

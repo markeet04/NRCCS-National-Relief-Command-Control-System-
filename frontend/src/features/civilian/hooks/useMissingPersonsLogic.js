@@ -18,6 +18,49 @@ const useMissingPersonsLogic = () => {
   const [reportForm, setReportForm] = useState(INITIAL_REPORT_FORM);
   const [reportErrors, setReportErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [loadingProvinces, setLoadingProvinces] = useState(false);
+  const [loadingDistricts, setLoadingDistricts] = useState(false);
+
+  // Load provinces on mount
+  useEffect(() => {
+    const loadProvinces = async () => {
+      setLoadingProvinces(true);
+      try {
+        const data = await civilianApi.getProvinces();
+        setProvinces(data || []);
+      } catch (error) {
+        console.error('Failed to load provinces:', error);
+        setProvinces([]);
+      } finally {
+        setLoadingProvinces(false);
+      }
+    };
+    loadProvinces();
+  }, []);
+
+  // Load districts when province changes
+  useEffect(() => {
+    const loadDistricts = async () => {
+      if (!reportForm.provinceId) {
+        setDistricts([]);
+        return;
+      }
+
+      setLoadingDistricts(true);
+      try {
+        const data = await civilianApi.getDistrictsByProvince(reportForm.provinceId);
+        setDistricts(data || []);
+      } catch (error) {
+        console.error('Failed to load districts:', error);
+        setDistricts([]);
+      } finally {
+        setLoadingDistricts(false);
+      }
+    };
+    loadDistricts();
+  }, [reportForm.provinceId]);
 
   // Fetch missing persons from API
   useEffect(() => {
@@ -99,7 +142,14 @@ const useMissingPersonsLogic = () => {
 
   const handleReportInputChange = (e) => {
     const { name, value } = e.target;
-    setReportForm((prev) => ({ ...prev, [name]: value }));
+
+    // Reset districtId when province changes
+    if (name === 'provinceId') {
+      setReportForm((prev) => ({ ...prev, [name]: value, districtId: '' }));
+    } else {
+      setReportForm((prev) => ({ ...prev, [name]: value }));
+    }
+
     // Clear error for this field
     if (reportErrors[name]) {
       setReportErrors((prev) => ({ ...prev, [name]: '' }));
@@ -168,6 +218,12 @@ const useMissingPersonsLogic = () => {
     if (!reportForm.contactPhone || !/^(03|92)\d{9}$/.test(reportForm.contactPhone.replace(/-/g, ''))) {
       errors.contactPhone = 'Valid Pakistani phone number required (e.g., 0300-1234567)';
     }
+    if (!reportForm.provinceId) {
+      errors.provinceId = 'Province selection is required';
+    }
+    if (!reportForm.districtId) {
+      errors.districtId = 'District selection is required';
+    }
 
     setReportErrors(errors);
     console.log('Validation errors:', errors);
@@ -198,6 +254,7 @@ const useMissingPersonsLogic = () => {
         photoUrl: reportForm.photo || '',
         reporterName: reportForm.contactName,
         reporterPhone: reportForm.contactPhone.replace(/-/g, ''),
+        districtId: parseInt(reportForm.districtId),
       };
 
       console.log('Payload:', payload);
@@ -273,6 +330,10 @@ const useMissingPersonsLogic = () => {
     handleSeenReport,
     handleShare,
     getDaysAgo,
+    provinces,
+    districts,
+    loadingProvinces,
+    loadingDistricts,
   };
 };
 

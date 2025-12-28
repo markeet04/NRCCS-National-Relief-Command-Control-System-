@@ -79,9 +79,8 @@ const StatCard = ({
       <div className="stat-card__value">{value}</div>
 
       {/* Trend or Subtitle */}
-      {(trend || trendLabel || subtitle) && (
+      {(trendLabel || subtitle) && (
         <span className={`stat-card__subtitle ${trendDirection === 'up' ? 'text-success' : trendDirection === 'down' ? 'text-danger' : ''}`}>
-          {trend && `${trend > 0 ? '+' : ''}${trend}% `}
           {trendLabel || subtitle}
         </span>
       )}

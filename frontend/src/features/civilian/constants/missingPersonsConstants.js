@@ -138,6 +138,8 @@ export const INITIAL_REPORT_FORM = {
   contactName: '',
   contactPhone: '',
   relationship: '',
+  provinceId: '',
+  districtId: '',
 };
 
 // Status badge colors

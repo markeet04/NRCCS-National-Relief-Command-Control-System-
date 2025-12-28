@@ -235,6 +235,7 @@ export class CivilianService {
             contactNumber: dto.reporterPhone,
             reportedBy: 'Civilian',
             status: MissingPersonStatus.ACTIVE,
+            districtId: dto.districtId,
         });
 
         return await this.missingPersonRepository.save(missingPerson);

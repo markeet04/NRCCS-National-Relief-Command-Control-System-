@@ -47,11 +47,7 @@ const FindShelters = () => {
 
       <div className="search-section">
         <SearchBar searchQuery={searchQuery} onSearchChange={handleSearch} />
-        <FilterToggle
-          showFilters={showFilters}
-          onToggle={() => setShowFilters(!showFilters)}
-          activeFilterCount={activeFilterCount}
-        />
+
       </div>
 
       {showFilters && (
@@ -72,7 +68,7 @@ const FindShelters = () => {
           onShelterClick={handleShelterClick}
           onGetDirections={handleGetDirections}
         />
-        
+
         <ShelterList
           shelters={shelters}
           selectedShelter={selectedShelter}

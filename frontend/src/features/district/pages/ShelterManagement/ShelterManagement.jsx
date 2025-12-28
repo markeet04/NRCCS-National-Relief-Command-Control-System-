@@ -119,12 +119,16 @@ const ShelterManagement = () => {
         handleCloseFormModal();
     }, [editingShelter, updateShelter, addShelter, handleCloseFormModal]);
 
-    // Calculate totals for KPI cards
+    // Calculate totals for KPI cards - always compute from shelters array
     const kpiStats = {
         totalShelters: shelters.length,
-        totalCapacity: stats?.totalCapacity || shelters.reduce((sum, s) => sum + s.capacity, 0),
-        totalOccupancy: stats?.totalOccupancy || shelters.reduce((sum, s) => sum + s.occupancy, 0)
+        totalCapacity: shelters.reduce((sum, s) => sum + (s.capacity || 0), 0),
+        totalOccupancy: shelters.reduce((sum, s) => sum + (s.occupancy || 0), 0)
     };
+
+    // Debug logging - remove after fixing
+    console.log('Shelters data:', shelters.map(s => ({ id: s.id, name: s.name, capacity: s.capacity, occupancy: s.occupancy })));
+    console.log('KPI Stats:', kpiStats);
 
     return (
         <DashboardLayout

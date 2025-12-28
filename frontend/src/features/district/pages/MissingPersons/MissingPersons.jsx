@@ -148,7 +148,7 @@ const MissingPersons = () => {
                     persons={persons}
                     loading={loading}
                     onPersonClick={handlePersonClick}
-                    onUpdateStatus={handleStatusUpdate}
+                    onUpdateStatus={handlePersonClick}
                     getStatusColor={getStatusColor}
                     getStatusLabel={getStatusLabel}
                     colors={colors}
@@ -162,6 +162,7 @@ const MissingPersons = () => {
                     onClose={closeModal}
                     person={selectedPerson}
                     currentStatus={selectedPerson.status}
+                    onUpdate={handleStatusUpdate}
                 />
             )}
 

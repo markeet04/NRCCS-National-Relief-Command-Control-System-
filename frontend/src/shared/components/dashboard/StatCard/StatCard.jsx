@@ -172,16 +172,8 @@ const StatCard = ({
               {formattedValue}
             </p>
 
-            {(safeTrend !== undefined && safeTrend !== 0) || trendLabel ? (
+            {trendLabel ? (
               <div className="flex items-center gap-1 mt-3" style={{ color: getTrendColor() }}>
-                {safeTrend !== 0 && !isWhiteText && getTrendIcon()}
-                {isWhiteText && trendDirection === 'up' && <span>↗</span>}
-                {isWhiteText && trendDirection === 'down' && <span>↘</span>}
-                {safeTrend !== 0 && (
-                  <span className="text-xs font-semibold">
-                    {safeTrend > 0 ? '+' : ''}{Math.abs(safeTrend)}%
-                  </span>
-                )}
                 {trendLabel && (
                   <span
                     className="text-xs ml-1"
@@ -216,19 +208,11 @@ const StatCard = ({
       <div className="stat-card__value">{formattedValue}</div>
 
       {/* Trend/Subtitle */}
-      {(safeTrend !== undefined && safeTrend !== 0) || trendLabel ? (
-        <div className="stat-card__trend" style={{ color: getTrendColor() }}>
-          {safeTrend !== 0 && getTrendIcon()}
-          {safeTrend !== 0 && (
-            <span className="text-xs font-semibold">
-              {safeTrend > 0 ? '+' : ''}{Math.abs(safeTrend)}%
-            </span>
-          )}
-          {trendLabel && (
-            <span className="text-xs ml-1 text-muted">
-              {trendLabel}
-            </span>
-          )}
+      {trendLabel ? (
+        <div className="stat-card__trend">
+          <span className="text-xs ml-1 text-muted">
+            {trendLabel}
+          </span>
         </div>
       ) : null}
     </div>
