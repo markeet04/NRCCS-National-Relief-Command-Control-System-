@@ -99,6 +99,8 @@ const StatCard = ({
   const safeValue = value === null || value === undefined || isNaN(value) ? 0 : value;
   const safeTrend = isNaN(trend) ? 0 : trend;
 
+  console.log('[StatCard] Received props:', { title, value, safeValue, icon, trend });
+
   const getTrendIcon = () => {
     if (!safeTrend || safeTrend === 0 || isNaN(safeTrend)) return <Minus className="w-4 h-4" />;
     return safeTrend > 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />;

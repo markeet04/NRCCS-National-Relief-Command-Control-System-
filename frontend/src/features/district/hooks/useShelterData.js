@@ -18,6 +18,15 @@ export const SHELTER_STATUS_OPTIONS = [
 
 export const useShelterData = () => {
   const [shelters, setShelters] = useState([]);
+  const [stats, setStats] = useState({
+    totalShelters: 0,
+    totalCapacity: 0,
+    totalOccupancy: 0,
+    occupancyPercent: 0,
+    availableShelters: 0,
+    nearFullShelters: 0,
+    fullShelters: 0
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const notification = useNotification?.() || null;
@@ -33,11 +42,22 @@ export const useShelterData = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await districtApi.getAllShelters();
-      const data = response.data || response || [];
+      const [sheltersResponse, statsResponse] = await Promise.all([
+        districtApi.getAllShelters(),
+        districtApi.getShelterStats()
+      ]);
+      
+      const sheltersData = sheltersResponse.data || sheltersResponse || [];
+      const statsData = statsResponse.data || statsResponse || {};
+
+      // Debug logging
+      console.log('[useShelterData] Stats response:', statsResponse);
+      console.log('[useShelterData] Stats data:', statsData);
+      console.log('[useShelterData] Total capacity from API:', statsData.totalCapacity);
+      console.log('[useShelterData] Current occupancy from API:', statsData.currentOccupancy);
 
       // Transform API data to match component expectations
-      setShelters(data.map(shelter => ({
+      setShelters(sheltersData.map(shelter => ({
         id: shelter.id,
         name: shelter.name,
         address: shelter.address || shelter.location || 'Unknown location',
@@ -55,6 +75,26 @@ export const useShelterData = () => {
         status: shelter.status,
         coordinates: shelter.coordinates || { lat: shelter.lat, lng: shelter.lng },
       })));
+
+      // Set stats from backend with better extraction
+      const extractedStats = {
+        totalShelters: statsData.totalShelters || 0,
+        totalCapacity: statsData.totalCapacity || 0,
+        totalOccupancy: statsData.currentOccupancy || statsData.totalOccupancy || 0,
+        occupancyPercent: statsData.occupancyPercent || 0,
+        availableShelters: statsData.availableShelters || 0,
+        nearFullShelters: statsData.nearFullShelters || 0,
+        fullShelters: statsData.fullShelters || 0
+      };
+      
+      console.log('[useShelterData] Extracted stats object:', {
+        totalShelters: extractedStats.totalShelters,
+        totalCapacity: extractedStats.totalCapacity,
+        totalOccupancy: extractedStats.totalOccupancy,
+        occupancyPercent: extractedStats.occupancyPercent,
+        availableShelters: extractedStats.availableShelters
+      });
+      setStats(extractedStats);
     } catch (err) {
       console.error('Failed to fetch shelters:', err);
       setError(err.message || 'Failed to fetch shelters');
@@ -104,29 +144,7 @@ export const useShelterData = () => {
     return Math.round(values.reduce((a, b) => a + b, 0) / values.length);
   }, []);
 
-  // Computed statistics
-  const stats = useMemo(() => {
-    const totalShelters = shelters.length;
-    const totalCapacity = shelters.reduce((sum, s) => sum + (s.capacity || 0), 0);
-    const totalOccupancy = shelters.reduce((sum, s) => sum + (s.occupancy || 0), 0);
-    const occupancyPercent = totalCapacity > 0 ? Math.round((totalOccupancy / totalCapacity) * 100) : 0;
-
-    const availableShelters = shelters.filter(s => s.capacity > 0 && (s.occupancy / s.capacity) < 0.9).length;
-    const nearFullShelters = shelters.filter(s => s.capacity > 0 && (s.occupancy / s.capacity) >= 0.9 && (s.occupancy / s.capacity) < 1).length;
-    const fullShelters = shelters.filter(s => s.capacity > 0 && (s.occupancy / s.capacity) >= 1).length;
-
-    return {
-      totalShelters,
-      totalCapacity,
-      totalOccupancy,
-      occupancyPercent,
-      availableShelters,
-      nearFullShelters,
-      fullShelters
-    };
-  }, [shelters]);
-
-  // Chart data
+  // Chart data - use stats from state (fetched from backend)
   const statusPieData = useMemo(() => {
     return [
       { name: 'Available', value: stats.availableShelters, color: '#10b981' },

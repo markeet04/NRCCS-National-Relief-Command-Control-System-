@@ -119,16 +119,15 @@ const ShelterManagement = () => {
         handleCloseFormModal();
     }, [editingShelter, updateShelter, addShelter, handleCloseFormModal]);
 
-    // Calculate totals for KPI cards - always compute from shelters array
+    // Use stats directly from the hook (fetched from backend)
     const kpiStats = {
-        totalShelters: shelters.length,
-        totalCapacity: shelters.reduce((sum, s) => sum + (s.capacity || 0), 0),
-        totalOccupancy: shelters.reduce((sum, s) => sum + (s.occupancy || 0), 0)
+        totalShelters: stats.totalShelters,
+        totalCapacity: stats.totalCapacity,
+        totalOccupancy: stats.totalOccupancy
     };
 
-    // Debug logging - remove after fixing
-    console.log('Shelters data:', shelters.map(s => ({ id: s.id, name: s.name, capacity: s.capacity, occupancy: s.occupancy })));
-    console.log('KPI Stats:', kpiStats);
+    console.log('[ShelterManagement] Hook stats:', stats);
+    console.log('[ShelterManagement] kpiStats being passed:', kpiStats);
 
     return (
         <DashboardLayout

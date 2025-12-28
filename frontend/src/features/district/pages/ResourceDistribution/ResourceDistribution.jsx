@@ -105,16 +105,24 @@ const ResourceDistribution = () => {
     navigate(route === 'dashboard' ? '/district' : `/district/${route}`);
   }, [navigate]);
 
+  // Debug logging for resources
+  console.log('[ResourceDistribution] resources from hook:', resources);
+
   // Stats
   const stats = useMemo(() => {
     const total = resources.reduce((sum, r) => sum + r.quantity, 0);
     const allocated = resources.reduce((sum, r) => sum + (r.allocated || 0), 0);
-    return {
+    const available = total - allocated;
+    const distributedPercent = total > 0 ? Math.round((allocated / total) * 100) : 0;
+    const computed = {
       resourceTypes: resources.length,
       totalQuantity: total,
-      distributed: total > 0 ? Math.round((allocated / total) * 100) : 0,
-      available: total - allocated
+      distributed: allocated,
+      distributedPercent: distributedPercent,
+      available: available
     };
+    console.log('[ResourceDistribution] Computed stats:', computed);
+    return computed;
   }, [resources]);
 
   // Compute district stock for allocate tab
@@ -270,6 +278,7 @@ const ResourceDistribution = () => {
     >
       <div className="district-resource-distribution" style={{ paddingTop: 0 }}>
         <h1 className="page-title" style={{ marginTop: 0, marginBottom: 16 }}>Resource Distribution</h1>
+        {console.log('[ResourceDistribution] Rendering with stats:', { resourceTypes: stats.resourceTypes, totalQuantity: stats.totalQuantity, distributed: stats.distributed, available: stats.available })}
         {/* Stats Grid - Now using shared StatCard with gradients */}
         <div className="district-stats-grid">
           <StatCard
@@ -281,21 +290,21 @@ const ResourceDistribution = () => {
           />
           <StatCard
             title="TOTAL QUANTITY"
-            value={formatQuantity(stats.totalQuantity)}
+            value={stats.totalQuantity}
             icon="package"
             gradientKey="emerald"
             trendLabel="units in stock"
           />
           <StatCard
             title="DISTRIBUTED"
-            value={`${stats.distributed}%`}
+            value={stats.distributed}
             icon="truck"
             gradientKey="amber"
-            trendLabel="to shelters"
+            trendLabel={`${stats.distributedPercent}% to shelters`}
           />
           <StatCard
             title="AVAILABLE"
-            value={formatQuantity(stats.available)}
+            value={stats.available}
             icon="package"
             gradientKey="violet"
             trendLabel="for allocation"

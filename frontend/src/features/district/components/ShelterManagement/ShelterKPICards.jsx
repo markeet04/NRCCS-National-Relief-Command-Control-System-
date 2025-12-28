@@ -12,6 +12,10 @@ const ShelterKPICards = ({ stats, capacityRingData, statusPieData }) => {
     const totalOccupancy = stats?.totalOccupancy || 0;
     const occupancyPercent = totalCapacity > 0 ? Math.round((totalOccupancy / totalCapacity) * 100) : 0;
 
+    // Debug logging
+    console.log('[ShelterKPICards] Received stats prop:', stats);
+    console.log('[ShelterKPICards] totalCapacity:', totalCapacity, 'totalOccupancy:', totalOccupancy);
+
     // Calculate status breakdown
     const available = statusPieData?.find(s => s.name === 'Available')?.value || 0;
     const nearFull = statusPieData?.find(s => s.name === 'Near Full')?.value || 0;
@@ -28,21 +32,21 @@ const ShelterKPICards = ({ stats, capacityRingData, statusPieData }) => {
             />
             <StatCard
                 title="TOTAL CAPACITY"
-                value={totalCapacity.toLocaleString()}
+                value={totalCapacity}
                 icon="users"
                 gradientKey="violet"
                 trendLabel={`${totalOccupancy} occupied (${occupancyPercent}%)`}
             />
             <StatCard
                 title="STATUS BREAKDOWN"
-                value={`${available}`}
+                value={available}
                 icon="activity"
                 gradientKey="emerald"
                 trendLabel={`Available • ${nearFull} Near Full • ${full} Full`}
             />
             <StatCard
                 title="CURRENT OCCUPANCY"
-                value={`${occupancyPercent}%`}
+                value={occupancyPercent}
                 icon="users"
                 gradientKey="amber"
                 trendLabel={`${totalOccupancy.toLocaleString()} people sheltered`}
