@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { DashboardLayout } from '@shared/components/layout';
+import { PageLoader } from '@shared/components/ui';
 
 /**
  * AlertsLoadingState Component
@@ -17,10 +18,7 @@ const AlertsLoadingState = ({ menuItems, activeAlertsCount, userName }) => {
       pageSubtitle="Alert Management System"
       notificationCount={activeAlertsCount}
     >
-      <div className="alerts-loading">
-        <div className="alerts-loading-spinner"></div>
-        <p className="alerts-loading-text">Loading alerts...</p>
-      </div>
+      <PageLoader message="Loading alerts..." />
     </DashboardLayout>
   );
 };

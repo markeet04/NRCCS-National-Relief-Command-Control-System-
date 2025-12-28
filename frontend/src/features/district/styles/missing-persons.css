@@ -1,0 +1,131 @@
+/**
+ * Missing Persons Table Styles
+ * Theme-aware table styling for missing persons management
+ */
+
+.table-container {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 0;
+}
+
+.missing-persons-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg);
+}
+
+.missing-persons-table thead {
+    background: var(--table-header-bg);
+    border-bottom: 1px solid var(--table-border);
+}
+
+.missing-persons-table th {
+    padding: 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.missing-persons-table tbody tr {
+    border-bottom: 1px solid var(--table-border);
+    transition: background-color 0.2s ease;
+}
+
+.missing-persons-table tbody tr:hover {
+    background: var(--table-row-hover-bg);
+}
+
+.missing-persons-table tbody tr.warning-row {
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.missing-persons-table td {
+    padding: 1rem;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.table-photo {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.no-photo {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: var(--table-header-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+.name-cell {
+    font-weight: 600;
+}
+
+.location-cell {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.days-warning {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+}
+
+.update-btn {
+    padding: 0.5rem 1rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.update-btn:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+.no-data {
+    padding: 3rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.no-data h3 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { X, Clock, Package, Stethoscope, Home, Droplets, MapPin } from 'lucide-react';
 import NdmaApiService from '@shared/services/NdmaApiService';
+import { PageLoader } from '@shared/components/ui';
 
 /**
  * Resource icon mapping
@@ -24,12 +25,12 @@ const RESOURCE_ICONS = {
  * Enhanced modal showing timeline/history of resource allocations
  * Styled to match the provincial HistoryModal with timeline view
  */
-const ResourceHistoryModal = ({ 
-  isOpen, 
-  onClose, 
+const ResourceHistoryModal = ({
+  isOpen,
+  onClose,
   resourceType,
   resourceLabel,
-  history = [] 
+  history = []
 }) => {
   const [loading, setLoading] = useState(true);
   const [historyData, setHistoryData] = useState([]);
@@ -42,7 +43,7 @@ const ResourceHistoryModal = ({
       try {
         setLoading(true);
         const data = await NdmaApiService.getAllocationHistory();
-        
+
         // Map resource types
         const typeMapping = {
           'food': ['food', 'Food Supplies', 'food supplies'],
@@ -60,7 +61,7 @@ const ResourceHistoryModal = ({
 
         // Get national resources to calculate remaining stock
         const nationalResources = await NdmaApiService.getNationalResources();
-        
+
         // Find the current resource stock
         const currentResource = nationalResources.find(r => {
           const rType = (r.type || r.resourceType || '').toLowerCase();
@@ -74,7 +75,7 @@ const ResourceHistoryModal = ({
           const previousAllocations = filtered.slice(0, index);
           const totalAllocated = previousAllocations.reduce((sum, alloc) => sum + (alloc.quantity || 0), 0);
           const remaining = currentResource ? (currentResource.quantity - currentResource.allocated - totalAllocated) : 0;
-          
+
           return {
             date: item.allocatedAt || item.createdAt,
             province: item.province?.name || item.provinceName || 'Unknown',
@@ -127,8 +128,8 @@ const ResourceHistoryModal = ({
               </p>
             </div>
           </div>
-          <button 
-            className="resource-history-close-btn" 
+          <button
+            className="resource-history-close-btn"
             onClick={onClose}
             aria-label="Close modal"
           >
@@ -139,17 +140,7 @@ const ResourceHistoryModal = ({
         {/* Body - Timeline View */}
         <div className="resource-history-body">
           {loading ? (
-            <div className="resource-history-empty">
-              <div style={{
-                width: '40px',
-                height: '40px',
-                border: '4px solid #e5e7eb',
-                borderTopColor: '#3b82f6',
-                borderRadius: '50%',
-                animation: 'spin 0.8s linear infinite',
-              }} />
-              <p className="resource-history-empty-text">Loading allocation history...</p>
-            </div>
+            <PageLoader message="Loading allocation history..." />
           ) : displayHistory && displayHistory.length > 0 ? (
             <div className="history-timeline">
               {displayHistory.map((entry, index) => (
@@ -200,7 +191,7 @@ const ResourceHistoryModal = ({
 
         {/* Footer */}
         <div className="resource-history-footer">
-          <button 
+          <button
             className="resource-history-close-footer-btn"
             onClick={onClose}
           >

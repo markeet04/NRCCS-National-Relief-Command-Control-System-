@@ -5,8 +5,10 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, Send, Layers, Droplets, Stethoscope, Loader2 } from 'lucide-react';
+import { Package, Send, Layers, Droplets, Stethoscope } from 'lucide-react';
 import { DashboardLayout } from '@shared/components/layout';
+import { StatCard } from '@shared/components/dashboard';
+import { PageLoader } from '@shared/components/ui';
 import { useAuth } from '../../../../app/providers/AuthProvider';
 import { DISTRICT_MENU_ITEMS } from '../../constants';
 import {
@@ -250,9 +252,7 @@ const ResourceDistribution = () => {
         userName={user?.name || 'District Officer'}
         notificationCount={districtStats?.pendingSOS || 0}
       >
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-        </div>
+        <PageLoader message="Loading resources..." />
       </DashboardLayout>
     );
   }
@@ -268,57 +268,38 @@ const ResourceDistribution = () => {
       userName={user?.name || 'District Officer'}
       notificationCount={districtStats?.pendingSOS || 0}
     >
-            <div className="district-resource-distribution" style={{ paddingTop: 0 }}>
-        <h1 className="page-title" style={{marginTop: 0, marginBottom: 16}}>Resource Distribution</h1>
-        {/* Stats Grid - NDMA Style */}
+      <div className="district-resource-distribution" style={{ paddingTop: 0 }}>
+        <h1 className="page-title" style={{ marginTop: 0, marginBottom: 16 }}>Resource Distribution</h1>
+        {/* Stats Grid - Now using shared StatCard with gradients */}
         <div className="district-stats-grid">
-          {/* Resource Types */}
-          <div className="stat-card stat-card--blue">
-            <div className="stat-card__header">
-              <span className="stat-card__title">Resource Types</span>
-              <div className="stat-card__icon stat-card__icon--blue">
-                <Layers size={20} />
-              </div>
-            </div>
-            <div className="stat-card__value">{stats.resourceTypes}</div>
-            <span className="stat-card__subtitle">different types</span>
-          </div>
-
-          {/* Total Quantity */}
-          <div className="stat-card stat-card--green">
-            <div className="stat-card__header">
-              <span className="stat-card__title">Total Quantity</span>
-              <div className="stat-card__icon stat-card__icon--green">
-                <Package size={20} />
-              </div>
-            </div>
-            <div className="stat-card__value">{formatQuantity(stats.totalQuantity)}</div>
-            <span className="stat-card__subtitle">units in stock</span>
-          </div>
-
-          {/* Distributed */}
-          <div className="stat-card stat-card--amber">
-            <div className="stat-card__header">
-              <span className="stat-card__title">Distributed</span>
-              <div className="stat-card__icon stat-card__icon--amber">
-                <Droplets size={20} />
-              </div>
-            </div>
-            <div className="stat-card__value">{stats.distributed}%</div>
-            <span className="stat-card__subtitle">to shelters</span>
-          </div>
-
-          {/* Available */}
-          <div className="stat-card stat-card--purple">
-            <div className="stat-card__header">
-              <span className="stat-card__title">Available</span>
-              <div className="stat-card__icon stat-card__icon--purple">
-                <Stethoscope size={20} />
-              </div>
-            </div>
-            <div className="stat-card__value">{formatQuantity(stats.available)}</div>
-            <span className="stat-card__subtitle">for allocation</span>
-          </div>
+          <StatCard
+            title="RESOURCE TYPES"
+            value={stats.resourceTypes}
+            icon="package"
+            gradientKey="blue"
+            trendLabel="different types"
+          />
+          <StatCard
+            title="TOTAL QUANTITY"
+            value={formatQuantity(stats.totalQuantity)}
+            icon="package"
+            gradientKey="emerald"
+            trendLabel="units in stock"
+          />
+          <StatCard
+            title="DISTRIBUTED"
+            value={`${stats.distributed}%`}
+            icon="truck"
+            gradientKey="amber"
+            trendLabel="to shelters"
+          />
+          <StatCard
+            title="AVAILABLE"
+            value={formatQuantity(stats.available)}
+            icon="package"
+            gradientKey="violet"
+            trendLabel="for allocation"
+          />
         </div>
 
         {/* Section Tabs */}

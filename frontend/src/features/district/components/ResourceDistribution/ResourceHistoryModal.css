@@ -16,15 +16,15 @@
 }
 
 .district-history-modal {
-  background: #0f1114;
-  border: 1px solid #1e2227;
+  background: var(--modal-bg);
+  border: 1px solid var(--modal-border);
   border-radius: 12px;
   width: 100%;
   max-width: 700px;
   max-height: 80vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--modal-shadow);
   overflow: hidden;
 }
 
@@ -34,8 +34,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #1e2227;
-  background: #0f1114;
+  border-bottom: 1px solid var(--modal-border);
+  background: var(--modal-bg);
 }
 
 .district-history-header-left {
@@ -69,7 +69,7 @@
 .district-history-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #f1f5f9;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -150,16 +150,16 @@
 
 .district-history-card-content {
   flex: 1;
-  background: #151719;
-  border: 1px solid #1e2227;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 12px;
   padding: 1rem 1.25rem;
   transition: all 0.2s ease;
 }
 
 .district-history-card-content:hover {
-  background: #1a1d21;
-  border-color: #2d3238;
+  background: var(--card-bg-hover);
+  border-color: var(--card-border);
   transform: translateX(4px);
 }
 
@@ -175,7 +175,7 @@
 .district-history-card-date {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #f1f5f9;
+  color: var(--text-primary);
 }
 
 .district-history-card-status {
@@ -217,7 +217,7 @@
 }
 
 .district-history-card-value {
-  color: #f1f5f9;
+  color: var(--text-primary);
   font-weight: 600;
   text-align: right;
 }
@@ -258,8 +258,8 @@
   align-items: center;
   justify-content: flex-end;
   padding: 1rem 1.5rem;
-  border-top: 1px solid #1e2227;
-  background: #0f1114;
+  border-top: 1px solid var(--modal-border);
+  background: var(--modal-bg);
 }
 
 .district-history-close-footer-btn {
@@ -285,7 +285,7 @@
   .district-history-modal {
     max-height: 90vh;
   }
-  
+
   .district-history-footer {
     flex-direction: column;
     gap: 0.75rem;

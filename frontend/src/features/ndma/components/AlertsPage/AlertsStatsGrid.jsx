@@ -1,25 +1,49 @@
 import PropTypes from 'prop-types';
+import { StatCard } from '@shared/components/dashboard';
 
 /**
  * AlertsStatsGrid Component
  * Displays alert statistics in a 4-column grid
- * Uses CSS classes from nationwide-alerts.css for styling
+ * Now using shared StatCard component with gradient styling
  */
 const AlertsStatsGrid = ({ stats }) => {
   const statCards = [
-    { key: 'critical', label: 'Critical', value: stats.critical },
-    { key: 'high', label: 'High', value: stats.high },
-    { key: 'medium', label: 'Medium', value: stats.medium },
-    { key: 'resolved', label: 'Resolved Today', value: stats.resolvedToday },
+    {
+      title: 'CRITICAL',
+      value: stats.critical,
+      gradientKey: 'rose',
+      icon: 'alert'
+    },
+    {
+      title: 'HIGH',
+      value: stats.high,
+      gradientKey: 'amber',
+      icon: 'alert'
+    },
+    {
+      title: 'MEDIUM',
+      value: stats.medium,
+      gradientKey: 'blue',
+      icon: 'bell'
+    },
+    {
+      title: 'RESOLVED TODAY',
+      value: stats.resolvedToday,
+      gradientKey: 'emerald',
+      icon: 'shield'
+    },
   ];
 
   return (
     <div className="alerts-stats-grid">
-      {statCards.map((card) => (
-        <div key={card.key} className={`alerts-stat-card ${card.key}`}>
-          <div className={`alerts-stat-label ${card.key}`}>{card.label}</div>
-          <div className={`alerts-stat-value ${card.key}`}>{card.value}</div>
-        </div>
+      {statCards.map((card, index) => (
+        <StatCard
+          key={index}
+          title={card.title}
+          value={card.value}
+          icon={card.icon}
+          gradientKey={card.gradientKey}
+        />
       ))}
     </div>
   );

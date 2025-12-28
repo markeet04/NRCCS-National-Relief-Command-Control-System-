@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
-import { Home, Loader2 } from 'lucide-react';
+import { Home } from 'lucide-react';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { getMenuItemsByRole } from '@shared/constants/dashboardConfig';
 import { useAuth } from '@shared/hooks';
+import { PageLoader } from '@shared/components/ui';
 import {
   ShelterSearchBar,
   SheltersList,
@@ -63,16 +64,7 @@ const ShelterManagement = () => {
       <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary, minHeight: 'calc(100vh - 200px)' }}>
         {/* Loading State */}
         {loading && (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '400px',
-            color: colors.textSecondary
-          }}>
-            <Loader2 size={40} className="animate-spin" style={{ marginRight: '12px' }} />
-            <span>Loading shelters...</span>
-          </div>
+          <PageLoader message="Loading shelters..." />
         )}
 
         {/* Error State */}

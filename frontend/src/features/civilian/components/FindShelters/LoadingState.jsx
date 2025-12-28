@@ -1,10 +1,9 @@
+import PageLoader from '@shared/components/ui/PageLoader';
+
 const LoadingState = () => {
   return (
     <div className="shelters-page">
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>Loading shelters...</p>
-      </div>
+      <PageLoader message="Loading shelters..." />
     </div>
   );
 };

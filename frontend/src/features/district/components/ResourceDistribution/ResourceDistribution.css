@@ -17,8 +17,8 @@
     min-width: 0;
     min-height: 120px;
     box-sizing: border-box;
-    background-color: #0f1114;
-    border: 1px solid #1e2227;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-left: 3px solid #3b82f6;
     border-radius: 12px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -97,7 +97,7 @@
 .district-stat-value {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-primary);
     line-height: 1;
 }
 
@@ -136,8 +136,8 @@
    DISTRICT STOCK CARD (PDMA/NDMA Style with Glow)
    ============================================================================ */
 .district-stock-card {
-    background-color: #0f1114;
-    border: 1px solid #1e2227;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-radius: 12px;
     padding: 1.25rem;
     display: flex;
@@ -239,7 +239,7 @@
 .district-stock-title {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--text-primary);
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
@@ -303,7 +303,7 @@
 .district-stock-percentage {
     font-size: 1.75rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-primary);
     line-height: 1;
 }
 
@@ -320,7 +320,7 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 0.25rem;
     padding: 0.5rem;
-    background-color: #151719;
+    background-color: var(--table-header-bg);
     border-radius: 8px;
     overflow: hidden;
 }
@@ -345,7 +345,7 @@
 .district-stock-stat-value {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -383,7 +383,7 @@
 }
 
 .district-stock-allocate-btn:hover:not(:disabled) {
-    color: #ffffff;
+    color: var(--text-primary);
     background-color: rgba(59, 130, 246, 0.25);
     border-color: #3b82f6;
 }
@@ -413,7 +413,7 @@
 }
 
 .district-stock-history-btn:hover {
-    color: #ffffff;
+    color: var(--text-primary);
     background-color: rgba(148, 163, 184, 0.2);
     border-color: rgba(148, 163, 184, 0.4);
 }
@@ -439,7 +439,7 @@
     background: none;
     border: none;
     outline: none;
-    color: #94a3b8;
+    color: var(--text-secondary);
     font-size: 1rem;
     font-weight: 500;
     padding: 0.75rem 1.5rem 0.5rem 1.5rem;
@@ -451,7 +451,7 @@
 
 .district-tab-btn:hover {
     color: #4caf50;
-    background: #181b1f;
+    background: var(--table-header-bg);
 }
 
 .district-tab-btn--active {
@@ -487,8 +487,8 @@
     align-items: center;
     gap: 1rem;
     padding: 1.25rem;
-    background-color: #0f1114;
-    border: 1px solid #1e2227;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-radius: 12px;
     transition: all 0.3s ease;
 }
@@ -528,8 +528,8 @@
     justify-content: center;
     gap: 1rem;
     padding: 3rem;
-    background: #0f1114;
-    border: 1px dashed #1e2227;
+    background: var(--card-bg);
+    border: 1px dashed var(--card-border);
     border-radius: 12px;
     text-align: center;
 }
@@ -550,8 +550,8 @@
    ALLOCATE SECTION
    ============================================================================ */
 .district-allocate-section {
-    background: #0f1114;
-    border: 1px solid #1e2227;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-radius: 12px;
     padding: 1.5rem;
 }
@@ -563,7 +563,7 @@
 .district-allocate-header h3 {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--text-primary);
     margin: 0 0 0.5rem 0;
 }
 
@@ -584,8 +584,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 1rem;
-    background: #151719;
-    border: 1px solid #1e2227;
+    background: var(--table-header-bg);
+    border: 1px solid var(--card-border);
     border-radius: 8px;
     transition: all 0.2s ease;
 }
@@ -598,7 +598,7 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    color: #ffffff;
+    color: var(--text-primary);
     font-size: 0.875rem;
 }
 
@@ -653,8 +653,8 @@
 }
 
 .district-history-modal {
-    background: #0f1114;
-    border: 1px solid #1e2227;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-radius: 12px;
     width: 100%;
     max-width: 500px;
@@ -675,7 +675,7 @@
 .district-history-header h3 {
     font-size: 1rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--text-primary);
     margin: 0;
 }
 
@@ -695,7 +695,7 @@
 }
 
 .district-history-close:hover {
-    color: #ffffff;
+    color: var(--text-primary);
     background: rgba(255, 255, 255, 0.1);
 }
 
@@ -717,7 +717,7 @@
     align-items: center;
     gap: 0.25rem;
     padding: 1rem;
-    background: #151719;
+    background: var(--table-header-bg);
     border-radius: 8px;
 }
 
@@ -730,11 +730,11 @@
 .district-history-stat .value {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 .district-history-list {
-    background: #151719;
+    background: var(--table-header-bg);
     border-radius: 8px;
     padding: 1rem;
 }

@@ -7,8 +7,9 @@ import AlertForm from '@shared/components/DemoModal/AlertForm';
 import ResourceForm from '@shared/components/DemoModal/ResourceForm';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
-import { Shield, Loader2 } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import { useAuth } from '@shared/hooks';
+import { PageLoader } from '@shared/components/ui';
 import {
   getMenuItemsByRole,
   ROLE_CONFIG
@@ -96,16 +97,7 @@ const PDMADashboard = () => {
       <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary }}>
         {/* Loading State */}
         {loading && (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '400px',
-            color: colors.textSecondary
-          }}>
-            <Loader2 size={40} className="animate-spin" style={{ marginRight: '12px' }} />
-            <span>Loading dashboard data...</span>
-          </div>
+          <PageLoader message="Loading dashboard data..." />
         )}
 
         {/* Error State */}

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 /**
  * Footer Component
  * Bottom footer bar with copyright information
+ * Uses margin-top: auto to push to bottom when parent uses display: flex
  */
 const Footer = ({ year = new Date().getFullYear() }) => {
   return (
@@ -14,7 +15,7 @@ const Footer = ({ year = new Date().getFullYear() }) => {
         textAlign: 'center',
         color: 'var(--text-muted)',
         fontSize: '0.85rem',
-        marginTop: '40px'
+        marginTop: 'auto'
       }}
     >
       <p style={{ margin: 0, lineHeight: 1.5 }}>

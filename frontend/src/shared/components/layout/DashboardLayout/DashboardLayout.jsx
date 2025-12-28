@@ -124,7 +124,7 @@ const DashboardLayout = ({
         />
 
         {/* Page Content */}
-        <main style={{ padding: 'var(--content-padding-y) var(--content-padding-x)' }}>
+        <main style={{ padding: 'var(--content-padding-y) var(--content-padding-x)', flex: 1 }}>
           {children}
         </main>
 

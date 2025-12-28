@@ -1,0 +1,25 @@
+/* Loading Spinner Styles */
+.loading-spinner-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    min-height: 200px;
+}
+
+.loading-spinner-full-page {
+    min-height: calc(100vh - 180px);
+}
+
+.loading-spinner-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.loading-spinner-message {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+}

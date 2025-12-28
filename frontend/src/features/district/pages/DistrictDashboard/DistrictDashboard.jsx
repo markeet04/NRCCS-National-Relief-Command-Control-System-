@@ -4,12 +4,14 @@ import { useAuth } from '../../../../app/providers/AuthProvider';
 
 // Shared Layout
 import { DashboardLayout } from '../../../../shared/components/layout';
+import { StatCard } from '@shared/components/dashboard';
+import { PageLoader } from '@shared/components/ui';
 import '@styles/css/main.css';
 
 // District-specific imports - hooks, constants, components
 import { useDistrictData, useRescueTeams } from '../../hooks';
 import { DISTRICT_MENU_ITEMS, STAT_GRADIENT_KEYS } from '../../constants';
-import { StatCard, WeatherCard, AlertsList, LiveMapCard, SOSTable, DistrictMap } from '../../components';
+import { WeatherCard, AlertsList, LiveMapCard, SOSTable, DistrictMap } from '../../components';
 
 // Icons
 import { Users, CheckCircle, Clock, AlertTriangle, Radio, Home, Package, Maximize2, Minimize2, X } from 'lucide-react';
@@ -131,9 +133,7 @@ const DistrictDashboard = () => {
       >
         {/* Loading State */}
         {dashboardLoading && (
-          <div className="text-center p-10 text-muted">
-            Loading dashboard data...
-          </div>
+          <PageLoader message="Loading dashboard data..." />
         )}
 
         {!dashboardLoading && (

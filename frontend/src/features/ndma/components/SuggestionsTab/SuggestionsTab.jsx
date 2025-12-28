@@ -17,6 +17,7 @@ import ApproveModal from './ApproveModal';
 import RejectModal from './RejectModal';
 import StatsCards from './StatsCards';
 import Dropdown from '../../../../shared/components/ui/Dropdown';
+import { PageLoader } from '@shared/components/ui';
 import { useSettings } from '@app/providers/ThemeProvider';
 
 const RESOURCE_ICONS = {
@@ -129,12 +130,7 @@ const SuggestionsTab = () => {
 
       {/* Loading State */}
       {loading && (
-        <div className="suggestions-loading">
-          <div className="suggestions-spinner"
-            style={{ borderColor: 'var(--primary)' }}>
-          </div>
-          <p style={{ color: 'var(--text-muted)' }}>Loading suggestions...</p>
-        </div>
+        <PageLoader message="Loading suggestions..." />
       )}
 
       {/* Empty State */}

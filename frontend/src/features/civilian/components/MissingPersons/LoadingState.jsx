@@ -1,9 +1,8 @@
+import PageLoader from '@shared/components/ui/PageLoader';
+
 const LoadingState = () => {
   return (
-    <div className="loading-container">
-      <div className="loading-spinner"></div>
-      <p>Loading records...</p>
-    </div>
+    <PageLoader message="Loading records..." />
   );
 };
 

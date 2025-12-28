@@ -12,7 +12,7 @@ import { PROVINCES_DATA } from '../constants/userManagementConstants';
 import SuperAdminService from '../services';
 import { useNotification } from '@shared/hooks';
 import ToastContainer from '@shared/components/ui/ToastContainer/ToastContainer';
-import { Loader2 } from 'lucide-react';
+import { PageLoader } from '@shared/components/ui';
 import '../styles/superadmin-responsive.css';
 
 /**
@@ -360,16 +360,7 @@ const SuperAdminDashboard = () => {
     >
       <div className="superadmin-container">
         {loading ? (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '400px',
-            color: 'var(--text-secondary)'
-          }}>
-            <Loader2 size={40} className="animate-spin" style={{ marginRight: '12px' }} />
-            <span>Loading dashboard data...</span>
-          </div>
+          <PageLoader message="Loading dashboard data..." />
         ) : (
           <>
             {/* Stats Grid - Only 3 cards now */}

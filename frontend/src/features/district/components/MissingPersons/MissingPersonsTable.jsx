@@ -2,7 +2,8 @@
  * MissingPersonsTable Component
  * Displays list of missing persons with status and actions
  */
-import { ImageOff, Loader } from 'lucide-react';
+import { ImageOff } from 'lucide-react';
+import { PageLoader } from '@shared/components/ui';
 import '@styles/css/main.css';
 
 const MissingPersonsTable = ({
@@ -16,10 +17,7 @@ const MissingPersonsTable = ({
 }) => {
     if (loading) {
         return (
-            <div className="loading-state">
-                <Loader className="animate-spin" size={32} color={colors.primary} />
-                <p style={{ marginTop: '16px', color: colors.textSecondary }}>Loading missing persons records...</p>
-            </div>
+            <PageLoader message="Loading missing persons records..." />
         );
     }
 

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Home, Package, Droplets, Stethoscope, Tent, Users, MapPin, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { PageLoader } from '@shared/components/ui';
 import './ShelterResourcesTab.css';
 
 /**
@@ -44,10 +45,10 @@ const getShelterStatusConfig = (status) => {
  */
 const ShelterResourceCard = ({ shelter, expanded, onToggle }) => {
   const [animatedValues, setAnimatedValues] = useState({});
-  
+
   const shelterStatus = getShelterStatusConfig(shelter.status);
-  const occupancyPercent = shelter.capacity > 0 
-    ? Math.round((shelter.occupancy / shelter.capacity) * 100) 
+  const occupancyPercent = shelter.capacity > 0
+    ? Math.round((shelter.occupancy / shelter.capacity) * 100)
     : 0;
 
   // Calculate overall supply level
@@ -73,12 +74,12 @@ const ShelterResourceCard = ({ shelter, expanded, onToggle }) => {
   useEffect(() => {
     const duration = 1200;
     const startTime = Date.now();
-    
+
     const animate = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
-      
+
       setAnimatedValues({
         food: Math.round((shelter.supplyFood || 0) * eased),
         water: Math.round((shelter.supplyWater || 0) * eased),
@@ -86,12 +87,12 @@ const ShelterResourceCard = ({ shelter, expanded, onToggle }) => {
         tents: Math.round((shelter.supplyTents || 0) * eased),
         overall: Math.round(overallSupply * eased),
       });
-      
+
       if (progress < 1) {
         requestAnimationFrame(animate);
       }
     };
-    
+
     requestAnimationFrame(animate);
   }, [shelter, overallSupply]);
 
@@ -142,7 +143,7 @@ const ShelterResourceCard = ({ shelter, expanded, onToggle }) => {
               </span>
             </div>
             <div className="shelter-occupancy-bar">
-              <div 
+              <div
                 className={`shelter-occupancy-progress ${occupancyPercent >= 90 ? 'high' : occupancyPercent >= 70 ? 'medium' : 'low'}`}
                 style={{ width: `${occupancyPercent}%` }}
               />
@@ -155,7 +156,7 @@ const ShelterResourceCard = ({ shelter, expanded, onToggle }) => {
               const value = shelter[config.key] || 0;
               const status = getSupplyStatus(value);
               const IconComponent = config.icon;
-              
+
               return (
                 <div key={key} className={`shelter-resource-item ${status.class}`}>
                   <div className="shelter-resource-item-header">
@@ -201,7 +202,7 @@ const ShelterResourceCard = ({ shelter, expanded, onToggle }) => {
             <div className="shelter-manager-section">
               <span className="shelter-manager-label">Manager:</span>
               <span className="shelter-manager-value">
-                {shelter.managerName || 'N/A'} 
+                {shelter.managerName || 'N/A'}
                 {shelter.managerPhone && ` • ${shelter.managerPhone}`}
               </span>
             </div>
@@ -274,9 +275,9 @@ const ShelterResourcesTab = ({ shelters, loading, onRefresh }) => {
       : 0;
     const avgSupply = shelters.length > 0
       ? Math.round(shelters.reduce((sum, s) => {
-          const supplies = [s.supplyFood || 0, s.supplyWater || 0, s.supplyMedical || 0, s.supplyTents || 0];
-          return sum + (supplies.reduce((a, b) => a + b, 0) / 4);
-        }, 0) / shelters.length)
+        const supplies = [s.supplyFood || 0, s.supplyWater || 0, s.supplyMedical || 0, s.supplyTents || 0];
+        return sum + (supplies.reduce((a, b) => a + b, 0) / 4);
+      }, 0) / shelters.length)
       : 0;
     const critical = shelters.filter(s => {
       const avg = ((s.supplyFood || 0) + (s.supplyWater || 0) + (s.supplyMedical || 0) + (s.supplyTents || 0)) / 4;
@@ -288,10 +289,7 @@ const ShelterResourcesTab = ({ shelters, loading, onRefresh }) => {
 
   if (loading) {
     return (
-      <div className="shelter-resources-loading">
-        <RefreshCw className="w-6 h-6 animate-spin" />
-        <span>Loading shelter resources...</span>
-      </div>
+      <PageLoader message="Loading shelter resources..." />
     );
   }
 
@@ -372,7 +370,7 @@ const ShelterResourcesTab = ({ shelters, loading, onRefresh }) => {
             <Home className="w-12 h-12" />
             <h3>No Shelters Found</h3>
             <p>
-              {filterStatus === 'all' 
+              {filterStatus === 'all'
                 ? 'No shelters are registered in your district yet.'
                 : `No shelters with status "${filterStatus}" found.`}
             </p>
@@ -406,7 +404,7 @@ ShelterResourcesTab.propTypes = {
 ShelterResourcesTab.defaultProps = {
   shelters: [],
   loading: false,
-  onRefresh: () => {},
+  onRefresh: () => { },
 };
 
 export default ShelterResourcesTab;

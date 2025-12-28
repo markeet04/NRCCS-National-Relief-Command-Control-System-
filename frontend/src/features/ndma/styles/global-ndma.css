@@ -163,6 +163,9 @@ body[data-theme="light"] {
 .sidebar-content {
   margin-left: 260px;
   transition: margin-left 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 .sidebar-content.sidebar-content-collapsed {

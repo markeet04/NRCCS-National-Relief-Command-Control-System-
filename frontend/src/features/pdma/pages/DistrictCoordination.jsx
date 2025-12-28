@@ -5,7 +5,8 @@ import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
 import { useAuth } from '@shared/hooks';
-import { MapPin, Loader2 } from 'lucide-react';
+import { PageLoader } from '@shared/components/ui';
+import { MapPin } from 'lucide-react';
 import {
   DistrictSearchBar,
   DistrictsList,
@@ -65,16 +66,7 @@ const DistrictCoordination = () => {
       <div className="pdma-container" style={{ background: colors.bgPrimary, color: colors.textPrimary, minHeight: 'calc(100vh - 200px)' }}>
         {/* Loading State */}
         {loading && (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '400px',
-            color: colors.textSecondary
-          }}>
-            <Loader2 size={40} className="animate-spin" style={{ marginRight: '12px' }} />
-            <span>Loading districts...</span>
-          </div>
+          <PageLoader message="Loading districts..." />
         )}
 
         {/* Error State */}

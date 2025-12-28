@@ -7,6 +7,7 @@ import { useSettings } from '@app/providers/ThemeProvider';
 import { getThemeColors } from '@shared/utils/themeColors';
 import { pdmaApi } from '../../../services';
 import { useNotification } from '@shared/hooks';
+import { PageLoader } from '@shared/components/ui';
 import './DistrictRequestsSection.css';
 
 const getResourceIcon = (name) => {
@@ -102,10 +103,7 @@ const DistrictRequestsSection = () => {
                 <div className="section-header" style={{ borderBottom: `1px solid ${colors.border}` }}>
                     <h3 style={{ color: colors.textPrimary }}>District Resource Requests</h3>
                 </div>
-                <div className="loading-state" style={{ color: colors.mutedText }}>
-                    <RefreshCw className="animate-spin" size={24} />
-                    <span>Loading requests...</span>
-                </div>
+                <PageLoader message="Loading requests..." />
             </div>
         );
     }
@@ -236,7 +234,7 @@ const DistrictRequestsSection = () => {
                                             {request.status}
                                         </span>
                                     </div>
-                                    
+
                                     {/* Show requested items for approved requests */}
                                     {request.status === 'approved' && request.requestedItems && (
                                         <div className="request-items" style={{ marginTop: '8px', opacity: 0.9 }}>
@@ -256,7 +254,7 @@ const DistrictRequestsSection = () => {
                                             })}
                                         </div>
                                     )}
-                                    
+
                                     {/* Show processed by info */}
                                     {request.processedByName && (
                                         <p className="request-reason" style={{ color: colors.mutedText, fontSize: '0.75rem', marginTop: '8px' }}>

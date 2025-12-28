@@ -20,6 +20,7 @@ import {
     StatusUpdateModal
 } from '../../components/MissingPersons';
 import '@styles/css/main.css';
+import '../../styles/missing-persons.css';
 import './MissingPersons.css';
 
 const MissingPersons = () => {

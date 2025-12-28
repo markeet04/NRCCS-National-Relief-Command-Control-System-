@@ -4,7 +4,8 @@
  */
 
 // Dashboard Components (from DistrictDashboard folder)
-export { StatCard, WeatherCard, AlertsList, LiveMapCard, SOSTable } from './DistrictDashboard';
+// StatCard removed - now using shared component from @shared/components/dashboard
+export { WeatherCard, AlertsList, LiveMapCard, SOSTable } from './DistrictDashboard';
 
 // Map Component
 export { default as DistrictMap } from './DistrictMap';
@@ -19,5 +20,4 @@ export { default as ActionButton } from './shared/ActionButton';
 export { default as FormField } from './shared/FormField';
 export { default as EntityCard } from './shared/EntityCard';
 export { default as ProgressBar } from './shared/ProgressBar';
-
 

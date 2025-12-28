@@ -16,7 +16,7 @@
 .district-allocate-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #f1f5f9;
+  color: var(--text-primary);
   margin: 0 0 0.25rem 0;
 }
 
@@ -40,8 +40,8 @@
 
 /* Form Card */
 .district-allocate-form-card {
-  background: #0f1114;
-  border: 1px solid #1e2227;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 12px;
   padding: 1.75rem;
 }
@@ -71,10 +71,10 @@
 .district-allocate-form-select {
   width: 100%;
   padding: 0.75rem 2.5rem 0.75rem 1rem;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
   border-radius: 10px;
-  color: #f1f5f9 !important;
+  color: var(--text-primary) !important;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -95,8 +95,8 @@
 }
 
 .district-allocate-form-select option {
-  background: #1a1a2e;
-  color: #f1f5f9;
+  background: var(--input-bg);
+  color: var(--text-primary);
   padding: 10px 12px;
 }
 
@@ -122,17 +122,17 @@
   transition: transform 0.2s ease;
 }
 
-.district-allocate-form-select:focus + .district-allocate-select-icon {
+.district-allocate-form-select:focus+.district-allocate-select-icon {
   transform: translateY(-50%) rotate(180deg);
 }
 
 .district-allocate-form-input {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: #141414 !important;
-  border: 1px solid #3d3d3d !important;
+  background: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
   border-radius: 8px;
-  color: #f1f5f9 !important;
+  color: var(--text-primary) !important;
   font-size: 0.9rem;
   transition: all 0.2s ease;
 }
@@ -150,10 +150,10 @@
 .district-allocate-form-textarea {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: #141414 !important;
-  border: 1px solid #3d3d3d !important;
+  background: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
   border-radius: 8px;
-  color: #f1f5f9 !important;
+  color: var(--text-primary) !important;
   font-size: 0.9rem;
   resize: vertical;
   min-height: 80px;
@@ -182,8 +182,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: #141414;
-  border: 1px solid #3d3d3d;
+  background: var(--table-header-bg);
+  border: 1px solid var(--card-border);
   border-radius: 8px;
   color: #94a3b8;
   font-size: 0.85rem;
@@ -313,8 +313,8 @@
 
 /* Stats Panel */
 .district-allocate-stats-panel {
-  background-color: #0f1114;
-  border: 1px solid #1e2227;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 12px;
   padding: 1.5rem;
   display: flex;
@@ -325,7 +325,7 @@
 .district-allocate-stats-title {
   font-size: 1rem;
   font-weight: 600;
-  color: #f1f5f9;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -391,7 +391,7 @@
 .district-allocate-recent-title {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #f1f5f9;
+  color: var(--text-primary);
   margin: 0 0 0.75rem 0;
 }
 
@@ -413,7 +413,7 @@
 }
 
 .district-allocate-recent-shelter {
-  color: #f1f5f9;
+  color: var(--text-primary);
   font-weight: 500;
   flex-shrink: 0;
 }
@@ -450,9 +450,9 @@
 .district-allocate-form-card input,
 .district-allocate-form-card select,
 .district-allocate-form-card textarea {
-  background: #141414 !important;
-  border-color: #3d3d3d !important;
-  color: #f1f5f9 !important;
+  background: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: var(--text-primary) !important;
 }
 
 .district-allocate-form-card input:focus,
@@ -470,8 +470,8 @@
 
 /* Select option styling */
 .district-allocate-form-card select option {
-  background: #141414 !important;
-  color: #f1f5f9 !important;
+  background: var(--input-bg) !important;
+  color: var(--text-primary) !important;
 }
 
 /* Ensure no blue in any child elements */

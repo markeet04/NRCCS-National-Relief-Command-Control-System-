@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
+import { PageLoader } from '@shared/components/ui';
 import SuperAdminService from '../services';
 import { useNotification } from '@shared/hooks';
 
@@ -44,9 +45,9 @@ const AuditLogs = () => {
         <h2 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '24px' }}>
           Audit Logs
         </h2>
-        
+
         {loading ? (
-          <div>Loading audit logs...</div>
+          <PageLoader message="Loading audit logs..." />
         ) : (
           <div style={{ background: '#1e293b', borderRadius: '12px', padding: '24px' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -86,7 +87,7 @@ const AuditLogs = () => {
                 )}
               </tbody>
             </table>
-            
+
             <div style={{ marginTop: '24px', display: 'flex', gap: '12px', justifyContent: 'center' }}>
               <button
                 onClick={() => setOffset(Math.max(0, offset - limit))}
