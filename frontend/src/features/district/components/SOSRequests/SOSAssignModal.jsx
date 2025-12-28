@@ -57,6 +57,9 @@ const SOSAssignModal = ({ request, teams, onAssign, onClose, colors: propColors,
           borderRadius: '20px',
           maxWidth: '600px',
           width: '100%',
+          maxHeight: '80vh',
+          display: 'flex',
+          flexDirection: 'column',
           animation: 'slideUp 0.3s ease'
         }}
         onClick={(e) => e.stopPropagation()}
@@ -99,7 +102,7 @@ const SOSAssignModal = ({ request, teams, onAssign, onClose, colors: propColors,
         </div>
 
         {/* Content */}
-        <div style={{ padding: '24px' }}>
+        <div style={{ padding: '24px', flex: 1, overflowY: 'auto' }}>
           {/* SOS Request Info */}
           <div style={{
             padding: '16px',
@@ -162,7 +165,7 @@ const SOSAssignModal = ({ request, teams, onAssign, onClose, colors: propColors,
                 </p>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '300px', overflowY: 'auto', paddingRight: '8px' }}>
                 {availableTeams.map(team => (
                   <div
                     key={team.id}

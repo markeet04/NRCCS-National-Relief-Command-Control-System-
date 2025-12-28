@@ -13,11 +13,11 @@ import { Modal } from '../shared';
 import { MapPin, Loader2, AlertCircle } from 'lucide-react';
 import '@styles/css/main.css';
 import './ShelterManagement.css';
-import { 
-    validateShelterForm, 
-    validatePhone, 
+import {
+    validateShelterForm,
+    validatePhone,
     validateString,
-    FIELD_LIMITS 
+    FIELD_LIMITS
 } from '@shared/utils/validationSchema';
 
 // ArcGIS Core Modules
@@ -52,7 +52,7 @@ const ShelterFormModal = ({
     const { theme } = useSettings();
     const { user } = useAuth();
     const isLight = theme === 'light';
-    
+
     // Get district config based on logged-in user
     const districtName = user?.district || user?.districtName || 'Dadu';
     const districtConfig = getDistrictConfig(districtName);
@@ -83,7 +83,7 @@ const ShelterFormModal = ({
     // Create district boundary polygon from bounds
     const createDistrictBoundary = useCallback(() => {
         if (!districtConfig?.bounds) return null;
-        
+
         const { minLon, minLat, maxLon, maxLat } = districtConfig.bounds;
         return new Polygon({
             rings: [[
@@ -111,7 +111,7 @@ const ShelterFormModal = ({
             const result = await locator.locationToAddress(GEOCODE_URL, {
                 location: new Point({ longitude: lng, latitude: lat })
             });
-            
+
             if (result?.address) {
                 setFormData(prev => ({
                     ...prev,
@@ -167,9 +167,10 @@ const ShelterFormModal = ({
         // Create graphics layer
         graphicsLayerRef.current = new GraphicsLayer({ title: 'Shelter Location' });
 
-        // Create map
+        // Create map - use simple basemaps that don't require API key
+        const simpleBasemap = theme === 'light' ? 'streets-vector' : 'dark-gray-vector';
         const map = new Map({
-            basemap: getBasemapByTheme(theme),
+            basemap: simpleBasemap,
             layers: [graphicsLayerRef.current]
         });
 
@@ -194,7 +195,7 @@ const ShelterFormModal = ({
         // Add district boundary visualization
         view.when(() => {
             setMapReady(true);
-            
+
             // Draw district boundary
             const boundary = createDistrictBoundary();
             if (boundary) {
@@ -232,7 +233,7 @@ const ShelterFormModal = ({
             }
 
             setLocationError('');
-            
+
             // Update form data
             setFormData(prev => ({
                 ...prev,
@@ -259,15 +260,19 @@ const ShelterFormModal = ({
     // Update basemap on theme change
     useEffect(() => {
         if (viewRef.current?.map) {
-            viewRef.current.map.basemap = getBasemapByTheme(theme);
+            // Use simple basemaps that don't require API key
+            viewRef.current.map.basemap = theme === 'light' ? 'streets-vector' : 'dark-gray-vector';
         }
     }, [theme]);
 
     // Load edit data when editing
     useEffect(() => {
         if (editData) {
-            const lat = editData.coordinates?.lat || editData.lat || defaultCenter[1];
-            const lng = editData.coordinates?.lng || editData.lng || defaultCenter[0];
+            // Ensure lat/lng are parsed as numbers (backend might send strings)
+            const rawLat = editData.coordinates?.lat || editData.lat || defaultCenter[1];
+            const rawLng = editData.coordinates?.lng || editData.lng || defaultCenter[0];
+            const lat = typeof rawLat === 'number' ? rawLat : parseFloat(rawLat) || defaultCenter[1];
+            const lng = typeof rawLng === 'number' ? rawLng : parseFloat(rawLng) || defaultCenter[0];
             setFormData({
                 name: editData.name || '',
                 address: editData.address || '',
@@ -278,7 +283,7 @@ const ShelterFormModal = ({
                 lat: lat,
                 lng: lng
             });
-            
+
             // Update marker on map after it's ready
             if (mapReady) {
                 updateMarkerOnMap(lng, lat);
@@ -305,7 +310,7 @@ const ShelterFormModal = ({
             ...prev,
             [name]: name === 'capacity' || name === 'occupancy' ? Number(value) : value
         }));
-        
+
         // Real-time validation for specific fields
         if (name === 'contactPhone' && value) {
             const phoneResult = validatePhone(value, false);
@@ -314,9 +319,9 @@ const ShelterFormModal = ({
                 contactPhone: phoneResult.valid ? undefined : phoneResult.message
             }));
         } else if (name === 'name') {
-            const nameResult = validateString(value, 'Shelter name', { 
-                minLength: 1, 
-                maxLength: FIELD_LIMITS.shelterName.maxLength 
+            const nameResult = validateString(value, 'Shelter name', {
+                minLength: 1,
+                maxLength: FIELD_LIMITS.shelterName.maxLength
             });
             setErrors(prev => ({
                 ...prev,
@@ -327,16 +332,16 @@ const ShelterFormModal = ({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
+
         // Validate location is within bounds
         if (!isWithinDistrictBounds(formData.lng, formData.lat)) {
             setLocationError(`Shelter must be located within ${districtConfig?.name || 'district'} boundaries`);
             return;
         }
-        
+
         // Validate entire form before submit
         const { isValid, errors: validationErrors } = validateShelterForm(formData);
-        
+
         // Also validate phone if provided
         if (formData.contactPhone) {
             const phoneResult = validatePhone(formData.contactPhone, false);
@@ -344,12 +349,12 @@ const ShelterFormModal = ({
                 validationErrors.contactPhone = phoneResult.message;
             }
         }
-        
+
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;
         }
-        
+
         onSubmit({
             ...formData,
             id: editData?.id,
@@ -387,7 +392,7 @@ const ShelterFormModal = ({
                     </div>
                     <div className="form-field">
                         <label className="form-field__label">
-                            Address 
+                            Address
                             {isGeocoding && <Loader2 size={14} className="ml-2 animate-spin inline" />}
                         </label>
                         <input
@@ -409,26 +414,26 @@ const ShelterFormModal = ({
                         Location in {districtConfig?.name || 'District'}
                         <span className="text-xs ml-2 text-secondary">(Click on map to set shelter location)</span>
                     </label>
-                    
+
                     {locationError && (
-                        <div className="flex items-center gap-2 p-2 mb-2 rounded-lg" style={{ 
-                            background: 'rgba(239, 68, 68, 0.1)', 
-                            border: '1px solid rgba(239, 68, 68, 0.3)' 
+                        <div className="flex items-center gap-2 p-2 mb-2 rounded-lg" style={{
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.3)'
                         }}>
                             <AlertCircle size={16} color="#ef4444" />
                             <span className="text-sm" style={{ color: '#ef4444' }}>{locationError}</span>
                         </div>
                     )}
-                    
-                    <div className="shelter-form__map-container" style={{ 
-                        borderRadius: '12px', 
+
+                    <div className="shelter-form__map-container" style={{
+                        borderRadius: '12px',
                         overflow: 'hidden',
                         border: locationError ? '2px solid #ef4444' : '1px solid var(--border-color)'
                     }}>
-                        <div 
-                            ref={mapRef} 
-                            style={{ 
-                                height: '100%', 
+                        <div
+                            ref={mapRef}
+                            style={{
+                                height: '100%',
                                 width: '100%',
                                 background: isLight ? '#f3f4f6' : '#1f2937'
                             }}
@@ -441,10 +446,10 @@ const ShelterFormModal = ({
                             </div>
                         )}
                     </div>
-                    
+
                     <div className="shelter-form__coords">
-                        <span>Latitude: <strong style={{ color: '#10b981' }}>{formData.lat?.toFixed(6)}</strong></span>
-                        <span>Longitude: <strong style={{ color: '#10b981' }}>{formData.lng?.toFixed(6)}</strong></span>
+                        <span>Latitude: <strong style={{ color: '#10b981' }}>{typeof formData.lat === 'number' ? formData.lat.toFixed(6) : formData.lat || 'N/A'}</strong></span>
+                        <span>Longitude: <strong style={{ color: '#10b981' }}>{typeof formData.lng === 'number' ? formData.lng.toFixed(6) : formData.lng || 'N/A'}</strong></span>
                     </div>
                 </div>
 
