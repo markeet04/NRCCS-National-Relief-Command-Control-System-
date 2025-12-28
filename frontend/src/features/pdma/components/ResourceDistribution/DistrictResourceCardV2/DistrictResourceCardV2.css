@@ -1,6 +1,6 @@
 /* ============================================================================
    DISTRICT RESOURCE CARD V2 STYLES
-   Inspired by NDMA Province Resource Card design
+   Matching Shelter Card Design with Donut Chart
    ============================================================================ */
 
 .district-card-v2 {
@@ -10,7 +10,7 @@
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -93,109 +93,105 @@
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-/* Main Gauge */
-.district-main-gauge-v2 {
+/* Resource Section - Donut and Stock List */
+.district-resources-section {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  padding: 1rem 0;
+  border-top: 1px solid rgba(100, 116, 139, 0.15);
+  border-bottom: 1px solid rgba(100, 116, 139, 0.15);
+}
+
+/* Donut Chart Container */
+.district-donut-container {
+  flex-shrink: 0;
+}
+
+.district-donut-wrapper {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 0.5rem 0;
+  display: inline-block;
 }
 
-.district-main-gauge-v2 .main-gauge-svg {
-  overflow: visible;
+.district-donut-chart {
+  position: relative;
+  width: 120px;
+  height: 120px;
 }
 
-.district-main-gauge-v2 .main-gauge-track {
-  stroke: rgba(100, 116, 139, 0.2);
-}
-
-.district-main-gauge-v2 .main-gauge-progress {
-  transition: stroke-dashoffset 1.5s ease-out;
-}
-
-.district-main-gauge-center {
+.district-donut-center {
   position: absolute;
-  bottom: 10px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  pointer-events: none;
 }
 
-.district-main-gauge-value {
-  font-size: 1.75rem;
+.district-donut-center-value {
+  font-size: 1.5rem;
   font-weight: 700;
+  color: #f1f5f9;
   line-height: 1;
 }
 
-.district-main-gauge-label {
-  font-size: 0.7rem;
+.district-donut-center-label {
+  font-size: 0.65rem;
   color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-top: 2px;
 }
 
-/* Resource Rows */
-.district-card-v2-resources {
+/* Stock List */
+.district-stock-list {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
-  padding: 0.5rem 0;
-  border-top: 1px solid rgba(100, 116, 139, 0.15);
+  gap: 0.5rem;
 }
 
-.district-resource-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.375rem 0;
-}
-
-.district-resource-row-left {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-}
-
-.district-resource-row-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.district-resource-row-label {
-  font-size: 0.75rem;
+.district-stock-title {
+  font-size: 0.7rem;
+  font-weight: 600;
   color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 0.5rem 0;
 }
 
-.district-resource-row-value {
-  font-size: 0.9rem;
+.district-stock-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.district-stock-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.district-stock-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.district-stock-label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  min-width: 60px;
+}
+
+.district-stock-value {
+  font-size: 0.85rem;
   font-weight: 600;
   color: #f1f5f9;
-}
-
-.district-resource-row-unit {
-  font-size: 0.7rem;
-  color: #64748b;
-  font-weight: 400;
-}
-
-.district-resource-row-right {
-  display: flex;
-  align-items: center;
-}
-
-.resource-row-trend {
-  width: 16px;
-  height: 16px;
-}
-
-.resource-row-trend-up {
-  color: #22c55e;
-}
-
-.resource-row-trend-down {
-  color: #ef4444;
 }
 
 /* Action Buttons */
@@ -203,8 +199,7 @@
   display: flex;
   gap: 0.5rem;
   margin-top: auto;
-  padding-top: 0.75rem;
-  border-top: 1px solid rgba(100, 116, 139, 0.15);
+  padding-top: 0.5rem;
 }
 
 .district-card-v2-history-btn {
@@ -221,6 +216,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  width: 100%;
 }
 
 .district-card-v2-history-btn:hover {
@@ -232,7 +228,7 @@
 /* Grid Layout */
 .district-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.25rem;
 }
 
@@ -246,10 +242,15 @@
   .district-cards-grid {
     grid-template-columns: 1fr;
   }
+  
+  .district-resources-section {
+    flex-direction: column;
+    gap: 1rem;
+  }
 }
 
 /* ============================================================================
-   LIGHT MODE OVERRIDES - Enhanced to match NDMA style
+   LIGHT MODE OVERRIDES
    ============================================================================ */
 
 [data-theme="light"] .district-card-v2 {
@@ -280,30 +281,32 @@
   color: #38a169 !important;
 }
 
-[data-theme="light"] .district-main-gauge-v2 .main-gauge-track {
-  stroke: #e2e8f0 !important;
-}
-
-[data-theme="light"] .district-main-gauge-label {
-  color: #718096 !important;
-}
-
-[data-theme="light"] .district-card-v2-resources {
-  border-top-color: #e2e8f0 !important;
-  background-color: #f7f9fc !important;
-  border-radius: 8px !important;
-}
-
-[data-theme="light"] .district-resource-row-label {
-  color: #718096 !important;
-}
-
-[data-theme="light"] .district-resource-row-value {
+[data-theme="light"] .district-donut-center-value {
   color: #1a202c !important;
 }
 
-[data-theme="light"] .district-resource-row-unit {
-  color: #a0aec0 !important;
+[data-theme="light"] .district-donut-center-label {
+  color: #718096 !important;
+}
+
+[data-theme="light"] .district-resources-section {
+  border-top-color: #e2e8f0 !important;
+  border-bottom-color: #e2e8f0 !important;
+  background-color: #f7f9fc !important;
+  border-radius: 8px !important;
+  padding: 1.25rem !important;
+}
+
+[data-theme="light"] .district-stock-title {
+  color: #718096 !important;
+}
+
+[data-theme="light"] .district-stock-label {
+  color: #718096 !important;
+}
+
+[data-theme="light"] .district-stock-value {
+  color: #1a202c !important;
 }
 
 [data-theme="light"] .district-card-v2-actions {
