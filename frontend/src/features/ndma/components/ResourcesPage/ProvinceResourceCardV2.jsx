@@ -1,157 +1,99 @@
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Edit2, TrendingUp, TrendingDown, History, MapPin } from 'lucide-react';
-import CircularResourceGauge from './CircularResourceGauge';
+import { History, MapPin } from 'lucide-react';
+import { PieChart, Pie, Cell } from 'recharts';
+
+// Resource colors matching district shelter card style
+const RESOURCE_COLORS = {
+  food: '#f59e0b',    // Orange
+  water: '#3b82f6',   // Blue
+  medical: '#ef4444', // Red
+  shelter: '#22c55e'  // Green
+};
 
 /**
- * Main Half-Donut Gauge using SVG for smooth animation
- * Displays overall average resource percentage
+ * Full Donut Chart Component
+ * Shows resource distribution with total units in center
  */
-const MainGauge = ({ percentage, size = 160 }) => {
-  const [animatedValue, setAnimatedValue] = useState(0);
+const ResourceDonut = ({ food, medical, water, shelter }) => {
+  const [animate, setAnimate] = useState(false);
 
   useEffect(() => {
-    const duration = 1500;
-    const startTime = Date.now();
+    setAnimate(true);
+  }, []);
 
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 4);
-      setAnimatedValue(Math.round(percentage * eased));
+  // Calculate total units
+  const totalUnits = food + medical + water + shelter;
 
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
+  // Prepare donut data
+  const getDonutData = () => {
+    const data = [
+      { name: 'Food', value: food, color: RESOURCE_COLORS.food },
+      { name: 'Medical', value: medical, color: RESOURCE_COLORS.medical },
+      { name: 'Water', value: water, color: RESOURCE_COLORS.water },
+      { name: 'Shelter', value: shelter, color: RESOURCE_COLORS.shelter }
+    ];
 
-    requestAnimationFrame(animate);
-  }, [percentage]);
-
-  const getColor = (pct) => {
-    if (pct >= 70) return '#22c55e';
-    if (pct >= 50) return '#eab308';
-    if (pct >= 30) return '#f97316';
-    return '#ef4444';
-  };
-
-  const gaugeColor = getColor(percentage);
-
-  // SVG dimensions
-  const strokeWidth = 16;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = Math.PI * radius; // Half circle
-  const strokeDashoffset = circumference - (animatedValue / 100) * circumference;
-  const centerX = size / 2;
-  const centerY = size / 2;
-
-  return (
-    <div className="province-main-gauge-v2">
-      <svg
-        width={size}
-        height={size / 2 + 15}
-        viewBox={`0 0 ${size} ${size / 2 + 15}`}
-        className="main-gauge-svg"
-      >
-        {/* Background track (half circle) */}
-        <path
-          d={`M ${strokeWidth / 2} ${centerY} A ${radius} ${radius} 0 0 1 ${size - strokeWidth / 2} ${centerY}`}
-          fill="none"
-          className="main-gauge-track"
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-        />
-        {/* Progress arc */}
-        <path
-          d={`M ${strokeWidth / 2} ${centerY} A ${radius} ${radius} 0 0 1 ${size - strokeWidth / 2} ${centerY}`}
-          fill="none"
-          stroke={gaugeColor}
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
-          className="main-gauge-progress"
-          style={{
-            filter: `drop-shadow(0 0 8px ${gaugeColor}40)`,
-          }}
-        />
-      </svg>
-      <div className="province-main-gauge-center">
-        <span className="province-main-gauge-value" style={{ color: gaugeColor }}>
-          {animatedValue}%
-        </span>
-        <span className="province-main-gauge-label">Overall</span>
-      </div>
-    </div>
-  );
-};
-
-MainGauge.propTypes = {
-  percentage: PropTypes.number.isRequired,
-  size: PropTypes.number,
-};
-
-/**
- * Resource Row with circular gauge
- * Shows resource name, value, trend, and circular progress
- */
-const ResourceRow = ({ label, value, unit, percentage, showTrend = true }) => {
-  const getTrendIcon = (pct) => {
-    if (pct >= 50) {
-      return <TrendingUp className="resource-row-trend resource-row-trend-up" />;
+    // Filter out zero values
+    const filteredData = data.filter(d => d.value > 0);
+    
+    // If all are zero, show empty state
+    if (filteredData.length === 0) {
+      return [{ name: 'No Resources', value: 1, color: 'rgba(128,128,128,0.3)' }];
     }
-    return <TrendingDown className="resource-row-trend resource-row-trend-down" />;
+
+    return filteredData;
   };
 
+  const donutData = getDonutData();
+  const isEmpty = totalUnits === 0;
+
   return (
-    <div className="province-resource-row">
-      <div className="province-resource-row-left">
-        <CircularResourceGauge percentage={percentage} size={36} strokeWidth={3} />
-        <div className="province-resource-row-info">
-          <span className="province-resource-row-label">{label}</span>
-          <span className="province-resource-row-value">
-            {typeof value === 'number' ? value.toLocaleString() : value}
-            {unit && <span className="province-resource-row-unit">{unit}</span>}
-          </span>
+    <div className="province-donut-wrapper">
+      <div className="province-donut-chart">
+        <PieChart width={120} height={120}>
+          <Pie
+            data={donutData}
+            cx="50%"
+            cy="50%"
+            innerRadius={35}
+            outerRadius={55}
+            paddingAngle={isEmpty ? 0 : 3}
+            dataKey="value"
+            animationDuration={animate ? 800 : 0}
+            stroke="none"
+          >
+            {donutData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.color} />
+            ))}
+          </Pie>
+        </PieChart>
+        {/* Center label showing total units */}
+        <div className="province-donut-center">
+          <span className="province-donut-center-value">{totalUnits.toLocaleString()}</span>
+          <span className="province-donut-center-label">UNITS</span>
         </div>
       </div>
-      {showTrend && (
-        <div className="province-resource-row-right">
-          {getTrendIcon(percentage)}
-        </div>
-      )}
     </div>
   );
 };
 
-ResourceRow.propTypes = {
-  label: PropTypes.string.isRequired,
-  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
-  unit: PropTypes.string,
-  percentage: PropTypes.number.isRequired,
-  showTrend: PropTypes.bool,
+ResourceDonut.propTypes = {
+  food: PropTypes.number.isRequired,
+  medical: PropTypes.number.isRequired,
+  water: PropTypes.number.isRequired,
+  shelter: PropTypes.number.isRequired,
 };
 
 /**
  * ProvinceResourceCardV2 Component
- * Redesigned provincial stock card with:
- * - Single main half-donut gauge (overall average)
- * - Resource list with small circular progress gauges
+ * Redesigned provincial stock card matching district shelter card style:
+ * - Full donut chart showing resource distribution ratio
+ * - Resource list with actual values and colored dots
  * - Clean dark theme design
  */
 const ProvinceResourceCardV2 = ({ allocation, onEdit, onViewHistory, getStatusConfig }) => {
   const { province, food, medical, shelter, water, status } = allocation;
-
-  // Calculate percentages based on max expected values
-  const maxValues = { food: 3000, medical: 4000, shelter: 2000, water: 120000 };
-
-  const foodPct = Math.min(100, Math.round((food / maxValues.food) * 100));
-  const medicalPct = Math.min(100, Math.round((medical / maxValues.medical) * 100));
-  const shelterPct = Math.min(100, Math.round((shelter / maxValues.shelter) * 100));
-  const waterPct = Math.min(100, Math.round((water / maxValues.water) * 100));
-
-  // Average resource availability
-  const avgPercentage = Math.round((foodPct + medicalPct + shelterPct + waterPct) / 4);
 
   // Get status badge configuration
   const statusConfig = getStatusConfig(status);
@@ -167,7 +109,7 @@ const ProvinceResourceCardV2 = ({ allocation, onEdit, onViewHistory, getStatusCo
   };
 
   return (
-    <div className="province-card-v2">
+    <div className={`province-card-v2 status-${status}`}>
       {/* Card Header */}
       <div className="province-card-v2-header">
         <div className="province-card-v2-title-group">
@@ -179,35 +121,41 @@ const ProvinceResourceCardV2 = ({ allocation, onEdit, onViewHistory, getStatusCo
         </span>
       </div>
 
-      {/* Main Gauge - Overall Average - LARGER SIZE */}
-      <MainGauge percentage={avgPercentage} size={180} />
-
-      {/* Resource List with Circular Gauges */}
-      <div className="province-card-v2-resources">
-        <ResourceRow
-          label="Food Supplies"
-          value={food}
-          unit=" tons"
-          percentage={foodPct}
-        />
-        <ResourceRow
-          label="Medical Kits"
-          value={medical}
-          unit=" kits"
-          percentage={medicalPct}
-        />
-        <ResourceRow
-          label="Water Supply"
-          value={water}
-          unit=" L"
-          percentage={waterPct}
-        />
-        <ResourceRow
-          label="Shelter Units"
-          value={shelter}
-          unit=" units"
-          percentage={shelterPct}
-        />
+      {/* Resource Section - Donut and Stock List */}
+      <div className="province-resources-section">
+        <div className="province-donut-container">
+          <ResourceDonut 
+            food={food}
+            medical={medical}
+            water={water}
+            shelter={shelter}
+          />
+        </div>
+        <div className="province-stock-list">
+          <p className="province-stock-title">RESOURCE STOCK</p>
+          <div className="province-stock-grid">
+            <div className="province-stock-item">
+              <span className="province-stock-dot" style={{ background: RESOURCE_COLORS.food }} />
+              <span className="province-stock-label">Food:</span>
+              <strong className="province-stock-value">{food.toLocaleString()}</strong>
+            </div>
+            <div className="province-stock-item">
+              <span className="province-stock-dot" style={{ background: RESOURCE_COLORS.water }} />
+              <span className="province-stock-label">Water:</span>
+              <strong className="province-stock-value">{water.toLocaleString()}</strong>
+            </div>
+            <div className="province-stock-item">
+              <span className="province-stock-dot" style={{ background: RESOURCE_COLORS.medical }} />
+              <span className="province-stock-label">Medical:</span>
+              <strong className="province-stock-value">{medical.toLocaleString()}</strong>
+            </div>
+            <div className="province-stock-item">
+              <span className="province-stock-dot" style={{ background: RESOURCE_COLORS.shelter }} />
+              <span className="province-stock-label">Shelter:</span>
+              <strong className="province-stock-value">{shelter.toLocaleString()}</strong>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Action Buttons */}
@@ -217,7 +165,6 @@ const ProvinceResourceCardV2 = ({ allocation, onEdit, onViewHistory, getStatusCo
             onClick={onViewHistory}
             className="province-card-v2-history-btn"
             title={`View ${province} history`}
-            style={{ width: '100%' }}
           >
             <History className="w-4 h-4" />
             <span>View History</span>

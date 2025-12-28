@@ -37,13 +37,15 @@
   height: 100%;
   border-radius: 12px;
   overflow: hidden;
-  background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: linear-gradient(135deg, #1a1d21 0%, #0f1114 100%);
+  border: 1px solid #2d3238;
+  border-left: 4px solid #3b82f6;
 }
 
 .flood-map-card {
   background-color: #1a1d21;
   border: 1px solid #2d3238;
+  border-left: 4px solid #3b82f6;
   border-radius: 12px;
   overflow: hidden;
   display: flex;
@@ -59,7 +61,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  background-color: #263038;
+  background-color: #1a1d21;
   border-bottom: 1px solid #2d3238;
 }
 
@@ -306,6 +308,7 @@
 .flood-province-card {
   background-color: #1a1d21;
   border: 1px solid #2d3238;
+  border-left: 4px solid #22c55e;
   border-radius: 12px;
   overflow: hidden;
   display: flex;
@@ -313,12 +316,17 @@
   flex: 1;
 }
 
+/* ML Prediction panel - purple left border */
+.flood-province-card.ml-prediction-card {
+  border-left-color: #8b5cf6;
+}
+
 .flood-province-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 14px;
-  background-color: #263038;
+  background-color: #1a1d21;
   border-bottom: 1px solid #2d3238;
 }
 
@@ -765,6 +773,7 @@
 [data-theme="light"] .flood-map-section {
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
   border-color: #cbd5e1 !important;
+  border-left-color: #3b82f6 !important;
 }
 
 /* Override all inline dark backgrounds inside flood-map-section */
@@ -830,6 +839,7 @@
 [data-theme="light"] .flood-map-card {
   background-color: #ffffff !important;
   border-color: #e2e8f0 !important;
+  border-left-color: #3b82f6 !important;
 }
 
 [data-theme="light"] .flood-map-header {
@@ -913,6 +923,12 @@
 [data-theme="light"] .flood-province-card {
   background-color: #ffffff !important;
   border-color: #e2e8f0 !important;
+  border-left-color: #22c55e !important;
+}
+
+/* ML Prediction panel light mode - preserve purple border */
+[data-theme="light"] .flood-province-card.ml-prediction-card {
+  border-left-color: #8b5cf6 !important;
 }
 
 [data-theme="light"] .flood-province-card:hover {

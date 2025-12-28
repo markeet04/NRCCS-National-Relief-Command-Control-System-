@@ -20,13 +20,13 @@ const QUICK_JUMP_CITIES = [
 const getThemeColors = (theme) => ({
   headerBg: theme === 'light'
     ? 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)'
-    : 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)',
+    : 'linear-gradient(135deg, #1a1d21 0%, #0f1114 100%)',
   weatherBarBg: theme === 'light'
     ? 'rgba(241, 245, 249, 0.95)'
-    : 'rgba(30, 58, 95, 0.8)',
+    : 'rgba(26, 29, 33, 0.95)',
   quickJumpBg: theme === 'light'
     ? 'rgba(248, 250, 252, 0.95)'
-    : 'rgba(15, 23, 42, 0.9)',
+    : 'rgba(15, 17, 20, 0.95)',
   titleColor: theme === 'light' ? '#1e293b' : '#fff',
   subtitleColor: theme === 'light' ? '#64748b' : '#94a3b8',
   textPrimary: theme === 'light' ? '#1e293b' : '#fff',
@@ -35,7 +35,7 @@ const getThemeColors = (theme) => ({
   buttonBorder: theme === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
   buttonColor: theme === 'light' ? '#475569' : '#94a3b8',
   badgeBg: theme === 'light' ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255,255,255,0.1)',
-  borderColor: theme === 'light' ? '#cbd5e1' : 'rgba(59, 130, 246, 0.3)',
+  borderColor: theme === 'light' ? '#cbd5e1' : '#2d3238',
 });
 
 // Open-Meteo API
