@@ -115,12 +115,11 @@ const SOSRequests = () => {
       menuItems={DISTRICT_MENU_ITEMS}
       activeRoute={activeRoute}
       onNavigate={handleNavigate}
-      pageTitle="SOS Requests"
+      pageTitle="National Rescue & Crisis Coordination System"
+      pageSubtitle={`${districtInfo?.name || 'Dadu'} District - Province tactical operations`}
       userRole={`District ${districtInfo?.name || 'Officer'}`}
       userName={user?.name || 'District Officer'}
       notificationCount={pendingCount}
-      pageIcon={Siren}
-      pageIconColor="#ef4444"
     >
       <div className="sos-page-content">
         {/* Page Header */}

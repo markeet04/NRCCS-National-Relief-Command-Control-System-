@@ -36,10 +36,9 @@ const TeamFormModal = ({
             <div
                 style={{
                     background: colors.modalBg,
-                    borderRadius: '20px',
-                    padding: '32px',
+                    borderRadius: '16px',
                     width: '100%',
-                    maxWidth: '700px',
+                    maxWidth: '600px',
                     maxHeight: '90vh',
                     overflowY: 'auto',
                     position: 'relative',
@@ -48,31 +47,42 @@ const TeamFormModal = ({
                 }}
                 onClick={(e) => e.stopPropagation()}
             >
-                <button
-                    onClick={onClose}
-                    style={{
-                        position: 'absolute',
-                        top: '20px',
-                        right: '20px',
-                        background: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                        padding: '8px'
-                    }}
-                >
-                    <X style={{ color: colors.textMuted, width: '24px', height: '24px' }} />
-                </button>
-
-                <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: '700',
-                    color: colors.textPrimary,
-                    marginBottom: '24px'
+                {/* Header - extends to edges */}
+                <div style={{
+                    background: '#059669',
+                    borderTopLeftRadius: '16px',
+                    borderTopRightRadius: '16px',
+                    padding: '20px 24px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
                 }}>
-                    {isUpdateMode ? 'Update Team' : 'Add New Team'}
-                </h2>
+                    <h2 style={{
+                        fontSize: '20px',
+                        fontWeight: '600',
+                        color: '#ffffff',
+                        margin: 0
+                    }}>
+                        {isUpdateMode ? 'Update Team' : 'Add New Team'}
+                    </h2>
+                    <button
+                        onClick={onClose}
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        <X style={{ color: '#ffffff', width: '24px', height: '24px' }} />
+                    </button>
+                </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Form content with padding */}
+                <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <div>
                         <label style={{ color: colors.textPrimary, fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
                             Team Name *
@@ -308,42 +318,42 @@ const TeamFormModal = ({
                             }}
                         />
                     </div>
-                </div>
 
-                <div style={{ display: 'flex', gap: '12px', marginTop: '28px' }}>
-                    <button
-                        onClick={onSubmit}
-                        style={{
-                            flex: 1,
-                            padding: '14px 24px',
-                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                            color: '#ffffff',
-                            border: 'none',
-                            borderRadius: '10px',
-                            fontSize: '15px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
-                        }}
-                    >
-                        {isUpdateMode ? 'Update Team' : 'Add Team'}
-                    </button>
-                    <button
-                        onClick={onClose}
-                        style={{
-                            flex: 1,
-                            padding: '14px 24px',
-                            background: colors.inputBg,
-                            color: colors.textPrimary,
-                            border: `1px solid ${colors.border}`,
-                            borderRadius: '10px',
-                            fontSize: '15px',
-                            fontWeight: '600',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        Cancel
-                    </button>
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '28px' }}>
+                        <button
+                            onClick={onSubmit}
+                            style={{
+                                flex: 1,
+                                padding: '14px 24px',
+                                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                color: '#ffffff',
+                                border: 'none',
+                                borderRadius: '10px',
+                                fontSize: '15px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
+                            }}
+                        >
+                            {isUpdateMode ? 'Update Team' : 'Add Team'}
+                        </button>
+                        <button
+                            onClick={onClose}
+                            style={{
+                                flex: 1,
+                                padding: '14px 24px',
+                                background: colors.inputBg,
+                                color: colors.textPrimary,
+                                border: `1px solid ${colors.border}`,
+                                borderRadius: '10px',
+                                fontSize: '15px',
+                                fontWeight: '600',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

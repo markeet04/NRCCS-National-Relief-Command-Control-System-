@@ -114,19 +114,17 @@ const MissingPersons = () => {
             menuItems={DISTRICT_MENU_ITEMS}
             activeRoute={activeRoute}
             onNavigate={handleNavigate}
-            pageTitle="Missing Persons"
-            pageSubtitle="Manage and update missing person reports in your district"
-            pageIcon={Users}
-            pageIconColor="#06b6d4"
+            pageTitle="National Rescue & Crisis Coordination System"
+            pageSubtitle={`${districtName || 'Dadu'} District - Province tactical operations`}
             userRole={`District ${districtName}`}
             userName={user?.name || 'District Officer'}
             notificationCount={pendingSosCount || activeCases || 0}
         >
-            <div className="p-6">
+            <div style={{ padding: '0 0 24px 0' }}>
                 {/* Page Header */}
-                <div className="mb-6">
-                    <h1 className="page-title">Missing Persons Management</h1>
-                    <p className="page-subtitle">Track and manage missing person reports with status updates</p>
+                <div style={{ marginBottom: 16 }}>
+                    <h1 className="page-title" style={{ marginTop: 0, marginBottom: 8 }}>Missing Persons Management</h1>
+                    <p className="page-subtitle" style={{ margin: 0 }}>Track and manage missing person reports with status updates</p>
                 </div>
 
                 <MissingPersonsKPICards

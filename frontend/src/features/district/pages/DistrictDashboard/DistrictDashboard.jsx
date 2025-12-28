@@ -127,8 +127,6 @@ const DistrictDashboard = () => {
         userName={user?.name || 'District Officer'}
         pageTitle="National Rescue & Crisis Coordination System"
         pageSubtitle={districtInfo ? `${districtInfo.name} District - ${districtInfo.province?.name || districtInfo.province || ''} Province tactical operations` : 'Loading district...'}
-        pageIcon={Radio}
-        pageIconColor="#3b82f6"
         notificationCount={rawStats?.pendingSOS || 0}
       >
         {/* Loading State */}

@@ -169,14 +169,15 @@ const RescueTeams = () => {
             menuItems={DISTRICT_MENU_ITEMS}
             activeRoute={activeRoute}
             onNavigate={handleNavigate}
-            pageTitle="Rescue Teams Management"
-            pageSubtitle="Monitor and coordinate rescue operations"
-            pageIcon={Shield}
-            pageIconColor="#10b981"
+            pageTitle="National Rescue & Crisis Coordination System"
+            pageSubtitle={`${districtInfo?.name || 'Dadu'} District - ${districtInfo?.province?.name || districtInfo?.province || 'Province'} tactical operations`}
             userRole={`District ${districtInfo?.name || 'Loading...'}`}
             userName={user?.name || 'District Officer'}
             notificationCount={districtStats?.pendingSOS || 0}
         >
+            <div style={{marginLeft: 0, marginBottom: 0, paddingTop: 0}}>
+                <h1 className="page-title" style={{marginTop: 0, marginBottom: 16}}>Rescue Teams Management</h1>
+            </div>
             <RescueTeamsKPICards
                 totalTeams={stats.totalTeams}
                 availableTeams={stats.availableTeams}

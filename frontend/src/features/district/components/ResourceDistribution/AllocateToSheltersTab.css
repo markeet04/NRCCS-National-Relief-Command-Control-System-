@@ -71,24 +71,43 @@
 .district-allocate-form-select {
   width: 100%;
   padding: 0.75rem 2.5rem 0.75rem 1rem;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(100, 116, 139, 0.3);
-  border-radius: 8px;
-  color: #f1f5f9;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 10px;
+  color: #f1f5f9 !important;
   font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
   appearance: none;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.district-allocate-form-select:hover {
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
 }
 
 .district-allocate-form-select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2), 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.district-allocate-form-select option {
+  background: #1a1a2e;
+  color: #f1f5f9;
+  padding: 10px 12px;
 }
 
 .district-allocate-form-select option[value=""] {
-  color: #475569;
+  color: #94a3b8;
+}
+
+.district-allocate-form-select option:hover,
+.district-allocate-form-select option:checked {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
 }
 
 .district-allocate-select-icon {
@@ -98,25 +117,30 @@
   transform: translateY(-50%);
   width: 18px;
   height: 18px;
-  color: #64748b;
+  color: #10b981;
   pointer-events: none;
+  transition: transform 0.2s ease;
+}
+
+.district-allocate-form-select:focus + .district-allocate-select-icon {
+  transform: translateY(-50%) rotate(180deg);
 }
 
 .district-allocate-form-input {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(100, 116, 139, 0.3);
+  background: #141414 !important;
+  border: 1px solid #3d3d3d !important;
   border-radius: 8px;
-  color: #f1f5f9;
+  color: #f1f5f9 !important;
   font-size: 0.9rem;
   transition: all 0.2s ease;
 }
 
 .district-allocate-form-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
 }
 
 .district-allocate-form-input::placeholder {
@@ -126,10 +150,10 @@
 .district-allocate-form-textarea {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(100, 116, 139, 0.3);
+  background: #141414 !important;
+  border: 1px solid #3d3d3d !important;
   border-radius: 8px;
-  color: #f1f5f9;
+  color: #f1f5f9 !important;
   font-size: 0.9rem;
   resize: vertical;
   min-height: 80px;
@@ -138,8 +162,8 @@
 
 .district-allocate-form-textarea:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
 }
 
 .district-allocate-form-textarea::placeholder {
@@ -158,8 +182,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(100, 116, 139, 0.2);
+  background: #141414;
+  border: 1px solid #3d3d3d;
   border-radius: 8px;
   color: #94a3b8;
   font-size: 0.85rem;
@@ -168,14 +192,14 @@
 }
 
 .district-allocate-resource-option:hover {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: rgba(59, 130, 246, 0.3);
+  background: rgba(76, 175, 80, 0.1);
+  border-color: rgba(76, 175, 80, 0.3);
 }
 
 .district-allocate-resource-option.active {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: #3b82f6;
-  color: #3b82f6;
+  background: rgba(76, 175, 80, 0.15);
+  border-color: #4caf50;
+  color: #4caf50;
 }
 
 .district-allocate-resource-icon {
@@ -260,7 +284,7 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.875rem 1.5rem;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: #4caf50;
   border: none;
   border-radius: 8px;
   color: white;
@@ -272,9 +296,9 @@
 }
 
 .district-allocate-submit-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background: #45a049;
   transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
 }
 
 .district-allocate-submit-btn:disabled {
@@ -382,7 +406,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0.75rem;
-  background: rgba(15, 23, 42, 0.5);
+  background: transparent;
   border-radius: 6px;
   font-size: 0.8rem;
   gap: 0.5rem;
@@ -395,7 +419,7 @@
 }
 
 .district-allocate-recent-resource {
-  color: #3b82f6;
+  color: #94a3b8;
   flex: 1;
   text-align: center;
   font-size: 0.75rem;
@@ -416,4 +440,41 @@
   color: #64748b;
   font-size: 0.85rem;
   margin: 0;
+}
+
+/* ============================================================================
+   GLOBAL OVERRIDES - Remove all blue, use gray/green theme
+   ============================================================================ */
+
+/* Override any global input/select/textarea styles within this section */
+.district-allocate-form-card input,
+.district-allocate-form-card select,
+.district-allocate-form-card textarea {
+  background: #141414 !important;
+  border-color: #3d3d3d !important;
+  color: #f1f5f9 !important;
+}
+
+.district-allocate-form-card input:focus,
+.district-allocate-form-card select:focus,
+.district-allocate-form-card textarea:focus {
+  border-color: #4caf50 !important;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15) !important;
+  outline: none !important;
+}
+
+.district-allocate-form-card input::placeholder,
+.district-allocate-form-card textarea::placeholder {
+  color: #6b7280 !important;
+}
+
+/* Select option styling */
+.district-allocate-form-card select option {
+  background: #141414 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Ensure no blue in any child elements */
+.district-allocate-section *:focus {
+  outline-color: #4caf50;
 }

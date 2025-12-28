@@ -19,16 +19,14 @@ import {
   RequestResourceModal,
   DistrictStockCard,
   ResourceHistoryModal,
-  AllocateToSheltersTab,
-  ShelterResourcesTab
+  AllocateToSheltersTab
 } from '../../components/ResourceDistribution';
 import '../../components/ResourceDistribution/ResourceDistribution.css';
 import '@styles/css/main.css';
 
-// Tab options matching PDMA style - Added Shelter Resources between Stock and Allocate
+// Tab options matching PDMA style
 const TAB_OPTIONS = [
   { id: 'stock', label: 'District Stock' },
-  { id: 'shelter-resources', label: 'Shelter Resources' },
   { id: 'allocate', label: 'Allocate to Shelters' },
 ];
 
@@ -264,16 +262,15 @@ const ResourceDistribution = () => {
       menuItems={DISTRICT_MENU_ITEMS}
       activeRoute={activeRoute}
       onNavigate={handleNavigate}
-      pageTitle="Resource Distribution"
-      pageSubtitle="Allocate district resources to shelters"
-      pageIcon={Package}
-      pageIconColor="#f59e0b"
+      pageTitle="National Rescue & Crisis Coordination System"
+      pageSubtitle={`${districtInfo?.name || 'Dadu'} District - ${districtInfo?.province?.name || districtInfo?.province || 'Province'} tactical operations`}
       userRole={`District ${districtInfo?.name || ''}`}
       userName={user?.name || 'District Officer'}
       notificationCount={districtStats?.pendingSOS || 0}
     >
-      <div className="district-resource-distribution">
-        {/* Stats Grid - EXACT NDMA Layout */}
+            <div className="district-resource-distribution" style={{ paddingTop: 0 }}>
+        <h1 className="page-title" style={{marginTop: 0, marginBottom: 16}}>Resource Distribution</h1>
+        {/* Stats Grid - NDMA Style */}
         <div className="district-stats-grid">
           {/* Resource Types */}
           <div className="stat-card stat-card--blue">
@@ -367,14 +364,6 @@ const ResourceDistribution = () => {
               </div>
             )}
           </div>
-        )}
-
-        {activeTab === 'shelter-resources' && (
-          <ShelterResourcesTab
-            shelters={fullShelters}
-            loading={loading}
-            onRefresh={refetch}
-          />
         )}
 
         {activeTab === 'allocate' && (

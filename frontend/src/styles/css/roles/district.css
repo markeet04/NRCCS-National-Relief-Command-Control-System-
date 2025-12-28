@@ -32,11 +32,13 @@
 /* ============================================================================
    DISTRICT STATS GRID - Now uses unified styles from cards.css
    ============================================================================ */
+
 .district-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: var(--spacing-4) !important;
+    margin-bottom: var(--spacing-6) !important;
+    width: 100% !important;
 }
 
 @media (max-width: 1280px) {

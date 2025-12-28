@@ -105,9 +105,9 @@ const AllocateToShelterForm = ({ isOpen, onClose, onSubmit, resource, shelters =
     width: '100%',
     padding: '10px 12px',
     borderRadius: '6px',
-    border: `1px solid ${touched[fieldName] && errors[fieldName] ? '#ef4444' : '#e5e7eb'}`,
-    background: '#f9fafb',
-    color: '#1f2937',
+    border: `1px solid ${touched[fieldName] && errors[fieldName] ? '#ef4444' : '#334155'}`,
+    background: '#1a212eff', // gray-800
+    color: '#f1f5f9', // gray-100
     fontSize: '14px',
     boxSizing: 'border-box'
   });
@@ -133,15 +133,16 @@ const AllocateToShelterForm = ({ isOpen, onClose, onSubmit, resource, shelters =
     >
       <div
         style={{
-          background: '#ffffff',
+          background: '#1a1a1a',
           borderRadius: '12px',
           padding: '28px',
           width: '100%',
           maxWidth: '450px',
           maxHeight: '90vh',
           overflow: 'auto',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-          color: '#1f2937'
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)',
+          color: '#f1f5f9',
+          border: '1px solid #2d2d2d'
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -149,7 +150,7 @@ const AllocateToShelterForm = ({ isOpen, onClose, onSubmit, resource, shelters =
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Home size={24} style={{ color: '#22c55e' }} />
-            <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '700', color: '#1f2937' }}>Allocate to Shelter</h2>
+            <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '700', color: '#f1f5f9' }}>Allocate to Shelter</h2>
           </div>
           <button
             onClick={onClose}
@@ -167,27 +168,27 @@ const AllocateToShelterForm = ({ isOpen, onClose, onSubmit, resource, shelters =
 
         {/* Resource Info */}
         <div style={{
-          background: '#f9fafb',
+          background: '#141414',
           borderRadius: '8px',
           padding: '16px',
           marginBottom: '20px',
-          border: '1px solid #e5e7eb'
+          border: '1px solid #3d3d3d'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-            <Package size={20} style={{ color: '#6b7280' }} />
-            <span style={{ fontWeight: '600', fontSize: '16px' }}>{resource.name}</span>
+            <Package size={20} style={{ color: '#94a3b8' }} />
+            <span style={{ fontWeight: '600', fontSize: '16px', color: '#f1f5f9' }}>{resource.name}</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '14px' }}>
             <div>
-              <span style={{ color: '#6b7280' }}>Total Quantity:</span>
-              <span style={{ fontWeight: '600', marginLeft: '8px' }}>{resource.quantity} {resource.unit}</span>
+              <span style={{ color: '#94a3b8' }}>Total Quantity:</span>
+              <span style={{ fontWeight: '600', marginLeft: '8px', color: '#f1f5f9' }}>{resource.quantity} {resource.unit}</span>
             </div>
             <div>
-              <span style={{ color: '#6b7280' }}>Distributed:</span>
-              <span style={{ fontWeight: '600', marginLeft: '8px' }}>{resource.allocated} {resource.unit}</span>
+              <span style={{ color: '#94a3b8' }}>Distributed:</span>
+              <span style={{ fontWeight: '600', marginLeft: '8px', color: '#f1f5f9' }}>{resource.allocated} {resource.unit}</span>
             </div>
             <div style={{ gridColumn: 'span 2' }}>
-              <span style={{ color: '#6b7280' }}>Available:</span>
+              <span style={{ color: '#94a3b8' }}>Available:</span>
               <span style={{ fontWeight: '600', marginLeft: '8px', color: '#22c55e' }}>{availableQty} {resource.unit}</span>
             </div>
           </div>
@@ -197,7 +198,7 @@ const AllocateToShelterForm = ({ isOpen, onClose, onSubmit, resource, shelters =
         <form onSubmit={handleSubmit}>
           {/* Shelter Select */}
           <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', fontSize: '14px' }}>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', fontSize: '14px', color: '#94a3b8' }}>
               Select Shelter <span style={{ color: '#ef4444' }}>*</span>
             </label>
             <select
@@ -224,7 +225,7 @@ const AllocateToShelterForm = ({ isOpen, onClose, onSubmit, resource, shelters =
 
           {/* Quantity Input */}
           <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', fontSize: '14px' }}>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', fontSize: '14px', color: '#94a3b8' }}>
               Quantity <span style={{ color: '#ef4444' }}>*</span>
             </label>
             <input
@@ -248,7 +249,7 @@ const AllocateToShelterForm = ({ isOpen, onClose, onSubmit, resource, shelters =
 
           {/* Notes Input */}
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', fontSize: '14px' }}>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', fontSize: '14px', color: '#94a3b8' }}>
               Notes (optional)
             </label>
             <textarea

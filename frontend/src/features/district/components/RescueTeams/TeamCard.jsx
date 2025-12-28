@@ -21,14 +21,15 @@ const TeamCard = ({
 
     return (
         <div
-            className="hover:scale-[1.02] hover:-translate-y-1"
+            className={`team-card team-card--${team.status}`}
             style={{
                 background: colors.cardBg,
                 border: `1px solid ${colors.border}`,
+                borderTop: `4px solid ${statusInfo.color}`,
                 borderRadius: '16px',
-                overflow: 'hidden',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: isLight ? '0 4px 20px rgba(0,0,0,0.08)' : '0 4px 20px rgba(0,0,0,0.3)'
+                padding: '20px',
+                marginBottom: '20px',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
             }}
         >
             {/* Header */}

@@ -132,15 +132,13 @@ const ShelterManagement = () => {
             menuItems={DISTRICT_MENU_ITEMS}
             activeRoute={activeRoute}
             onNavigate={handleNavigate}
-            pageTitle="Shelter Management"
-            pageSubtitle="Monitor and manage emergency shelters"
-            pageIcon={Home}
-            pageIconColor="#8b5cf6"
+            pageTitle="National Rescue & Crisis Coordination System"
+            pageSubtitle={`${districtInfo?.name || 'Dadu'} District - ${districtInfo?.province?.name || districtInfo?.province || 'Province'} tactical operations`}
             userRole={`District ${districtInfo?.name || 'Loading...'}`}
             userName={user?.name || 'District Officer'}
             notificationCount={districtStats?.pendingSOS || 0}
         >
-            <div className="p-4" style={{ paddingTop: 8, paddingLeft: 8, paddingRight: 8 }}>
+            <div className="p-4" style={{ paddingTop: 0, paddingLeft: 0, paddingRight: 8 }}>
                 {/* Page Heading */}
                 <h1 className="page-title" style={{ marginTop: 0, marginBottom: 12 }}>Shelter Management</h1>
                 {/* KPI Cards Row */}

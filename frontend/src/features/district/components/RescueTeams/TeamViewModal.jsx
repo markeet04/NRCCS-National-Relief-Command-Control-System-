@@ -30,8 +30,7 @@ const TeamViewModal = ({ team, onClose, getStatusInfo, colors, isLight }) => {
             <div
                 style={{
                     background: colors.modalBg,
-                    borderRadius: '20px',
-                    padding: '32px',
+                    borderRadius: '16px',
                     width: '100%',
                     maxWidth: '600px',
                     maxHeight: '90vh',
@@ -42,21 +41,42 @@ const TeamViewModal = ({ team, onClose, getStatusInfo, colors, isLight }) => {
                 }}
                 onClick={(e) => e.stopPropagation()}
             >
-                <button
-                    onClick={onClose}
-                    style={{
-                        position: 'absolute',
-                        top: '20px',
-                        right: '20px',
-                        background: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                        padding: '8px'
-                    }}
-                >
-                    <X style={{ color: colors.textMuted, width: '24px', height: '24px' }} />
-                </button>
+                {/* Header - extends to edges */}
+                <div style={{
+                    background: '#059669',
+                    borderTopLeftRadius: '16px',
+                    borderTopRightRadius: '16px',
+                    padding: '20px 24px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}>
+                    <h2 style={{ 
+                        margin: 0, 
+                        fontSize: '20px', 
+                        fontWeight: '600',
+                        color: '#ffffff'
+                    }}>
+                        Team Details
+                    </h2>
+                    <button
+                        onClick={onClose}
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        <X style={{ color: '#ffffff', width: '24px', height: '24px' }} />
+                    </button>
+                </div>
 
+                {/* Content with padding */}
+                <div style={{ padding: '24px' }}>
                 <div style={{ marginBottom: '24px' }}>
                     <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary, marginBottom: '8px' }}>
                         {team.name} - {team.type}
@@ -162,6 +182,7 @@ const TeamViewModal = ({ team, onClose, getStatusInfo, colors, isLight }) => {
                         </p>
                     </div>
                 )}
+                </div>
             </div>
         </div>
     );

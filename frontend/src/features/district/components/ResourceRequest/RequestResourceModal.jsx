@@ -96,18 +96,53 @@ const RequestResourceModal = ({ isOpen, onClose, onSubmit, loading }) => {
 
     return (
         <div className="request-modal-overlay">
-            <div className="request-modal" style={{ background: colors.bgCard, color: colors.textPrimary }}>
-                <div className="request-modal-header" style={{ borderBottom: `1px solid ${colors.border}` }}>
-                    <div className="request-modal-title">
-                        <Package size={24} style={{ color: '#667eea' }} />
-                        <h2>Request Resources from PDMA</h2>
+            <div 
+                className="request-modal" 
+                style={{ 
+                    background: colors.modalBg || colors.bgCard,
+                    color: colors.textPrimary,
+                    borderRadius: '16px',
+                    border: `1px solid ${colors.border}`,
+                    padding: 0,
+                    overflow: 'hidden'
+                }}
+            >
+                {/* Header - extends to edges */}
+                <div 
+                    style={{ 
+                        background: '#059669',
+                        borderTopLeftRadius: '16px',
+                        borderTopRightRadius: '16px',
+                        padding: '20px 24px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                    }}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <Package size={24} style={{ color: '#ffffff' }} />
+                        <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#ffffff' }}>
+                            Request Resources from PDMA
+                        </h2>
                     </div>
-                    <button className="request-modal-close" onClick={onClose} style={{ color: colors.mutedText }}>
-                        <X size={24} />
+                    <button 
+                        onClick={onClose}
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        <X size={24} style={{ color: '#ffffff' }} />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="request-modal-form">
+                {/* Form content with padding */}
+                <form onSubmit={handleSubmit} className="request-modal-form" style={{ padding: '24px' }}>
                     <div className="form-group">
                         <label style={{ color: colors.textSecondary }}>Resource Type *</label>
                         <select
