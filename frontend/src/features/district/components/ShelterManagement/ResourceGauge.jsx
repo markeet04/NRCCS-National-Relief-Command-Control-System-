@@ -60,7 +60,7 @@ const ResourceGauge = ({
         <div className="resource-gauge-wrapper">
             {/* Gauge Chart - Larger size */}
             <div className="resource-gauge-chart">
-                <ResponsiveContainer width={120} height={70}>
+                <ResponsiveContainer width={220} height={170}>
                     <RadialBarChart
                         cx="50%"
                         cy="100%"

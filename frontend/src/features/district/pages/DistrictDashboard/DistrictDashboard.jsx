@@ -127,6 +127,8 @@ const DistrictDashboard = () => {
         userName={user?.name || 'District Officer'}
         pageTitle="National Rescue & Crisis Coordination System"
         pageSubtitle={districtInfo ? `${districtInfo.name} District - ${districtInfo.province?.name || districtInfo.province || ''} Province tactical operations` : 'Loading district...'}
+        pageIcon={Radio}
+        pageIconColor="#3b82f6"
         notificationCount={rawStats?.pendingSOS || 0}
       >
         {/* Loading State */}
@@ -143,9 +145,6 @@ const DistrictDashboard = () => {
               <h1 className="page-title">
                 District Overview - {districtInfo?.name || 'Loading...'}
               </h1>
-              <p className="page-subtitle">
-                Real-time district disaster management dashboard
-              </p>
             </div>
 
             {/* Critical Alert Banner - Only show if there are critical alerts */}
@@ -183,7 +182,11 @@ const DistrictDashboard = () => {
 
             {/* Map Section - Full Width */}
             <div className="mb-6">
-              <div className="card card-body">
+              <div className="card card-body" style={{
+                borderLeftColor: '#3b82f6',
+                borderLeftWidth: '4px',
+                boxShadow: 'inset 4px 0 8px -2px rgba(59, 130, 246, 0.3)'
+              }}>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-primary">
                     {districtInfo?.name || 'District'} - Live Situation Map

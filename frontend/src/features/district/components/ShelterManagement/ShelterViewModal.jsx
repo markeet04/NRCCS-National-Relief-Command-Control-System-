@@ -48,6 +48,7 @@ const ShelterViewModal = ({
             onClose={onClose}
             title={name}
             size="lg"
+            className="shelter-view-modal"
         >
             <div className="space-y-6">
                 {/* Status Badge */}

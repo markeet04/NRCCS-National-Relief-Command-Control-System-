@@ -593,3 +593,34 @@
         grid-template-columns: repeat(6, 1fr);
     }
 }
+
+/* ============================================================================
+   HEADER ICON WRAPPER - FORCE DISPLAY
+   ============================================================================ */
+.header-icon-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    border-radius: var(--radius-md) !important;
+    background-color: rgba(99, 102, 241, 0.1) !important;
+    transition: all 0.2s ease !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative !important;
+    flex-shrink: 0 !important;
+}
+
+/* Urgent icon styling (for SOS, alerts) - subtle red background */
+.header-icon-wrapper--urgent {
+    background-color: rgba(239, 68, 68, 0.15) !important;
+    border: 1px solid rgba(239, 68, 68, 0.25) !important;
+}
+
+[data-theme="dark"] .header-icon-wrapper--urgent {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}

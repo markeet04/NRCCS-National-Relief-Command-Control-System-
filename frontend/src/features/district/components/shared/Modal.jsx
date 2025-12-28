@@ -14,7 +14,8 @@ const Modal = ({
   title,
   children,
   maxWidth = '600px',
-  size = 'md' // 'sm', 'md', 'lg', 'xl'
+  size = 'md', // 'sm', 'md', 'lg', 'xl'
+  className = ''
 }) => {
   if (!isOpen) return null;
 
@@ -28,7 +29,7 @@ const Modal = ({
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className={`modal ${sizeClass}`}
+        className={`modal ${sizeClass} ${className}`}
         style={{ maxWidth }}
         onClick={(e) => e.stopPropagation()}
       >

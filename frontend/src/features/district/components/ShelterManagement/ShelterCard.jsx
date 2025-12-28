@@ -39,7 +39,7 @@ const ShelterCard = ({
     };
 
     return (
-        <div className="shelter-card">
+        <div className={`shelter-card shelter-card--${status}`}>
             {/* Header */}
             <div className="shelter-card__header">
                 <div className="shelter-card__header-info">
@@ -114,7 +114,7 @@ const ShelterCard = ({
                     👁 View
                 </button>
                 <button className="btn btn--primary" onClick={() => onEdit?.(shelter)}>
-                    ✏️ Edit
+                    Edit
                 </button>
             </div>
         </div>

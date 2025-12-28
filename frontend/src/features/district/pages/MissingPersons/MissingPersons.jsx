@@ -4,6 +4,7 @@
  */
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Users } from 'lucide-react';
 import { DashboardLayout } from '@shared/components/layout';
 import { DISTRICT_MENU_ITEMS } from '../../constants';
 import useMissingPersonsLogic from '../../hooks/useMissingPersonsLogic';
@@ -115,6 +116,8 @@ const MissingPersons = () => {
             onNavigate={handleNavigate}
             pageTitle="Missing Persons"
             pageSubtitle="Manage and update missing person reports in your district"
+            pageIcon={Users}
+            pageIconColor="#06b6d4"
             userRole={`District ${districtName}`}
             userName={user?.name || 'District Officer'}
             notificationCount={pendingSosCount || activeCases || 0}

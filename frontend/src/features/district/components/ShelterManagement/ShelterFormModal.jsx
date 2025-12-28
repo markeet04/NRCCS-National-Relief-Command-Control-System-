@@ -8,6 +8,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '@styles/css/main.css';
+import './ShelterManagement.css';
 
 // Fix leaflet marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
@@ -120,12 +121,13 @@ const ShelterFormModal = ({
             onClose={onClose}
             title={isEditing ? 'Edit Shelter' : 'Add New Shelter'}
             size="lg"
+            className="shelter-form-modal"
         >
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <form onSubmit={handleSubmit} className="shelter-form">
                 {/* Basic Info */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-                    <div className="form-field">
-                        <label className="form-field__label">Shelter Name *</label>
+                <div className="shelter-form__grid">
+                    <div className="form-field shelter-form__field">
+                        <label className="form-field__label shelter-form__label">Shelter Name <span className="shelter-form__required">*</span></label>
                         <input
                             type="text"
                             name="name"
@@ -150,20 +152,16 @@ const ShelterFormModal = ({
                 </div>
 
                 {/* Location Picker */}
-                <div className="form-field">
-                    <label className="form-field__label">
+                <div className="form-field shelter-form__field">
+                    <label className="form-field__label shelter-form__label">
                         📍 Location (Click on map to set shelter location)
                     </label>
-                    <div style={{
-                        height: '250px',
-                        borderRadius: '8px',
-                        overflow: 'hidden',
-                        border: '1px solid var(--color-border)'
-                    }}>
+                    <div className="shelter-form__map-container">
                         <MapContainer
                             center={markerPosition}
                             zoom={6}
                             style={{ height: '100%', width: '100%' }}
+                            className="shelter-form__map"
                         >
                             <TileLayer
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -175,22 +173,16 @@ const ShelterFormModal = ({
                             />
                         </MapContainer>
                     </div>
-                    <div style={{
-                        display: 'flex',
-                        gap: '16px',
-                        marginTop: '8px',
-                        fontSize: '13px',
-                        color: 'var(--color-text-secondary)'
-                    }}>
+                    <div className="shelter-form__coords">
                         <span>Latitude: <strong>{formData.lat?.toFixed(6)}</strong></span>
                         <span>Longitude: <strong>{formData.lng?.toFixed(6)}</strong></span>
                     </div>
                 </div>
 
                 {/* Capacity & Occupancy */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-                    <div className="form-field">
-                        <label className="form-field__label">Capacity *</label>
+                <div className="shelter-form__grid">
+                    <div className="form-field shelter-form__field">
+                        <label className="form-field__label shelter-form__label">Capacity <span className="shelter-form__required">*</span></label>
                         <input
                             type="number"
                             name="capacity"
@@ -216,7 +208,7 @@ const ShelterFormModal = ({
                 </div>
 
                 {/* Contact Info */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                <div className="shelter-form__grid">
                     <div className="form-field">
                         <label className="form-field__label">Contact Person</label>
                         <input
@@ -242,11 +234,11 @@ const ShelterFormModal = ({
                 </div>
 
                 {/* Actions */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', paddingTop: '20px', borderTop: '1px solid var(--color-border)' }}>
+                <div className="shelter-form__actions">
                     <button type="button" onClick={onClose} className="btn btn--secondary">
                         Cancel
                     </button>
-                    <button type="submit" className="btn btn--primary">
+                    <button type="submit" className="btn btn--success shelter-form__submit">
                         {isEditing ? 'Save Changes' : 'Add Shelter'}
                     </button>
                 </div>

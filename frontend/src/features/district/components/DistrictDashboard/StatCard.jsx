@@ -76,7 +76,8 @@ const StatCard = ({
       className="stat-card transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1"
       style={{
         borderLeftColor: gradient.borderColor,
-        borderLeftWidth: '4px'
+        borderLeftWidth: '4px',
+        boxShadow: `0 0 12px ${gradient.borderColor}30, 0 0 24px ${gradient.borderColor}15`
       }}
     >
       <div className="flex items-center gap-4">

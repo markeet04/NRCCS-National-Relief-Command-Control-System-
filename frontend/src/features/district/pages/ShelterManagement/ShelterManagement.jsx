@@ -9,7 +9,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Plus, Home } from 'lucide-react';
 import { DashboardLayout } from '@shared/components/layout';
 import { useAuth } from '../../../../app/providers/AuthProvider';
 import { SearchFilterBar } from '../../components/shared';
@@ -134,11 +134,15 @@ const ShelterManagement = () => {
             onNavigate={handleNavigate}
             pageTitle="Shelter Management"
             pageSubtitle="Monitor and manage emergency shelters"
+            pageIcon={Home}
+            pageIconColor="#8b5cf6"
             userRole={`District ${districtInfo?.name || 'Loading...'}`}
             userName={user?.name || 'District Officer'}
             notificationCount={districtStats?.pendingSOS || 0}
         >
-            <div className="p-6">
+            <div className="p-4" style={{ paddingTop: 8, paddingLeft: 8, paddingRight: 8 }}>
+                {/* Page Heading */}
+                <h1 className="page-title" style={{ marginTop: 0, marginBottom: 12 }}>Shelter Management</h1>
                 {/* KPI Cards Row */}
                 <ShelterKPICards
                     stats={kpiStats}

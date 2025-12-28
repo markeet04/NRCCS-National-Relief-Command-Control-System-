@@ -4,6 +4,7 @@
  */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Shield } from 'lucide-react';
 import { DashboardLayout } from '@shared/components/layout';
 import { useAuth } from '../../../../app/providers/AuthProvider';
 import { useSettings } from '../../../../app/providers/ThemeProvider';
@@ -170,6 +171,8 @@ const RescueTeams = () => {
             onNavigate={handleNavigate}
             pageTitle="Rescue Teams Management"
             pageSubtitle="Monitor and coordinate rescue operations"
+            pageIcon={Shield}
+            pageIconColor="#10b981"
             userRole={`District ${districtInfo?.name || 'Loading...'}`}
             userName={user?.name || 'District Officer'}
             notificationCount={districtStats?.pendingSOS || 0}

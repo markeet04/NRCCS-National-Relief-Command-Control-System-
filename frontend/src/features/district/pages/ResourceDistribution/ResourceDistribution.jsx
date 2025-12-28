@@ -246,6 +246,8 @@ const ResourceDistribution = () => {
         onNavigate={handleNavigate}
         pageTitle="Resource Distribution"
         pageSubtitle="Allocate district resources to shelters"
+        pageIcon={Package}
+        pageIconColor="#f59e0b"
         userRole={`District ${districtInfo?.name || ''}`}
         userName={user?.name || 'District Officer'}
         notificationCount={districtStats?.pendingSOS || 0}
@@ -264,6 +266,8 @@ const ResourceDistribution = () => {
       onNavigate={handleNavigate}
       pageTitle="Resource Distribution"
       pageSubtitle="Allocate district resources to shelters"
+      pageIcon={Package}
+      pageIconColor="#f59e0b"
       userRole={`District ${districtInfo?.name || ''}`}
       userName={user?.name || 'District Officer'}
       notificationCount={districtStats?.pendingSOS || 0}

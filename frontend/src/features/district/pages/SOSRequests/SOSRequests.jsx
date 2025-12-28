@@ -10,6 +10,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@shared/components/layout';
 import { useAuth } from '../../../../app/providers/AuthProvider';
+import { Siren } from 'lucide-react';
 import '@styles/css/main.css';
 import '@styles/css/main.css';
 
@@ -115,18 +116,16 @@ const SOSRequests = () => {
       activeRoute={activeRoute}
       onNavigate={handleNavigate}
       pageTitle="SOS Requests"
-      pageSubtitle="Monitor and manage emergency SOS requests in real-time"
       userRole={`District ${districtInfo?.name || 'Officer'}`}
       userName={user?.name || 'District Officer'}
       notificationCount={pendingCount}
+      pageIcon={Siren}
+      pageIconColor="#ef4444"
     >
-      <div className="p-6">
+      <div className="sos-page-content">
         {/* Page Header */}
-        <div className="mb-6">
-          <h1 className="page-title">SOS Requests Management</h1>
-          <p className="page-subtitle">
-            Monitor and manage emergency SOS requests in real-time
-          </p>
+        <div className="sos-page-header">
+          <h1 className="page-title sos-title">SOS Requests Management</h1>
         </div>
 
         {/* KPI Cards */}
@@ -165,18 +164,20 @@ const SOSRequests = () => {
         </div>
 
         {/* Virtual Table or Map */}
-        {showMap ? (
-          <SOSMapPanel
-            requests={filteredRequests}
-            onMarkerClick={handleMarkerClick}
-          />
-        ) : (
-          <SOSVirtualTable
-            requests={filteredRequests}
-            onViewDetails={handleViewDetails}
-            onAssign={handleAssign}
-          />
-        )}
+        <div className="sos-table-container">
+          {showMap ? (
+            <SOSMapPanel
+              requests={filteredRequests}
+              onMarkerClick={handleMarkerClick}
+            />
+          ) : (
+            <SOSVirtualTable
+              requests={filteredRequests}
+              onViewDetails={handleViewDetails}
+              onAssign={handleAssign}
+            />
+          )}
+        </div>
       </div>
 
       {/* Modals */}

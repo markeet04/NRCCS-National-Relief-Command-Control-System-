@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Settings, Shield } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import SettingsModal from '../SettingsModal';
 
 /**
@@ -30,32 +30,10 @@ const Header = ({ title, subtitle, icon: IconComponent, iconColor, notificationC
         }}
       >
         <div className="flex items-center justify-between">
-          {/* Title Section with System Logo Icon */}
+          {/* Title Section */}
           <div className="flex items-center gap-3">
-            {/* System Logo Icon - Command Center / Emergency Coordination */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '32px',
-                height: '32px',
-              }}
-            >
-              <Shield size={22} color="var(--text-muted)" strokeWidth={1.5} />
-            </div>
             {IconComponent && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '8px',
-                  backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                }}
-              >
+              <div className={`header-icon-wrapper ${iconColor === '#ef4444' ? 'header-icon-wrapper--urgent' : ''}`}>
                 <IconComponent size={20} color={iconColor || 'var(--text-primary)'} />
               </div>
             )}

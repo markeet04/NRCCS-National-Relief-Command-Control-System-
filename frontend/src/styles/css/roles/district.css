@@ -30,13 +30,46 @@
 }
 
 /* ============================================================================
-   DISTRICT STATS GRID
+   DISTRICT STATS GRID - FORCE FULL WIDTH CARDS
    ============================================================================ */
 .district-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--spacing-4);
-    margin-bottom: var(--spacing-6);
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: var(--spacing-4) !important;
+    margin-bottom: var(--spacing-6) !important;
+    width: 100% !important;
+}
+
+/* Force wider stat cards - override any max-width */
+.district-stats-grid .stat-card {
+    min-width: 0 !important;
+    width: 100% !important;
+    min-height: 150px !important;
+    padding: var(--spacing-6) var(--spacing-5) !important;
+    flex-grow: 1 !important;
+}
+
+/* Responsive adjustments for stat cards */
+@media (min-width: 1200px) {
+    .district-stats-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    .district-stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .district-stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .district-stats-grid .stat-card {
+        min-height: 130px !important;
+    }
 }
 
 /* ============================================================================
@@ -136,8 +169,59 @@
 }
 
 /* ============================================================================
-   DISTRICT SOS SPECIFIC
+   DISTRICT SOS SPECIFIC - FORCE OVERRIDES
    ============================================================================ */
+
+/* SOS Page Content - minimal top padding */
+.sos-page-content {
+    padding: 0 0 24px 0 !important;
+}
+
+/* SOS Page Header - FORCE minimal vertical spacing */
+.sos-page-header {
+    margin-top: 0 !important;
+    margin-bottom: 8px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* SOS Title - force no top margin */
+.sos-title,
+.sos-page-header .page-title,
+.sos-page-header h1.page-title {
+    margin-top: 0 !important;
+    margin-bottom: 4px !important;
+    padding-top: 0 !important;
+}
+
+.sos-page-header .page-subtitle {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* SOS Table Container - Top colored glow/border effect */
+.sos-table-container {
+    position: relative !important;
+    margin-top: var(--spacing-4) !important;
+}
+
+/* Force top glow on the table card - subtle effect */
+.sos-table-container > div:first-child,
+.sos-table-container > .card,
+.sos-table-container .card {
+    box-shadow: 0 -2px 8px rgba(239, 68, 68, 0.15), var(--card-shadow) !important;
+    border-top: 2px solid rgba(239, 68, 68, 0.4) !important;
+    border-radius: var(--radius-lg) !important;
+    overflow: visible !important;
+}
+
+[data-theme="dark"] .sos-table-container > div:first-child,
+[data-theme="dark"] .sos-table-container > .card,
+[data-theme="dark"] .sos-table-container .card {
+    box-shadow: 0 -3px 10px rgba(239, 68, 68, 0.2), var(--card-shadow) !important;
+    border-top: 2px solid rgba(239, 68, 68, 0.5) !important;
+}
+
 .district-sos-priority {
     display: flex;
     align-items: center;
