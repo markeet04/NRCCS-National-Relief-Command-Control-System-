@@ -24,7 +24,7 @@ const AlertsPageHeader = ({
       </div>
       <div className="alerts-page-actions">
         <button
-          className={`alerts-btn alerts-btn-secondary ${showResolved ? 'active' : ''}`}
+          className={`alerts-btn alerts-btn-secondary${showResolved ? ' active show-resolved-btn' : ''}`}
           onClick={onToggleResolved}
           disabled={loading}
         >
