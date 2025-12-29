@@ -438,7 +438,7 @@ const LandingPage = () => {
                   </motion.svg>
                 </motion.div>
                 <motion.h3 animate={{ color: hoveredCard === 'internal' ? '#006600' : '#1e293b' }} style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '15px', transition: 'color 0.3s' }}>Internal System Login</motion.h3>
-                <p style={{ fontSize: '1rem', color: '#64748b', lineHeight: '1.6', marginBottom: '30px' }}>Authorized access for NDMA, PDMA, District, and Super Admin authorities. Command center for disaster coordination.</p>
+                <p style={{ fontSize: '1rem', color: '#64748b', lineHeight: '1.6', marginBottom: '30px' }}>Authorized access for NDMA, PDMA, District, and Super Admin authorities.</p>
 
                 <motion.button
                   whileHover={{ scale: 1.05 }}

@@ -1,7 +1,14 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
-import { getResourceRequests } from '@shared/services/ndmaApiService';
+import axios from 'axios';
 
 const BadgeContext = createContext();
+
+// Separate axios instance for badge fetching - no redirect on 401
+const badgeApiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  withCredentials: true,
+  headers: { 'Content-Type': 'application/json' },
+});
 
 export const BadgeProvider = ({ children }) => {
   // Initialize with 0, will be updated from API
@@ -14,6 +21,18 @@ export const BadgeProvider = ({ children }) => {
 
   const updateProvincialRequestsCount = useCallback((count) => {
     setProvincialRequestsCount(count);
+  }, []);
+
+  // Function to fetch pending requests count - can be called after login
+  const refreshProvincialRequestsCount = useCallback(async () => {
+    try {
+      const response = await badgeApiClient.get('/ndma/resource-requests?status=pending');
+      const pendingCount = Array.isArray(response.data) ? response.data.length : 0;
+      setProvincialRequestsCount(pendingCount);
+    } catch (error) {
+      // Silently fail - user may not be NDMA or not logged in
+      console.debug('[BadgeContext] Could not fetch pending requests');
+    }
   }, []);
 
   // Fetch initial badge counts on mount
@@ -39,15 +58,18 @@ export const BadgeProvider = ({ children }) => {
         const activeAlerts = alerts.filter(alert => alert.status !== 'resolved');
         setActiveStatusCount(activeAlerts.length);
 
-        // Fetch pending provincial resource requests from API
-        try {
-          const pendingRequests = await getResourceRequests('pending');
-          const pendingCount = Array.isArray(pendingRequests) ? pendingRequests.length : 0;
-          setProvincialRequestsCount(pendingCount);
-        } catch (apiError) {
-          // API call may fail if user is not logged in or not NDMA role
-          // This is expected on initial load before authentication
-          console.debug('[BadgeContext] Could not fetch pending requests (may require NDMA authentication)');
+        // Check if user appears to be logged in as NDMA before making API call
+        // This prevents 401 errors that trigger redirects on the login page
+        const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+        if (userStr) {
+          try {
+            const user = JSON.parse(userStr);
+            if (user?.role?.toLowerCase() === 'ndma') {
+              await refreshProvincialRequestsCount();
+            }
+          } catch (parseError) {
+            // Invalid user data, skip API call
+          }
         }
       } catch (error) {
         console.error('Error fetching initial badge counts:', error);
@@ -55,14 +77,15 @@ export const BadgeProvider = ({ children }) => {
     };
 
     fetchInitialBadgeCounts();
-  }, []);
+  }, [refreshProvincialRequestsCount]);
 
   return (
     <BadgeContext.Provider value={{
       activeStatusCount,
       updateActiveStatusCount,
       provincialRequestsCount,
-      updateProvincialRequestsCount
+      updateProvincialRequestsCount,
+      refreshProvincialRequestsCount
     }}>
       {children}
     </BadgeContext.Provider>

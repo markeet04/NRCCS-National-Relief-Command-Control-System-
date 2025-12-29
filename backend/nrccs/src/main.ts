@@ -6,7 +6,7 @@ import passport from 'passport';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   // Configure session middleware
   app.use(
     session({
@@ -25,7 +25,7 @@ async function bootstrap() {
   // Initialize Passport
   app.use(passport.initialize());
   app.use(passport.session());
-  
+
   // Enable CORS for frontend with credentials
   app.enableCors({
     origin: 'http://localhost:5173',

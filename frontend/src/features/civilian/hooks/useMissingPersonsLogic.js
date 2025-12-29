@@ -186,7 +186,7 @@ const useMissingPersonsLogic = () => {
   };
 
   const removePhoto = () => {
-    setReportForm((prev) => ({ ...prev, photo: '' }));
+    setReportForm((prev) => ({ ...prev, photo: '', photoPreview: '' }));
   };
 
   const validateReportForm = () => {
