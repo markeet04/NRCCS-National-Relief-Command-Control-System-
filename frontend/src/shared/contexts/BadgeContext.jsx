@@ -1,23 +1,12 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { getResourceRequests } from '@shared/services/ndmaApiService';
 
 const BadgeContext = createContext();
 
-// Initial mock data for provincial requests - should match useResourcesLogic.js
-// In production, this would be fetched from an API
-const INITIAL_PROVINCIAL_REQUESTS = [
-  { id: 'req-001', status: 'pending' },
-  { id: 'req-002', status: 'pending' },
-  { id: 'req-003', status: 'pending' },
-  { id: 'req-004', status: 'pending' },
-];
-
-// Calculate initial pending count
-const INITIAL_PENDING_COUNT = INITIAL_PROVINCIAL_REQUESTS.filter(r => r.status === 'pending').length;
-
 export const BadgeProvider = ({ children }) => {
-  // Initialize with the actual pending count so badges show immediately on login
+  // Initialize with 0, will be updated from API
   const [activeStatusCount, setActiveStatusCount] = useState(0);
-  const [provincialRequestsCount, setProvincialRequestsCount] = useState(INITIAL_PENDING_COUNT);
+  const [provincialRequestsCount, setProvincialRequestsCount] = useState(0);
 
   const updateActiveStatusCount = useCallback((count) => {
     setActiveStatusCount(count);
@@ -35,7 +24,7 @@ export const BadgeProvider = ({ children }) => {
         const storageKey = 'ndma_alerts';
         const stored = localStorage.getItem(storageKey);
         let alerts = [];
-        
+
         if (stored) {
           alerts = JSON.parse(stored);
         } else {
@@ -45,19 +34,21 @@ export const BadgeProvider = ({ children }) => {
             { id: 2, status: 'active' }
           ];
         }
-        
+
         // Count active (non-resolved) alerts
         const activeAlerts = alerts.filter(alert => alert.status !== 'resolved');
         setActiveStatusCount(activeAlerts.length);
-        
-        // TODO: In production, replace with actual API calls:
-        // const alertsResponse = await fetch('/api/alerts/active/count');
-        // const alertsData = await alertsResponse.json();
-        // setActiveStatusCount(alertsData.count);
-        
-        // const requestsResponse = await fetch('/api/provincial-requests/pending/count');
-        // const requestsData = await requestsResponse.json();
-        // setProvincialRequestsCount(requestsData.count);
+
+        // Fetch pending provincial resource requests from API
+        try {
+          const pendingRequests = await getResourceRequests('pending');
+          const pendingCount = Array.isArray(pendingRequests) ? pendingRequests.length : 0;
+          setProvincialRequestsCount(pendingCount);
+        } catch (apiError) {
+          // API call may fail if user is not logged in or not NDMA role
+          // This is expected on initial load before authentication
+          console.debug('[BadgeContext] Could not fetch pending requests (may require NDMA authentication)');
+        }
       } catch (error) {
         console.error('Error fetching initial badge counts:', error);
       }
@@ -67,8 +58,8 @@ export const BadgeProvider = ({ children }) => {
   }, []);
 
   return (
-    <BadgeContext.Provider value={{ 
-      activeStatusCount, 
+    <BadgeContext.Provider value={{
+      activeStatusCount,
       updateActiveStatusCount,
       provincialRequestsCount,
       updateProvincialRequestsCount
