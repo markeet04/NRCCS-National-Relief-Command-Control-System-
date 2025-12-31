@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Logs
 logs
 *.log
@@ -8,57 +7,37 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-=======
-# ===========================
-# Node / Backend
-# ===========================
+# Dependencies
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.env
-.DS_Store
+**/node_modules/
+.npm
+
+# Build outputs
+dist/
+dist-ssr/
+build/
 /dist
 /build
-
-# ===========================
-# React / Frontend
-# ===========================
-# Build output
 frontend/build/
-frontend/node_modules/
-frontend/.env
 
-# Logs
-*.log
+# Environment variables
+.env
+.env.local
+.env.production
+.env.production.local
+.env.development.local
+.env.test.local
+*.env
+*.env.*
+!.env.example
 
-# OS files
-.DS_Store
-Thumbs.db
-
-# IDE / Editor files
+# Editor / IDE
 .vscode/
 .idea/
->>>>>>> 4abd5b4fc01744427d43f961f8b7755da3d5f464
+.DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
-<<<<<<< HEAD
 *.sw?
-=======
-**/node_modules/
-
-# Optional: npm cache folder
-.npm
->>>>>>> 4abd5b4fc01744427d43f961f8b7755da3d5f464
