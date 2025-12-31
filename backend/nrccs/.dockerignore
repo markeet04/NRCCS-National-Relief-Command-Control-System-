@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+
+# Build output (we build inside Docker)
+dist/
+
+# Environment files with secrets
+.env
+.env.local
+.env.development
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files
+Dockerfile
+docker-compose*.yml
+
+# Documentation (keep README in ai/ folder)
+QUICK_REFERENCE.md
+FRONTEND_SCHEMA_COMPATIBILITY_REPORT.md
+
+# Test files
+*.spec.ts
+test/
+coverage/
+.jest/

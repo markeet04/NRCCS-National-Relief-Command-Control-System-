@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build output (we build inside Docker)
+dist/
+
+# Environment files (we use build args instead)
+.env
+.env.local
+.env.development
+.env.production
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files (don't need to copy themselves)
+Dockerfile
+docker-compose*.yml
+
+# Documentation
+README.md
+*.md
+
+# Test files
+*.test.js
+*.test.jsx
+*.spec.js
+*.spec.jsx
+__tests__/
+coverage/

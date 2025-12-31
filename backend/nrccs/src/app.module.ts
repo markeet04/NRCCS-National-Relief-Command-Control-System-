@@ -20,15 +20,16 @@ import { ReasoningModule } from './reasoning/reasoning.module';
     ScheduleModule.forRoot(), // Enable cron jobs
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL,
+      url: process.env.DATABASE_URL || 
+            `postgresql://${process.env.DB_USER || 'postgres'}:${process.env.DB_PASSWORD || 'postgres'}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}/${process.env.DB_NAME || 'nrccs'}`,
       autoLoadEntities: true,
       synchronize: false, // NEVER use true in production
-      ssl: true,
-      extra: {
+      ssl: process.env.DB_SSL === 'true' || process.env.NODE_ENV === 'production',
+      extra: process.env.DB_SSL === 'true' || process.env.NODE_ENV === 'production' ? {
         ssl: {
           rejectUnauthorized: false,
         },
-      },
+      } : {},
     }),
     AuthModule,
     SuperadminModule,
