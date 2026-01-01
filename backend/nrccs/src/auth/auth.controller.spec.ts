@@ -50,7 +50,6 @@ describe('AuthController', () => {
       .compile();
 
     controller = module.get<AuthController>(AuthController);
-    authService = module.get(AuthService);
   });
 
   afterEach(() => {
@@ -85,8 +84,8 @@ describe('AuthController', () => {
 
       const result = await controller.login(mockRequest);
 
-      expect(result.user.role).toBe('district');
-      expect(result.user.districtId).toBeDefined();
+      expect((result.user as any).role).toBe('district');
+      expect((result.user as any).districtId).toBeDefined();
     });
 
     it('should login NDMA user successfully', async () => {
@@ -100,8 +99,8 @@ describe('AuthController', () => {
 
       const result = await controller.login(mockRequest);
 
-      expect(result.user.role).toBe('ndma');
-      expect(result.user.level).toBe('National');
+      expect((result.user as any).role).toBe('ndma');
+      expect((result.user as any).level).toBe('National');
     });
 
     it('should store user in session after login', async () => {
@@ -202,8 +201,8 @@ describe('AuthController', () => {
 
       const result = await controller.getMe(mockRequest);
 
-      expect(result.user.districtId).toBeDefined();
-      expect(result.user.provinceId).toBeDefined();
+      expect((result.user as any).districtId).toBeDefined();
+      expect((result.user as any).provinceId).toBeDefined();
     });
 
     it('should return user with all properties', async () => {
@@ -220,9 +219,9 @@ describe('AuthController', () => {
 
       const result = await controller.getMe(mockRequest);
 
-      expect(result.user.email).toBe('complete@test.com');
-      expect(result.user.phone).toBe('03001234567');
-      expect(result.user.cnic).toBe('1234567890123');
+      expect((result.user as any).email).toBe('complete@test.com');
+      expect((result.user as any).phone).toBe('03001234567');
+      expect((result.user as any).cnic).toBe('1234567890123');
     });
   });
 

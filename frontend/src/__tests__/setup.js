@@ -130,12 +130,12 @@ vi.mock('react-router-dom', async () => {
 });
 
 // Mock framer-motion to avoid animation issues in tests
-vi.mock('framer-motion', () => {
-  const React = require('react');
+vi.mock('framer-motion', async () => {
+  const React = await import('react');
   
   // Helper to create a motion component that filters out framer-motion specific props
   const createMotionComponent = (element) => {
-    return React.forwardRef(({ children, initial, animate, exit, variants, whileHover, whileTap, whileInView, transition, layout, layoutId, drag, dragConstraints, onDragEnd, ...rest }, ref) => {
+    return React.forwardRef(({ children, initial: _initial, animate: _animate, exit: _exit, variants: _variants, whileHover: _whileHover, whileTap: _whileTap, whileInView: _whileInView, transition: _transition, layout: _layout, layoutId: _layoutId, drag: _drag, dragConstraints: _dragConstraints, onDragEnd: _onDragEnd, ...rest }, ref) => {
       return React.createElement(element, { ...rest, ref }, children);
     });
   };
