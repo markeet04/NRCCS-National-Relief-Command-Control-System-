@@ -47,7 +47,7 @@ import { getBasemapByTheme, PROVINCE_CONFIG, getProvinceConfig, getMapConfigForU
 import { GIS_LAYERS } from '@config/gisLayerConfig';
 
 // Open Data Service for OSM gauging stations
-import { fetchGaugingStations } from '@shared/services/openDataService';
+import { fetchGaugingStations } from '@shared/services/openDataService.js';
 
 // PDMA API Service for flood zones
 import pdmaApi from '../../../services/pdmaApi';

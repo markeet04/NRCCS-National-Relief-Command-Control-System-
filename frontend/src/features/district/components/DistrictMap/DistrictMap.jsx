@@ -47,10 +47,10 @@ import '@arcgis/core/assets/esri/themes/dark/main.css';
 import { GIS_LAYERS, LAYER_SYMBOLS } from '@config/gisLayerConfig';
 
 // Weather Animation Service
-import weatherAnimationService from '@shared/services/weatherAnimationService';
+import weatherAnimationService from '@shared/services/weatherAnimationService.js';
 
 // Open Data Service for OSM hospital data
-import { fetchHospitalsFromOSM } from '@shared/services/openDataService';
+import { fetchHospitalsFromOSM } from '@shared/services/openDataService.js';
 
 // District API for backend shelter data
 import districtApi from '../../services/districtApi';
