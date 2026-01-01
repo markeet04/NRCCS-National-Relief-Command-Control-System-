@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -7,8 +12,11 @@ import { AuditLog } from '../common/entities/audit-log.entity';
 import { ActivityLog } from '../common/entities/activity-log.entity';
 import { Province } from '../common/entities/province.entity';
 import { District } from '../common/entities/district.entity';
-import { CreateUserDto, UpdateUserDto, ChangePasswordDto } from './dtos/user.dto';
-
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  ChangePasswordDto,
+} from './dtos/user.dto';
 
 @Injectable()
 export class SuperadminService {
@@ -103,7 +111,10 @@ export class SuperadminService {
         where: { username: createUserDto.username },
       });
       if (existingUsername) {
-        conflicts.push({ field: 'username', message: 'Username already exists' });
+        conflicts.push({
+          field: 'username',
+          message: 'Username already exists',
+        });
       }
     }
 
@@ -122,7 +133,10 @@ export class SuperadminService {
       throw new ConflictException({
         statusCode: 409,
         error: 'Conflict',
-        message: conflicts.length === 1 ? conflicts[0].message : 'Multiple fields have conflicts',
+        message:
+          conflicts.length === 1
+            ? conflicts[0].message
+            : 'Multiple fields have conflicts',
         errors: conflicts,
       });
     }
@@ -155,7 +169,8 @@ export class SuperadminService {
       return this.getUserById(savedUser.id);
     } catch (error) {
       // Catch any database errors and convert to meaningful messages
-      if (error.code === '23505') { // PostgreSQL unique violation
+      if (error.code === '23505') {
+        // PostgreSQL unique violation
         const field = error.detail?.match(/\((.+?)\)/)?.[1] || 'field';
         throw new ConflictException({
           statusCode: 409,
@@ -168,7 +183,11 @@ export class SuperadminService {
     }
   }
 
-  async updateUser(id: number, updateUserDto: UpdateUserDto, updatedBy: number) {
+  async updateUser(
+    id: number,
+    updateUserDto: UpdateUserDto,
+    updatedBy: number,
+  ) {
     const user = await this.getUserById(id);
     const conflicts: { field: string; message: string }[] = [];
 
@@ -188,7 +207,10 @@ export class SuperadminService {
         where: { username: updateUserDto.username, id: Not(id) },
       });
       if (existingUsername) {
-        conflicts.push({ field: 'username', message: 'Username already exists' });
+        conflicts.push({
+          field: 'username',
+          message: 'Username already exists',
+        });
       }
     }
 
@@ -207,7 +229,10 @@ export class SuperadminService {
       throw new ConflictException({
         statusCode: 409,
         error: 'Conflict',
-        message: conflicts.length === 1 ? conflicts[0].message : 'Multiple fields have conflicts',
+        message:
+          conflicts.length === 1
+            ? conflicts[0].message
+            : 'Multiple fields have conflicts',
         errors: conflicts,
       });
     }
@@ -236,7 +261,8 @@ export class SuperadminService {
       return this.getUserById(id);
     } catch (error) {
       // Catch any database errors and convert to meaningful messages
-      if (error.code === '23505') { // PostgreSQL unique violation
+      if (error.code === '23505') {
+        // PostgreSQL unique violation
         const field = error.detail?.match(/\((.+?)\)/)?.[1] || 'field';
         throw new ConflictException({
           statusCode: 409,
@@ -249,11 +275,15 @@ export class SuperadminService {
     }
   }
 
-  async changeUserPassword(id: number, changePasswordDto: ChangePasswordDto, changedBy: number) {
+  async changeUserPassword(
+    id: number,
+    changePasswordDto: ChangePasswordDto,
+    changedBy: number,
+  ) {
     const user = await this.getUserById(id);
-    
+
     const passwordHash = await bcrypt.hash(changePasswordDto.newPassword, 10);
-    
+
     await this.userRepository.update(id, { passwordHash });
 
     // Create audit log

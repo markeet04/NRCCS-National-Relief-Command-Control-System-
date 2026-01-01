@@ -1,4 +1,15 @@
-import { IsString, IsInt, IsEnum, IsOptional, IsArray, IsDateString, Min, IsNotEmpty, MaxLength, MinLength } from 'class-validator';
+import {
+  IsString,
+  IsInt,
+  IsEnum,
+  IsOptional,
+  IsArray,
+  IsDateString,
+  Min,
+  IsNotEmpty,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { AlertSeverity, AlertType } from '../../common/entities/alert.entity';
 
 export class CreateAlertDto {

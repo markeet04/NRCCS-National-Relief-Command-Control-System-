@@ -1,4 +1,14 @@
-import { IsString, IsOptional, IsEnum, IsInt, Min, IsArray, IsNotEmpty, MaxLength, Matches } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsInt,
+  Min,
+  IsArray,
+  IsNotEmpty,
+  MaxLength,
+  Matches,
+} from 'class-validator';
 import { RescueTeamStatus } from '../../common/entities/rescue-team.entity';
 
 export class UpdateTeamStatusDto {

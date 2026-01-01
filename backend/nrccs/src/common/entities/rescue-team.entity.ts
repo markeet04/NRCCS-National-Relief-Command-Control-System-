@@ -50,7 +50,12 @@ export class RescueTeam {
   @Column({ type: 'varchar', length: 20, nullable: true })
   contact: string;
 
-  @Column({ type: 'varchar', length: 20, nullable: true, name: 'contact_phone' })
+  @Column({
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+    name: 'contact_phone',
+  })
   contactPhone: string;
 
   @Column({ type: 'integer', default: 0 })
@@ -76,16 +81,33 @@ export class RescueTeam {
   @Column({ type: 'varchar', length: 255, nullable: true })
   location: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true, name: 'current_location' })
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    name: 'current_location',
+  })
   currentLocation: string;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
   coordinates: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true, name: 'location_lat' })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 8,
+    nullable: true,
+    name: 'location_lat',
+  })
   locationLat: number;
 
-  @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true, name: 'location_lng' })
+  @Column({
+    type: 'decimal',
+    precision: 11,
+    scale: 8,
+    nullable: true,
+    name: 'location_lng',
+  })
   locationLng: number;
 
   @Column({ type: 'text', array: true, nullable: true })
@@ -103,7 +125,12 @@ export class RescueTeam {
   @Column({ type: 'text', nullable: true })
   notes: string;
 
-  @Column({ type: 'varchar', length: 20, nullable: true, name: 'current_mission_id' })
+  @Column({
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+    name: 'current_mission_id',
+  })
   currentMissionId: string;
 
   @Column({ type: 'timestamptz', nullable: true, name: 'deleted_at' })
@@ -112,7 +139,11 @@ export class RescueTeam {
   @Column({ type: 'boolean', default: false, name: 'is_deleted' })
   isDeleted: boolean;
 
-  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP', name: 'last_update' })
+  @Column({
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+    name: 'last_update',
+  })
   lastUpdate: Date;
 
   @CreateDateColumn({ name: 'created_at' })

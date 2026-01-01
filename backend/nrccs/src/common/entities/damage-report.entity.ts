@@ -31,7 +31,12 @@ export class DamageReport {
   @JoinColumn({ name: 'district_id' })
   district: District;
 
-  @Column({ type: 'varchar', length: 150, nullable: true, name: 'submitted_by' })
+  @Column({
+    type: 'varchar',
+    length: 150,
+    nullable: true,
+    name: 'submitted_by',
+  })
   submittedBy: string;
 
   @Column({ name: 'submitted_by_user_id', nullable: true })

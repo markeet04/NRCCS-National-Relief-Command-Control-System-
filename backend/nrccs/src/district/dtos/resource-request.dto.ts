@@ -1,20 +1,20 @@
 import {
-    IsString,
-    IsInt,
-    IsEnum,
-    IsOptional,
-    Min,
-    IsNotEmpty
+  IsString,
+  IsInt,
+  IsEnum,
+  IsOptional,
+  Min,
+  IsNotEmpty,
 } from 'class-validator';
 
 /**
  * Priority levels for district resource requests
  */
 export enum DistrictRequestPriority {
-    LOW = 'low',
-    MEDIUM = 'medium',
-    HIGH = 'high',
-    URGENT = 'urgent',
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  URGENT = 'urgent',
 }
 
 /**
@@ -22,30 +22,30 @@ export enum DistrictRequestPriority {
  * Note: Districts request specific resources, not via JSONB array
  */
 export class CreateDistrictResourceRequestDto {
-    @IsString()
-    @IsNotEmpty()
-    resourceType: string;
+  @IsString()
+  @IsNotEmpty()
+  resourceType: string;
 
-    @IsString()
-    @IsNotEmpty()
-    resourceName: string;
+  @IsString()
+  @IsNotEmpty()
+  resourceName: string;
 
-    @IsInt()
-    @Min(1)
-    quantity: number;
+  @IsInt()
+  @Min(1)
+  quantity: number;
 
-    @IsString()
-    @IsNotEmpty()
-    unit: string;
+  @IsString()
+  @IsNotEmpty()
+  unit: string;
 
-    @IsEnum(DistrictRequestPriority)
-    priority: DistrictRequestPriority;
+  @IsEnum(DistrictRequestPriority)
+  priority: DistrictRequestPriority;
 
-    @IsString()
-    @IsNotEmpty()
-    justification: string;
+  @IsString()
+  @IsNotEmpty()
+  justification: string;
 
-    @IsOptional()
-    @IsString()
-    notes?: string;
+  @IsOptional()
+  @IsString()
+  notes?: string;
 }

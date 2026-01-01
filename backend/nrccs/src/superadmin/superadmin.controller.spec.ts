@@ -1,18 +1,22 @@
 /**
  * Superadmin Controller Test Suite
- * 
+ *
  * Tests for superadmin system administration endpoints:
  * - User management (CRUD)
  * - Audit logs
  * - Activity logs
  * - System statistics
  * - Location data management
- * 
+ *
  * Coverage: Full user lifecycle, logging, system monitoring
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { SuperadminController } from './superadmin.controller';
 import { SuperadminService } from './superadmin.service';
 import { SessionAuthGuard } from '../common/guards/session-auth.guard';
@@ -87,7 +91,12 @@ describe('SuperadminController', () => {
 
   describe('GET /superadmin/users', () => {
     it('should return all active users', async () => {
-      const users = [mockSuperadmin, mockNdmaUser, mockPdmaUser, mockDistrictUser];
+      const users = [
+        mockSuperadmin,
+        mockNdmaUser,
+        mockPdmaUser,
+        mockDistrictUser,
+      ];
       mockSuperadminService.getAllUsers.mockResolvedValue(users);
 
       const result = await controller.getAllUsers();
@@ -128,7 +137,9 @@ describe('SuperadminController', () => {
         new NotFoundException('User not found'),
       );
 
-      await expect(controller.getUserById(999)).rejects.toThrow(NotFoundException);
+      await expect(controller.getUserById(999)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -141,7 +152,10 @@ describe('SuperadminController', () => {
       const result = await controller.createUser(dto as any, mockSuperadmin);
 
       expect(result.id).toBe(10);
-      expect(mockSuperadminService.createUser).toHaveBeenCalledWith(dto, mockSuperadmin.id);
+      expect(mockSuperadminService.createUser).toHaveBeenCalledWith(
+        dto,
+        mockSuperadmin.id,
+      );
     });
 
     it('should create NDMA user', async () => {
@@ -194,9 +208,9 @@ describe('SuperadminController', () => {
         new ConflictException('Email already exists'),
       );
 
-      await expect(controller.createUser(dto as any, mockSuperadmin)).rejects.toThrow(
-        ConflictException,
-      );
+      await expect(
+        controller.createUser(dto as any, mockSuperadmin),
+      ).rejects.toThrow(ConflictException);
     });
   });
 
@@ -244,7 +258,11 @@ describe('SuperadminController', () => {
         message: 'Password changed successfully',
       });
 
-      const result = await controller.changeUserPassword(2, dto as any, mockSuperadmin);
+      const result = await controller.changeUserPassword(
+        2,
+        dto as any,
+        mockSuperadmin,
+      );
 
       expect(result.message).toBe('Password changed successfully');
     });
@@ -255,9 +273,9 @@ describe('SuperadminController', () => {
         new BadRequestException('Password too weak'),
       );
 
-      await expect(controller.changeUserPassword(2, dto as any, mockSuperadmin)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        controller.changeUserPassword(2, dto as any, mockSuperadmin),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -278,9 +296,9 @@ describe('SuperadminController', () => {
         new BadRequestException('Cannot deactivate yourself'),
       );
 
-      await expect(controller.deactivateUser(1, mockSuperadmin)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        controller.deactivateUser(1, mockSuperadmin),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -311,9 +329,9 @@ describe('SuperadminController', () => {
         new BadRequestException('Cannot delete yourself'),
       );
 
-      await expect(controller.hardDeleteUser(1, mockSuperadmin)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        controller.hardDeleteUser(1, mockSuperadmin),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -334,7 +352,9 @@ describe('SuperadminController', () => {
         new BadRequestException('User is not deleted'),
       );
 
-      await expect(controller.restoreUser(2, mockSuperadmin)).rejects.toThrow(BadRequestException);
+      await expect(controller.restoreUser(2, mockSuperadmin)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -369,21 +389,31 @@ describe('SuperadminController', () => {
     });
 
     it('should respect limit parameter', async () => {
-      mockSuperadminService.getAuditLogsByUser.mockResolvedValue([mockAuditLogs[0]]);
+      mockSuperadminService.getAuditLogsByUser.mockResolvedValue([
+        mockAuditLogs[0],
+      ]);
 
       await controller.getAuditLogsByUser(1, '10');
 
-      expect(mockSuperadminService.getAuditLogsByUser).toHaveBeenCalledWith(1, 10);
+      expect(mockSuperadminService.getAuditLogsByUser).toHaveBeenCalledWith(
+        1,
+        10,
+      );
     });
   });
 
   describe('GET /superadmin/audit-logs/entity/:entityType/:entityId', () => {
     it('should return audit logs for specific entity', async () => {
-      mockSuperadminService.getAuditLogsByEntity.mockResolvedValue(mockAuditLogs);
+      mockSuperadminService.getAuditLogsByEntity.mockResolvedValue(
+        mockAuditLogs,
+      );
 
       const result = await controller.getAuditLogsByEntity('user', '5');
 
-      expect(mockSuperadminService.getAuditLogsByEntity).toHaveBeenCalledWith('user', '5');
+      expect(mockSuperadminService.getAuditLogsByEntity).toHaveBeenCalledWith(
+        'user',
+        '5',
+      );
     });
 
     it('should handle different entity types', async () => {
@@ -394,7 +424,10 @@ describe('SuperadminController', () => {
 
         await controller.getAuditLogsByEntity(entityType, '1');
 
-        expect(mockSuperadminService.getAuditLogsByEntity).toHaveBeenCalledWith(entityType, '1');
+        expect(mockSuperadminService.getAuditLogsByEntity).toHaveBeenCalledWith(
+          entityType,
+          '1',
+        );
       }
     });
   });
@@ -411,7 +444,9 @@ describe('SuperadminController', () => {
     });
 
     it('should respect pagination', async () => {
-      mockSuperadminService.getActivityLogs.mockResolvedValue([mockActivityLogs[0]]);
+      mockSuperadminService.getActivityLogs.mockResolvedValue([
+        mockActivityLogs[0],
+      ]);
 
       await controller.getActivityLogs('25', '5');
 
@@ -442,7 +477,9 @@ describe('SuperadminController', () => {
         new Error('Stats calculation failed'),
       );
 
-      await expect(controller.getSystemStats()).rejects.toThrow('Stats calculation failed');
+      await expect(controller.getSystemStats()).rejects.toThrow(
+        'Stats calculation failed',
+      );
     });
   });
 
@@ -460,11 +497,15 @@ describe('SuperadminController', () => {
 
   describe('GET /superadmin/provinces/:id/districts', () => {
     it('should return districts for province', async () => {
-      mockSuperadminService.getDistrictsByProvince.mockResolvedValue([mockDistricts[0]]);
+      mockSuperadminService.getDistrictsByProvince.mockResolvedValue([
+        mockDistricts[0],
+      ]);
 
       const result = await controller.getDistrictsByProvince(1);
 
-      expect(mockSuperadminService.getDistrictsByProvince).toHaveBeenCalledWith(1);
+      expect(mockSuperadminService.getDistrictsByProvince).toHaveBeenCalledWith(
+        1,
+      );
     });
   });
 

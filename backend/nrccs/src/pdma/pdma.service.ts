@@ -1,21 +1,41 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, IsNull } from 'typeorm';
 import { User } from '../common/entities/user.entity';
 import { District } from '../common/entities/district.entity';
 import { Province } from '../common/entities/province.entity';
 import { Shelter, ShelterStatus } from '../common/entities/shelter.entity';
-import { Alert, AlertStatus, AlertSeverity } from '../common/entities/alert.entity';
+import {
+  Alert,
+  AlertStatus,
+  AlertSeverity,
+} from '../common/entities/alert.entity';
 import { Resource, ResourceStatus } from '../common/entities/resource.entity';
 import { SosRequest, SosStatus } from '../common/entities/sos-request.entity';
-import { RescueTeam, RescueTeamStatus } from '../common/entities/rescue-team.entity';
+import {
+  RescueTeam,
+  RescueTeamStatus,
+} from '../common/entities/rescue-team.entity';
 import { ActivityLog } from '../common/entities/activity-log.entity';
 import { CreateShelterDto, UpdateShelterDto } from './dtos/shelter.dto';
 import { CreateAlertDto, UpdateAlertDto } from './dtos/alert.dto';
-import { CreateResourceDto, UpdateResourceDto, AllocateResourceDto } from './dtos/resource.dto';
+import {
+  CreateResourceDto,
+  UpdateResourceDto,
+  AllocateResourceDto,
+} from './dtos/resource.dto';
 import { AssignTeamDto } from './dtos/sos.dto';
 import { CreateResourceRequestDto } from './dtos/resource-request.dto';
-import { ResourceRequest, ResourceRequestStatus, ResourceRequestPriority } from '../common/entities/resource-request.entity';
+import {
+  ResourceRequest,
+  ResourceRequestStatus,
+  ResourceRequestPriority,
+} from '../common/entities/resource-request.entity';
 import { FloodZone } from '../common/entities/flood-zone.entity';
 
 @Injectable()
@@ -41,7 +61,7 @@ export class PdmaService {
     private resourceRequestRepository: Repository<ResourceRequest>,
     @InjectRepository(FloodZone)
     private floodZoneRepository: Repository<FloodZone>,
-  ) { }
+  ) {}
 
   // ==================== HELPER METHODS ====================
 
@@ -53,13 +73,16 @@ export class PdmaService {
       where: { provinceId },
       select: ['id'],
     });
-    return districts.map(d => d.id);
+    return districts.map((d) => d.id);
   }
 
   /**
    * Verify district belongs to user's province
    */
-  private async verifyDistrictAccess(districtId: number, provinceId: number): Promise<void> {
+  private async verifyDistrictAccess(
+    districtId: number,
+    provinceId: number,
+  ): Promise<void> {
     const district = await this.districtRepository.findOne({
       where: { id: districtId },
       select: ['id', 'provinceId'],
@@ -118,7 +141,7 @@ export class PdmaService {
       shelterCapacity,
       activeTeams,
       localResources,
-      damageReports
+      damageReports,
     ] = await Promise.all([
       // Pending SOS requests
       this.sosRepository.count({
@@ -143,7 +166,7 @@ export class PdmaService {
         .where('shelter.district_id IN (:...districtIds)', { districtIds })
         .andWhere('shelter.is_deleted = false')
         .getRawOne()
-        .then(r => parseInt(r?.total, 10) || 0),
+        .then((r) => parseInt(r?.total, 10) || 0),
       // Active rescue teams
       this.rescueTeamRepository.count({
         where: {
@@ -198,27 +221,45 @@ export class PdmaService {
   async getDistrictStats(id: number, user: User) {
     await this.verifyDistrictAccess(id, user.provinceId);
 
-    const [pendingSOS, activeSOS, shelters, peopleInShelters, availableTeams] = await Promise.all([
-      this.sosRepository.count({
-        where: { districtId: id, status: SosStatus.PENDING, isDeleted: false },
-      }),
-      this.sosRepository.count({
-        where: { districtId: id, status: In([SosStatus.PENDING, SosStatus.ASSIGNED, SosStatus.EN_ROUTE, SosStatus.IN_PROGRESS]), isDeleted: false },
-      }),
-      this.shelterRepository.count({
-        where: { districtId: id, isDeleted: false },
-      }),
-      this.shelterRepository
-        .createQueryBuilder('shelter')
-        .select('COALESCE(SUM(shelter.occupancy), 0)', 'total')
-        .where('shelter.district_id = :id', { id })
-        .andWhere('shelter.is_deleted = false')
-        .getRawOne()
-        .then(r => parseInt(r.total)),
-      this.rescueTeamRepository.count({
-        where: { districtId: id, status: RescueTeamStatus.AVAILABLE, isDeleted: false },
-      }),
-    ]);
+    const [pendingSOS, activeSOS, shelters, peopleInShelters, availableTeams] =
+      await Promise.all([
+        this.sosRepository.count({
+          where: {
+            districtId: id,
+            status: SosStatus.PENDING,
+            isDeleted: false,
+          },
+        }),
+        this.sosRepository.count({
+          where: {
+            districtId: id,
+            status: In([
+              SosStatus.PENDING,
+              SosStatus.ASSIGNED,
+              SosStatus.EN_ROUTE,
+              SosStatus.IN_PROGRESS,
+            ]),
+            isDeleted: false,
+          },
+        }),
+        this.shelterRepository.count({
+          where: { districtId: id, isDeleted: false },
+        }),
+        this.shelterRepository
+          .createQueryBuilder('shelter')
+          .select('COALESCE(SUM(shelter.occupancy), 0)', 'total')
+          .where('shelter.district_id = :id', { id })
+          .andWhere('shelter.is_deleted = false')
+          .getRawOne()
+          .then((r) => parseInt(r.total)),
+        this.rescueTeamRepository.count({
+          where: {
+            districtId: id,
+            status: RescueTeamStatus.AVAILABLE,
+            isDeleted: false,
+          },
+        }),
+      ]);
 
     return {
       districtId: id,
@@ -384,7 +425,10 @@ export class PdmaService {
     const totalShelters = parseInt(stats.totalShelters);
     const totalCapacity = parseInt(stats.totalCapacity);
     const currentOccupancy = parseInt(stats.currentOccupancy);
-    const avgOccupancyPercent = totalCapacity > 0 ? Math.round((currentOccupancy / totalCapacity) * 100) : 0;
+    const avgOccupancyPercent =
+      totalCapacity > 0
+        ? Math.round((currentOccupancy / totalCapacity) * 100)
+        : 0;
 
     return {
       totalShelters,
@@ -399,11 +443,13 @@ export class PdmaService {
     const shelterData: Partial<Shelter> = {
       name: createShelterDto.name,
       address: createShelterDto.address || createShelterDto.location,
-      capacity: typeof createShelterDto.capacity === 'string'
-        ? parseInt(createShelterDto.capacity, 10) || 0
-        : createShelterDto.capacity || 0,
+      capacity:
+        typeof createShelterDto.capacity === 'string'
+          ? parseInt(createShelterDto.capacity, 10) || 0
+          : createShelterDto.capacity || 0,
       contactPhone: createShelterDto.contactPhone || createShelterDto.contact,
-      managerName: createShelterDto.managerName || createShelterDto.contactPerson,
+      managerName:
+        createShelterDto.managerName || createShelterDto.contactPerson,
       managerPhone: createShelterDto.managerPhone,
       facilities: createShelterDto.facilities,
       amenities: createShelterDto.amenities,
@@ -414,7 +460,10 @@ export class PdmaService {
 
     // If districtId provided, verify access; otherwise assign first district in province
     if (createShelterDto.districtId) {
-      await this.verifyDistrictAccess(createShelterDto.districtId, user.provinceId);
+      await this.verifyDistrictAccess(
+        createShelterDto.districtId,
+        user.provinceId,
+      );
       shelterData.districtId = createShelterDto.districtId;
     } else {
       // Get first district in user's province as default
@@ -442,7 +491,11 @@ export class PdmaService {
     return saved;
   }
 
-  async updateShelter(id: number, updateShelterDto: UpdateShelterDto, user: User) {
+  async updateShelter(
+    id: number,
+    updateShelterDto: UpdateShelterDto,
+    user: User,
+  ) {
     const districtIds = await this.getProvinceDistrictIds(user.provinceId);
 
     const shelter = await this.shelterRepository.findOne({
@@ -454,7 +507,10 @@ export class PdmaService {
     }
 
     // Validate occupancy doesn't exceed capacity
-    if (updateShelterDto.occupancy !== undefined && updateShelterDto.capacity !== undefined) {
+    if (
+      updateShelterDto.occupancy !== undefined &&
+      updateShelterDto.capacity !== undefined
+    ) {
       if (updateShelterDto.occupancy > updateShelterDto.capacity) {
         throw new BadRequestException('Occupancy cannot exceed capacity');
       }
@@ -464,7 +520,9 @@ export class PdmaService {
       }
     } else if (updateShelterDto.capacity !== undefined) {
       if (shelter.occupancy > updateShelterDto.capacity) {
-        throw new BadRequestException('Capacity cannot be less than current occupancy');
+        throw new BadRequestException(
+          'Capacity cannot be less than current occupancy',
+        );
       }
     }
 
@@ -539,7 +597,9 @@ export class PdmaService {
       .select('COUNT(*)', 'totalResources')
       .addSelect('COALESCE(SUM(resource.quantity), 0)', 'totalQuantity')
       .addSelect('COALESCE(SUM(resource.allocated), 0)', 'totalAllocated')
-      .where('resource.province_id = :provinceId', { provinceId: user.provinceId })
+      .where('resource.province_id = :provinceId', {
+        provinceId: user.provinceId,
+      })
       .andWhere('resource.district_id IS NULL') // Only province-level resources
       .getRawOne();
 
@@ -547,7 +607,10 @@ export class PdmaService {
     const totalQuantity = parseInt(stats.totalQuantity);
     const totalAllocated = parseInt(stats.totalAllocated);
     const availableQuantity = totalQuantity - totalAllocated;
-    const allocatedPercent = totalQuantity > 0 ? Math.round((totalAllocated / totalQuantity) * 100) : 0;
+    const allocatedPercent =
+      totalQuantity > 0
+        ? Math.round((totalAllocated / totalQuantity) * 100)
+        : 0;
 
     return {
       totalResources,
@@ -601,7 +664,11 @@ export class PdmaService {
     for (const resource of districtResources) {
       const entry = districtStockMap.get(resource.districtId);
       if (entry) {
-        const type = (resource.type || resource.resourceType || '').toLowerCase();
+        const type = (
+          resource.type ||
+          resource.resourceType ||
+          ''
+        ).toLowerCase();
         const qty = resource.quantity || 0;
 
         if (type.includes('food')) {
@@ -619,7 +686,7 @@ export class PdmaService {
     }
 
     // Convert to array and calculate status
-    const result = Array.from(districtStockMap.values()).map(d => {
+    const result = Array.from(districtStockMap.values()).map((d) => {
       // Calculate overall status based on resource levels
       const totalResources = d.food + d.medical + d.water + d.shelter;
       let status = 'adequate';
@@ -641,7 +708,10 @@ export class PdmaService {
   async createResource(createResourceDto: CreateResourceDto, user: User) {
     // If districtId provided, verify it belongs to province
     if (createResourceDto.districtId) {
-      await this.verifyDistrictAccess(createResourceDto.districtId, user.provinceId);
+      await this.verifyDistrictAccess(
+        createResourceDto.districtId,
+        user.provinceId,
+      );
     }
 
     const resource = this.resourceRepository.create({
@@ -662,7 +732,11 @@ export class PdmaService {
     return saved;
   }
 
-  async updateResource(id: number, updateResourceDto: UpdateResourceDto, user: User) {
+  async updateResource(
+    id: number,
+    updateResourceDto: UpdateResourceDto,
+    user: User,
+  ) {
     const resource = await this.resourceRepository.findOne({
       where: { id, provinceId: user.provinceId },
     });
@@ -685,7 +759,11 @@ export class PdmaService {
     return updated;
   }
 
-  async allocateResource(id: number, allocateDto: AllocateResourceDto, user: User) {
+  async allocateResource(
+    id: number,
+    allocateDto: AllocateResourceDto,
+    user: User,
+  ) {
     const provinceResource = await this.resourceRepository.findOne({
       where: { id, provinceId: user.provinceId },
     });
@@ -700,7 +778,9 @@ export class PdmaService {
     // Check available quantity
     const available = provinceResource.quantity - provinceResource.allocated;
     if (allocateDto.quantity > available) {
-      throw new BadRequestException(`Only ${available} ${provinceResource.unit} available for allocation`);
+      throw new BadRequestException(
+        `Only ${available} ${provinceResource.unit} available for allocation`,
+      );
     }
 
     // Decrement provincial quantity and update allocation tracking
@@ -708,7 +788,12 @@ export class PdmaService {
     provinceResource.allocated += allocateDto.quantity;
 
     // Update province resource status based on remaining quantity
-    const usagePercentage = provinceResource.quantity > 0 ? ((provinceResource.allocated / (provinceResource.quantity + provinceResource.allocated)) * 100) : 100;
+    const usagePercentage =
+      provinceResource.quantity > 0
+        ? (provinceResource.allocated /
+            (provinceResource.quantity + provinceResource.allocated)) *
+          100
+        : 100;
 
     if (usagePercentage >= 100) {
       provinceResource.status = ResourceStatus.ALLOCATED;
@@ -724,10 +809,25 @@ export class PdmaService {
 
     // Standardized resource type mapping to match 4 resource types
     const standardResourceTypes = {
-      food: { name: 'Food Supplies', type: 'food', unit: 'kg', icon: 'package' },
+      food: {
+        name: 'Food Supplies',
+        type: 'food',
+        unit: 'kg',
+        icon: 'package',
+      },
       water: { name: 'Water', type: 'water', unit: 'liters', icon: 'droplets' },
-      medical: { name: 'Medical Kits', type: 'medical', unit: 'kits', icon: 'stethoscope' },
-      shelter: { name: 'Shelter Materials', type: 'shelter', unit: 'units', icon: 'home' },
+      medical: {
+        name: 'Medical Kits',
+        type: 'medical',
+        unit: 'kits',
+        icon: 'stethoscope',
+      },
+      shelter: {
+        name: 'Shelter Materials',
+        type: 'shelter',
+        unit: 'units',
+        icon: 'home',
+      },
     };
 
     // Normalize province resource type to standard 4 types
@@ -740,7 +840,9 @@ export class PdmaService {
       return 'food'; // Default to food if unrecognized
     };
 
-    const normalizedType = normalizeType(provinceResource.type || provinceResource.resourceType);
+    const normalizedType = normalizeType(
+      provinceResource.type || provinceResource.resourceType,
+    );
     const standard = standardResourceTypes[normalizedType];
 
     // Get district info for location
@@ -781,7 +883,8 @@ export class PdmaService {
       });
     }
 
-    const savedDistrictResource = await this.resourceRepository.save(districtResource);
+    const savedDistrictResource =
+      await this.resourceRepository.save(districtResource);
 
     await this.logActivity(
       'resource_allocated',
@@ -803,7 +906,10 @@ export class PdmaService {
    * Allocate resource by type (auto-creates province resource if needed)
    * This is used for manual allocation from the UI when selecting resource types
    */
-  async allocateResourceByType(allocateDto: AllocateResourceDto & { resourceType: string }, user: User) {
+  async allocateResourceByType(
+    allocateDto: AllocateResourceDto & { resourceType: string },
+    user: User,
+  ) {
     if (!user.provinceId) {
       throw new BadRequestException('User must be associated with a province');
     }
@@ -822,10 +928,30 @@ export class PdmaService {
 
     // Standardized resource info
     const resourceDefaults = {
-      food: { name: 'Food Supplies', unit: 'kg', quantity: 50000, icon: 'package' },
-      water: { name: 'Water', unit: 'liters', quantity: 250000, icon: 'droplets' },
-      medical: { name: 'Medical Kits', unit: 'kits', quantity: 25000, icon: 'stethoscope' },
-      shelter: { name: 'Shelter Materials', unit: 'units', quantity: 10000, icon: 'home' },
+      food: {
+        name: 'Food Supplies',
+        unit: 'kg',
+        quantity: 50000,
+        icon: 'package',
+      },
+      water: {
+        name: 'Water',
+        unit: 'liters',
+        quantity: 250000,
+        icon: 'droplets',
+      },
+      medical: {
+        name: 'Medical Kits',
+        unit: 'kits',
+        quantity: 25000,
+        icon: 'stethoscope',
+      },
+      shelter: {
+        name: 'Shelter Materials',
+        unit: 'units',
+        quantity: 10000,
+        icon: 'home',
+      },
     };
     const defaults = resourceDefaults[normalizedType];
 
@@ -835,15 +961,17 @@ export class PdmaService {
       .createQueryBuilder('r')
       .where('r.province_id = :provinceId', { provinceId: user.provinceId })
       .andWhere('r.district_id IS NULL')
-      .andWhere('(LOWER(r.type) LIKE :pattern OR LOWER(r.name) LIKE :pattern)',
-        { pattern: `%${normalizedType}%` })
+      .andWhere(
+        '(LOWER(r.type) LIKE :pattern OR LOWER(r.name) LIKE :pattern)',
+        { pattern: `%${normalizedType}%` },
+      )
       .orderBy('r.quantity', 'DESC')
       .getOne();
 
     // If province resource doesn't exist, create it with default values
     if (!provinceResource) {
       const province = await this.provinceRepository.findOne({
-        where: { id: user.provinceId }
+        where: { id: user.provinceId },
       });
 
       const newResource = this.resourceRepository.create({
@@ -926,11 +1054,17 @@ export class PdmaService {
 
     // Verify team exists and belongs to province
     const team = await this.rescueTeamRepository.findOne({
-      where: { id: assignTeamDto.teamId, districtId: In(districtIds), isDeleted: false },
+      where: {
+        id: assignTeamDto.teamId,
+        districtId: In(districtIds),
+        isDeleted: false,
+      },
     });
 
     if (!team) {
-      throw new NotFoundException('Rescue team not found or not available in your province');
+      throw new NotFoundException(
+        'Rescue team not found or not available in your province',
+      );
     }
 
     sosRequest.assignedTeamId = assignTeamDto.teamId;
@@ -1011,7 +1145,15 @@ export class PdmaService {
     // Get shelters for each district
     const shelters = await this.shelterRepository.find({
       where: { districtId: In(districtIds), isDeleted: false },
-      select: ['id', 'name', 'districtId', 'lat', 'lng', 'capacity', 'occupancy'],
+      select: [
+        'id',
+        'name',
+        'districtId',
+        'lat',
+        'lng',
+        'capacity',
+        'occupancy',
+      ],
     });
 
     // Get active SOS requests
@@ -1019,16 +1161,31 @@ export class PdmaService {
       where: {
         districtId: In(districtIds),
         status: In([SosStatus.PENDING, SosStatus.ASSIGNED, SosStatus.EN_ROUTE]),
-        isDeleted: false
+        isDeleted: false,
       },
-      select: ['id', 'districtId', 'locationLat', 'locationLng', 'peopleCount', 'status', 'priority'],
+      select: [
+        'id',
+        'districtId',
+        'locationLat',
+        'locationLng',
+        'peopleCount',
+        'status',
+        'priority',
+      ],
     });
 
     // Aggregate data by district for map zones
-    const mapZones = districts.map(district => {
-      const districtShelters = shelters.filter(s => s.districtId === district.id);
-      const districtSOS = sosRequests.filter(sos => sos.districtId === district.id);
-      const affectedPopulation = districtSOS.reduce((sum, sos) => sum + (sos.peopleCount || 0), 0);
+    const mapZones = districts.map((district) => {
+      const districtShelters = shelters.filter(
+        (s) => s.districtId === district.id,
+      );
+      const districtSOS = sosRequests.filter(
+        (sos) => sos.districtId === district.id,
+      );
+      const affectedPopulation = districtSOS.reduce(
+        (sum, sos) => sum + (sos.peopleCount || 0),
+        0,
+      );
 
       return {
         id: district.id,
@@ -1045,7 +1202,7 @@ export class PdmaService {
 
     return {
       zones: mapZones,
-      shelters: shelters.map(s => ({
+      shelters: shelters.map((s) => ({
         id: s.id,
         name: s.name,
         lat: s.lat,
@@ -1054,7 +1211,7 @@ export class PdmaService {
         occupancy: s.occupancy,
         districtId: s.districtId,
       })),
-      sosMarkers: sosRequests.map(sos => ({
+      sosMarkers: sosRequests.map((sos) => ({
         id: sos.id,
         lat: sos.locationLat,
         lng: sos.locationLng,
@@ -1116,7 +1273,7 @@ export class PdmaService {
 
   /**
    * Get resource requests from districts (District → PDMA)
-   * These are requests where districtId is set (from a district) 
+   * These are requests where districtId is set (from a district)
    * and the district belongs to this PDMA's province
    */
   async getDistrictRequests(user: User, status?: string) {
@@ -1126,7 +1283,7 @@ export class PdmaService {
       select: ['id', 'name'],
     });
 
-    const districtIds = districts.map(d => d.id);
+    const districtIds = districts.map((d) => d.id);
 
     if (districtIds.length === 0) {
       return [];
@@ -1138,18 +1295,20 @@ export class PdmaService {
     });
 
     // Filter to only requests from districts in this province
-    let filteredRequests = allRequests.filter(req =>
-      req.districtId && districtIds.includes(req.districtId)
+    let filteredRequests = allRequests.filter(
+      (req) => req.districtId && districtIds.includes(req.districtId),
     );
 
     // Apply status filter if provided
     if (status) {
-      filteredRequests = filteredRequests.filter(req => req.status === status);
+      filteredRequests = filteredRequests.filter(
+        (req) => req.status === status,
+      );
     }
 
     // Map district information to each request
-    const districtMap = new Map(districts.map(d => [d.id, d]));
-    return filteredRequests.map(req => ({
+    const districtMap = new Map(districts.map((d) => [d.id, d]));
+    return filteredRequests.map((req) => ({
       ...req,
       district: districtMap.get(req.districtId) || null,
     }));
@@ -1182,7 +1341,9 @@ export class PdmaService {
     });
 
     if (!district || district.provinceId !== user.provinceId) {
-      throw new ForbiddenException('Cannot review requests from other provinces');
+      throw new ForbiddenException(
+        'Cannot review requests from other provinces',
+      );
     }
 
     if (request.status !== ResourceRequestStatus.PENDING) {
@@ -1198,13 +1359,36 @@ export class PdmaService {
       request.notes = reviewDto.notes;
     }
     // If approved, allocate resources to the district
-    if (reviewDto.status === ResourceRequestStatus.APPROVED && request.requestedItems) {
+    if (
+      reviewDto.status === ResourceRequestStatus.APPROVED &&
+      request.requestedItems
+    ) {
       // Standardized resource type mapping to match PDMA's 4 resource types
       const standardResourceTypes = {
-        food: { name: 'Food Supplies', type: 'food', unit: 'kg', icon: 'package' },
-        water: { name: 'Water', type: 'water', unit: 'liters', icon: 'droplets' },
-        medical: { name: 'Medical Kits', type: 'medical', unit: 'kits', icon: 'stethoscope' },
-        shelter: { name: 'Shelter Materials', type: 'shelter', unit: 'units', icon: 'home' },
+        food: {
+          name: 'Food Supplies',
+          type: 'food',
+          unit: 'kg',
+          icon: 'package',
+        },
+        water: {
+          name: 'Water',
+          type: 'water',
+          unit: 'liters',
+          icon: 'droplets',
+        },
+        medical: {
+          name: 'Medical Kits',
+          type: 'medical',
+          unit: 'kits',
+          icon: 'stethoscope',
+        },
+        shelter: {
+          name: 'Shelter Materials',
+          type: 'shelter',
+          unit: 'units',
+          icon: 'home',
+        },
       };
 
       // Helper to normalize resource type to standard 4 types
@@ -1212,8 +1396,10 @@ export class PdmaService {
         const lower = (inputType || '').toLowerCase();
         if (lower.includes('food')) return 'food';
         if (lower.includes('water')) return 'water';
-        if (lower.includes('medical') || lower.includes('kit')) return 'medical';
-        if (lower.includes('shelter') || lower.includes('tent')) return 'shelter';
+        if (lower.includes('medical') || lower.includes('kit'))
+          return 'medical';
+        if (lower.includes('shelter') || lower.includes('tent'))
+          return 'shelter';
         return 'food'; // Default to food if unrecognized
       };
 
@@ -1228,14 +1414,21 @@ export class PdmaService {
           .createQueryBuilder('r')
           .where('r.province_id = :provinceId', { provinceId: user.provinceId })
           .andWhere('r.district_id IS NULL')
-          .andWhere('(LOWER(r.type) LIKE :pattern OR LOWER(r.name) LIKE :pattern)',
-            { pattern: `%${normalizedType}%` })
+          .andWhere(
+            '(LOWER(r.type) LIKE :pattern OR LOWER(r.name) LIKE :pattern)',
+            { pattern: `%${normalizedType}%` },
+          )
           .orderBy('r.quantity', 'DESC')
           .getOne();
 
         // If province resource doesn't exist, create it with default quantity
         if (!provinceResource) {
-          const defaultQuantities = { food: 50000, water: 250000, medical: 25000, shelter: 10000 };
+          const defaultQuantities = {
+            food: 50000,
+            water: 250000,
+            medical: 25000,
+            shelter: 10000,
+          };
           const newProvinceResource = this.resourceRepository.create({
             name: standard.name,
             type: standard.type,
@@ -1250,18 +1443,24 @@ export class PdmaService {
             allocated: 0,
             allocatedQuantity: 0,
           } as any);
-          provinceResource = await this.resourceRepository.save(newProvinceResource) as any;
+          provinceResource = (await this.resourceRepository.save(
+            newProvinceResource,
+          )) as any;
         }
 
         // Check if province has enough available
-        const available = provinceResource!.quantity - (provinceResource!.allocated || 0);
+        const available =
+          provinceResource!.quantity - (provinceResource!.allocated || 0);
         if (item.quantity > available) {
-          throw new BadRequestException(`Only ${available} ${standard.unit} of ${standard.name} available for allocation`);
+          throw new BadRequestException(
+            `Only ${available} ${standard.unit} of ${standard.name} available for allocation`,
+          );
         }
 
         // Decrement provincial quantity and update allocation tracking
         provinceResource!.quantity -= item.quantity;
-        provinceResource!.allocated = (provinceResource!.allocated || 0) + item.quantity;
+        provinceResource!.allocated =
+          (provinceResource!.allocated || 0) + item.quantity;
         await this.resourceRepository.save(provinceResource!);
 
         // Check if district already has this resource TYPE
@@ -1346,7 +1545,7 @@ export class PdmaService {
     });
 
     // Map to frontend-friendly format
-    return floodZones.map(zone => ({
+    return floodZones.map((zone) => ({
       id: zone.id,
       name: zone.name,
       riskLevel: zone.riskLevel,

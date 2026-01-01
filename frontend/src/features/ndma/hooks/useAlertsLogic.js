@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useBadge } from '@shared/contexts/BadgeContext';
-import NdmaApiService from '@shared/services/NdmaApiService';
+import NdmaApiService from '@shared/services/ndmaApiService.js';
 import { NotificationService } from '@services/NotificationService';
 import { validateAlert } from '@utils/validationUtils';
 import { getCurrentTimestamp, isToday } from '@utils/dateUtils';

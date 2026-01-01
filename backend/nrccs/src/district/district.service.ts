@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, LessThan, IsNull } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -8,15 +13,28 @@ import { Shelter, ShelterStatus } from '../common/entities/shelter.entity';
 import { Alert, AlertStatus } from '../common/entities/alert.entity';
 import { Resource, ResourceStatus } from '../common/entities/resource.entity';
 import { SosRequest, SosStatus } from '../common/entities/sos-request.entity';
-import { RescueTeam, RescueTeamStatus } from '../common/entities/rescue-team.entity';
+import {
+  RescueTeam,
+  RescueTeamStatus,
+} from '../common/entities/rescue-team.entity';
 import { ActivityLog } from '../common/entities/activity-log.entity';
-import { DamageReport, DamageReportStatus } from '../common/entities/damage-report.entity';
+import {
+  DamageReport,
+  DamageReportStatus,
+} from '../common/entities/damage-report.entity';
 import { SosRequestTimeline } from '../common/entities/sos-request-timeline.entity';
 import { WeatherData } from '../common/entities/weather-data.entity';
 import { ResourceAllocation } from '../common/entities/resource-allocation.entity';
-import { MissingPerson, MissingPersonStatus } from '../common/entities/missing-person.entity';
+import {
+  MissingPerson,
+  MissingPersonStatus,
+} from '../common/entities/missing-person.entity';
 import { UpdateMissingPersonStatusDto } from './dtos/update-missing-person-status.dto';
-import { ResourceRequest, ResourceRequestStatus, ResourceRequestPriority } from '../common/entities/resource-request.entity';
+import {
+  ResourceRequest,
+  ResourceRequestStatus,
+  ResourceRequestPriority,
+} from '../common/entities/resource-request.entity';
 import { CreateDistrictResourceRequestDto } from './dtos/resource-request.dto';
 import {
   UpdateSosStatusDto,
@@ -69,7 +87,7 @@ export class DistrictService {
     private missingPersonRepository: Repository<MissingPerson>,
     @InjectRepository(ResourceRequest)
     private resourceRequestRepository: Repository<ResourceRequest>,
-  ) { }
+  ) {}
 
   // ==================== HELPER METHODS ====================
 
@@ -131,7 +149,12 @@ export class DistrictService {
       this.sosRepository.count({
         where: {
           districtId,
-          status: In([SosStatus.PENDING, SosStatus.ASSIGNED, SosStatus.EN_ROUTE, SosStatus.IN_PROGRESS]),
+          status: In([
+            SosStatus.PENDING,
+            SosStatus.ASSIGNED,
+            SosStatus.EN_ROUTE,
+            SosStatus.IN_PROGRESS,
+          ]),
           isDeleted: false,
         },
       }),
@@ -139,7 +162,11 @@ export class DistrictService {
       this.shelterRepository.count({
         where: {
           districtId,
-          status: In([ShelterStatus.AVAILABLE, ShelterStatus.LIMITED, ShelterStatus.OPERATIONAL]),
+          status: In([
+            ShelterStatus.AVAILABLE,
+            ShelterStatus.LIMITED,
+            ShelterStatus.OPERATIONAL,
+          ]),
           isDeleted: false,
         },
       }),
@@ -150,7 +177,7 @@ export class DistrictService {
         .where('shelter.district_id = :districtId', { districtId })
         .andWhere('shelter.is_deleted = false')
         .getRawOne()
-        .then(r => parseInt(r?.total, 10) || 0),
+        .then((r) => parseInt(r?.total, 10) || 0),
       // Current shelter occupancy
       this.shelterRepository
         .createQueryBuilder('shelter')
@@ -158,12 +185,16 @@ export class DistrictService {
         .where('shelter.district_id = :districtId', { districtId })
         .andWhere('shelter.is_deleted = false')
         .getRawOne()
-        .then(r => parseInt(r?.total, 10) || 0),
+        .then((r) => parseInt(r?.total, 10) || 0),
       // Active rescue teams (busy/deployed/on-mission)
       this.rescueTeamRepository.count({
         where: {
           districtId,
-          status: In([RescueTeamStatus.BUSY, RescueTeamStatus.DEPLOYED, RescueTeamStatus.ON_MISSION]),
+          status: In([
+            RescueTeamStatus.BUSY,
+            RescueTeamStatus.DEPLOYED,
+            RescueTeamStatus.ON_MISSION,
+          ]),
           isDeleted: false,
         },
       }),
@@ -255,7 +286,9 @@ export class DistrictService {
       .createQueryBuilder('sos')
       .leftJoinAndSelect('sos.rescueTeam', 'rescueTeam')
       .where('sos.isDeleted = :isDeleted', { isDeleted: false })
-      .andWhere('(sos.districtId = :districtId OR sos.districtId IS NULL)', { districtId })
+      .andWhere('(sos.districtId = :districtId OR sos.districtId IS NULL)', {
+        districtId,
+      })
       .orderBy('sos.createdAt', 'DESC');
 
     if (status && status !== 'All') {
@@ -319,7 +352,10 @@ export class DistrictService {
     }
 
     request.status = dto.status;
-    if (dto.status === SosStatus.COMPLETED || dto.status === SosStatus.RESCUED) {
+    if (
+      dto.status === SosStatus.COMPLETED ||
+      dto.status === SosStatus.RESCUED
+    ) {
       request.completedAt = new Date();
     }
 
@@ -371,7 +407,9 @@ export class DistrictService {
     });
 
     if (!team) {
-      throw new NotFoundException(`Rescue Team ${dto.teamId} not found in your district`);
+      throw new NotFoundException(
+        `Rescue Team ${dto.teamId} not found in your district`,
+      );
     }
 
     if (team.status !== RescueTeamStatus.AVAILABLE) {
@@ -445,14 +483,36 @@ export class DistrictService {
   async getSosStats(user: User) {
     const districtId = this.verifyDistrictAccess(user);
 
-    const [pending, assigned, enroute, inProgress, rescued, completed, cancelled] = await Promise.all([
-      this.sosRepository.count({ where: { districtId, status: SosStatus.PENDING, isDeleted: false } }),
-      this.sosRepository.count({ where: { districtId, status: SosStatus.ASSIGNED, isDeleted: false } }),
-      this.sosRepository.count({ where: { districtId, status: SosStatus.EN_ROUTE, isDeleted: false } }),
-      this.sosRepository.count({ where: { districtId, status: SosStatus.IN_PROGRESS, isDeleted: false } }),
-      this.sosRepository.count({ where: { districtId, status: SosStatus.RESCUED, isDeleted: false } }),
-      this.sosRepository.count({ where: { districtId, status: SosStatus.COMPLETED, isDeleted: false } }),
-      this.sosRepository.count({ where: { districtId, status: SosStatus.CANCELLED, isDeleted: false } }),
+    const [
+      pending,
+      assigned,
+      enroute,
+      inProgress,
+      rescued,
+      completed,
+      cancelled,
+    ] = await Promise.all([
+      this.sosRepository.count({
+        where: { districtId, status: SosStatus.PENDING, isDeleted: false },
+      }),
+      this.sosRepository.count({
+        where: { districtId, status: SosStatus.ASSIGNED, isDeleted: false },
+      }),
+      this.sosRepository.count({
+        where: { districtId, status: SosStatus.EN_ROUTE, isDeleted: false },
+      }),
+      this.sosRepository.count({
+        where: { districtId, status: SosStatus.IN_PROGRESS, isDeleted: false },
+      }),
+      this.sosRepository.count({
+        where: { districtId, status: SosStatus.RESCUED, isDeleted: false },
+      }),
+      this.sosRepository.count({
+        where: { districtId, status: SosStatus.COMPLETED, isDeleted: false },
+      }),
+      this.sosRepository.count({
+        where: { districtId, status: SosStatus.CANCELLED, isDeleted: false },
+      }),
     ]);
 
     return {
@@ -463,7 +523,14 @@ export class DistrictService {
       rescued,
       completed,
       cancelled,
-      total: pending + assigned + enroute + inProgress + rescued + completed + cancelled,
+      total:
+        pending +
+        assigned +
+        enroute +
+        inProgress +
+        rescued +
+        completed +
+        cancelled,
     };
   }
 
@@ -618,16 +685,54 @@ export class DistrictService {
   async getRescueTeamStats(user: User) {
     const districtId = this.verifyDistrictAccess(user);
 
-    const [available, busy, deployed, onMission, unavailable, resting] = await Promise.all([
-      this.rescueTeamRepository.count({ where: { districtId, status: RescueTeamStatus.AVAILABLE, isDeleted: false } }),
-      this.rescueTeamRepository.count({ where: { districtId, status: RescueTeamStatus.BUSY, isDeleted: false } }),
-      this.rescueTeamRepository.count({ where: { districtId, status: RescueTeamStatus.DEPLOYED, isDeleted: false } }),
-      this.rescueTeamRepository.count({ where: { districtId, status: RescueTeamStatus.ON_MISSION, isDeleted: false } }),
-      this.rescueTeamRepository.count({ where: { districtId, status: RescueTeamStatus.UNAVAILABLE, isDeleted: false } }),
-      this.rescueTeamRepository.count({ where: { districtId, status: RescueTeamStatus.RESTING, isDeleted: false } }),
-    ]);
+    const [available, busy, deployed, onMission, unavailable, resting] =
+      await Promise.all([
+        this.rescueTeamRepository.count({
+          where: {
+            districtId,
+            status: RescueTeamStatus.AVAILABLE,
+            isDeleted: false,
+          },
+        }),
+        this.rescueTeamRepository.count({
+          where: {
+            districtId,
+            status: RescueTeamStatus.BUSY,
+            isDeleted: false,
+          },
+        }),
+        this.rescueTeamRepository.count({
+          where: {
+            districtId,
+            status: RescueTeamStatus.DEPLOYED,
+            isDeleted: false,
+          },
+        }),
+        this.rescueTeamRepository.count({
+          where: {
+            districtId,
+            status: RescueTeamStatus.ON_MISSION,
+            isDeleted: false,
+          },
+        }),
+        this.rescueTeamRepository.count({
+          where: {
+            districtId,
+            status: RescueTeamStatus.UNAVAILABLE,
+            isDeleted: false,
+          },
+        }),
+        this.rescueTeamRepository.count({
+          where: {
+            districtId,
+            status: RescueTeamStatus.RESTING,
+            isDeleted: false,
+          },
+        }),
+      ]);
 
-    const total = available + busy + deployed + onMission + unavailable + resting;
+    const total =
+      available + busy + deployed + onMission + unavailable + resting;
 
     return {
       total,
@@ -791,7 +896,11 @@ export class DistrictService {
     return shelter;
   }
 
-  async updateShelterSupplies(id: number, dto: UpdateShelterSuppliesDto, user: User) {
+  async updateShelterSupplies(
+    id: number,
+    dto: UpdateShelterSuppliesDto,
+    user: User,
+  ) {
     const districtId = this.verifyDistrictAccess(user);
 
     const shelter = await this.shelterRepository.findOne({
@@ -804,7 +913,8 @@ export class DistrictService {
 
     if (dto.supplyFood !== undefined) shelter.supplyFood = dto.supplyFood;
     if (dto.supplyWater !== undefined) shelter.supplyWater = dto.supplyWater;
-    if (dto.supplyMedical !== undefined) shelter.supplyMedical = dto.supplyMedical;
+    if (dto.supplyMedical !== undefined)
+      shelter.supplyMedical = dto.supplyMedical;
     if (dto.supplyTents !== undefined) shelter.supplyTents = dto.supplyTents;
 
     await this.shelterRepository.save(shelter);
@@ -812,7 +922,11 @@ export class DistrictService {
     return shelter;
   }
 
-  async updateShelterOccupancy(id: number, dto: UpdateShelterOccupancyDto, user: User) {
+  async updateShelterOccupancy(
+    id: number,
+    dto: UpdateShelterOccupancyDto,
+    user: User,
+  ) {
     const districtId = this.verifyDistrictAccess(user);
 
     const shelter = await this.shelterRepository.findOne({
@@ -881,19 +995,28 @@ export class DistrictService {
     });
 
     const totalShelters = shelters.length;
-    const totalCapacity = shelters.reduce((sum, s) => sum + (s.capacity || 0), 0);
-    const currentOccupancy = shelters.reduce((sum, s) => sum + (s.occupancy || 0), 0);
-    const occupancyPercent = totalCapacity > 0 ? Math.round((currentOccupancy / totalCapacity) * 100) : 0;
+    const totalCapacity = shelters.reduce(
+      (sum, s) => sum + (s.capacity || 0),
+      0,
+    );
+    const currentOccupancy = shelters.reduce(
+      (sum, s) => sum + (s.occupancy || 0),
+      0,
+    );
+    const occupancyPercent =
+      totalCapacity > 0
+        ? Math.round((currentOccupancy / totalCapacity) * 100)
+        : 0;
 
-    const availableShelters = shelters.filter(s => {
+    const availableShelters = shelters.filter((s) => {
       const pct = s.capacity > 0 ? (s.occupancy / s.capacity) * 100 : 100;
       return pct < 90;
     }).length;
-    const nearFullShelters = shelters.filter(s => {
+    const nearFullShelters = shelters.filter((s) => {
       const pct = s.capacity > 0 ? (s.occupancy / s.capacity) * 100 : 100;
       return pct >= 90 && pct < 100;
     }).length;
-    const fullShelters = shelters.filter(s => {
+    const fullShelters = shelters.filter((s) => {
       const pct = s.capacity > 0 ? (s.occupancy / s.capacity) * 100 : 100;
       return pct >= 100;
     }).length;
@@ -1008,8 +1131,12 @@ export class DistrictService {
     const districtId = this.verifyDistrictAccess(user);
 
     const [pending, verified] = await Promise.all([
-      this.damageReportRepository.count({ where: { districtId, status: DamageReportStatus.PENDING } }),
-      this.damageReportRepository.count({ where: { districtId, status: DamageReportStatus.VERIFIED } }),
+      this.damageReportRepository.count({
+        where: { districtId, status: DamageReportStatus.PENDING },
+      }),
+      this.damageReportRepository.count({
+        where: { districtId, status: DamageReportStatus.VERIFIED },
+      }),
     ]);
 
     return {
@@ -1078,15 +1205,24 @@ export class DistrictService {
     });
 
     const totalResources = resources.length;
-    const totalQuantity = resources.reduce((sum, r) => sum + (r.quantity || 0), 0);
-    const totalAllocated = resources.reduce((sum, r) => sum + (r.allocated || r.allocatedQuantity || 0), 0);
+    const totalQuantity = resources.reduce(
+      (sum, r) => sum + (r.quantity || 0),
+      0,
+    );
+    const totalAllocated = resources.reduce(
+      (sum, r) => sum + (r.allocated || r.allocatedQuantity || 0),
+      0,
+    );
 
     return {
       totalResources,
       totalQuantity,
       totalAllocated,
       availableQuantity: totalQuantity - totalAllocated,
-      allocatedPercent: totalQuantity > 0 ? Math.round((totalAllocated / totalQuantity) * 100) : 0,
+      allocatedPercent:
+        totalQuantity > 0
+          ? Math.round((totalAllocated / totalQuantity) * 100)
+          : 0,
     };
   }
 
@@ -1112,7 +1248,13 @@ export class DistrictService {
    * Creates shelter-level resource record, decrements district stock
    */
   async allocateResourceByType(
-    allocateDto: { resourceType: string; shelterId: number; quantity: number; purpose?: string; notes?: string },
+    allocateDto: {
+      resourceType: string;
+      shelterId: number;
+      quantity: number;
+      purpose?: string;
+      notes?: string;
+    },
     user: User,
   ) {
     const districtId = this.verifyDistrictAccess(user);
@@ -1129,13 +1271,35 @@ export class DistrictService {
     // If district resource doesn't exist, auto-create with default values
     if (!districtResource) {
       const resourceDefaults = {
-        food: { name: 'Food Supplies', unit: 'tons', quantity: 10000, icon: 'package' },
-        water: { name: 'Water', unit: 'liters', quantity: 50000, icon: 'droplets' },
-        medical: { name: 'Medical Supplies', unit: 'kits', quantity: 5000, icon: 'stethoscope' },
-        shelter: { name: 'Shelter Materials', unit: 'units', quantity: 2000, icon: 'home' },
+        food: {
+          name: 'Food Supplies',
+          unit: 'tons',
+          quantity: 10000,
+          icon: 'package',
+        },
+        water: {
+          name: 'Water',
+          unit: 'liters',
+          quantity: 50000,
+          icon: 'droplets',
+        },
+        medical: {
+          name: 'Medical Supplies',
+          unit: 'kits',
+          quantity: 5000,
+          icon: 'stethoscope',
+        },
+        shelter: {
+          name: 'Shelter Materials',
+          unit: 'units',
+          quantity: 2000,
+          icon: 'home',
+        },
       };
 
-      const defaults = resourceDefaults[allocateDto.resourceType.toLowerCase()] || {
+      const defaults = resourceDefaults[
+        allocateDto.resourceType.toLowerCase()
+      ] || {
         name: `${allocateDto.resourceType} Resources`,
         unit: 'units',
         quantity: 1000,
@@ -1176,11 +1340,14 @@ export class DistrictService {
 
     // TypeScript guard - should never happen after auto-creation above
     if (!districtResource) {
-      throw new BadRequestException('Failed to find or create district resource');
+      throw new BadRequestException(
+        'Failed to find or create district resource',
+      );
     }
 
     // Validate sufficient quantity
-    const availableQty = districtResource.quantity - (districtResource.allocated || 0);
+    const availableQty =
+      districtResource.quantity - (districtResource.allocated || 0);
     if (allocateDto.quantity > availableQty) {
       throw new BadRequestException(
         `Insufficient ${districtResource.type}. Available: ${availableQty}, Requested: ${allocateDto.quantity}`,
@@ -1228,12 +1395,15 @@ export class DistrictService {
 
     // TypeScript guard - should never happen after auto-creation above
     if (!shelterResource) {
-      throw new BadRequestException('Failed to find or create shelter resource');
+      throw new BadRequestException(
+        'Failed to find or create shelter resource',
+      );
     }
 
     // Perform allocation: decrement district, increment shelter
     districtResource.quantity -= allocateDto.quantity;
-    districtResource.allocated = (districtResource.allocated || 0) + allocateDto.quantity;
+    districtResource.allocated =
+      (districtResource.allocated || 0) + allocateDto.quantity;
     shelterResource.quantity += allocateDto.quantity;
 
     await this.resourceRepository.save([districtResource, shelterResource]);
@@ -1243,13 +1413,28 @@ export class DistrictService {
     const supplyIncrease = Math.min(20, Math.floor(allocateDto.quantity / 10));
 
     if (resourceType.includes('food')) {
-      shelter.supplyFood = Math.min(100, (shelter.supplyFood || 0) + supplyIncrease);
+      shelter.supplyFood = Math.min(
+        100,
+        (shelter.supplyFood || 0) + supplyIncrease,
+      );
     } else if (resourceType.includes('water')) {
-      shelter.supplyWater = Math.min(100, (shelter.supplyWater || 0) + supplyIncrease);
+      shelter.supplyWater = Math.min(
+        100,
+        (shelter.supplyWater || 0) + supplyIncrease,
+      );
     } else if (resourceType.includes('medical')) {
-      shelter.supplyMedical = Math.min(100, (shelter.supplyMedical || 0) + supplyIncrease);
-    } else if (resourceType.includes('shelter') || resourceType.includes('tent')) {
-      shelter.supplyTents = Math.min(100, (shelter.supplyTents || 0) + supplyIncrease);
+      shelter.supplyMedical = Math.min(
+        100,
+        (shelter.supplyMedical || 0) + supplyIncrease,
+      );
+    } else if (
+      resourceType.includes('shelter') ||
+      resourceType.includes('tent')
+    ) {
+      shelter.supplyTents = Math.min(
+        100,
+        (shelter.supplyTents || 0) + supplyIncrease,
+      );
     }
 
     await this.shelterRepository.save(shelter);
@@ -1259,7 +1444,10 @@ export class DistrictService {
       resourceId: districtResource.id,
       allocatedToShelterId: shelter.id,
       quantity: allocateDto.quantity,
-      purpose: allocateDto.purpose || allocateDto.notes || `Allocated to ${shelter.name}`,
+      purpose:
+        allocateDto.purpose ||
+        allocateDto.notes ||
+        `Allocated to ${shelter.name}`,
       allocatedBy: user.id,
     });
     await this.resourceAllocationRepository.save(allocation);
@@ -1323,24 +1511,55 @@ export class DistrictService {
     await this.resourceRepository.save(resource);
 
     // Update shelter supply levels based on resource type
-    const resourceType = (resource.type || resource.resourceType || '').toLowerCase();
+    const resourceType = (
+      resource.type ||
+      resource.resourceType ||
+      ''
+    ).toLowerCase();
     const supplyIncrease = Math.min(10, dto.quantity); // Each unit increases supply by up to 10%
 
     if (resourceType.includes('food')) {
-      shelter.supplyFood = Math.min(100, (shelter.supplyFood || 0) + supplyIncrease);
+      shelter.supplyFood = Math.min(
+        100,
+        (shelter.supplyFood || 0) + supplyIncrease,
+      );
     } else if (resourceType.includes('water')) {
-      shelter.supplyWater = Math.min(100, (shelter.supplyWater || 0) + supplyIncrease);
+      shelter.supplyWater = Math.min(
+        100,
+        (shelter.supplyWater || 0) + supplyIncrease,
+      );
     } else if (resourceType.includes('medical')) {
-      shelter.supplyMedical = Math.min(100, (shelter.supplyMedical || 0) + supplyIncrease);
-    } else if (resourceType.includes('tent') || resourceType.includes('shelter')) {
-      shelter.supplyTents = Math.min(100, (shelter.supplyTents || 0) + supplyIncrease);
+      shelter.supplyMedical = Math.min(
+        100,
+        (shelter.supplyMedical || 0) + supplyIncrease,
+      );
+    } else if (
+      resourceType.includes('tent') ||
+      resourceType.includes('shelter')
+    ) {
+      shelter.supplyTents = Math.min(
+        100,
+        (shelter.supplyTents || 0) + supplyIncrease,
+      );
     } else {
       // For other resource types, distribute evenly
       const distributedIncrease = Math.floor(supplyIncrease / 4);
-      shelter.supplyFood = Math.min(100, (shelter.supplyFood || 0) + distributedIncrease);
-      shelter.supplyWater = Math.min(100, (shelter.supplyWater || 0) + distributedIncrease);
-      shelter.supplyMedical = Math.min(100, (shelter.supplyMedical || 0) + distributedIncrease);
-      shelter.supplyTents = Math.min(100, (shelter.supplyTents || 0) + distributedIncrease);
+      shelter.supplyFood = Math.min(
+        100,
+        (shelter.supplyFood || 0) + distributedIncrease,
+      );
+      shelter.supplyWater = Math.min(
+        100,
+        (shelter.supplyWater || 0) + distributedIncrease,
+      );
+      shelter.supplyMedical = Math.min(
+        100,
+        (shelter.supplyMedical || 0) + distributedIncrease,
+      );
+      shelter.supplyTents = Math.min(
+        100,
+        (shelter.supplyTents || 0) + distributedIncrease,
+      );
     }
 
     await this.shelterRepository.save(shelter);
@@ -1397,7 +1616,8 @@ export class DistrictService {
   async getMissingPersons(user: User, status?: string, search?: string) {
     const districtId = this.verifyDistrictAccess(user);
 
-    const queryBuilder = this.missingPersonRepository.createQueryBuilder('mp')
+    const queryBuilder = this.missingPersonRepository
+      .createQueryBuilder('mp')
       .leftJoinAndSelect('mp.district', 'district')
       .where('mp.districtId = :districtId', { districtId });
 
@@ -1408,7 +1628,7 @@ export class DistrictService {
     if (search) {
       queryBuilder.andWhere(
         '(LOWER(mp.name) LIKE LOWER(:search) OR LOWER(mp.caseNumber) LIKE LOWER(:search) OR LOWER(mp.lastSeenLocation) LIKE LOWER(:search))',
-        { search: `%${search}%` }
+        { search: `%${search}%` },
       );
     }
 
@@ -1418,17 +1638,28 @@ export class DistrictService {
 
     // Add computed fields
     const now = new Date();
-    return persons.map(person => {
-      const lastSeenDate = person.lastSeenDate ? new Date(person.lastSeenDate) : null;
+    return persons.map((person) => {
+      const lastSeenDate = person.lastSeenDate
+        ? new Date(person.lastSeenDate)
+        : null;
       const daysMissing = lastSeenDate
-        ? Math.floor((now.getTime() - lastSeenDate.getTime()) / (1000 * 60 * 60 * 24))
+        ? Math.floor(
+            (now.getTime() - lastSeenDate.getTime()) / (1000 * 60 * 60 * 24),
+          )
         : null;
 
       return {
         ...person,
         daysMissing,
-        shouldBeDeclaredDead: daysMissing !== null && daysMissing >= 20 && person.status === MissingPersonStatus.ACTIVE,
-        isCritical: daysMissing !== null && daysMissing >= 17 && daysMissing < 20 && person.status === MissingPersonStatus.ACTIVE,
+        shouldBeDeclaredDead:
+          daysMissing !== null &&
+          daysMissing >= 20 &&
+          person.status === MissingPersonStatus.ACTIVE,
+        isCritical:
+          daysMissing !== null &&
+          daysMissing >= 17 &&
+          daysMissing < 20 &&
+          person.status === MissingPersonStatus.ACTIVE,
       };
     });
   }
@@ -1441,9 +1672,15 @@ export class DistrictService {
 
     const [total, active, found, dead] = await Promise.all([
       this.missingPersonRepository.count({ where: { districtId } }),
-      this.missingPersonRepository.count({ where: { districtId, status: MissingPersonStatus.ACTIVE } }),
-      this.missingPersonRepository.count({ where: { districtId, status: MissingPersonStatus.FOUND } }),
-      this.missingPersonRepository.count({ where: { districtId, status: MissingPersonStatus.DEAD } }),
+      this.missingPersonRepository.count({
+        where: { districtId, status: MissingPersonStatus.ACTIVE },
+      }),
+      this.missingPersonRepository.count({
+        where: { districtId, status: MissingPersonStatus.FOUND },
+      }),
+      this.missingPersonRepository.count({
+        where: { districtId, status: MissingPersonStatus.DEAD },
+      }),
     ]);
 
     // Count critical cases (17+ days but < 20)
@@ -1463,7 +1700,11 @@ export class DistrictService {
   /**
    * Update missing person status
    */
-  async updateMissingPersonStatus(id: number, dto: UpdateMissingPersonStatusDto, user: User) {
+  async updateMissingPersonStatus(
+    id: number,
+    dto: UpdateMissingPersonStatusDto,
+    user: User,
+  ) {
     const districtId = this.verifyDistrictAccess(user);
 
     const person = await this.missingPersonRepository.findOne({
@@ -1471,11 +1712,16 @@ export class DistrictService {
     });
 
     if (!person) {
-      throw new NotFoundException('Missing person report not found or not in your district');
+      throw new NotFoundException(
+        'Missing person report not found or not in your district',
+      );
     }
 
     // Validate status transition
-    if (person.status === MissingPersonStatus.DEAD && dto.status === MissingPersonStatus.ACTIVE) {
+    if (
+      person.status === MissingPersonStatus.DEAD &&
+      dto.status === MissingPersonStatus.ACTIVE
+    ) {
       throw new BadRequestException('Cannot change status from dead to active');
     }
 
@@ -1517,20 +1763,33 @@ export class DistrictService {
     });
 
     if (!person) {
-      throw new NotFoundException('Missing person report not found or not in your district');
+      throw new NotFoundException(
+        'Missing person report not found or not in your district',
+      );
     }
 
     const now = new Date();
-    const lastSeenDate = person.lastSeenDate ? new Date(person.lastSeenDate) : null;
+    const lastSeenDate = person.lastSeenDate
+      ? new Date(person.lastSeenDate)
+      : null;
     const daysMissing = lastSeenDate
-      ? Math.floor((now.getTime() - lastSeenDate.getTime()) / (1000 * 60 * 60 * 24))
+      ? Math.floor(
+          (now.getTime() - lastSeenDate.getTime()) / (1000 * 60 * 60 * 24),
+        )
       : null;
 
     return {
       ...person,
       daysMissing,
-      shouldBeDeclaredDead: daysMissing !== null && daysMissing >= 20 && person.status === MissingPersonStatus.ACTIVE,
-      isCritical: daysMissing !== null && daysMissing >= 17 && daysMissing < 20 && person.status === MissingPersonStatus.ACTIVE,
+      shouldBeDeclaredDead:
+        daysMissing !== null &&
+        daysMissing >= 20 &&
+        person.status === MissingPersonStatus.ACTIVE,
+      isCritical:
+        daysMissing !== null &&
+        daysMissing >= 17 &&
+        daysMissing < 20 &&
+        person.status === MissingPersonStatus.ACTIVE,
     };
   }
 
@@ -1553,7 +1812,9 @@ export class DistrictService {
       .andWhere('lastSeenDate <= :twentyDaysAgo', { twentyDaysAgo })
       .execute();
 
-    console.log(`[CRON] Auto-marked ${result.affected || 0} missing persons as deceased (20+ days missing)`);
+    console.log(
+      `[CRON] Auto-marked ${result.affected || 0} missing persons as deceased (20+ days missing)`,
+    );
 
     return { affected: result.affected || 0 };
   }
@@ -1563,10 +1824,11 @@ export class DistrictService {
   /**
    * Create a resource request from District to PDMA
    */
-  async createResourceRequest(createDto: CreateDistrictResourceRequestDto, user: User) {
+  async createResourceRequest(
+    createDto: CreateDistrictResourceRequestDto,
+    user: User,
+  ) {
     const districtId = this.verifyDistrictAccess(user);
-
-
 
     // Get district to find province
     const district = await this.districtRepository.findOne({
@@ -1577,31 +1839,27 @@ export class DistrictService {
       throw new NotFoundException('District not found');
     }
 
-
-
     // Create request targeting the province
     const request = this.resourceRequestRepository.create({
       provinceId: district.provinceId,
-      districtId: districtId,  // Add district ID so PDMA can see this request
+      districtId: districtId, // Add district ID so PDMA can see this request
       requestedByUserId: user.id,
       requestedByName: user.name,
       priority: createDto.priority as unknown as ResourceRequestPriority,
       reason: createDto.justification,
       notes: createDto.notes,
-      requestedItems: [{
-        resourceType: createDto.resourceType,
-        resourceName: createDto.resourceName,
-        quantity: createDto.quantity,
-        unit: createDto.unit,
-      }],
+      requestedItems: [
+        {
+          resourceType: createDto.resourceType,
+          resourceName: createDto.resourceName,
+          quantity: createDto.quantity,
+          unit: createDto.unit,
+        },
+      ],
       status: ResourceRequestStatus.PENDING,
     });
 
-
-
     const saved = await this.resourceRequestRepository.save(request);
-
-
 
     await this.logActivity(
       'resource_request_created',

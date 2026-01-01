@@ -1,4 +1,14 @@
-import { IsEmail, IsNotEmpty, IsString, IsEnum, IsOptional, IsBoolean, IsArray, MinLength, Length } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  IsEnum,
+  IsOptional,
+  IsBoolean,
+  IsArray,
+  MinLength,
+  Length,
+} from 'class-validator';
 import { UserRole, UserLevel } from '../../common/entities/user.entity';
 
 export class CreateUserDto {

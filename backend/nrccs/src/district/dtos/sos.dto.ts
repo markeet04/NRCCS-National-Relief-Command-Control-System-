@@ -1,5 +1,16 @@
-import { IsString, IsOptional, IsEnum, IsInt, Min, IsNumber, IsArray } from 'class-validator';
-import { SosStatus, SosPriority } from '../../common/entities/sos-request.entity';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsInt,
+  Min,
+  IsNumber,
+  IsArray,
+} from 'class-validator';
+import {
+  SosStatus,
+  SosPriority,
+} from '../../common/entities/sos-request.entity';
 
 export class UpdateSosStatusDto {
   @IsEnum(SosStatus)

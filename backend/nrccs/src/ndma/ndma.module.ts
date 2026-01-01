@@ -19,26 +19,26 @@ import { ResourceAllocation } from '../common/entities/resource-allocation.entit
 import { ReasoningModule } from '../reasoning/reasoning.module';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([
-            User,
-            Province,
-            District,
-            Shelter,
-            Alert,
-            Resource,
-            SosRequest,
-            RescueTeam,
-            ActivityLog,
-            AuditLog,
-            ResourceRequest,
-            NdmaResourceAllocation,
-            ResourceAllocation,
-        ]),
-        forwardRef(() => ReasoningModule),
-    ],
-    controllers: [NdmaController],
-    providers: [NdmaService, FloodPredictionService],
-    exports: [NdmaService, FloodPredictionService],
+  imports: [
+    TypeOrmModule.forFeature([
+      User,
+      Province,
+      District,
+      Shelter,
+      Alert,
+      Resource,
+      SosRequest,
+      RescueTeam,
+      ActivityLog,
+      AuditLog,
+      ResourceRequest,
+      NdmaResourceAllocation,
+      ResourceAllocation,
+    ]),
+    forwardRef(() => ReasoningModule),
+  ],
+  controllers: [NdmaController],
+  providers: [NdmaService, FloodPredictionService],
+  exports: [NdmaService, FloodPredictionService],
 })
-export class NdmaModule { }
+export class NdmaModule {}

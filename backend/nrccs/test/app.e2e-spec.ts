@@ -1,10 +1,10 @@
 /**
  * NRCCS E2E Test - Minimal Application Boot Test
- * 
+ *
  * This is a CI-safe E2E test that verifies the application can boot
  * and respond to basic health check requests without requiring
  * real database connections.
- * 
+ *
  * For comprehensive API testing, use the controller unit tests
  * which mock all external dependencies.
  */
@@ -28,7 +28,7 @@ describe('NRCCS Application (E2E)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    
+
     // Apply the same pipes as the main application
     app.useGlobalPipes(
       new ValidationPipe({
@@ -37,7 +37,7 @@ describe('NRCCS Application (E2E)', () => {
         transform: true,
       }),
     );
-    
+
     await app.init();
   });
 
@@ -50,7 +50,7 @@ describe('NRCCS Application (E2E)', () => {
   // ============================================
   // Health Check Tests
   // ============================================
-  
+
   describe('Health Check', () => {
     it('GET / - should return 200 with welcome message', () => {
       return request(app.getHttpServer())
@@ -61,11 +61,9 @@ describe('NRCCS Application (E2E)', () => {
 
     it('GET / - should respond within acceptable time', async () => {
       const startTime = Date.now();
-      
-      await request(app.getHttpServer())
-        .get('/')
-        .expect(200);
-      
+
+      await request(app.getHttpServer()).get('/').expect(200);
+
       const responseTime = Date.now() - startTime;
       expect(responseTime).toBeLessThan(1000); // Should respond within 1 second
     });
@@ -74,7 +72,7 @@ describe('NRCCS Application (E2E)', () => {
   // ============================================
   // Application Bootstrap Tests
   // ============================================
-  
+
   describe('Application Bootstrap', () => {
     it('should have initialized the application', () => {
       expect(app).toBeDefined();
@@ -95,20 +93,18 @@ describe('NRCCS Application (E2E)', () => {
   // ============================================
   // Request Handling Tests
   // ============================================
-  
+
   describe('Request Handling', () => {
     it('should handle GET requests', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/');
-      
+      const response = await request(app.getHttpServer()).get('/');
+
       expect(response.status).toBe(200);
       expect(response.text).toBeDefined();
     });
 
     it('should return proper content type', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/');
-      
+      const response = await request(app.getHttpServer()).get('/');
+
       expect(response.status).toBe(200);
       // Text response should have text content type
       expect(response.type).toMatch(/text/);

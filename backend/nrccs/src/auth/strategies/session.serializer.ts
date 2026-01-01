@@ -13,7 +13,10 @@ export class SessionSerializer extends PassportSerializer {
     done(null, user.id);
   }
 
-  async deserializeUser(userId: number, done: (err: Error | null, user: any) => void): Promise<any> {
+  async deserializeUser(
+    userId: number,
+    done: (err: Error | null, user: any) => void,
+  ): Promise<any> {
     try {
       // Retrieve full user data from database
       const user = await this.authService.getUserById(userId);

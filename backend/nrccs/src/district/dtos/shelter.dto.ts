@@ -1,4 +1,14 @@
-import { IsString, IsOptional, IsInt, Min, Max, IsArray, IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsInt,
+  Min,
+  Max,
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+} from 'class-validator';
 import { ShelterStatus } from '../../common/entities/shelter.entity';
 
 export class CreateShelterDto {

@@ -3,301 +3,314 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Alert, AlertStatus } from '../common/entities/alert.entity';
 import { Shelter } from '../common/entities/shelter.entity';
-import { SosRequest, SosStatus, SosPriority } from '../common/entities/sos-request.entity';
-import { MissingPerson, MissingPersonStatus } from '../common/entities/missing-person.entity';
+import {
+  SosRequest,
+  SosStatus,
+  SosPriority,
+} from '../common/entities/sos-request.entity';
+import {
+  MissingPerson,
+  MissingPersonStatus,
+} from '../common/entities/missing-person.entity';
 import { Province } from '../common/entities/province.entity';
 import { District } from '../common/entities/district.entity';
 import { CreateSosDto, CreateMissingPersonDto } from './dtos';
 
 @Injectable()
 export class CivilianService {
-    // In-memory rate limiting (for MVP - consider Redis for production)
-    private sosRateLimits: Map<string, number[]> = new Map();
+  // In-memory rate limiting (for MVP - consider Redis for production)
+  private sosRateLimits: Map<string, number[]> = new Map();
 
-    constructor(
-        @InjectRepository(Alert)
-        private alertRepository: Repository<Alert>,
-        @InjectRepository(Shelter)
-        private shelterRepository: Repository<Shelter>,
-        @InjectRepository(SosRequest)
-        private sosRepository: Repository<SosRequest>,
-        @InjectRepository(MissingPerson)
-        private missingPersonRepository: Repository<MissingPerson>,
-        @InjectRepository(Province)
-        private provinceRepository: Repository<Province>,
-        @InjectRepository(District)
-        private districtRepository: Repository<District>,
-    ) { }
+  constructor(
+    @InjectRepository(Alert)
+    private alertRepository: Repository<Alert>,
+    @InjectRepository(Shelter)
+    private shelterRepository: Repository<Shelter>,
+    @InjectRepository(SosRequest)
+    private sosRepository: Repository<SosRequest>,
+    @InjectRepository(MissingPerson)
+    private missingPersonRepository: Repository<MissingPerson>,
+    @InjectRepository(Province)
+    private provinceRepository: Repository<Province>,
+    @InjectRepository(District)
+    private districtRepository: Repository<District>,
+  ) {}
 
-    // ==================== ALERTS ====================
+  // ==================== ALERTS ====================
 
-    async getAllAlerts(severity?: string, limit: number = 50) {
-        const query = this.alertRepository
-            .createQueryBuilder('alert')
-            .where('alert.status = :status', { status: AlertStatus.ACTIVE })
-            .orderBy('alert.issuedAt', 'DESC')
-            .take(limit);
+  async getAllAlerts(severity?: string, limit: number = 50) {
+    const query = this.alertRepository
+      .createQueryBuilder('alert')
+      .where('alert.status = :status', { status: AlertStatus.ACTIVE })
+      .orderBy('alert.issuedAt', 'DESC')
+      .take(limit);
 
-        if (severity) {
-            query.andWhere('alert.severity = :severity', { severity });
-        }
-
-        return await query.getMany();
+    if (severity) {
+      query.andWhere('alert.severity = :severity', { severity });
     }
 
-    async getRecentAlerts(limit: number = 3) {
-        return await this.alertRepository.find({
-            where: { status: AlertStatus.ACTIVE },
-            order: { issuedAt: 'DESC' },
-            take: limit,
-        });
+    return await query.getMany();
+  }
+
+  async getRecentAlerts(limit: number = 3) {
+    return await this.alertRepository.find({
+      where: { status: AlertStatus.ACTIVE },
+      order: { issuedAt: 'DESC' },
+      take: limit,
+    });
+  }
+
+  // ==================== SHELTERS ====================
+
+  async getAllShelters(status?: string, districtId?: number) {
+    const query = this.shelterRepository
+      .createQueryBuilder('shelter')
+      .where('shelter.isDeleted = :isDeleted', { isDeleted: false })
+      .orderBy('shelter.name', 'ASC');
+
+    if (status) {
+      query.andWhere('shelter.status = :status', { status });
     }
 
-    // ==================== SHELTERS ====================
-
-    async getAllShelters(status?: string, districtId?: number) {
-        const query = this.shelterRepository
-            .createQueryBuilder('shelter')
-            .where('shelter.isDeleted = :isDeleted', { isDeleted: false })
-            .orderBy('shelter.name', 'ASC');
-
-        if (status) {
-            query.andWhere('shelter.status = :status', { status });
-        }
-
-        if (districtId) {
-            query.andWhere('shelter.districtId = :districtId', { districtId });
-        }
-
-        return await query.getMany();
+    if (districtId) {
+      query.andWhere('shelter.districtId = :districtId', { districtId });
     }
 
-    // ==================== SOS REQUESTS ====================
+    return await query.getMany();
+  }
 
-    async createSos(dto: CreateSosDto) {
-        // Check rate limit
-        const canSubmit = this.checkSosRateLimit(dto.cnic);
-        if (!canSubmit) {
-            throw new BadRequestException(
-                'Rate limit exceeded. Maximum 3 SOS requests per hour per CNIC.',
-            );
-        }
+  // ==================== SOS REQUESTS ====================
 
-        // Create SOS request (ID will be auto-generated by database trigger)
-        const sosRequest = this.sosRepository.create({
-            name: dto.name,
-            requesterName: dto.name,
-            phone: dto.phone,
-            cnic: dto.cnic,
-            locationLat: dto.locationLat,
-            locationLng: dto.locationLng,
-            location: dto.location || `${dto.locationLat}, ${dto.locationLng}`,
-            locationAddress: dto.location,
-            peopleCount: dto.peopleCount,
-            emergencyType: dto.emergencyType,
-            description: dto.description,
-            status: SosStatus.PENDING,
-            priority: this.determinePriority(dto.emergencyType, dto.peopleCount),
-            submittedByName: dto.name,
-            submittedByCnic: dto.cnic,
-            submittedByPhone: dto.phone,
-            districtId: dto.districtId, // Attach district ID from civilian selection
-        });
-
-        const savedRequest = await this.sosRepository.save(sosRequest);
-
-        // Record rate limit
-        this.recordSosSubmission(dto.cnic);
-
-        return {
-            id: savedRequest.id,
-            status: savedRequest.status,
-            priority: savedRequest.priority,
-            submittedAt: savedRequest.submittedAt,
-            estimatedResponse: this.getEstimatedResponse(savedRequest.priority),
-        };
+  async createSos(dto: CreateSosDto) {
+    // Check rate limit
+    const canSubmit = this.checkSosRateLimit(dto.cnic);
+    if (!canSubmit) {
+      throw new BadRequestException(
+        'Rate limit exceeded. Maximum 3 SOS requests per hour per CNIC.',
+      );
     }
 
-    private determinePriority(emergencyType: string, peopleCount: number): SosPriority {
-        if (emergencyType === 'medical' || emergencyType === 'fire') {
-            return SosPriority.CRITICAL;
-        }
-        if (peopleCount > 5) {
-            return SosPriority.HIGH;
-        }
-        if (emergencyType === 'flood' || emergencyType === 'accident') {
-            return SosPriority.HIGH;
-        }
-        return SosPriority.MEDIUM;
+    // Create SOS request (ID will be auto-generated by database trigger)
+    const sosRequest = this.sosRepository.create({
+      name: dto.name,
+      requesterName: dto.name,
+      phone: dto.phone,
+      cnic: dto.cnic,
+      locationLat: dto.locationLat,
+      locationLng: dto.locationLng,
+      location: dto.location || `${dto.locationLat}, ${dto.locationLng}`,
+      locationAddress: dto.location,
+      peopleCount: dto.peopleCount,
+      emergencyType: dto.emergencyType,
+      description: dto.description,
+      status: SosStatus.PENDING,
+      priority: this.determinePriority(dto.emergencyType, dto.peopleCount),
+      submittedByName: dto.name,
+      submittedByCnic: dto.cnic,
+      submittedByPhone: dto.phone,
+      districtId: dto.districtId, // Attach district ID from civilian selection
+    });
+
+    const savedRequest = await this.sosRepository.save(sosRequest);
+
+    // Record rate limit
+    this.recordSosSubmission(dto.cnic);
+
+    return {
+      id: savedRequest.id,
+      status: savedRequest.status,
+      priority: savedRequest.priority,
+      submittedAt: savedRequest.submittedAt,
+      estimatedResponse: this.getEstimatedResponse(savedRequest.priority),
+    };
+  }
+
+  private determinePriority(
+    emergencyType: string,
+    peopleCount: number,
+  ): SosPriority {
+    if (emergencyType === 'medical' || emergencyType === 'fire') {
+      return SosPriority.CRITICAL;
+    }
+    if (peopleCount > 5) {
+      return SosPriority.HIGH;
+    }
+    if (emergencyType === 'flood' || emergencyType === 'accident') {
+      return SosPriority.HIGH;
+    }
+    return SosPriority.MEDIUM;
+  }
+
+  private getEstimatedResponse(priority: SosPriority): string {
+    switch (priority) {
+      case SosPriority.CRITICAL:
+        return '5-10 minutes';
+      case SosPriority.HIGH:
+        return '15-20 minutes';
+      case SosPriority.MEDIUM:
+        return '20-30 minutes';
+      default:
+        return '30-45 minutes';
+    }
+  }
+
+  private checkSosRateLimit(cnic: string): boolean {
+    const now = Date.now();
+    const oneHourAgo = now - 60 * 60 * 1000;
+
+    if (!this.sosRateLimits.has(cnic)) {
+      return true;
     }
 
-    private getEstimatedResponse(priority: SosPriority): string {
-        switch (priority) {
-            case SosPriority.CRITICAL:
-                return '5-10 minutes';
-            case SosPriority.HIGH:
-                return '15-20 minutes';
-            case SosPriority.MEDIUM:
-                return '20-30 minutes';
-            default:
-                return '30-45 minutes';
-        }
+    const submissions = this.sosRateLimits.get(cnic)!;
+    const recentSubmissions = submissions.filter((time) => time > oneHourAgo);
+
+    return recentSubmissions.length < 3;
+  }
+
+  private recordSosSubmission(cnic: string): void {
+    const now = Date.now();
+    const submissions = this.sosRateLimits.get(cnic) || [];
+    const oneHourAgo = now - 60 * 60 * 1000;
+
+    // Clean old submissions
+    const recentSubmissions = submissions.filter((time) => time > oneHourAgo);
+    recentSubmissions.push(now);
+
+    this.sosRateLimits.set(cnic, recentSubmissions);
+  }
+
+  // ==================== TRACKING ====================
+
+  async trackRequestById(id: string) {
+    const request = await this.sosRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!request) {
+      throw new BadRequestException('Request not found');
     }
 
-    private checkSosRateLimit(cnic: string): boolean {
-        const now = Date.now();
-        const oneHourAgo = now - (60 * 60 * 1000);
+    return request;
+  }
 
-        if (!this.sosRateLimits.has(cnic)) {
-            return true;
-        }
+  async trackRequestsByCnic(cnic: string) {
+    return await this.sosRepository.find({
+      where: { cnic, isDeleted: false },
+      order: { submittedAt: 'DESC' },
+      take: 20,
+    });
+  }
 
-        const submissions = this.sosRateLimits.get(cnic)!;
-        const recentSubmissions = submissions.filter(time => time > oneHourAgo);
+  // ==================== MISSING PERSONS ====================
 
-        return recentSubmissions.length < 3;
+  async getAllMissingPersons(
+    status?: string,
+    gender?: string,
+    ageRange?: string,
+  ) {
+    const query = this.missingPersonRepository
+      .createQueryBuilder('mp')
+      .orderBy('mp.reportDate', 'DESC');
+
+    if (status && status !== 'all') {
+      query.andWhere('mp.status = :status', { status });
     }
 
-    private recordSosSubmission(cnic: string): void {
-        const now = Date.now();
-        const submissions = this.sosRateLimits.get(cnic) || [];
-        const oneHourAgo = now - (60 * 60 * 1000);
-
-        // Clean old submissions
-        const recentSubmissions = submissions.filter(time => time > oneHourAgo);
-        recentSubmissions.push(now);
-
-        this.sosRateLimits.set(cnic, recentSubmissions);
+    if (gender && gender !== 'all') {
+      query.andWhere('mp.gender = :gender', { gender });
     }
 
-    // ==================== TRACKING ====================
-
-    async trackRequestById(id: string) {
-        const request = await this.sosRepository.findOne({
-            where: { id, isDeleted: false },
-        });
-
-        if (!request) {
-            throw new BadRequestException('Request not found');
-        }
-
-        return request;
+    if (ageRange && ageRange !== 'all') {
+      const [minAge, maxAge] = ageRange.split('-').map(Number);
+      query.andWhere('mp.age >= :minAge AND mp.age <= :maxAge', {
+        minAge,
+        maxAge,
+      });
     }
 
-    async trackRequestsByCnic(cnic: string) {
-        return await this.sosRepository.find({
-            where: { cnic, isDeleted: false },
-            order: { submittedAt: 'DESC' },
-            take: 20,
-        });
-    }
+    return await query.getMany();
+  }
 
-    // ==================== MISSING PERSONS ====================
+  async createMissingPersonReport(dto: CreateMissingPersonDto) {
+    // Case number will be auto-generated by database trigger
+    const missingPerson = this.missingPersonRepository.create({
+      name: dto.name,
+      age: dto.age,
+      gender: dto.gender,
+      lastSeenLocation: dto.lastSeenLocation,
+      lastSeenDate: new Date(dto.lastSeenDate),
+      description: dto.description,
+      photoUrl: dto.photoUrl,
+      photo: dto.photoUrl,
+      reporterName: dto.reporterName,
+      reporterPhone: dto.reporterPhone,
+      contactNumber: dto.reporterPhone,
+      reportedBy: 'Civilian',
+      status: MissingPersonStatus.ACTIVE,
+      districtId: dto.districtId,
+    });
 
-    async getAllMissingPersons(
-        status?: string,
-        gender?: string,
-        ageRange?: string,
-    ) {
-        const query = this.missingPersonRepository
-            .createQueryBuilder('mp')
-            .orderBy('mp.reportDate', 'DESC');
+    return await this.missingPersonRepository.save(missingPerson);
+  }
 
-        if (status && status !== 'all') {
-            query.andWhere('mp.status = :status', { status });
-        }
+  // ==================== HELP / GUIDELINES ====================
 
-        if (gender && gender !== 'all') {
-            query.andWhere('mp.gender = :gender', { gender });
-        }
+  async getHelpContent() {
+    // For MVP, return static content
+    // In the future, this could be fetched from a CMS or database
+    return {
+      faqs: [],
+      contacts: [
+        {
+          icon: 'Phone',
+          title: 'Emergency Helpline',
+          value: '115',
+          description: '24/7 Emergency Support',
+          link: 'tel:115',
+        },
+        {
+          icon: 'Mail',
+          title: 'Email Support',
+          value: 'help@nrccs.gov.pk',
+          description: 'Response within 24 hours',
+          link: 'mailto:help@nrccs.gov.pk',
+        },
+        {
+          icon: 'MessageSquare',
+          title: 'SMS Service',
+          value: '8000',
+          description: 'Text us for assistance',
+          link: 'sms:8000',
+        },
+        {
+          icon: 'MessageCircle',
+          title: 'WhatsApp',
+          value: '+92-300-1234567',
+          description: 'Chat support available',
+          link: 'https://wa.me/923001234567',
+        },
+      ],
+      message: 'Help content available',
+    };
+  }
 
-        if (ageRange && ageRange !== 'all') {
-            const [minAge, maxAge] = ageRange.split('-').map(Number);
-            query.andWhere('mp.age >= :minAge AND mp.age <= :maxAge', { minAge, maxAge });
-        }
+  // ==================== LOCATION DATA ====================
 
-        return await query.getMany();
-    }
+  async getAllProvinces() {
+    const provinces = await this.provinceRepository.find({
+      select: ['id', 'name', 'code'],
+      order: { name: 'ASC' },
+    });
+    return provinces;
+  }
 
-    async createMissingPersonReport(dto: CreateMissingPersonDto) {
-        // Case number will be auto-generated by database trigger
-        const missingPerson = this.missingPersonRepository.create({
-            name: dto.name,
-            age: dto.age,
-            gender: dto.gender,
-            lastSeenLocation: dto.lastSeenLocation,
-            lastSeenDate: new Date(dto.lastSeenDate),
-            description: dto.description,
-            photoUrl: dto.photoUrl,
-            photo: dto.photoUrl,
-            reporterName: dto.reporterName,
-            reporterPhone: dto.reporterPhone,
-            contactNumber: dto.reporterPhone,
-            reportedBy: 'Civilian',
-            status: MissingPersonStatus.ACTIVE,
-            districtId: dto.districtId,
-        });
-
-        return await this.missingPersonRepository.save(missingPerson);
-    }
-
-    // ==================== HELP / GUIDELINES ====================
-
-    async getHelpContent() {
-        // For MVP, return static content
-        // In the future, this could be fetched from a CMS or database
-        return {
-            faqs: [],
-            contacts: [
-                {
-                    icon: 'Phone',
-                    title: 'Emergency Helpline',
-                    value: '115',
-                    description: '24/7 Emergency Support',
-                    link: 'tel:115',
-                },
-                {
-                    icon: 'Mail',
-                    title: 'Email Support',
-                    value: 'help@nrccs.gov.pk',
-                    description: 'Response within 24 hours',
-                    link: 'mailto:help@nrccs.gov.pk',
-                },
-                {
-                    icon: 'MessageSquare',
-                    title: 'SMS Service',
-                    value: '8000',
-                    description: 'Text us for assistance',
-                    link: 'sms:8000',
-                },
-                {
-                    icon: 'MessageCircle',
-                    title: 'WhatsApp',
-                    value: '+92-300-1234567',
-                    description: 'Chat support available',
-                    link: 'https://wa.me/923001234567',
-                },
-            ],
-            message: 'Help content available',
-        };
-    }
-
-    // ==================== LOCATION DATA ====================
-
-    async getAllProvinces() {
-        const provinces = await this.provinceRepository.find({
-            select: ['id', 'name', 'code'],
-            order: { name: 'ASC' },
-        });
-        return provinces;
-    }
-
-    async getDistrictsByProvince(provinceId: number) {
-        const districts = await this.districtRepository.find({
-            where: { provinceId },
-            select: ['id', 'name', 'provinceId'],
-            order: { name: 'ASC' },
-        });
-        return districts;
-    }
+  async getDistrictsByProvince(provinceId: number) {
+    const districts = await this.districtRepository.find({
+      where: { provinceId },
+      select: ['id', 'name', 'provinceId'],
+      order: { name: 'ASC' },
+    });
+    return districts;
+  }
 }

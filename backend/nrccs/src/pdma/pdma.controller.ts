@@ -20,7 +20,11 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserRole, User } from '../common/entities/user.entity';
 import { CreateShelterDto, UpdateShelterDto } from './dtos/shelter.dto';
 import { CreateAlertDto } from './dtos/alert.dto';
-import { CreateResourceDto, UpdateResourceDto, AllocateResourceDto } from './dtos/resource.dto';
+import {
+  CreateResourceDto,
+  UpdateResourceDto,
+  AllocateResourceDto,
+} from './dtos/resource.dto';
 import { AssignTeamDto } from './dtos/sos.dto';
 import { CreateResourceRequestDto } from './dtos/resource-request.dto';
 
@@ -28,7 +32,7 @@ import { CreateResourceRequestDto } from './dtos/resource-request.dto';
 @UseGuards(SessionAuthGuard, RolesGuard)
 @Roles(UserRole.PDMA)
 export class PdmaController {
-  constructor(private readonly pdmaService: PdmaService) { }
+  constructor(private readonly pdmaService: PdmaService) {}
 
   // ==================== DASHBOARD ====================
 
@@ -231,7 +235,11 @@ export class PdmaController {
     @Body() reviewDto: { status: string; notes?: string },
     @CurrentUser() user: User,
   ) {
-    return await this.pdmaService.reviewDistrictRequest(id, reviewDto as any, user);
+    return await this.pdmaService.reviewDistrictRequest(
+      id,
+      reviewDto as any,
+      user,
+    );
   }
 
   // ==================== SOS REQUESTS ====================
@@ -245,10 +253,7 @@ export class PdmaController {
   }
 
   @Get('sos-requests/:id')
-  async getSosRequestById(
-    @Param('id') id: string,
-    @CurrentUser() user: User,
-  ) {
+  async getSosRequestById(@Param('id') id: string, @CurrentUser() user: User) {
     return await this.pdmaService.getSosRequestById(id, user);
   }
 
@@ -272,10 +277,7 @@ export class PdmaController {
   }
 
   @Get('rescue-teams/:id')
-  async getRescueTeamById(
-    @Param('id') id: string,
-    @CurrentUser() user: User,
-  ) {
+  async getRescueTeamById(@Param('id') id: string, @CurrentUser() user: User) {
     return await this.pdmaService.getRescueTeamById(id, user);
   }
 

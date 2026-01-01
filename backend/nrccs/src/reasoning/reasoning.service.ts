@@ -1,13 +1,27 @@
-import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull } from 'typeorm';
-import { ResourceSuggestion, SuggestionStatus, ExecutionStatus } from './entities/resource-suggestion.entity';
+import {
+  ResourceSuggestion,
+  SuggestionStatus,
+  ExecutionStatus,
+} from './entities/resource-suggestion.entity';
 import { District } from '../common/entities/district.entity';
 import { Province } from '../common/entities/province.entity';
 import { Resource } from '../common/entities/resource.entity';
 import { RuleEngine } from './rules/rule-engine';
 import { ALL_RULES } from './rules/allocation-rules';
-import { RuleFacts, ResourceStock, SuggestionAction } from './rules/rule.interface';
+import {
+  RuleFacts,
+  ResourceStock,
+  SuggestionAction,
+} from './rules/rule.interface';
 import { SuggestionResponseDto } from './dtos/suggestion-response.dto';
 
 @Injectable()
@@ -44,16 +58,25 @@ export class ReasoningService {
     userId: number,
   ): Promise<ResourceSuggestion[]> {
     // Allow suggestions for both simulation and real predictions to test the deductive reasoning system
-    console.log(`[ReasoningService] Processing ML prediction - Risk: ${prediction.flood_risk}, Simulation: ${prediction.simulationMode}`);
+    console.log(
+      `[ReasoningService] Processing ML prediction - Risk: ${prediction.flood_risk}, Simulation: ${prediction.simulationMode}`,
+    );
 
     // Only process High and Medium risk
-    if (prediction.flood_risk !== 'High' && prediction.flood_risk !== 'Medium') {
-      console.log('[ReasoningService] Skipping suggestion generation for low risk');
+    if (
+      prediction.flood_risk !== 'High' &&
+      prediction.flood_risk !== 'Medium'
+    ) {
+      console.log(
+        '[ReasoningService] Skipping suggestion generation for low risk',
+      );
       return [];
     }
 
     // 1. Gather facts
-    console.log(`[ReasoningService] Gathering facts for province ${provinceId}...`);
+    console.log(
+      `[ReasoningService] Gathering facts for province ${provinceId}...`,
+    );
     const facts = await this.gatherFacts(prediction, provinceId);
     console.log(`[ReasoningService] Facts gathered:`, {
       provinceId: facts.provinceId,
@@ -97,7 +120,9 @@ export class ReasoningService {
       }
       // If quantity is zero or negative, skip (invalid suggestion)
       if (quantity <= 0) {
-        console.log(`Skipping ${suggestion.resourceType} suggestion: invalid quantity`);
+        console.log(
+          `Skipping ${suggestion.resourceType} suggestion: invalid quantity`,
+        );
         continue;
       }
 
@@ -106,7 +131,12 @@ export class ReasoningService {
         provinceId,
         resourceType: suggestion.resourceType,
         suggestedQuantity: Math.floor(quantity),
-        reasoning: this.generateReasoning(evaluation.matchedRules, facts, suggestion, quantity),
+        reasoning: this.generateReasoning(
+          evaluation.matchedRules,
+          facts,
+          suggestion,
+          quantity,
+        ),
         ruleIds: evaluation.matchedRules,
         confidenceScore: prediction.confidence,
         mlPredictionData: prediction,
@@ -130,7 +160,10 @@ export class ReasoningService {
     const districts = await this.districtRepo.find({
       where: { provinceId },
     });
-    const provincePopulation = districts.reduce((sum, d) => sum + d.population, 0);
+    const provincePopulation = districts.reduce(
+      (sum, d) => sum + d.population,
+      0,
+    );
 
     // Get province flood history
     const province = await this.provinceRepo.findOne({
@@ -146,7 +179,7 @@ export class ReasoningService {
       where: {
         provinceId,
         districtId: IsNull(),
-        shelterId: IsNull()
+        shelterId: IsNull(),
       },
     });
 
@@ -155,7 +188,7 @@ export class ReasoningService {
       where: {
         provinceId: IsNull(),
         districtId: IsNull(),
-        shelterId: IsNull()
+        shelterId: IsNull(),
       },
     });
 
@@ -278,18 +311,26 @@ export class ReasoningService {
           districtId: IsNull(),
         },
       });
-      const available = nationalResource ? (nationalResource.quantity - (nationalResource.allocated || 0)) : 0;
-      const hasInsufficient = suggestion.flags && suggestion.flags.includes('INSUFFICIENT_STOCK');
+      const available = nationalResource
+        ? nationalResource.quantity - (nationalResource.allocated || 0)
+        : 0;
+      const hasInsufficient =
+        suggestion.flags && suggestion.flags.includes('INSUFFICIENT_STOCK');
       if (suggestion.suggestedQuantity > available) {
         // Add flag if missing
         if (!hasInsufficient) {
-          suggestion.flags = [...(suggestion.flags || []), 'INSUFFICIENT_STOCK'];
+          suggestion.flags = [
+            ...(suggestion.flags || []),
+            'INSUFFICIENT_STOCK',
+          ];
           await this.suggestionRepo.save(suggestion);
         }
       } else {
         // Remove flag if present
         if (hasInsufficient) {
-          suggestion.flags = (suggestion.flags || []).filter(f => f !== 'INSUFFICIENT_STOCK');
+          suggestion.flags = (suggestion.flags || []).filter(
+            (f) => f !== 'INSUFFICIENT_STOCK',
+          );
           await this.suggestionRepo.save(suggestion);
         }
       }
@@ -317,16 +358,24 @@ export class ReasoningService {
           districtId: IsNull(),
         },
       });
-      const available = nationalResource ? (nationalResource.quantity - (nationalResource.allocated || 0)) : 0;
-      const hasInsufficient = suggestion.flags && suggestion.flags.includes('INSUFFICIENT_STOCK');
+      const available = nationalResource
+        ? nationalResource.quantity - (nationalResource.allocated || 0)
+        : 0;
+      const hasInsufficient =
+        suggestion.flags && suggestion.flags.includes('INSUFFICIENT_STOCK');
       if (suggestion.suggestedQuantity > available) {
         if (!hasInsufficient) {
-          suggestion.flags = [...(suggestion.flags || []), 'INSUFFICIENT_STOCK'];
+          suggestion.flags = [
+            ...(suggestion.flags || []),
+            'INSUFFICIENT_STOCK',
+          ];
           await this.suggestionRepo.save(suggestion);
         }
       } else {
         if (hasInsufficient) {
-          suggestion.flags = (suggestion.flags || []).filter(f => f !== 'INSUFFICIENT_STOCK');
+          suggestion.flags = (suggestion.flags || []).filter(
+            (f) => f !== 'INSUFFICIENT_STOCK',
+          );
           await this.suggestionRepo.save(suggestion);
         }
       }
@@ -407,14 +456,17 @@ export class ReasoningService {
     }
 
     // Call NDMA service to allocate resources
-    return this.ndmaService.allocateResourceByType({
-      resourceType: suggestion.resourceType,
-      quantity: suggestion.suggestedQuantity,
-      fromLevel: 'national',
-      toLevel: 'province',
-      provinceId: suggestion.provinceId,
-      notes: `AI-suggested allocation - ${suggestion.reasoning}`,
-    }, user);
+    return this.ndmaService.allocateResourceByType(
+      {
+        resourceType: suggestion.resourceType,
+        quantity: suggestion.suggestedQuantity,
+        fromLevel: 'national',
+        toLevel: 'province',
+        provinceId: suggestion.provinceId,
+        notes: `AI-suggested allocation - ${suggestion.reasoning}`,
+      },
+      user,
+    );
   }
 
   private toResponseDto(suggestion: ResourceSuggestion): SuggestionResponseDto {
@@ -442,9 +494,15 @@ export class ReasoningService {
   async getStats(): Promise<any> {
     const [total, pending, approved, rejected] = await Promise.all([
       this.suggestionRepo.count(),
-      this.suggestionRepo.count({ where: { status: SuggestionStatus.PENDING } }),
-      this.suggestionRepo.count({ where: { status: SuggestionStatus.APPROVED } }),
-      this.suggestionRepo.count({ where: { status: SuggestionStatus.REJECTED } }),
+      this.suggestionRepo.count({
+        where: { status: SuggestionStatus.PENDING },
+      }),
+      this.suggestionRepo.count({
+        where: { status: SuggestionStatus.APPROVED },
+      }),
+      this.suggestionRepo.count({
+        where: { status: SuggestionStatus.REJECTED },
+      }),
     ]);
 
     return {

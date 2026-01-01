@@ -66,7 +66,12 @@ export class Alert {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'varchar', length: 500, nullable: true, name: 'short_description' })
+  @Column({
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+    name: 'short_description',
+  })
   shortDescription: string;
 
   @Column({ type: 'text', nullable: true })
@@ -75,7 +80,12 @@ export class Alert {
   @Column({ type: 'text', array: true, nullable: true, name: 'affected_areas' })
   affectedAreas: string[];
 
-  @Column({ type: 'text', array: true, nullable: true, name: 'recommended_actions' })
+  @Column({
+    type: 'text',
+    array: true,
+    nullable: true,
+    name: 'recommended_actions',
+  })
   recommendedActions: string[];
 
   @Column({ name: 'province_id', nullable: true })
@@ -130,13 +140,22 @@ export class Alert {
   @Column({ type: 'varchar', length: 20, nullable: true })
   color: string;
 
-  @Column({ type: 'varchar', length: 20, nullable: true, name: 'display_color' })
+  @Column({
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+    name: 'display_color',
+  })
   displayColor: string;
 
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   time: Date;
 
-  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP', name: 'issued_at' })
+  @Column({
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+    name: 'issued_at',
+  })
   issuedAt: Date;
 
   @Column({ type: 'timestamptz', nullable: true, name: 'expires_at' })

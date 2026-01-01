@@ -4,7 +4,8 @@ import { Rule } from './rule.interface';
 export const RULE_001: Rule = {
   id: 'RULE-001',
   name: 'High Flood Risk Water Allocation',
-  description: 'Allocate water when high flood risk is detected with high confidence and heavy rainfall',
+  description:
+    'Allocate water when high flood risk is detected with high confidence and heavy rainfall',
   category: 'ALLOCATION',
   priority: 1,
   condition: (facts) => {
@@ -51,7 +52,8 @@ export const RULE_002: Rule = {
 export const RULE_003: Rule = {
   id: 'RULE-003',
   name: 'Moderate Risk Medical Supplies',
-  description: 'Allocate medical supplies for moderate risk with heavy rainfall',
+  description:
+    'Allocate medical supplies for moderate risk with heavy rainfall',
   category: 'ALLOCATION',
   priority: 3,
   condition: (facts) => {
@@ -141,7 +143,7 @@ export const RULE_302: Rule = {
   condition: (facts) => {
     const threeYearsAgo = new Date();
     threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
-    
+
     return (
       facts.floodHistory.count > 0 &&
       facts.floodHistory.lastFloodDate !== null &&

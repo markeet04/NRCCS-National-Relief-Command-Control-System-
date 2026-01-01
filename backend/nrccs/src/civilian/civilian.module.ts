@@ -10,17 +10,17 @@ import { Province } from '../common/entities/province.entity';
 import { District } from '../common/entities/district.entity';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([
-            Alert,
-            Shelter,
-            SosRequest,
-            MissingPerson,
-            Province,
-            District,
-        ]),
-    ],
-    controllers: [CivilianController],
-    providers: [CivilianService],
+  imports: [
+    TypeOrmModule.forFeature([
+      Alert,
+      Shelter,
+      SosRequest,
+      MissingPerson,
+      Province,
+      District,
+    ]),
+  ],
+  controllers: [CivilianController],
+  providers: [CivilianService],
 })
-export class CivilianModule { }
+export class CivilianModule {}

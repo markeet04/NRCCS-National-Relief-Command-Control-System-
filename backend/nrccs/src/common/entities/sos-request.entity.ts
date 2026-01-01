@@ -36,7 +36,12 @@ export class SosRequest {
   @Column({ type: 'varchar', length: 150, nullable: true })
   name: string;
 
-  @Column({ type: 'varchar', length: 150, nullable: true, name: 'requester_name' })
+  @Column({
+    type: 'varchar',
+    length: 150,
+    nullable: true,
+    name: 'requester_name',
+  })
   requesterName: string;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
@@ -51,10 +56,22 @@ export class SosRequest {
   @Column({ type: 'text', nullable: true, name: 'location_address' })
   locationAddress: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true, name: 'location_lat' })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 8,
+    nullable: true,
+    name: 'location_lat',
+  })
   locationLat: number;
 
-  @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true, name: 'location_lng' })
+  @Column({
+    type: 'decimal',
+    precision: 11,
+    scale: 8,
+    nullable: true,
+    name: 'location_lng',
+  })
   locationLng: number;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
@@ -63,7 +80,12 @@ export class SosRequest {
   @Column({ type: 'integer', default: 1, name: 'people_count' })
   peopleCount: number;
 
-  @Column({ type: 'varchar', length: 50, nullable: true, name: 'emergency_type' })
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+    name: 'emergency_type',
+  })
   emergencyType: string;
 
   @Column({ type: 'text', nullable: true })
@@ -83,10 +105,20 @@ export class SosRequest {
   })
   priority: SosPriority;
 
-  @Column({ type: 'varchar', length: 150, nullable: true, name: 'assigned_team' })
+  @Column({
+    type: 'varchar',
+    length: 150,
+    nullable: true,
+    name: 'assigned_team',
+  })
   assignedTeam: string;
 
-  @Column({ type: 'varchar', length: 20, nullable: true, name: 'assigned_team_id' })
+  @Column({
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+    name: 'assigned_team_id',
+  })
   assignedTeamId: string;
 
   @ManyToOne(() => RescueTeam, { onDelete: 'SET NULL' })
@@ -100,22 +132,47 @@ export class SosRequest {
   @JoinColumn({ name: 'district_id' })
   district: District;
 
-  @Column({ type: 'varchar', length: 50, nullable: true, name: 'estimated_arrival' })
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+    name: 'estimated_arrival',
+  })
   estimatedArrival: string;
 
-  @Column({ type: 'varchar', length: 50, nullable: true, name: 'estimated_response_time' })
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+    name: 'estimated_response_time',
+  })
   estimatedResponseTime: string;
 
-  @Column({ type: 'varchar', length: 50, nullable: true, name: 'distance_away' })
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+    name: 'distance_away',
+  })
   distanceAway: string;
 
   @Column({ type: 'integer', default: 0, name: 'current_stage' })
   currentStage: number;
 
-  @Column({ type: 'varchar', length: 20, nullable: true, name: 'contact_phone' })
+  @Column({
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+    name: 'contact_phone',
+  })
   contactPhone: string;
 
-  @Column({ type: 'varchar', length: 20, nullable: true, name: 'emergency_line' })
+  @Column({
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+    name: 'emergency_line',
+  })
   emergencyLine: string;
 
   @Column({ type: 'varchar', length: 150, nullable: true, name: 'team_leader' })
@@ -124,7 +181,12 @@ export class SosRequest {
   @Column({ type: 'varchar', length: 150, nullable: true })
   investigator: string;
 
-  @Column({ type: 'varchar', length: 150, nullable: true, name: 'response_team' })
+  @Column({
+    type: 'varchar',
+    length: 150,
+    nullable: true,
+    name: 'response_team',
+  })
   responseTeam: string;
 
   @Column({ type: 'varchar', length: 20, nullable: true, name: 'team_contact' })
@@ -137,19 +199,38 @@ export class SosRequest {
   @JoinColumn({ name: 'submitted_by' })
   submittedByUser: User;
 
-  @Column({ type: 'varchar', length: 150, nullable: true, name: 'submitted_by_name' })
+  @Column({
+    type: 'varchar',
+    length: 150,
+    nullable: true,
+    name: 'submitted_by_name',
+  })
   submittedByName: string;
 
-  @Column({ type: 'varchar', length: 15, nullable: true, name: 'submitted_by_cnic' })
+  @Column({
+    type: 'varchar',
+    length: 15,
+    nullable: true,
+    name: 'submitted_by_cnic',
+  })
   submittedByCnic: string;
 
-  @Column({ type: 'varchar', length: 20, nullable: true, name: 'submitted_by_phone' })
+  @Column({
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+    name: 'submitted_by_phone',
+  })
   submittedByPhone: string;
 
   @Column({ type: 'varchar', length: 50, nullable: true })
   time: string;
 
-  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP', name: 'submitted_at' })
+  @Column({
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+    name: 'submitted_at',
+  })
   submittedAt: Date;
 
   @Column({ type: 'timestamptz', nullable: true, name: 'completed_at' })

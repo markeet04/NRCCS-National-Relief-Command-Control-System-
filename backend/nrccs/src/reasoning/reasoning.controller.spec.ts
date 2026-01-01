@@ -1,11 +1,11 @@
 /**
  * Reasoning Controller Test Suite
- * 
+ *
  * Tests for AI deductive reasoning engine endpoints:
  * - Resource suggestion generation
  * - Suggestion management
  * - Approval/Rejection workflow
- * 
+ *
  * Coverage: ML integration, suggestion lifecycle, NDMA-only access
  */
 
@@ -65,9 +65,14 @@ describe('ReasoningController', () => {
         mlPrediction: mockFloodPrediction,
         provinceId: 1,
       };
-      mockReasoningService.processMLPrediction.mockResolvedValue(mockResourceSuggestions);
+      mockReasoningService.processMLPrediction.mockResolvedValue(
+        mockResourceSuggestions,
+      );
 
-      const result = await controller.generateSuggestions(dto as any, mockNdmaUser as any);
+      const result = await controller.generateSuggestions(
+        dto as any,
+        mockNdmaUser as any,
+      );
 
       expect(result).toEqual(mockResourceSuggestions);
       expect(mockReasoningService.processMLPrediction).toHaveBeenCalledWith(
@@ -87,9 +92,14 @@ describe('ReasoningController', () => {
         suggestedQuantity: s.suggestedQuantity * 2,
         priority: 'critical',
       }));
-      mockReasoningService.processMLPrediction.mockResolvedValue(highRiskSuggestions);
+      mockReasoningService.processMLPrediction.mockResolvedValue(
+        highRiskSuggestions,
+      );
 
-      const result = await controller.generateSuggestions(dto as any, mockNdmaUser as any);
+      const result = await controller.generateSuggestions(
+        dto as any,
+        mockNdmaUser as any,
+      );
 
       expect(result[0].priority).toBe('critical');
     });
@@ -99,7 +109,9 @@ describe('ReasoningController', () => {
 
       for (const provinceId of provinces) {
         const dto = { mlPrediction: mockFloodPrediction, provinceId };
-        mockReasoningService.processMLPrediction.mockResolvedValue(mockResourceSuggestions);
+        mockReasoningService.processMLPrediction.mockResolvedValue(
+          mockResourceSuggestions,
+        );
 
         await controller.generateSuggestions(dto as any, mockNdmaUser as any);
 
@@ -129,7 +141,10 @@ describe('ReasoningController', () => {
       };
       mockReasoningService.processMLPrediction.mockResolvedValue([]);
 
-      const result = await controller.generateSuggestions(dto as any, mockNdmaUser as any);
+      const result = await controller.generateSuggestions(
+        dto as any,
+        mockNdmaUser as any,
+      );
 
       expect(result).toEqual([]);
     });
@@ -139,7 +154,9 @@ describe('ReasoningController', () => {
 
   describe('GET /reasoning/suggestions', () => {
     it('should return all suggestions', async () => {
-      mockReasoningService.getSuggestions.mockResolvedValue(mockResourceSuggestions);
+      mockReasoningService.getSuggestions.mockResolvedValue(
+        mockResourceSuggestions,
+      );
 
       const result = await controller.getSuggestions();
 
@@ -147,7 +164,9 @@ describe('ReasoningController', () => {
     });
 
     it('should filter by status', async () => {
-      const pendingSuggestions = mockResourceSuggestions.filter((s) => s.status === 'pending');
+      const pendingSuggestions = mockResourceSuggestions.filter(
+        (s) => s.status === 'pending',
+      );
       mockReasoningService.getSuggestions.mockResolvedValue(pendingSuggestions);
 
       await controller.getSuggestions('pending' as any);
@@ -160,7 +179,9 @@ describe('ReasoningController', () => {
     });
 
     it('should filter by province', async () => {
-      mockReasoningService.getSuggestions.mockResolvedValue(mockResourceSuggestions);
+      mockReasoningService.getSuggestions.mockResolvedValue(
+        mockResourceSuggestions,
+      );
 
       await controller.getSuggestions(undefined, 1);
 
@@ -235,7 +256,9 @@ describe('ReasoningController', () => {
         new Error('Stats calculation failed'),
       );
 
-      await expect(controller.getStats()).rejects.toThrow('Stats calculation failed');
+      await expect(controller.getStats()).rejects.toThrow(
+        'Stats calculation failed',
+      );
     });
   });
 
@@ -243,7 +266,9 @@ describe('ReasoningController', () => {
 
   describe('GET /reasoning/suggestions/:id', () => {
     it('should return suggestion by ID', async () => {
-      mockReasoningService.getSuggestionById.mockResolvedValue(mockResourceSuggestions[0]);
+      mockReasoningService.getSuggestionById.mockResolvedValue(
+        mockResourceSuggestions[0],
+      );
 
       const result = await controller.getSuggestionById(1);
 
@@ -255,18 +280,30 @@ describe('ReasoningController', () => {
         new NotFoundException('Suggestion not found'),
       );
 
-      await expect(controller.getSuggestionById(999)).rejects.toThrow(NotFoundException);
+      await expect(controller.getSuggestionById(999)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should return suggestion with detailed reasoning', async () => {
       const detailedSuggestion = {
         ...mockResourceSuggestions[0],
         reasoning: {
-          factors: ['High flood risk', 'Limited current stock', 'Historical demand'],
-          confidence_breakdown: { flood_risk: 0.4, stock_level: 0.3, demand: 0.3 },
+          factors: [
+            'High flood risk',
+            'Limited current stock',
+            'Historical demand',
+          ],
+          confidence_breakdown: {
+            flood_risk: 0.4,
+            stock_level: 0.3,
+            demand: 0.3,
+          },
         },
       };
-      mockReasoningService.getSuggestionById.mockResolvedValue(detailedSuggestion);
+      mockReasoningService.getSuggestionById.mockResolvedValue(
+        detailedSuggestion,
+      );
 
       const result = await controller.getSuggestionById(1);
 
@@ -285,7 +322,9 @@ describe('ReasoningController', () => {
         approvedBy: mockNdmaUser.id,
         approvedAt: new Date(),
       };
-      mockReasoningService.approveSuggestion.mockResolvedValue(approvedSuggestion);
+      mockReasoningService.approveSuggestion.mockResolvedValue(
+        approvedSuggestion,
+      );
 
       const result = await controller.approveSuggestion(1, mockNdmaUser as any);
 
@@ -298,9 +337,9 @@ describe('ReasoningController', () => {
         new NotFoundException('Suggestion not found'),
       );
 
-      await expect(controller.approveSuggestion(999, mockNdmaUser as any)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        controller.approveSuggestion(999, mockNdmaUser as any),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should handle already approved suggestion', async () => {
@@ -308,9 +347,9 @@ describe('ReasoningController', () => {
         new BadRequestException('Suggestion already processed'),
       );
 
-      await expect(controller.approveSuggestion(1, mockNdmaUser as any)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        controller.approveSuggestion(1, mockNdmaUser as any),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should trigger resource allocation on approval', async () => {
@@ -319,7 +358,9 @@ describe('ReasoningController', () => {
         status: 'approved',
         allocationId: 123,
       };
-      mockReasoningService.approveSuggestion.mockResolvedValue(approvedWithAllocation);
+      mockReasoningService.approveSuggestion.mockResolvedValue(
+        approvedWithAllocation,
+      );
 
       const result = await controller.approveSuggestion(1, mockNdmaUser as any);
 
@@ -338,9 +379,15 @@ describe('ReasoningController', () => {
         rejectionReason: dto.reason,
         rejectedBy: mockNdmaUser.id,
       };
-      mockReasoningService.rejectSuggestion.mockResolvedValue(rejectedSuggestion);
+      mockReasoningService.rejectSuggestion.mockResolvedValue(
+        rejectedSuggestion,
+      );
 
-      const result = await controller.rejectSuggestion(1, dto as any, mockNdmaUser as any);
+      const result = await controller.rejectSuggestion(
+        1,
+        dto as any,
+        mockNdmaUser as any,
+      );
 
       expect(result.status).toBe('rejected');
       expect(result.rejectionReason).toBe(dto.reason);
@@ -352,7 +399,11 @@ describe('ReasoningController', () => {
       );
 
       await expect(
-        controller.rejectSuggestion(999, { reason: 'Test' } as any, mockNdmaUser as any),
+        controller.rejectSuggestion(
+          999,
+          { reason: 'Test' } as any,
+          mockNdmaUser as any,
+        ),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -372,7 +423,11 @@ describe('ReasoningController', () => {
           rejectionReason: reason,
         });
 
-        const result = await controller.rejectSuggestion(1, dto as any, mockNdmaUser as any);
+        const result = await controller.rejectSuggestion(
+          1,
+          dto as any,
+          mockNdmaUser as any,
+        );
 
         expect(result.rejectionReason).toBe(reason);
       }
@@ -384,7 +439,11 @@ describe('ReasoningController', () => {
       );
 
       await expect(
-        controller.rejectSuggestion(1, { reason: 'Test' } as any, mockNdmaUser as any),
+        controller.rejectSuggestion(
+          1,
+          { reason: 'Test' } as any,
+          mockNdmaUser as any,
+        ),
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -398,17 +457,26 @@ describe('ReasoningController', () => {
     });
 
     it('should require NDMA role for generate endpoint', () => {
-      const roles = Reflect.getMetadata('roles', ReasoningController.prototype.generateSuggestions);
+      const roles = Reflect.getMetadata(
+        'roles',
+        ReasoningController.prototype.generateSuggestions,
+      );
       expect(roles).toContain('ndma');
     });
 
     it('should require NDMA role for approval endpoint', () => {
-      const roles = Reflect.getMetadata('roles', ReasoningController.prototype.approveSuggestion);
+      const roles = Reflect.getMetadata(
+        'roles',
+        ReasoningController.prototype.approveSuggestion,
+      );
       expect(roles).toContain('ndma');
     });
 
     it('should require NDMA role for rejection endpoint', () => {
-      const roles = Reflect.getMetadata('roles', ReasoningController.prototype.rejectSuggestion);
+      const roles = Reflect.getMetadata(
+        'roles',
+        ReasoningController.prototype.rejectSuggestion,
+      );
       expect(roles).toContain('ndma');
     });
   });
@@ -420,7 +488,10 @@ describe('ReasoningController', () => {
       const dto = { mlPrediction: {}, provinceId: 1 };
       mockReasoningService.processMLPrediction.mockResolvedValue([]);
 
-      const result = await controller.generateSuggestions(dto as any, mockNdmaUser as any);
+      const result = await controller.generateSuggestions(
+        dto as any,
+        mockNdmaUser as any,
+      );
 
       expect(result).toEqual([]);
     });
@@ -434,13 +505,19 @@ describe('ReasoningController', () => {
         { ...mockResourceSuggestions[0], confidence: 0.99, priority: 'urgent' },
       ]);
 
-      const result = await controller.generateSuggestions(dto as any, mockNdmaUser as any);
+      const result = await controller.generateSuggestions(
+        dto as any,
+        mockNdmaUser as any,
+      );
 
       expect(result[0].priority).toBe('urgent');
     });
 
     it('should handle suggestion with zero quantity', async () => {
-      const zeroSuggestion = { ...mockResourceSuggestions[0], suggestedQuantity: 0 };
+      const zeroSuggestion = {
+        ...mockResourceSuggestions[0],
+        suggestedQuantity: 0,
+      };
       mockReasoningService.getSuggestionById.mockResolvedValue(zeroSuggestion);
 
       const result = await controller.getSuggestionById(1);

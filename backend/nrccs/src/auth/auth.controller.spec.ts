@@ -1,12 +1,12 @@
 /**
  * Auth Controller Test Suite
- * 
+ *
  * Tests for authentication endpoints:
  * - POST /auth/login
  * - POST /auth/logout
  * - GET /auth/me
  * - POST /auth/validate
- * 
+ *
  * Coverage: Authentication flows, session management, error handling
  */
 
@@ -64,7 +64,7 @@ describe('AuthController', () => {
         user: mockUser,
         session: {} as Record<string, any>,
       };
-      
+
       mockAuthService.updateLastLogin.mockResolvedValue(undefined);
 
       const result = await controller.login(mockRequest);
@@ -135,7 +135,9 @@ describe('AuthController', () => {
     it('should logout successfully and destroy session', async () => {
       const mockRequest = {
         session: {
-          destroy: jest.fn((callback: (err: Error | null) => void) => callback(null)),
+          destroy: jest.fn((callback: (err: Error | null) => void) =>
+            callback(null),
+          ),
           user: mockCivilianUser,
         },
         res: {
@@ -153,7 +155,9 @@ describe('AuthController', () => {
     it('should handle session destroy error', async () => {
       const mockRequest = {
         session: {
-          destroy: jest.fn((callback: (err: Error | null) => void) => callback(new Error('Session error'))),
+          destroy: jest.fn((callback: (err: Error | null) => void) =>
+            callback(new Error('Session error')),
+          ),
           user: mockCivilianUser,
         },
         res: {
@@ -161,14 +165,18 @@ describe('AuthController', () => {
         },
       };
 
-      await expect(controller.logout(mockRequest)).rejects.toThrow('Session error');
+      await expect(controller.logout(mockRequest)).rejects.toThrow(
+        'Session error',
+      );
     });
 
     it('should clear session cookie on successful logout', async () => {
       const mockClearCookie = jest.fn();
       const mockRequest = {
         session: {
-          destroy: jest.fn((callback: (err: Error | null) => void) => callback(null)),
+          destroy: jest.fn((callback: (err: Error | null) => void) =>
+            callback(null),
+          ),
           user: mockCivilianUser,
         },
         res: {
@@ -263,30 +271,42 @@ describe('AuthController', () => {
 
       const result = await controller.validate(mockRequest);
 
-      expect(result.user.id).toBe(15);
-      expect(result.user.role).toBe('pdma');
-      expect(result.user.provinceId).toBe(2);
+      expect((result.user as MockUser).id).toBe(15);
+      expect((result.user as MockUser).role).toBe('pdma');
+      expect((result.user as MockUser).provinceId).toBe(2);
     });
   });
 
   describe('Guard Integration', () => {
     it('should require LocalAuthGuard for login', () => {
       // This test verifies the decorator is applied
-      const guards = Reflect.getMetadata('__guards__', AuthController.prototype.login);
+      const guards = Reflect.getMetadata(
+        '__guards__',
+        AuthController.prototype.login.bind(AuthController.prototype),
+      ) as unknown;
       expect(guards).toBeDefined();
     });
 
     it('should require SessionAuthGuard for protected routes', () => {
       // Verify logout requires session auth
-      const logoutGuards = Reflect.getMetadata('__guards__', AuthController.prototype.logout);
+      const logoutGuards = Reflect.getMetadata(
+        '__guards__',
+        AuthController.prototype.logout.bind(AuthController.prototype),
+      ) as unknown;
       expect(logoutGuards).toBeDefined();
 
       // Verify me requires session auth
-      const meGuards = Reflect.getMetadata('__guards__', AuthController.prototype.getMe);
+      const meGuards = Reflect.getMetadata(
+        '__guards__',
+        AuthController.prototype.getMe.bind(AuthController.prototype),
+      ) as unknown;
       expect(meGuards).toBeDefined();
 
       // Verify validate requires session auth
-      const validateGuards = Reflect.getMetadata('__guards__', AuthController.prototype.validate);
+      const validateGuards = Reflect.getMetadata(
+        '__guards__',
+        AuthController.prototype.validate.bind(AuthController.prototype),
+      ) as unknown;
       expect(validateGuards).toBeDefined();
     });
   });
@@ -294,22 +314,34 @@ describe('AuthController', () => {
   describe('HTTP Status Codes', () => {
     it('should return 200 OK for successful login', async () => {
       // Verify HttpCode decorator
-      const httpCode = Reflect.getMetadata('__httpCode__', AuthController.prototype.login);
+      const httpCode = Reflect.getMetadata(
+        '__httpCode__',
+        AuthController.prototype.login,
+      );
       expect(httpCode).toBe(200);
     });
 
     it('should return 200 OK for successful logout', async () => {
-      const httpCode = Reflect.getMetadata('__httpCode__', AuthController.prototype.logout);
+      const httpCode = Reflect.getMetadata(
+        '__httpCode__',
+        AuthController.prototype.logout,
+      );
       expect(httpCode).toBe(200);
     });
 
     it('should return 200 OK for me endpoint', async () => {
-      const httpCode = Reflect.getMetadata('__httpCode__', AuthController.prototype.getMe);
+      const httpCode = Reflect.getMetadata(
+        '__httpCode__',
+        AuthController.prototype.getMe,
+      );
       expect(httpCode).toBe(200);
     });
 
     it('should return 200 OK for validate endpoint', async () => {
-      const httpCode = Reflect.getMetadata('__httpCode__', AuthController.prototype.validate);
+      const httpCode = Reflect.getMetadata(
+        '__httpCode__',
+        AuthController.prototype.validate,
+      );
       expect(httpCode).toBe(200);
     });
   });

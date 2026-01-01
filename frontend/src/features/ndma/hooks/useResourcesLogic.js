@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { getMenuItemsByRole, ROLE_CONFIG } from '@shared/constants/dashboardConfig';
 import { useBadge } from '@shared/contexts/BadgeContext';
 import { NotificationService } from '@services/NotificationService';
-import NdmaApiService from '@shared/services/NdmaApiService';
+import NdmaApiService from '@shared/services/ndmaApiService.js';
 import {
   INITIAL_NATIONAL_STOCK,
   INITIAL_PROVINCIAL_ALLOCATIONS,

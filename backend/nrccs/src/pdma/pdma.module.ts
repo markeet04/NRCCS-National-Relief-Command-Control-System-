@@ -36,4 +36,4 @@ import { FloodZone } from '../common/entities/flood-zone.entity';
   providers: [PdmaService],
   exports: [PdmaService],
 })
-export class PdmaModule { }
+export class PdmaModule {}

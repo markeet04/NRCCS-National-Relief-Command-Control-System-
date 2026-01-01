@@ -51,7 +51,12 @@ export class Resource {
   @Column({ type: 'varchar', length: 50, nullable: true })
   category: string;
 
-  @Column({ type: 'varchar', length: 50, nullable: true, name: 'resource_type' })
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+    name: 'resource_type',
+  })
   resourceType: string;
 
   @Column({ type: 'integer', default: 0 })
@@ -103,16 +108,31 @@ export class Resource {
   @Column({ type: 'integer', default: 0 })
   trend: number;
 
-  @Column({ type: 'decimal', precision: 5, scale: 2, default: 0, name: 'trend_percentage' })
+  @Column({
+    type: 'decimal',
+    precision: 5,
+    scale: 2,
+    default: 0,
+    name: 'trend_percentage',
+  })
   trendPercentage: number;
 
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true, name: 'contact_email' })
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    name: 'contact_email',
+  })
   contactEmail: string;
 
-  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP', name: 'last_update' })
+  @Column({
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+    name: 'last_update',
+  })
   lastUpdate: Date;
 
   @CreateDateColumn({ name: 'created_at' })

@@ -1,4 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+} from 'typeorm';
 
 @Entity('activity_logs')
 export class ActivityLog {
@@ -29,10 +34,20 @@ export class ActivityLog {
   @Column({ type: 'int', nullable: true, name: 'performed_by' })
   performedBy: number;
 
-  @Column({ type: 'varchar', length: 50, nullable: true, name: 'related_entity_type' })
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+    name: 'related_entity_type',
+  })
   relatedEntityType: string;
 
-  @Column({ type: 'varchar', length: 50, nullable: true, name: 'related_entity_id' })
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+    name: 'related_entity_id',
+  })
   relatedEntityId: string;
 
   @Column({ type: 'jsonb', nullable: true })

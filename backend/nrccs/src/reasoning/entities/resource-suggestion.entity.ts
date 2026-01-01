@@ -50,7 +50,13 @@ export class ResourceSuggestion {
   @Column({ name: 'rule_ids', type: 'text', array: true })
   ruleIds: string[];
 
-  @Column({ name: 'confidence_score', type: 'decimal', precision: 4, scale: 3, nullable: true })
+  @Column({
+    name: 'confidence_score',
+    type: 'decimal',
+    precision: 4,
+    scale: 3,
+    nullable: true,
+  })
   confidenceScore: number;
 
   @Column({ name: 'ml_prediction_data', type: 'jsonb', nullable: true })

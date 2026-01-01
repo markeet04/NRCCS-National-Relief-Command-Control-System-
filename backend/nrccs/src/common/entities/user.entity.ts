@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { UserSession } from './user-session.entity';
 
 export enum UserRole {
@@ -85,6 +92,6 @@ export class User {
   @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToMany(() => UserSession, session => session.user)
+  @OneToMany(() => UserSession, (session) => session.user)
   sessions: UserSession[];
 }

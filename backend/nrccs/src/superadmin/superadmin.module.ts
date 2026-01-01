@@ -10,13 +10,7 @@ import { District } from '../common/entities/district.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      User,
-      AuditLog,
-      ActivityLog,
-      Province,
-      District,
-    ]),
+    TypeOrmModule.forFeature([User, AuditLog, ActivityLog, Province, District]),
   ],
   controllers: [SuperadminController],
   providers: [SuperadminService],

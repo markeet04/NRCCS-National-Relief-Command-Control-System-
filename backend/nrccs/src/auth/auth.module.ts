@@ -19,5 +19,4 @@ import { District } from '../common/entities/district.entity';
   providers: [AuthService, LocalStrategy, SessionSerializer],
   exports: [AuthService],
 })
-export class AuthModule { }
-
+export class AuthModule {}

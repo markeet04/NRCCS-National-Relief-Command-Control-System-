@@ -39,9 +39,7 @@ import {
   CreateDamageReportDto,
   VerifyDamageReportDto,
 } from './dtos/damage-report.dto';
-import {
-  AllocateResourceToShelterDto,
-} from './dtos/resource.dto';
+import { AllocateResourceToShelterDto } from './dtos/resource.dto';
 import { UpdateMissingPersonStatusDto } from './dtos/update-missing-person-status.dto';
 import { CreateDistrictResourceRequestDto } from './dtos/resource-request.dto';
 
@@ -49,7 +47,7 @@ import { CreateDistrictResourceRequestDto } from './dtos/resource-request.dto';
 @UseGuards(SessionAuthGuard, RolesGuard)
 @Roles(UserRole.DISTRICT)
 export class DistrictController {
-  constructor(private readonly districtService: DistrictService) { }
+  constructor(private readonly districtService: DistrictService) {}
 
   // ==================== DASHBOARD ====================
 
@@ -84,10 +82,7 @@ export class DistrictController {
   }
 
   @Get('sos/:id')
-  async getSosRequestById(
-    @Param('id') id: string,
-    @CurrentUser() user: User,
-  ) {
+  async getSosRequestById(@Param('id') id: string, @CurrentUser() user: User) {
     return await this.districtService.getSosRequestById(id, user);
   }
 
@@ -135,10 +130,7 @@ export class DistrictController {
   }
 
   @Get('rescue-teams/:id')
-  async getRescueTeamById(
-    @Param('id') id: string,
-    @CurrentUser() user: User,
-  ) {
+  async getRescueTeamById(@Param('id') id: string, @CurrentUser() user: User) {
     return await this.districtService.getRescueTeamById(id, user);
   }
 
@@ -290,10 +282,7 @@ export class DistrictController {
   // ==================== ALERTS ====================
 
   @Get('alerts')
-  async getAlerts(
-    @CurrentUser() user: User,
-    @Query('status') status?: string,
-  ) {
+  async getAlerts(@CurrentUser() user: User, @Query('status') status?: string) {
     return await this.districtService.getAlerts(user, status);
   }
 

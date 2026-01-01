@@ -1,6 +1,6 @@
 /**
  * Civilian Controller Test Suite
- * 
+ *
  * Tests for public civilian endpoints (no authentication required):
  * - GET /civilian/alerts
  * - GET /civilian/alerts/recent
@@ -13,7 +13,7 @@
  * - GET /civilian/help
  * - GET /civilian/provinces
  * - GET /civilian/provinces/:provinceId/districts
- * 
+ *
  * Coverage: Public data access, SOS submission, tracking, missing persons
  */
 
@@ -82,7 +82,10 @@ describe('CivilianController', () => {
       const result = await controller.getAllAlerts();
 
       expect(result).toEqual(mockAlerts);
-      expect(mockCivilianService.getAllAlerts).toHaveBeenCalledWith(undefined, 50);
+      expect(mockCivilianService.getAllAlerts).toHaveBeenCalledWith(
+        undefined,
+        50,
+      );
     });
 
     it('should filter alerts by severity', async () => {
@@ -99,7 +102,10 @@ describe('CivilianController', () => {
 
       const result = await controller.getAllAlerts(undefined, '1');
 
-      expect(mockCivilianService.getAllAlerts).toHaveBeenCalledWith(undefined, 1);
+      expect(mockCivilianService.getAllAlerts).toHaveBeenCalledWith(
+        undefined,
+        1,
+      );
     });
 
     it('should return empty array when no alerts exist', async () => {
@@ -111,7 +117,9 @@ describe('CivilianController', () => {
     });
 
     it('should handle service error', async () => {
-      mockCivilianService.getAllAlerts.mockRejectedValue(new Error('Database error'));
+      mockCivilianService.getAllAlerts.mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await expect(controller.getAllAlerts()).rejects.toThrow('Database error');
     });
@@ -119,7 +127,9 @@ describe('CivilianController', () => {
 
   describe('GET /civilian/alerts/recent', () => {
     it('should return recent alerts with default limit', async () => {
-      mockCivilianService.getRecentAlerts.mockResolvedValue(mockAlerts.slice(0, 3));
+      mockCivilianService.getRecentAlerts.mockResolvedValue(
+        mockAlerts.slice(0, 3),
+      );
 
       const result = await controller.getRecentAlerts();
 
@@ -152,7 +162,10 @@ describe('CivilianController', () => {
       const result = await controller.getAllShelters();
 
       expect(result).toEqual(mockShelters);
-      expect(mockCivilianService.getAllShelters).toHaveBeenCalledWith(undefined, undefined);
+      expect(mockCivilianService.getAllShelters).toHaveBeenCalledWith(
+        undefined,
+        undefined,
+      );
     });
 
     it('should filter shelters by status', async () => {
@@ -161,7 +174,10 @@ describe('CivilianController', () => {
 
       const result = await controller.getAllShelters('active');
 
-      expect(mockCivilianService.getAllShelters).toHaveBeenCalledWith('active', undefined);
+      expect(mockCivilianService.getAllShelters).toHaveBeenCalledWith(
+        'active',
+        undefined,
+      );
     });
 
     it('should filter shelters by district', async () => {
@@ -169,7 +185,10 @@ describe('CivilianController', () => {
 
       const result = await controller.getAllShelters(undefined, '1');
 
-      expect(mockCivilianService.getAllShelters).toHaveBeenCalledWith(undefined, 1);
+      expect(mockCivilianService.getAllShelters).toHaveBeenCalledWith(
+        undefined,
+        1,
+      );
     });
 
     it('should filter by both status and district', async () => {
@@ -177,7 +196,10 @@ describe('CivilianController', () => {
 
       const result = await controller.getAllShelters('active', '1');
 
-      expect(mockCivilianService.getAllShelters).toHaveBeenCalledWith('active', 1);
+      expect(mockCivilianService.getAllShelters).toHaveBeenCalledWith(
+        'active',
+        1,
+      );
     });
 
     it('should return empty array when no shelters match', async () => {
@@ -204,11 +226,21 @@ describe('CivilianController', () => {
     });
 
     it('should create SOS with all emergency types', async () => {
-      const emergencyTypes = ['medical', 'fire', 'flood', 'accident', 'security', 'other'];
+      const emergencyTypes = [
+        'medical',
+        'fire',
+        'flood',
+        'accident',
+        'security',
+        'other',
+      ];
 
       for (const emergencyType of emergencyTypes) {
         const dto = { ...createValidSosDto(), emergencyType };
-        mockCivilianService.createSos.mockResolvedValue({ id: 'SOS-001', ...dto });
+        mockCivilianService.createSos.mockResolvedValue({
+          id: 'SOS-001',
+          ...dto,
+        });
 
         const result = await controller.createSos(dto);
 
@@ -218,7 +250,10 @@ describe('CivilianController', () => {
 
     it('should create SOS with minimum people count', async () => {
       const dto = { ...createValidSosDto(), peopleCount: 1 };
-      mockCivilianService.createSos.mockResolvedValue({ id: 'SOS-001', ...dto });
+      mockCivilianService.createSos.mockResolvedValue({
+        id: 'SOS-001',
+        ...dto,
+      });
 
       const result = await controller.createSos(dto);
 
@@ -227,7 +262,10 @@ describe('CivilianController', () => {
 
     it('should create SOS with large people count', async () => {
       const dto = { ...createValidSosDto(), peopleCount: 100 };
-      mockCivilianService.createSos.mockResolvedValue({ id: 'SOS-001', ...dto });
+      mockCivilianService.createSos.mockResolvedValue({
+        id: 'SOS-001',
+        ...dto,
+      });
 
       const result = await controller.createSos(dto);
 
@@ -236,9 +274,13 @@ describe('CivilianController', () => {
 
     it('should handle service error on SOS creation', async () => {
       const dto = createValidSosDto();
-      mockCivilianService.createSos.mockRejectedValue(new Error('Failed to create SOS'));
+      mockCivilianService.createSos.mockRejectedValue(
+        new Error('Failed to create SOS'),
+      );
 
-      await expect(controller.createSos(dto)).rejects.toThrow('Failed to create SOS');
+      await expect(controller.createSos(dto)).rejects.toThrow(
+        'Failed to create SOS',
+      );
     });
 
     it('should create SOS with valid coordinates', async () => {
@@ -247,7 +289,10 @@ describe('CivilianController', () => {
         locationLat: 24.8607,
         locationLng: 67.0011, // Karachi coordinates
       };
-      mockCivilianService.createSos.mockResolvedValue({ id: 'SOS-001', ...dto });
+      mockCivilianService.createSos.mockResolvedValue({
+        id: 'SOS-001',
+        ...dto,
+      });
 
       const result = await controller.createSos(dto);
 
@@ -260,12 +305,16 @@ describe('CivilianController', () => {
 
   describe('GET /civilian/track/:id', () => {
     it('should track request by ID successfully', async () => {
-      mockCivilianService.trackRequestById.mockResolvedValue(mockSosRequests[0]);
+      mockCivilianService.trackRequestById.mockResolvedValue(
+        mockSosRequests[0],
+      );
 
       const result = await controller.trackById('SOS-001');
 
       expect(result).toEqual(mockSosRequests[0]);
-      expect(mockCivilianService.trackRequestById).toHaveBeenCalledWith('SOS-001');
+      expect(mockCivilianService.trackRequestById).toHaveBeenCalledWith(
+        'SOS-001',
+      );
     });
 
     it('should return null for non-existent ID', async () => {
@@ -280,7 +329,10 @@ describe('CivilianController', () => {
       const ids = ['SOS-001', 'SOS-12345', 'sos-abc-123'];
 
       for (const id of ids) {
-        mockCivilianService.trackRequestById.mockResolvedValue({ id, status: 'pending' });
+        mockCivilianService.trackRequestById.mockResolvedValue({
+          id,
+          status: 'pending',
+        });
 
         const result = await controller.trackById(id);
 
@@ -291,12 +343,16 @@ describe('CivilianController', () => {
 
   describe('GET /civilian/track?cnic=', () => {
     it('should track requests by CNIC successfully', async () => {
-      mockCivilianService.trackRequestsByCnic.mockResolvedValue(mockSosRequests);
+      mockCivilianService.trackRequestsByCnic.mockResolvedValue(
+        mockSosRequests,
+      );
 
       const result = await controller.trackByCnic('1234567890123');
 
       expect(result).toEqual(mockSosRequests);
-      expect(mockCivilianService.trackRequestsByCnic).toHaveBeenCalledWith('1234567890123');
+      expect(mockCivilianService.trackRequestsByCnic).toHaveBeenCalledWith(
+        '1234567890123',
+      );
     });
 
     it('should return empty array for CNIC with no requests', async () => {
@@ -312,7 +368,9 @@ describe('CivilianController', () => {
         { ...mockSosRequests[0], id: 'SOS-001' },
         { ...mockSosRequests[0], id: 'SOS-002' },
       ];
-      mockCivilianService.trackRequestsByCnic.mockResolvedValue(multipleRequests);
+      mockCivilianService.trackRequestsByCnic.mockResolvedValue(
+        multipleRequests,
+      );
 
       const result = await controller.trackByCnic('1234567890123');
 
@@ -324,7 +382,9 @@ describe('CivilianController', () => {
 
   describe('GET /civilian/missing-persons', () => {
     it('should return all missing persons', async () => {
-      mockCivilianService.getAllMissingPersons.mockResolvedValue(mockMissingPersons);
+      mockCivilianService.getAllMissingPersons.mockResolvedValue(
+        mockMissingPersons,
+      );
 
       const result = await controller.getAllMissingPersons();
 
@@ -332,7 +392,9 @@ describe('CivilianController', () => {
     });
 
     it('should filter by status', async () => {
-      mockCivilianService.getAllMissingPersons.mockResolvedValue(mockMissingPersons);
+      mockCivilianService.getAllMissingPersons.mockResolvedValue(
+        mockMissingPersons,
+      );
 
       await controller.getAllMissingPersons('missing');
 
@@ -344,7 +406,9 @@ describe('CivilianController', () => {
     });
 
     it('should filter by gender', async () => {
-      mockCivilianService.getAllMissingPersons.mockResolvedValue(mockMissingPersons);
+      mockCivilianService.getAllMissingPersons.mockResolvedValue(
+        mockMissingPersons,
+      );
 
       await controller.getAllMissingPersons(undefined, 'female');
 
@@ -356,7 +420,9 @@ describe('CivilianController', () => {
     });
 
     it('should filter by age range', async () => {
-      mockCivilianService.getAllMissingPersons.mockResolvedValue(mockMissingPersons);
+      mockCivilianService.getAllMissingPersons.mockResolvedValue(
+        mockMissingPersons,
+      );
 
       await controller.getAllMissingPersons(undefined, undefined, '18-40');
 
@@ -430,7 +496,9 @@ describe('CivilianController', () => {
         new Error('Database error'),
       );
 
-      await expect(controller.reportMissingPerson(dto as any)).rejects.toThrow('Database error');
+      await expect(controller.reportMissingPerson(dto as any)).rejects.toThrow(
+        'Database error',
+      );
     });
   });
 
@@ -482,11 +550,15 @@ describe('CivilianController', () => {
 
   describe('GET /civilian/provinces/:provinceId/districts', () => {
     it('should return districts for province', async () => {
-      mockCivilianService.getDistrictsByProvince.mockResolvedValue([mockDistricts[0]]);
+      mockCivilianService.getDistrictsByProvince.mockResolvedValue([
+        mockDistricts[0],
+      ]);
 
       const result = await controller.getDistrictsByProvince('1');
 
-      expect(mockCivilianService.getDistrictsByProvince).toHaveBeenCalledWith(1);
+      expect(mockCivilianService.getDistrictsByProvince).toHaveBeenCalledWith(
+        1,
+      );
     });
 
     it('should parse province ID correctly', async () => {
@@ -494,7 +566,9 @@ describe('CivilianController', () => {
 
       await controller.getDistrictsByProvince('42');
 
-      expect(mockCivilianService.getDistrictsByProvince).toHaveBeenCalledWith(42);
+      expect(mockCivilianService.getDistrictsByProvince).toHaveBeenCalledWith(
+        42,
+      );
     });
 
     it('should return empty array for province with no districts', async () => {
@@ -514,7 +588,10 @@ describe('CivilianController', () => {
 
       await controller.getAllAlerts(undefined, '10000');
 
-      expect(mockCivilianService.getAllAlerts).toHaveBeenCalledWith(undefined, 10000);
+      expect(mockCivilianService.getAllAlerts).toHaveBeenCalledWith(
+        undefined,
+        10000,
+      );
     });
 
     it('should handle special characters in search', async () => {
@@ -522,7 +599,9 @@ describe('CivilianController', () => {
 
       await controller.trackById('SOS-!@#$%');
 
-      expect(mockCivilianService.trackRequestById).toHaveBeenCalledWith('SOS-!@#$%');
+      expect(mockCivilianService.trackRequestById).toHaveBeenCalledWith(
+        'SOS-!@#$%',
+      );
     });
 
     it('should handle empty string parameters', async () => {

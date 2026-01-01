@@ -63,7 +63,11 @@ export class District {
   @Column({ type: 'integer', default: 0, name: 'active_alerts' })
   activeAlerts: number;
 
-  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP', name: 'last_update' })
+  @Column({
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+    name: 'last_update',
+  })
   lastUpdate: Date;
 
   @CreateDateColumn({ name: 'created_at' })

@@ -1,8 +1,16 @@
-import { Controller, Post, Get, UseGuards, Req, HttpCode, HttpStatus, Session } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  UseGuards,
+  Req,
+  HttpCode,
+  HttpStatus,
+  Session,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from '../common/guards/local-auth.guard';
 import { SessionAuthGuard } from '../common/guards/session-auth.guard';
-
 
 @Controller('auth')
 export class AuthController {
@@ -14,13 +22,13 @@ export class AuthController {
   async login(@Req() req: any): Promise<{ user: any }> {
     // User is attached by LocalAuthGuard after successful authentication
     const user = req.user;
-    
+
     // Store user in session
     req.session.user = user;
-    
+
     // Update last login
     await this.authService.updateLastLogin(user.id);
-    
+
     return { user };
   }
 

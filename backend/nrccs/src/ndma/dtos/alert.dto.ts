@@ -1,81 +1,87 @@
-import { IsString, IsOptional, IsEnum, IsArray, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsArray,
+  IsNumber,
+} from 'class-validator';
 import { AlertSeverity, AlertStatus } from '../../common/entities/alert.entity';
 
 export class CreateAlertDto {
-    @IsString()
-    title: string;
+  @IsString()
+  title: string;
 
-    @IsOptional()
-    @IsString()
-    type?: string;
+  @IsOptional()
+  @IsString()
+  type?: string;
 
-    @IsOptional()
-    @IsString()
-    alertType?: string;
+  @IsOptional()
+  @IsString()
+  alertType?: string;
 
-    @IsOptional()
-    @IsEnum(AlertSeverity)
-    severity?: AlertSeverity;
+  @IsOptional()
+  @IsEnum(AlertSeverity)
+  severity?: AlertSeverity;
 
-    @IsOptional()
-    @IsString()
-    description?: string;
+  @IsOptional()
+  @IsString()
+  description?: string;
 
-    @IsOptional()
-    @IsString()
-    message?: string;
+  @IsOptional()
+  @IsString()
+  message?: string;
 
-    @IsOptional()
-    @IsArray()
-    affectedAreas?: string[];
+  @IsOptional()
+  @IsArray()
+  affectedAreas?: string[];
 
-    @IsOptional()
-    @IsNumber()
-    provinceId?: number;
+  @IsOptional()
+  @IsNumber()
+  provinceId?: number;
 
-    @IsOptional()
-    @IsNumber()
-    districtId?: number;
+  @IsOptional()
+  @IsNumber()
+  districtId?: number;
 
-    @IsOptional()
-    @IsString()
-    province?: string;
+  @IsOptional()
+  @IsString()
+  province?: string;
 
-    @IsOptional()
-    @IsString()
-    district?: string;
+  @IsOptional()
+  @IsString()
+  district?: string;
 
-    @IsOptional()
-    @IsArray()
-    districtIds?: number[];
+  @IsOptional()
+  @IsArray()
+  districtIds?: number[];
 }
 
 export class UpdateAlertDto {
-    @IsOptional()
-    @IsString()
-    title?: string;
+  @IsOptional()
+  @IsString()
+  title?: string;
 
-    @IsOptional()
-    @IsString()
-    type?: string;
+  @IsOptional()
+  @IsString()
+  type?: string;
 
-    @IsOptional()
-    @IsEnum(AlertSeverity)
-    severity?: AlertSeverity;
+  @IsOptional()
+  @IsEnum(AlertSeverity)
+  severity?: AlertSeverity;
 
-    @IsOptional()
-    @IsString()
-    description?: string;
+  @IsOptional()
+  @IsString()
+  description?: string;
 
-    @IsOptional()
-    @IsString()
-    message?: string;
+  @IsOptional()
+  @IsString()
+  message?: string;
 
-    @IsOptional()
-    @IsEnum(AlertStatus)
-    status?: AlertStatus;
+  @IsOptional()
+  @IsEnum(AlertStatus)
+  status?: AlertStatus;
 
-    @IsOptional()
-    @IsArray()
-    affectedAreas?: string[];
+  @IsOptional()
+  @IsArray()
+  affectedAreas?: string[];
 }

@@ -1,4 +1,11 @@
-import { IsNumber, IsNotEmpty, IsOptional, IsString, Min, IsInt } from 'class-validator';
+import {
+  IsNumber,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+  IsInt,
+} from 'class-validator';
 
 /**
  * DTO for allocating resources to a shelter

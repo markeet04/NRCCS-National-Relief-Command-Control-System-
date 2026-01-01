@@ -22,7 +22,9 @@ async function bootstrap() {
   // Configure session middleware
   app.use(
     session({
-      secret: process.env.SESSION_SECRET || 'nrccs-session-secret-change-in-production',
+      secret:
+        process.env.SESSION_SECRET ||
+        'nrccs-session-secret-change-in-production',
       resave: false,
       saveUninitialized: false,
       cookie: {
@@ -43,9 +45,9 @@ async function bootstrap() {
   // Enable CORS for frontend with credentials
   // Supports both development (localhost) and production (Cloud Run URL)
   const allowedOrigins = [
-    'http://localhost:5173',  // Vite dev server
-    'http://localhost:3000',  // Alternative local
-    'http://localhost:8080',  // Docker local
+    'http://localhost:5173', // Vite dev server
+    'http://localhost:3000', // Alternative local
+    'http://localhost:8080', // Docker local
     process.env.FRONTEND_URL, // Production URL from env
   ].filter(Boolean); // Remove undefined values
 

@@ -1,6 +1,6 @@
 /**
  * District Controller Test Suite
- * 
+ *
  * Tests for district-level administrative endpoints (requires DISTRICT role):
  * - Dashboard & Info routes
  * - SOS Request management
@@ -10,12 +10,16 @@
  * - Resources
  * - Missing Persons
  * - Resource Requests
- * 
+ *
  * Coverage: CRUD operations, authorization, validation, error handling
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { DistrictController } from './district.controller';
 import { DistrictService } from './district.service';
 import { SessionAuthGuard } from '../common/guards/session-auth.guard';
@@ -126,27 +130,41 @@ describe('DistrictController', () => {
 
   describe('GET /district/dashboard/stats', () => {
     it('should return dashboard stats successfully', async () => {
-      mockDistrictService.getDashboardStats.mockResolvedValue(mockDashboardStats);
+      mockDistrictService.getDashboardStats.mockResolvedValue(
+        mockDashboardStats,
+      );
 
-      const result = await controller.getDashboardStats(mockDistrictUser as any);
+      const result = await controller.getDashboardStats(
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual(mockDashboardStats);
-      expect(mockDistrictService.getDashboardStats).toHaveBeenCalledWith(mockDistrictUser);
+      expect(mockDistrictService.getDashboardStats).toHaveBeenCalledWith(
+        mockDistrictUser,
+      );
     });
 
     it('should return stats scoped to user district', async () => {
       const districtStats = { ...mockDashboardStats, districtId: 1 };
       mockDistrictService.getDashboardStats.mockResolvedValue(districtStats);
 
-      const result = await controller.getDashboardStats(mockDistrictUser as any);
+      const result = await controller.getDashboardStats(
+        mockDistrictUser as any,
+      );
 
-      expect(mockDistrictService.getDashboardStats).toHaveBeenCalledWith(mockDistrictUser);
+      expect(mockDistrictService.getDashboardStats).toHaveBeenCalledWith(
+        mockDistrictUser,
+      );
     });
 
     it('should handle service error', async () => {
-      mockDistrictService.getDashboardStats.mockRejectedValue(new Error('Stats unavailable'));
+      mockDistrictService.getDashboardStats.mockRejectedValue(
+        new Error('Stats unavailable'),
+      );
 
-      await expect(controller.getDashboardStats(mockDistrictUser as any)).rejects.toThrow('Stats unavailable');
+      await expect(
+        controller.getDashboardStats(mockDistrictUser as any),
+      ).rejects.toThrow('Stats unavailable');
     });
   });
 
@@ -178,23 +196,35 @@ describe('DistrictController', () => {
     it('should return all SOS requests', async () => {
       mockDistrictService.getAllSosRequests.mockResolvedValue(mockSosRequests);
 
-      const result = await controller.getAllSosRequests(mockDistrictUser as any);
+      const result = await controller.getAllSosRequests(
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual(mockSosRequests);
     });
 
     it('should filter by status', async () => {
-      mockDistrictService.getAllSosRequests.mockResolvedValue([mockSosRequests[0]]);
+      mockDistrictService.getAllSosRequests.mockResolvedValue([
+        mockSosRequests[0],
+      ]);
 
-      const result = await controller.getAllSosRequests(mockDistrictUser as any, 'pending');
+      const result = await controller.getAllSosRequests(
+        mockDistrictUser as any,
+        'pending',
+      );
 
-      expect(mockDistrictService.getAllSosRequests).toHaveBeenCalledWith(mockDistrictUser, 'pending');
+      expect(mockDistrictService.getAllSosRequests).toHaveBeenCalledWith(
+        mockDistrictUser,
+        'pending',
+      );
     });
 
     it('should return empty array when no SOS requests', async () => {
       mockDistrictService.getAllSosRequests.mockResolvedValue([]);
 
-      const result = await controller.getAllSosRequests(mockDistrictUser as any);
+      const result = await controller.getAllSosRequests(
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual([]);
     });
@@ -213,9 +243,14 @@ describe('DistrictController', () => {
 
   describe('GET /district/sos/:id', () => {
     it('should return SOS request by ID', async () => {
-      mockDistrictService.getSosRequestById.mockResolvedValue(mockSosRequests[0]);
+      mockDistrictService.getSosRequestById.mockResolvedValue(
+        mockSosRequests[0],
+      );
 
-      const result = await controller.getSosRequestById('SOS-001', mockDistrictUser as any);
+      const result = await controller.getSosRequestById(
+        'SOS-001',
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual(mockSosRequests[0]);
     });
@@ -237,7 +272,11 @@ describe('DistrictController', () => {
       const updated = { ...mockSosRequests[0], status: 'in_progress' };
       mockDistrictService.updateSosStatus.mockResolvedValue(updated);
 
-      const result = await controller.updateSosStatus('SOS-001', dto as any, mockDistrictUser as any);
+      const result = await controller.updateSosStatus(
+        'SOS-001',
+        dto as any,
+        mockDistrictUser as any,
+      );
 
       expect(result.status).toBe('in_progress');
     });
@@ -248,7 +287,11 @@ describe('DistrictController', () => {
       );
 
       await expect(
-        controller.updateSosStatus('SOS-001', { status: 'invalid' } as any, mockDistrictUser as any),
+        controller.updateSosStatus(
+          'SOS-001',
+          { status: 'invalid' } as any,
+          mockDistrictUser as any,
+        ),
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -259,7 +302,11 @@ describe('DistrictController', () => {
       const updated = { ...mockSosRequests[0], assignedTeamId: 'RT-001' };
       mockDistrictService.assignTeamToSos.mockResolvedValue(updated);
 
-      const result = await controller.assignTeamToSos('SOS-001', dto as any, mockDistrictUser as any);
+      const result = await controller.assignTeamToSos(
+        'SOS-001',
+        dto as any,
+        mockDistrictUser as any,
+      );
 
       expect(result.assignedTeamId).toBe('RT-001');
     });
@@ -271,7 +318,11 @@ describe('DistrictController', () => {
       const entry = { id: 1, ...dto, createdAt: new Date() };
       mockDistrictService.addTimelineEntry.mockResolvedValue(entry);
 
-      const result = await controller.addTimelineEntry('SOS-001', dto as any, mockDistrictUser as any);
+      const result = await controller.addTimelineEntry(
+        'SOS-001',
+        dto as any,
+        mockDistrictUser as any,
+      );
 
       expect(result.action).toBe('Team dispatched');
     });
@@ -283,7 +334,9 @@ describe('DistrictController', () => {
     it('should return all rescue teams', async () => {
       mockDistrictService.getAllRescueTeams.mockResolvedValue(mockRescueTeams);
 
-      const result = await controller.getAllRescueTeams(mockDistrictUser as any);
+      const result = await controller.getAllRescueTeams(
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual(mockRescueTeams);
     });
@@ -293,9 +346,15 @@ describe('DistrictController', () => {
         mockRescueTeams.filter((t) => t.status === 'available'),
       );
 
-      const result = await controller.getAllRescueTeams(mockDistrictUser as any, 'available');
+      const result = await controller.getAllRescueTeams(
+        mockDistrictUser as any,
+        'available',
+      );
 
-      expect(mockDistrictService.getAllRescueTeams).toHaveBeenCalledWith(mockDistrictUser, 'available');
+      expect(mockDistrictService.getAllRescueTeams).toHaveBeenCalledWith(
+        mockDistrictUser,
+        'available',
+      );
     });
   });
 
@@ -304,7 +363,9 @@ describe('DistrictController', () => {
       const stats = { total: 10, available: 5, deployed: 5 };
       mockDistrictService.getRescueTeamStats.mockResolvedValue(stats);
 
-      const result = await controller.getRescueTeamStats(mockDistrictUser as any);
+      const result = await controller.getRescueTeamStats(
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual(stats);
     });
@@ -312,9 +373,14 @@ describe('DistrictController', () => {
 
   describe('GET /district/rescue-teams/:id', () => {
     it('should return rescue team by ID', async () => {
-      mockDistrictService.getRescueTeamById.mockResolvedValue(mockRescueTeams[0]);
+      mockDistrictService.getRescueTeamById.mockResolvedValue(
+        mockRescueTeams[0],
+      );
 
-      const result = await controller.getRescueTeamById('RT-001', mockDistrictUser as any);
+      const result = await controller.getRescueTeamById(
+        'RT-001',
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual(mockRescueTeams[0]);
     });
@@ -339,9 +405,15 @@ describe('DistrictController', () => {
         memberCount: 8,
         specialization: 'medical',
       };
-      mockDistrictService.createRescueTeam.mockResolvedValue({ id: 'RT-002', ...dto });
+      mockDistrictService.createRescueTeam.mockResolvedValue({
+        id: 'RT-002',
+        ...dto,
+      });
 
-      const result = await controller.createRescueTeam(dto as any, mockDistrictUser as any);
+      const result = await controller.createRescueTeam(
+        dto as any,
+        mockDistrictUser as any,
+      );
 
       expect(result.name).toBe('Beta Team');
     });
@@ -355,7 +427,11 @@ describe('DistrictController', () => {
         memberCount: 12,
       });
 
-      const result = await controller.updateRescueTeam('RT-001', dto as any, mockDistrictUser as any);
+      const result = await controller.updateRescueTeam(
+        'RT-001',
+        dto as any,
+        mockDistrictUser as any,
+      );
 
       expect(result.memberCount).toBe(12);
     });
@@ -369,7 +445,11 @@ describe('DistrictController', () => {
         status: 'deployed',
       });
 
-      const result = await controller.updateTeamStatus('RT-001', dto as any, mockDistrictUser as any);
+      const result = await controller.updateTeamStatus(
+        'RT-001',
+        dto as any,
+        mockDistrictUser as any,
+      );
 
       expect(result.status).toBe('deployed');
     });
@@ -391,7 +471,10 @@ describe('DistrictController', () => {
 
       await controller.getAllShelters(mockDistrictUser as any, 'active');
 
-      expect(mockDistrictService.getAllShelters).toHaveBeenCalledWith(mockDistrictUser, 'active');
+      expect(mockDistrictService.getAllShelters).toHaveBeenCalledWith(
+        mockDistrictUser,
+        'active',
+      );
     });
   });
 
@@ -410,7 +493,10 @@ describe('DistrictController', () => {
     it('should return shelter by ID', async () => {
       mockDistrictService.getShelterById.mockResolvedValue(mockShelters[0]);
 
-      const result = await controller.getShelterById(1, mockDistrictUser as any);
+      const result = await controller.getShelterById(
+        1,
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual(mockShelters[0]);
     });
@@ -425,9 +511,16 @@ describe('DistrictController', () => {
         latitude: 33.6844,
         longitude: 73.0479,
       };
-      mockDistrictService.createShelter.mockResolvedValue({ id: 3, ...dto, status: 'active' });
+      mockDistrictService.createShelter.mockResolvedValue({
+        id: 3,
+        ...dto,
+        status: 'active',
+      });
 
-      const result = await controller.createShelter(dto as any, mockDistrictUser as any);
+      const result = await controller.createShelter(
+        dto as any,
+        mockDistrictUser as any,
+      );
 
       expect(result.name).toBe('New Shelter');
     });
@@ -441,7 +534,11 @@ describe('DistrictController', () => {
         capacity: 600,
       });
 
-      const result = await controller.updateShelter(1, dto as any, mockDistrictUser as any);
+      const result = await controller.updateShelter(
+        1,
+        dto as any,
+        mockDistrictUser as any,
+      );
 
       expect(result.capacity).toBe(600);
     });
@@ -453,7 +550,10 @@ describe('DistrictController', () => {
 
       await controller.deleteShelter(1, mockDistrictUser as any);
 
-      expect(mockDistrictService.deleteShelter).toHaveBeenCalledWith(1, mockDistrictUser);
+      expect(mockDistrictService.deleteShelter).toHaveBeenCalledWith(
+        1,
+        mockDistrictUser,
+      );
     });
   });
 
@@ -465,7 +565,11 @@ describe('DistrictController', () => {
         supplies: dto,
       });
 
-      const result = await controller.updateShelterSupplies(1, dto as any, mockDistrictUser as any);
+      const result = await controller.updateShelterSupplies(
+        1,
+        dto as any,
+        mockDistrictUser as any,
+      );
 
       expect(result.supplies).toEqual(dto);
     });
@@ -479,7 +583,11 @@ describe('DistrictController', () => {
         currentOccupancy: 300,
       });
 
-      const result = await controller.updateShelterOccupancy(1, dto as any, mockDistrictUser as any);
+      const result = await controller.updateShelterOccupancy(
+        1,
+        dto as any,
+        mockDistrictUser as any,
+      );
 
       expect(result.currentOccupancy).toBe(300);
     });
@@ -492,7 +600,10 @@ describe('DistrictController', () => {
         supplies: { food: 0, water: 0, medicine: 0 },
       });
 
-      const result = await controller.resetShelterSupplies(1, mockDistrictUser as any);
+      const result = await controller.resetShelterSupplies(
+        1,
+        mockDistrictUser as any,
+      );
 
       expect(result.supplies).toBeDefined();
     });
@@ -502,19 +613,28 @@ describe('DistrictController', () => {
 
   describe('GET /district/damage-reports', () => {
     it('should return all damage reports', async () => {
-      mockDistrictService.getAllDamageReports.mockResolvedValue(mockDamageReports);
+      mockDistrictService.getAllDamageReports.mockResolvedValue(
+        mockDamageReports,
+      );
 
-      const result = await controller.getAllDamageReports(mockDistrictUser as any);
+      const result = await controller.getAllDamageReports(
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual(mockDamageReports);
     });
 
     it('should filter by status', async () => {
-      mockDistrictService.getAllDamageReports.mockResolvedValue([mockDamageReports[0]]);
+      mockDistrictService.getAllDamageReports.mockResolvedValue([
+        mockDamageReports[0],
+      ]);
 
       await controller.getAllDamageReports(mockDistrictUser as any, 'pending');
 
-      expect(mockDistrictService.getAllDamageReports).toHaveBeenCalledWith(mockDistrictUser, 'pending');
+      expect(mockDistrictService.getAllDamageReports).toHaveBeenCalledWith(
+        mockDistrictUser,
+        'pending',
+      );
     });
   });
 
@@ -523,7 +643,9 @@ describe('DistrictController', () => {
       const stats = { total: 100, pending: 30, verified: 70 };
       mockDistrictService.getDamageReportStats.mockResolvedValue(stats);
 
-      const result = await controller.getDamageReportStats(mockDistrictUser as any);
+      const result = await controller.getDamageReportStats(
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual(stats);
     });
@@ -531,9 +653,14 @@ describe('DistrictController', () => {
 
   describe('GET /district/damage-reports/:id', () => {
     it('should return damage report by ID', async () => {
-      mockDistrictService.getDamageReportById.mockResolvedValue(mockDamageReports[0]);
+      mockDistrictService.getDamageReportById.mockResolvedValue(
+        mockDamageReports[0],
+      );
 
-      const result = await controller.getDamageReportById('DR-001', mockDistrictUser as any);
+      const result = await controller.getDamageReportById(
+        'DR-001',
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual(mockDamageReports[0]);
     });
@@ -554,7 +681,10 @@ describe('DistrictController', () => {
         status: 'pending',
       });
 
-      const result = await controller.createDamageReport(dto as any, mockDistrictUser as any);
+      const result = await controller.createDamageReport(
+        dto as any,
+        mockDistrictUser as any,
+      );
 
       expect(result.id).toBe('DR-002');
     });
@@ -568,7 +698,11 @@ describe('DistrictController', () => {
         status: 'verified',
       });
 
-      const result = await controller.verifyDamageReport('DR-001', dto as any, mockDistrictUser as any);
+      const result = await controller.verifyDamageReport(
+        'DR-001',
+        dto as any,
+        mockDistrictUser as any,
+      );
 
       expect(result.status).toBe('verified');
     });
@@ -596,11 +730,16 @@ describe('DistrictController', () => {
     });
 
     it('should respect limit parameter', async () => {
-      mockDistrictService.getActivityLogs.mockResolvedValue([mockActivityLogs[0]]);
+      mockDistrictService.getActivityLogs.mockResolvedValue([
+        mockActivityLogs[0],
+      ]);
 
       await controller.getActivityLogs(mockDistrictUser as any, 1);
 
-      expect(mockDistrictService.getActivityLogs).toHaveBeenCalledWith(mockDistrictUser, 1);
+      expect(mockDistrictService.getActivityLogs).toHaveBeenCalledWith(
+        mockDistrictUser,
+        1,
+      );
     });
   });
 
@@ -631,7 +770,10 @@ describe('DistrictController', () => {
     it('should return resource by ID', async () => {
       mockDistrictService.getResourceById.mockResolvedValue(mockResources[0]);
 
-      const result = await controller.getResourceById(1, mockDistrictUser as any);
+      const result = await controller.getResourceById(
+        1,
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual(mockResources[0]);
     });
@@ -645,7 +787,11 @@ describe('DistrictController', () => {
         allocated: 100,
       });
 
-      const result = await controller.allocateResourceToShelter(1, dto as any, mockDistrictUser as any);
+      const result = await controller.allocateResourceToShelter(
+        1,
+        dto as any,
+        mockDistrictUser as any,
+      );
 
       expect(result.success).toBe(true);
     });
@@ -658,7 +804,10 @@ describe('DistrictController', () => {
         success: true,
       });
 
-      const result = await controller.allocateResourceByType(dto as any, mockDistrictUser as any);
+      const result = await controller.allocateResourceByType(
+        dto as any,
+        mockDistrictUser as any,
+      );
 
       expect(result.success).toBe(true);
     });
@@ -666,9 +815,13 @@ describe('DistrictController', () => {
 
   describe('GET /district/shelters-for-allocation', () => {
     it('should return shelters available for allocation', async () => {
-      mockDistrictService.getSheltersForAllocation.mockResolvedValue(mockShelters);
+      mockDistrictService.getSheltersForAllocation.mockResolvedValue(
+        mockShelters,
+      );
 
-      const result = await controller.getSheltersForAllocation(mockDistrictUser as any);
+      const result = await controller.getSheltersForAllocation(
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual(mockShelters);
     });
@@ -678,9 +831,13 @@ describe('DistrictController', () => {
 
   describe('GET /district/missing-persons', () => {
     it('should return missing persons', async () => {
-      mockDistrictService.getMissingPersons.mockResolvedValue(mockMissingPersons);
+      mockDistrictService.getMissingPersons.mockResolvedValue(
+        mockMissingPersons,
+      );
 
-      const result = await controller.getMissingPersons(mockDistrictUser as any);
+      const result = await controller.getMissingPersons(
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual(mockMissingPersons);
     });
@@ -688,7 +845,11 @@ describe('DistrictController', () => {
     it('should filter by status and search', async () => {
       mockDistrictService.getMissingPersons.mockResolvedValue([]);
 
-      await controller.getMissingPersons(mockDistrictUser as any, 'found', 'Ali');
+      await controller.getMissingPersons(
+        mockDistrictUser as any,
+        'found',
+        'Ali',
+      );
 
       expect(mockDistrictService.getMissingPersons).toHaveBeenCalledWith(
         mockDistrictUser,
@@ -703,7 +864,9 @@ describe('DistrictController', () => {
       const stats = { total: 50, missing: 30, found: 15, deceased: 5 };
       mockDistrictService.getMissingPersonStats.mockResolvedValue(stats);
 
-      const result = await controller.getMissingPersonStats(mockDistrictUser as any);
+      const result = await controller.getMissingPersonStats(
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual(stats);
     });
@@ -711,9 +874,14 @@ describe('DistrictController', () => {
 
   describe('GET /district/missing-persons/:id', () => {
     it('should return missing person by ID', async () => {
-      mockDistrictService.getMissingPersonById.mockResolvedValue(mockMissingPersons[0]);
+      mockDistrictService.getMissingPersonById.mockResolvedValue(
+        mockMissingPersons[0],
+      );
 
-      const result = await controller.getMissingPersonById(1, mockDistrictUser as any);
+      const result = await controller.getMissingPersonById(
+        1,
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual(mockMissingPersons[0]);
     });
@@ -727,7 +895,11 @@ describe('DistrictController', () => {
         status: 'found',
       });
 
-      const result = await controller.updateMissingPersonStatus(1, dto as any, mockDistrictUser as any);
+      const result = await controller.updateMissingPersonStatus(
+        1,
+        dto as any,
+        mockDistrictUser as any,
+      );
 
       expect(result.status).toBe('found');
     });
@@ -735,9 +907,13 @@ describe('DistrictController', () => {
 
   describe('POST /district/missing-persons/check-auto-dead', () => {
     it('should trigger auto-dead check', async () => {
-      mockDistrictService.checkAndMarkDeadPersons.mockResolvedValue({ updated: 3 });
+      mockDistrictService.checkAndMarkDeadPersons.mockResolvedValue({
+        updated: 3,
+      });
 
-      const result = await controller.triggerAutoDeadCheck(mockDistrictUser as any);
+      const result = await controller.triggerAutoDeadCheck(
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual({ updated: 3 });
     });
@@ -747,14 +923,21 @@ describe('DistrictController', () => {
 
   describe('POST /district/resource-requests', () => {
     it('should create resource request', async () => {
-      const dto = { resourceType: 'food_supplies', quantity: 500, reason: 'Shortage' };
+      const dto = {
+        resourceType: 'food_supplies',
+        quantity: 500,
+        reason: 'Shortage',
+      };
       mockDistrictService.createResourceRequest.mockResolvedValue({
         id: 1,
         ...dto,
         status: 'pending',
       });
 
-      const result = await controller.createResourceRequest(dto as any, mockDistrictUser as any);
+      const result = await controller.createResourceRequest(
+        dto as any,
+        mockDistrictUser as any,
+      );
 
       expect(result.status).toBe('pending');
     });
@@ -765,7 +948,9 @@ describe('DistrictController', () => {
       const requests = [{ id: 1, resourceType: 'food', status: 'pending' }];
       mockDistrictService.getOwnResourceRequests.mockResolvedValue(requests);
 
-      const result = await controller.getOwnResourceRequests(mockDistrictUser as any);
+      const result = await controller.getOwnResourceRequests(
+        mockDistrictUser as any,
+      );
 
       expect(result).toEqual(requests);
     });
@@ -773,7 +958,10 @@ describe('DistrictController', () => {
     it('should filter by status', async () => {
       mockDistrictService.getOwnResourceRequests.mockResolvedValue([]);
 
-      await controller.getOwnResourceRequests(mockDistrictUser as any, 'approved');
+      await controller.getOwnResourceRequests(
+        mockDistrictUser as any,
+        'approved',
+      );
 
       expect(mockDistrictService.getOwnResourceRequests).toHaveBeenCalledWith(
         mockDistrictUser,

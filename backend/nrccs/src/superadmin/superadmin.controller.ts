@@ -18,7 +18,11 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserRole } from '../common/entities/user.entity';
-import { CreateUserDto, UpdateUserDto, ChangePasswordDto } from './dtos/user.dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  ChangePasswordDto,
+} from './dtos/user.dto';
 
 @Controller('superadmin')
 @UseGuards(SessionAuthGuard, RolesGuard)
@@ -63,7 +67,11 @@ export class SuperadminController {
     @Body() changePasswordDto: ChangePasswordDto,
     @CurrentUser() user: any,
   ) {
-    return await this.superadminService.changeUserPassword(id, changePasswordDto, user.id);
+    return await this.superadminService.changeUserPassword(
+      id,
+      changePasswordDto,
+      user.id,
+    );
   }
 
   @Put('users/:id/deactivate')
@@ -124,7 +132,10 @@ export class SuperadminController {
     @Param('entityType') entityType: string,
     @Param('entityId') entityId: string,
   ) {
-    return await this.superadminService.getAuditLogsByEntity(entityType, entityId);
+    return await this.superadminService.getAuditLogsByEntity(
+      entityType,
+      entityId,
+    );
   }
 
   // ==================== ACTIVITY LOGS ====================
@@ -136,7 +147,10 @@ export class SuperadminController {
   ) {
     const parsedLimit = limit ? parseInt(limit) : 100;
     const parsedOffset = offset ? parseInt(offset) : 0;
-    return await this.superadminService.getActivityLogs(parsedLimit, parsedOffset);
+    return await this.superadminService.getActivityLogs(
+      parsedLimit,
+      parsedOffset,
+    );
   }
 
   // ==================== SYSTEM STATISTICS ====================

@@ -18,7 +18,7 @@ export class AuthService {
     private provinceRepository: Repository<Province>,
     @InjectRepository(District)
     private districtRepository: Repository<District>,
-  ) { }
+  ) {}
 
   /**
    * Validate user credentials (used by LocalStrategy)
@@ -50,14 +50,14 @@ export class AuthService {
 
     if (user.provinceId) {
       const province = await this.provinceRepository.findOne({
-        where: { id: user.provinceId }
+        where: { id: user.provinceId },
       });
       provinceName = province?.name || null;
     }
 
     if (user.districtId) {
       const district = await this.districtRepository.findOne({
-        where: { id: user.districtId }
+        where: { id: user.districtId },
       });
       districtName = district?.name || null;
     }
@@ -71,11 +71,10 @@ export class AuthService {
       level: user.level,
       provinceId: user.provinceId,
       districtId: user.districtId,
-      province: provinceName,   // Province NAME for map scoping
-      district: districtName,   // District NAME for map scoping
+      province: provinceName, // Province NAME for map scoping
+      district: districtName, // District NAME for map scoping
     };
   }
-
 
   /**
    * Get user by ID (with province and district names for map scoping)
@@ -95,14 +94,14 @@ export class AuthService {
 
     if (user.provinceId) {
       const province = await this.provinceRepository.findOne({
-        where: { id: user.provinceId }
+        where: { id: user.provinceId },
       });
       provinceName = province?.name || null;
     }
 
     if (user.districtId) {
       const district = await this.districtRepository.findOne({
-        where: { id: user.districtId }
+        where: { id: user.districtId },
       });
       districtName = district?.name || null;
     }
@@ -118,7 +117,6 @@ export class AuthService {
       province: provinceName,
       district: districtName,
     };
-
   }
 
   /**
@@ -130,9 +128,14 @@ export class AuthService {
     });
   }
 
-  async createSession(userId: number, ipAddress: string, userAgent: string): Promise<UserSession> {
+  async createSession(
+    userId: number,
+    ipAddress: string,
+    userAgent: string,
+  ): Promise<UserSession> {
     // Generate token hash
-    const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
+    const token =
+      Math.random().toString(36).substring(2) + Date.now().toString(36);
     const tokenHash = await bcrypt.hash(token, 10);
 
     // Session expires in 24 hours (fix: add 24 hours using Date.now())

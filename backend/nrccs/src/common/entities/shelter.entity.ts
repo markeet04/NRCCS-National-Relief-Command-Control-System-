@@ -60,13 +60,28 @@ export class Shelter {
   @Column({ type: 'varchar', length: 20, nullable: true })
   contact: string;
 
-  @Column({ type: 'varchar', length: 20, nullable: true, name: 'contact_phone' })
+  @Column({
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+    name: 'contact_phone',
+  })
   contactPhone: string;
 
-  @Column({ type: 'varchar', length: 150, nullable: true, name: 'manager_name' })
+  @Column({
+    type: 'varchar',
+    length: 150,
+    nullable: true,
+    name: 'manager_name',
+  })
   managerName: string;
 
-  @Column({ type: 'varchar', length: 20, nullable: true, name: 'manager_phone' })
+  @Column({
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+    name: 'manager_phone',
+  })
   managerPhone: string;
 
   @Column({ type: 'text', array: true, nullable: true })
@@ -99,7 +114,11 @@ export class Shelter {
   @Column({ type: 'boolean', default: false, name: 'is_deleted' })
   isDeleted: boolean;
 
-  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP', name: 'last_update' })
+  @Column({
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+    name: 'last_update',
+  })
   lastUpdate: Date;
 
   @CreateDateColumn({ name: 'created_at' })

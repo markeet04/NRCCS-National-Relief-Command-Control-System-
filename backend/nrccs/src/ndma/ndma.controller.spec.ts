@@ -1,6 +1,6 @@
 /**
  * NDMA Controller Test Suite
- * 
+ *
  * Tests for NDMA (National Disaster Management Authority) endpoints:
  * - Dashboard & Province management
  * - District oversight
@@ -10,7 +10,7 @@
  * - SOS oversight
  * - Flood prediction
  * - Map data
- * 
+ *
  * Coverage: National-level operations, ML integration, cross-province data
  */
 
@@ -101,7 +101,10 @@ describe('NdmaController', () => {
       controllers: [NdmaController],
       providers: [
         { provide: NdmaService, useValue: mockNdmaService },
-        { provide: FloodPredictionService, useValue: mockFloodPredictionService },
+        {
+          provide: FloodPredictionService,
+          useValue: mockFloodPredictionService,
+        },
       ],
     })
       .overrideGuard(SessionAuthGuard)
@@ -131,15 +134,23 @@ describe('NdmaController', () => {
     });
 
     it('should handle service error', async () => {
-      mockNdmaService.getDashboardStats.mockRejectedValue(new Error('Stats error'));
+      mockNdmaService.getDashboardStats.mockRejectedValue(
+        new Error('Stats error'),
+      );
 
-      await expect(controller.getDashboardStats(mockNdmaUser as any)).rejects.toThrow('Stats error');
+      await expect(
+        controller.getDashboardStats(mockNdmaUser as any),
+      ).rejects.toThrow('Stats error');
     });
   });
 
   describe('GET /ndma/dashboard/provinces', () => {
     it('should return province summaries', async () => {
-      const summaries = mockProvinces.map((p) => ({ ...p, sosCount: 10, shelterCount: 5 }));
+      const summaries = mockProvinces.map((p) => ({
+        ...p,
+        sosCount: 10,
+        shelterCount: 5,
+      }));
       mockNdmaService.getProvinceSummaries.mockResolvedValue(summaries);
 
       const result = await controller.getProvinceSummaries(mockNdmaUser as any);
@@ -170,9 +181,13 @@ describe('NdmaController', () => {
     });
 
     it('should throw NotFoundException for invalid ID', async () => {
-      mockNdmaService.getProvinceById.mockRejectedValue(new NotFoundException('Province not found'));
+      mockNdmaService.getProvinceById.mockRejectedValue(
+        new NotFoundException('Province not found'),
+      );
 
-      await expect(controller.getProvinceById(999, mockNdmaUser as any)).rejects.toThrow(NotFoundException);
+      await expect(
+        controller.getProvinceById(999, mockNdmaUser as any),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -203,7 +218,11 @@ describe('NdmaController', () => {
 
       await controller.getAllDistricts(mockNdmaUser as any, '1');
 
-      expect(mockNdmaService.getAllDistricts).toHaveBeenCalledWith(mockNdmaUser, 1, undefined);
+      expect(mockNdmaService.getAllDistricts).toHaveBeenCalledWith(
+        mockNdmaUser,
+        1,
+        undefined,
+      );
     });
 
     it('should filter by risk level', async () => {
@@ -211,7 +230,11 @@ describe('NdmaController', () => {
 
       await controller.getAllDistricts(mockNdmaUser as any, undefined, 'high');
 
-      expect(mockNdmaService.getAllDistricts).toHaveBeenCalledWith(mockNdmaUser, undefined, 'high');
+      expect(mockNdmaService.getAllDistricts).toHaveBeenCalledWith(
+        mockNdmaUser,
+        undefined,
+        'high',
+      );
     });
   });
 
@@ -241,16 +264,28 @@ describe('NdmaController', () => {
 
       await controller.getAllAlerts(mockNdmaUser as any, 'active', 'high', '1');
 
-      expect(mockNdmaService.getAllAlerts).toHaveBeenCalledWith(mockNdmaUser, 'active', 'high', 1);
+      expect(mockNdmaService.getAllAlerts).toHaveBeenCalledWith(
+        mockNdmaUser,
+        'active',
+        'high',
+        1,
+      );
     });
   });
 
   describe('POST /ndma/alerts', () => {
     it('should create alert successfully', async () => {
       const dto = createValidAlertDto();
-      mockNdmaService.createAlert.mockResolvedValue({ id: 1, ...dto, status: 'active' });
+      mockNdmaService.createAlert.mockResolvedValue({
+        id: 1,
+        ...dto,
+        status: 'active',
+      });
 
-      const result = await controller.createAlert(dto as any, mockNdmaUser as any);
+      const result = await controller.createAlert(
+        dto as any,
+        mockNdmaUser as any,
+      );
 
       expect(result.id).toBe(1);
       expect(result.status).toBe('active');
@@ -260,7 +295,10 @@ describe('NdmaController', () => {
       const dto = { ...createValidAlertDto(), districtIds: [1, 2, 3, 4, 5] };
       mockNdmaService.createAlert.mockResolvedValue({ id: 1, ...dto });
 
-      const result = await controller.createAlert(dto as any, mockNdmaUser as any);
+      const result = await controller.createAlert(
+        dto as any,
+        mockNdmaUser as any,
+      );
 
       expect(result.districtIds.length).toBe(5);
     });
@@ -268,7 +306,10 @@ describe('NdmaController', () => {
 
   describe('PUT /ndma/alerts/:id/resolve', () => {
     it('should resolve alert', async () => {
-      mockNdmaService.resolveAlert.mockResolvedValue({ ...mockAlerts[0], status: 'resolved' });
+      mockNdmaService.resolveAlert.mockResolvedValue({
+        ...mockAlerts[0],
+        status: 'resolved',
+      });
 
       const result = await controller.resolveAlert(1, mockNdmaUser as any);
 
@@ -276,9 +317,13 @@ describe('NdmaController', () => {
     });
 
     it('should throw NotFoundException for invalid alert', async () => {
-      mockNdmaService.resolveAlert.mockRejectedValue(new NotFoundException('Alert not found'));
+      mockNdmaService.resolveAlert.mockRejectedValue(
+        new NotFoundException('Alert not found'),
+      );
 
-      await expect(controller.resolveAlert(999, mockNdmaUser as any)).rejects.toThrow(NotFoundException);
+      await expect(
+        controller.resolveAlert(999, mockNdmaUser as any),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -308,13 +353,21 @@ describe('NdmaController', () => {
 
       await controller.getAllShelters(mockNdmaUser as any, 'active', '1');
 
-      expect(mockNdmaService.getAllShelters).toHaveBeenCalledWith(mockNdmaUser, 'active', 1);
+      expect(mockNdmaService.getAllShelters).toHaveBeenCalledWith(
+        mockNdmaUser,
+        'active',
+        1,
+      );
     });
   });
 
   describe('GET /ndma/shelters/stats', () => {
     it('should return national shelter stats', async () => {
-      const stats = { total: 500, totalCapacity: 100000, currentOccupancy: 45000 };
+      const stats = {
+        total: 500,
+        totalCapacity: 100000,
+        currentOccupancy: 45000,
+      };
       mockNdmaService.getShelterStats.mockResolvedValue(stats);
 
       const result = await controller.getShelterStats(mockNdmaUser as any);
@@ -337,9 +390,17 @@ describe('NdmaController', () => {
     it('should filter by status and type', async () => {
       mockNdmaService.getAllResources.mockResolvedValue([mockResources[0]]);
 
-      await controller.getAllResources(mockNdmaUser as any, 'available', 'food_supplies');
+      await controller.getAllResources(
+        mockNdmaUser as any,
+        'available',
+        'food_supplies',
+      );
 
-      expect(mockNdmaService.getAllResources).toHaveBeenCalledWith(mockNdmaUser, 'available', 'food_supplies');
+      expect(mockNdmaService.getAllResources).toHaveBeenCalledWith(
+        mockNdmaUser,
+        'available',
+        'food_supplies',
+      );
     });
   });
 
@@ -362,7 +423,9 @@ describe('NdmaController', () => {
       ];
       mockNdmaService.getResourcesByProvince.mockResolvedValue(byProvince);
 
-      const result = await controller.getResourcesByProvince(mockNdmaUser as any);
+      const result = await controller.getResourcesByProvince(
+        mockNdmaUser as any,
+      );
 
       expect(result.length).toBe(2);
     });
@@ -380,10 +443,21 @@ describe('NdmaController', () => {
 
   describe('POST /ndma/resources', () => {
     it('should create national resource', async () => {
-      const dto = { type: 'food_supplies', name: 'Rice', quantity: 10000, unit: 'kg' };
-      mockNdmaService.createNationalResource.mockResolvedValue({ id: 1, ...dto });
+      const dto = {
+        type: 'food_supplies',
+        name: 'Rice',
+        quantity: 10000,
+        unit: 'kg',
+      };
+      mockNdmaService.createNationalResource.mockResolvedValue({
+        id: 1,
+        ...dto,
+      });
 
-      const result = await controller.createNationalResource(dto as any, mockNdmaUser as any);
+      const result = await controller.createNationalResource(
+        dto as any,
+        mockNdmaUser as any,
+      );
 
       expect(result.id).toBe(1);
     });
@@ -397,7 +471,11 @@ describe('NdmaController', () => {
         quantity: 6000,
       });
 
-      const result = await controller.increaseNationalStock(1, dto as any, mockNdmaUser as any);
+      const result = await controller.increaseNationalStock(
+        1,
+        dto as any,
+        mockNdmaUser as any,
+      );
 
       expect(result.quantity).toBe(6000);
     });
@@ -406,9 +484,15 @@ describe('NdmaController', () => {
   describe('POST /ndma/resources/:id/allocate', () => {
     it('should allocate resource to province', async () => {
       const dto = { provinceId: 1, quantity: 500 };
-      mockNdmaService.allocateResourceToProvince.mockResolvedValue({ success: true });
+      mockNdmaService.allocateResourceToProvince.mockResolvedValue({
+        success: true,
+      });
 
-      const result = await controller.allocateResourceToProvince(1, dto as any, mockNdmaUser as any);
+      const result = await controller.allocateResourceToProvince(
+        1,
+        dto as any,
+        mockNdmaUser as any,
+      );
 
       expect(result.success).toBe(true);
     });
@@ -416,10 +500,19 @@ describe('NdmaController', () => {
 
   describe('POST /ndma/allocate-by-type', () => {
     it('should allocate by resource type', async () => {
-      const dto = { resourceType: 'food_supplies', provinceId: 1, quantity: 1000 };
-      mockNdmaService.allocateResourceByType.mockResolvedValue({ success: true });
+      const dto = {
+        resourceType: 'food_supplies',
+        provinceId: 1,
+        quantity: 1000,
+      };
+      mockNdmaService.allocateResourceByType.mockResolvedValue({
+        success: true,
+      });
 
-      const result = await controller.allocateResourceByType(dto as any, mockNdmaUser as any);
+      const result = await controller.allocateResourceByType(
+        dto as any,
+        mockNdmaUser as any,
+      );
 
       expect(result.success).toBe(true);
     });
@@ -444,7 +537,11 @@ describe('NdmaController', () => {
         status: 'approved',
       });
 
-      const result = await controller.reviewResourceRequest(1, dto as any, mockNdmaUser as any);
+      const result = await controller.reviewResourceRequest(
+        1,
+        dto as any,
+        mockNdmaUser as any,
+      );
 
       expect(result.status).toBe('approved');
     });
@@ -452,7 +549,9 @@ describe('NdmaController', () => {
 
   describe('GET /ndma/allocations/history', () => {
     it('should return allocation history', async () => {
-      const history = [{ id: 1, resourceType: 'food', quantity: 500, date: new Date() }];
+      const history = [
+        { id: 1, resourceType: 'food', quantity: 500, date: new Date() },
+      ];
       mockNdmaService.getNdmaAllocationHistory.mockResolvedValue(history);
 
       const result = await controller.getAllocationHistory(mockNdmaUser as any);
@@ -475,7 +574,12 @@ describe('NdmaController', () => {
     it('should filter by status, priority, and province', async () => {
       mockNdmaService.getAllSosRequests.mockResolvedValue([mockSosRequests[0]]);
 
-      await controller.getAllSosRequests(mockNdmaUser as any, 'pending', 'high', '1');
+      await controller.getAllSosRequests(
+        mockNdmaUser as any,
+        'pending',
+        'high',
+        '1',
+      );
 
       expect(mockNdmaService.getAllSosRequests).toHaveBeenCalledWith(
         mockNdmaUser,
@@ -501,7 +605,10 @@ describe('NdmaController', () => {
     it('should return SOS request by ID', async () => {
       mockNdmaService.getSosRequestById.mockResolvedValue(mockSosRequests[0]);
 
-      const result = await controller.getSosRequestById('SOS-001', mockNdmaUser as any);
+      const result = await controller.getSosRequestById(
+        'SOS-001',
+        mockNdmaUser as any,
+      );
 
       expect(result).toEqual(mockSosRequests[0]);
     });
@@ -523,7 +630,11 @@ describe('NdmaController', () => {
 
       await controller.getAllRescueTeams(mockNdmaUser as any, 'available', '1');
 
-      expect(mockNdmaService.getAllRescueTeams).toHaveBeenCalledWith(mockNdmaUser, 'available', 1);
+      expect(mockNdmaService.getAllRescueTeams).toHaveBeenCalledWith(
+        mockNdmaUser,
+        'available',
+        1,
+      );
     });
   });
 
@@ -554,7 +665,11 @@ describe('NdmaController', () => {
 
       await controller.getActivityLogs(mockNdmaUser as any, '10', 'alert');
 
-      expect(mockNdmaService.getActivityLogs).toHaveBeenCalledWith(mockNdmaUser, 10, 'alert');
+      expect(mockNdmaService.getActivityLogs).toHaveBeenCalledWith(
+        mockNdmaUser,
+        10,
+        'alert',
+      );
     });
   });
 
@@ -565,39 +680,64 @@ describe('NdmaController', () => {
       const dto = createValidFloodPredictionDto();
       mockFloodPredictionService.predict.mockResolvedValue(mockFloodPrediction);
 
-      const result = await controller.predictFlood(dto as any, mockNdmaUser as any);
+      const result = await controller.predictFlood(
+        dto as any,
+        mockNdmaUser as any,
+      );
 
       expect(result.flood_risk).toBeDefined();
       expect(result.alertGenerated).toBe(false);
     });
 
     it('should generate alert for high risk prediction', async () => {
-      const dto = { ...createValidFloodPredictionDto(), generateAlert: true, provinceId: 1 };
-      mockFloodPredictionService.predict.mockResolvedValue({ flood_risk: 'High', confidence: 0.9 });
+      const dto = {
+        ...createValidFloodPredictionDto(),
+        generateAlert: true,
+        provinceId: 1,
+      };
+      mockFloodPredictionService.predict.mockResolvedValue({
+        flood_risk: 'High',
+        confidence: 0.9,
+      });
       mockNdmaService.createAlertFromPrediction.mockResolvedValue({ id: 1 });
 
-      const result = await controller.predictFlood(dto as any, mockNdmaUser as any);
+      const result = await controller.predictFlood(
+        dto as any,
+        mockNdmaUser as any,
+      );
 
       expect(result.alertGenerated).toBe(true);
       expect(result.alertId).toBe(1);
     });
 
     it('should not generate alert for low risk', async () => {
-      const dto = { ...createValidFloodPredictionDto(), generateAlert: true, provinceId: 1 };
-      mockFloodPredictionService.predict.mockResolvedValue({ flood_risk: 'Low', confidence: 0.8 });
+      const dto = {
+        ...createValidFloodPredictionDto(),
+        generateAlert: true,
+        provinceId: 1,
+      };
+      mockFloodPredictionService.predict.mockResolvedValue({
+        flood_risk: 'Low',
+        confidence: 0.8,
+      });
 
-      const result = await controller.predictFlood(dto as any, mockNdmaUser as any);
+      const result = await controller.predictFlood(
+        dto as any,
+        mockNdmaUser as any,
+      );
 
       expect(result.alertGenerated).toBe(false);
     });
 
     it('should handle prediction service error', async () => {
       const dto = createValidFloodPredictionDto();
-      mockFloodPredictionService.predict.mockRejectedValue(new Error('ML service unavailable'));
-
-      await expect(controller.predictFlood(dto as any, mockNdmaUser as any)).rejects.toThrow(
-        'ML service unavailable',
+      mockFloodPredictionService.predict.mockRejectedValue(
+        new Error('ML service unavailable'),
       );
+
+      await expect(
+        controller.predictFlood(dto as any, mockNdmaUser as any),
+      ).rejects.toThrow('ML service unavailable');
     });
   });
 
@@ -607,9 +747,13 @@ describe('NdmaController', () => {
         { name: 'Heavy Rain', precipitation: 200 },
         { name: 'Monsoon', precipitation: 300 },
       ];
-      mockFloodPredictionService.getSimulationScenarios.mockReturnValue(scenarios);
+      mockFloodPredictionService.getSimulationScenarios.mockReturnValue(
+        scenarios,
+      );
 
-      const result = await controller.getSimulationScenarios(mockNdmaUser as any);
+      const result = await controller.getSimulationScenarios(
+        mockNdmaUser as any,
+      );
 
       expect(result).toEqual(scenarios);
     });
@@ -644,7 +788,11 @@ describe('NdmaController', () => {
 
   describe('GET /ndma/map/provinces', () => {
     it('should return province map data', async () => {
-      const provinceData = mockProvinces.map((p) => ({ ...p, bounds: [], center: {} }));
+      const provinceData = mockProvinces.map((p) => ({
+        ...p,
+        bounds: [],
+        center: {},
+      }));
       mockNdmaService.getMapProvinceData.mockResolvedValue(provinceData);
 
       const result = await controller.getMapProvinceData(mockNdmaUser as any);

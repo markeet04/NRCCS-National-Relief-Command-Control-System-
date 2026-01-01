@@ -1,6 +1,6 @@
 /**
  * PDMA Controller Test Suite
- * 
+ *
  * Tests for PDMA (Provincial Disaster Management Authority) endpoints:
  * - Dashboard & District management
  * - Alert management
@@ -10,7 +10,7 @@
  * - Rescue team management
  * - Resource requests
  * - Provincial map
- * 
+ *
  * Coverage: Provincial-level operations, district coordination
  */
 
@@ -91,9 +91,7 @@ describe('PdmaController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PdmaController],
-      providers: [
-        { provide: PdmaService, useValue: mockPdmaService },
-      ],
+      providers: [{ provide: PdmaService, useValue: mockPdmaService }],
     })
       .overrideGuard(SessionAuthGuard)
       .useValue({ canActivate: jest.fn(() => true) })
@@ -126,7 +124,9 @@ describe('PdmaController', () => {
 
       const result = await controller.getDashboardStats(mockPdmaUser as any);
 
-      expect(mockPdmaService.getDashboardStats).toHaveBeenCalledWith(mockPdmaUser);
+      expect(mockPdmaService.getDashboardStats).toHaveBeenCalledWith(
+        mockPdmaUser,
+      );
     });
   });
 
@@ -156,9 +156,9 @@ describe('PdmaController', () => {
         new NotFoundException('District not found'),
       );
 
-      await expect(controller.getDistrictById(999, mockPdmaUser as any)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        controller.getDistrictById(999, mockPdmaUser as any),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -189,16 +189,27 @@ describe('PdmaController', () => {
 
       await controller.getAllAlerts(mockPdmaUser as any, 'active', 'high');
 
-      expect(mockPdmaService.getAllAlerts).toHaveBeenCalledWith(mockPdmaUser, 'active', 'high');
+      expect(mockPdmaService.getAllAlerts).toHaveBeenCalledWith(
+        mockPdmaUser,
+        'active',
+        'high',
+      );
     });
   });
 
   describe('POST /pdma/alerts', () => {
     it('should create provincial alert', async () => {
       const dto = createValidAlertDto();
-      mockPdmaService.createAlert.mockResolvedValue({ id: 1, ...dto, status: 'active' });
+      mockPdmaService.createAlert.mockResolvedValue({
+        id: 1,
+        ...dto,
+        status: 'active',
+      });
 
-      const result = await controller.createAlert(dto as any, mockPdmaUser as any);
+      const result = await controller.createAlert(
+        dto as any,
+        mockPdmaUser as any,
+      );
 
       expect(result.id).toBe(1);
     });
@@ -206,7 +217,10 @@ describe('PdmaController', () => {
 
   describe('PUT /pdma/alerts/:id/resolve', () => {
     it('should resolve alert', async () => {
-      mockPdmaService.resolveAlert.mockResolvedValue({ ...mockAlerts[0], status: 'resolved' });
+      mockPdmaService.resolveAlert.mockResolvedValue({
+        ...mockAlerts[0],
+        status: 'resolved',
+      });
 
       const result = await controller.resolveAlert(1, mockPdmaUser as any);
 
@@ -240,7 +254,10 @@ describe('PdmaController', () => {
 
       await controller.getAllShelters(mockPdmaUser as any, 'active');
 
-      expect(mockPdmaService.getAllShelters).toHaveBeenCalledWith(mockPdmaUser, 'active');
+      expect(mockPdmaService.getAllShelters).toHaveBeenCalledWith(
+        mockPdmaUser,
+        'active',
+      );
     });
   });
 
@@ -268,9 +285,16 @@ describe('PdmaController', () => {
   describe('POST /pdma/shelters', () => {
     it('should create shelter', async () => {
       const dto = createValidShelterDto();
-      mockPdmaService.createShelter.mockResolvedValue({ id: 3, ...dto, status: 'active' });
+      mockPdmaService.createShelter.mockResolvedValue({
+        id: 3,
+        ...dto,
+        status: 'active',
+      });
 
-      const result = await controller.createShelter(dto as any, mockPdmaUser as any);
+      const result = await controller.createShelter(
+        dto as any,
+        mockPdmaUser as any,
+      );
 
       expect(result.name).toBe('New Shelter');
     });
@@ -279,9 +303,16 @@ describe('PdmaController', () => {
   describe('PUT /pdma/shelters/:id', () => {
     it('should update shelter', async () => {
       const dto = { capacity: 400 };
-      mockPdmaService.updateShelter.mockResolvedValue({ ...mockShelters[0], capacity: 400 });
+      mockPdmaService.updateShelter.mockResolvedValue({
+        ...mockShelters[0],
+        capacity: 400,
+      });
 
-      const result = await controller.updateShelter(1, dto as any, mockPdmaUser as any);
+      const result = await controller.updateShelter(
+        1,
+        dto as any,
+        mockPdmaUser as any,
+      );
 
       expect(result.capacity).toBe(400);
     });
@@ -293,7 +324,10 @@ describe('PdmaController', () => {
 
       await controller.deleteShelter(1, mockPdmaUser as any);
 
-      expect(mockPdmaService.deleteShelter).toHaveBeenCalledWith(1, mockPdmaUser);
+      expect(mockPdmaService.deleteShelter).toHaveBeenCalledWith(
+        1,
+        mockPdmaUser,
+      );
     });
   });
 
@@ -322,10 +356,15 @@ describe('PdmaController', () => {
 
   describe('GET /pdma/resources/district-stock', () => {
     it('should return district resource stock', async () => {
-      const stock = mockDistricts.map((d) => ({ districtId: d.id, resources: mockResources }));
+      const stock = mockDistricts.map((d) => ({
+        districtId: d.id,
+        resources: mockResources,
+      }));
       mockPdmaService.getDistrictResourceStock.mockResolvedValue(stock);
 
-      const result = await controller.getDistrictResourceStock(mockPdmaUser as any);
+      const result = await controller.getDistrictResourceStock(
+        mockPdmaUser as any,
+      );
 
       expect(result.length).toBeGreaterThan(0);
     });
@@ -336,7 +375,10 @@ describe('PdmaController', () => {
       const dto = createValidResourceDto();
       mockPdmaService.createResource.mockResolvedValue({ id: 3, ...dto });
 
-      const result = await controller.createResource(dto as any, mockPdmaUser as any);
+      const result = await controller.createResource(
+        dto as any,
+        mockPdmaUser as any,
+      );
 
       expect(result.type).toBe('food_supplies');
     });
@@ -345,9 +387,16 @@ describe('PdmaController', () => {
   describe('PUT /pdma/resources/:id', () => {
     it('should update resource', async () => {
       const dto = { quantity: 2000 };
-      mockPdmaService.updateResource.mockResolvedValue({ ...mockResources[0], quantity: 2000 });
+      mockPdmaService.updateResource.mockResolvedValue({
+        ...mockResources[0],
+        quantity: 2000,
+      });
 
-      const result = await controller.updateResource(1, dto as any, mockPdmaUser as any);
+      const result = await controller.updateResource(
+        1,
+        dto as any,
+        mockPdmaUser as any,
+      );
 
       expect(result.quantity).toBe(2000);
     });
@@ -358,7 +407,11 @@ describe('PdmaController', () => {
       const dto = { districtId: 1, quantity: 100 };
       mockPdmaService.allocateResource.mockResolvedValue({ success: true });
 
-      const result = await controller.allocateResource(1, dto as any, mockPdmaUser as any);
+      const result = await controller.allocateResource(
+        1,
+        dto as any,
+        mockPdmaUser as any,
+      );
 
       expect(result.success).toBe(true);
     });
@@ -366,10 +419,19 @@ describe('PdmaController', () => {
 
   describe('POST /pdma/allocate-by-type', () => {
     it('should allocate resource by type', async () => {
-      const dto = { resourceType: 'food_supplies', districtId: 1, quantity: 200 };
-      mockPdmaService.allocateResourceByType.mockResolvedValue({ success: true });
+      const dto = {
+        resourceType: 'food_supplies',
+        districtId: 1,
+        quantity: 200,
+      };
+      mockPdmaService.allocateResourceByType.mockResolvedValue({
+        success: true,
+      });
 
-      const result = await controller.allocateResourceByType(dto as any, mockPdmaUser as any);
+      const result = await controller.allocateResourceByType(
+        dto as any,
+        mockPdmaUser as any,
+      );
 
       expect(result.success).toBe(true);
     });
@@ -380,9 +442,16 @@ describe('PdmaController', () => {
   describe('POST /pdma/resource-requests', () => {
     it('should create resource request to NDMA', async () => {
       const dto = { resourceType: 'medical_supplies', quantity: 1000 };
-      mockPdmaService.createResourceRequest.mockResolvedValue({ id: 1, ...dto, status: 'pending' });
+      mockPdmaService.createResourceRequest.mockResolvedValue({
+        id: 1,
+        ...dto,
+        status: 'pending',
+      });
 
-      const result = await controller.createResourceRequest(dto as any, mockPdmaUser as any);
+      const result = await controller.createResourceRequest(
+        dto as any,
+        mockPdmaUser as any,
+      );
 
       expect(result.status).toBe('pending');
     });
@@ -393,7 +462,9 @@ describe('PdmaController', () => {
       const requests = [{ id: 1, resourceType: 'food', status: 'pending' }];
       mockPdmaService.getOwnResourceRequests.mockResolvedValue(requests);
 
-      const result = await controller.getOwnResourceRequests(mockPdmaUser as any);
+      const result = await controller.getOwnResourceRequests(
+        mockPdmaUser as any,
+      );
 
       expect(result).toEqual(requests);
     });
@@ -401,7 +472,9 @@ describe('PdmaController', () => {
 
   describe('GET /pdma/district-requests', () => {
     it('should return requests from districts', async () => {
-      const requests = [{ id: 1, districtId: 1, resourceType: 'food', status: 'pending' }];
+      const requests = [
+        { id: 1, districtId: 1, resourceType: 'food', status: 'pending' },
+      ];
       mockPdmaService.getDistrictRequests.mockResolvedValue(requests);
 
       const result = await controller.getDistrictRequests(mockPdmaUser as any);
@@ -413,9 +486,16 @@ describe('PdmaController', () => {
   describe('PUT /pdma/district-requests/:id/review', () => {
     it('should review district request', async () => {
       const dto = { status: 'approved', notes: 'Approved' };
-      mockPdmaService.reviewDistrictRequest.mockResolvedValue({ id: 1, status: 'approved' });
+      mockPdmaService.reviewDistrictRequest.mockResolvedValue({
+        id: 1,
+        status: 'approved',
+      });
 
-      const result = await controller.reviewDistrictRequest(1, dto, mockPdmaUser as any);
+      const result = await controller.reviewDistrictRequest(
+        1,
+        dto,
+        mockPdmaUser as any,
+      );
 
       expect(result.status).toBe('approved');
     });
@@ -437,7 +517,10 @@ describe('PdmaController', () => {
 
       await controller.getAllSosRequests(mockPdmaUser as any, 'pending');
 
-      expect(mockPdmaService.getAllSosRequests).toHaveBeenCalledWith(mockPdmaUser, 'pending');
+      expect(mockPdmaService.getAllSosRequests).toHaveBeenCalledWith(
+        mockPdmaUser,
+        'pending',
+      );
     });
   });
 
@@ -445,7 +528,10 @@ describe('PdmaController', () => {
     it('should return SOS request by ID', async () => {
       mockPdmaService.getSosRequestById.mockResolvedValue(mockSosRequests[0]);
 
-      const result = await controller.getSosRequestById('SOS-001', mockPdmaUser as any);
+      const result = await controller.getSosRequestById(
+        'SOS-001',
+        mockPdmaUser as any,
+      );
 
       expect(result).toEqual(mockSosRequests[0]);
     });
@@ -459,7 +545,11 @@ describe('PdmaController', () => {
         assignedTeamId: 'RT-001',
       });
 
-      const result = await controller.assignTeamToSos('SOS-001', dto as any, mockPdmaUser as any);
+      const result = await controller.assignTeamToSos(
+        'SOS-001',
+        dto as any,
+        mockPdmaUser as any,
+      );
 
       expect(result.assignedTeamId).toBe('RT-001');
     });
@@ -481,7 +571,10 @@ describe('PdmaController', () => {
 
       await controller.getAllRescueTeams(mockPdmaUser as any, 'available');
 
-      expect(mockPdmaService.getAllRescueTeams).toHaveBeenCalledWith(mockPdmaUser, 'available');
+      expect(mockPdmaService.getAllRescueTeams).toHaveBeenCalledWith(
+        mockPdmaUser,
+        'available',
+      );
     });
   });
 
@@ -489,7 +582,10 @@ describe('PdmaController', () => {
     it('should return rescue team by ID', async () => {
       mockPdmaService.getRescueTeamById.mockResolvedValue(mockRescueTeams[0]);
 
-      const result = await controller.getRescueTeamById('RT-001', mockPdmaUser as any);
+      const result = await controller.getRescueTeamById(
+        'RT-001',
+        mockPdmaUser as any,
+      );
 
       expect(result).toEqual(mockRescueTeams[0]);
     });
@@ -511,7 +607,10 @@ describe('PdmaController', () => {
 
       await controller.getActivityLogs(mockPdmaUser as any, '10');
 
-      expect(mockPdmaService.getActivityLogs).toHaveBeenCalledWith(mockPdmaUser, 10);
+      expect(mockPdmaService.getActivityLogs).toHaveBeenCalledWith(
+        mockPdmaUser,
+        10,
+      );
     });
   });
 

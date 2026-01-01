@@ -1,15 +1,19 @@
 /**
  * NRCCS - Test Setup Utilities
- * 
+ *
  * This file contains shared test utilities, mocks, and helper functions
  * for backend controller testing. All tests must use these utilities
  * to ensure consistency and CI-safety.
- * 
+ *
  * IMPORTANT: No real database connections, no external API calls.
  */
 
 import { Test, TestingModule, TestingModuleBuilder } from '@nestjs/testing';
-import { ExecutionContext, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import {
+  ExecutionContext,
+  UnauthorizedException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { UserRole, UserLevel } from '../common/entities/user.entity';
 
 // ==================== MOCK USER FACTORY ====================
@@ -28,7 +32,9 @@ export interface MockUser {
   isActive: boolean;
 }
 
-export const createMockUser = (overrides: Partial<MockUser> = {}): MockUser => ({
+export const createMockUser = (
+  overrides: Partial<MockUser> = {},
+): MockUser => ({
   id: 1,
   email: 'test@example.com',
   username: 'testuser',
@@ -90,7 +96,10 @@ export const mockCivilianUser = createMockUser({
 /**
  * Creates a mock SessionAuthGuard that either allows or denies access
  */
-export const createMockSessionAuthGuard = (isAuthenticated: boolean, user?: MockUser) => ({
+export const createMockSessionAuthGuard = (
+  isAuthenticated: boolean,
+  user?: MockUser,
+) => ({
   canActivate: jest.fn((context: ExecutionContext) => {
     if (!isAuthenticated) {
       throw new UnauthorizedException('Not authenticated');
