@@ -19,7 +19,7 @@ jobs:
     
     defaults:
       run:
-        working-directory: ./NRCCS-National-Relief-Command-Control-System-/backend/nrccs
+        working-directory: ./backend/nrccs
 
     steps:
       - name: Checkout repository
@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: './NRCCS-National-Relief-Command-Control-System-/backend/nrccs/package-lock.json'
+          cache-dependency-path: './backend/nrccs/package-lock.json'
 
       - name: Install dependencies
         run: npm ci
@@ -56,7 +56,7 @@ jobs:
         if: always()
         with:
           name: backend-coverage
-          path: ./NRCCS-National-Relief-Command-Control-System-/backend/nrccs/coverage
+          path: ./backend/nrccs/coverage
           retention-days: 7
 
   # ============================================
@@ -68,7 +68,7 @@ jobs:
     
     defaults:
       run:
-        working-directory: ./NRCCS-National-Relief-Command-Control-System-/frontend
+        working-directory: ./frontend
 
     steps:
       - name: Checkout repository
@@ -79,7 +79,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: './NRCCS-National-Relief-Command-Control-System-/frontend/package-lock.json'
+          cache-dependency-path: './frontend/package-lock.json'
 
       - name: Install dependencies
         run: npm ci
@@ -103,7 +103,7 @@ jobs:
         if: always()
         with:
           name: frontend-coverage
-          path: ./NRCCS-National-Relief-Command-Control-System-/frontend/coverage
+          path: ./frontend/coverage
           retention-days: 7
 
   # ============================================
@@ -124,13 +124,13 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Build Backend
-        working-directory: ./NRCCS-National-Relief-Command-Control-System-/backend/nrccs
+        working-directory: ./backend/nrccs
         run: |
           npm ci
           npm run build
 
       - name: Build Frontend
-        working-directory: ./NRCCS-National-Relief-Command-Control-System-/frontend
+        working-directory: ./frontend
         run: |
           npm ci
           npm run build
@@ -138,9 +138,9 @@ jobs:
       - name: Verify build artifacts
         run: |
           echo "Checking backend build..."
-          ls -la ./NRCCS-National-Relief-Command-Control-System-/backend/nrccs/dist || echo "Backend dist not found"
+          ls -la ./backend/nrccs/dist || echo "Backend dist not found"
           echo "Checking frontend build..."
-          ls -la ./NRCCS-National-Relief-Command-Control-System-/frontend/dist || echo "Frontend dist not found"
+          ls -la ./frontend/dist || echo "Frontend dist not found"
 
   # ============================================
   # Test Summary
