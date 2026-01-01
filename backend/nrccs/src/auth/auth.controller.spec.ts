@@ -280,33 +280,37 @@ describe('AuthController', () => {
   describe('Guard Integration', () => {
     it('should require LocalAuthGuard for login', () => {
       // This test verifies the decorator is applied
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const guards = Reflect.getMetadata(
         '__guards__',
-        AuthController.prototype.login.bind(AuthController.prototype),
-      ) as unknown;
+        AuthController.prototype.login,
+      );
       expect(guards).toBeDefined();
     });
 
     it('should require SessionAuthGuard for protected routes', () => {
       // Verify logout requires session auth
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const logoutGuards = Reflect.getMetadata(
         '__guards__',
-        AuthController.prototype.logout.bind(AuthController.prototype),
-      ) as unknown;
+        AuthController.prototype.logout,
+      );
       expect(logoutGuards).toBeDefined();
 
       // Verify me requires session auth
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const meGuards = Reflect.getMetadata(
         '__guards__',
-        AuthController.prototype.getMe.bind(AuthController.prototype),
-      ) as unknown;
+        AuthController.prototype.getMe,
+      );
       expect(meGuards).toBeDefined();
 
       // Verify validate requires session auth
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const validateGuards = Reflect.getMetadata(
         '__guards__',
-        AuthController.prototype.validate.bind(AuthController.prototype),
-      ) as unknown;
+        AuthController.prototype.validate,
+      );
       expect(validateGuards).toBeDefined();
     });
   });
