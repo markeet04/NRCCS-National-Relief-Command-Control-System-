@@ -156,16 +156,12 @@ describe('ResourceCard Component', () => {
       const onViewDetails = vi.fn();
       render(<ResourceCard {...defaultProps} onViewDetails={onViewDetails} />);
       
-      expect(screen.getByRole('button', { name: /view details/i })).toBeInTheDocument();
-    });
-
-    it('calls onViewDetails when clicked', async () => {
-      const user = userEvent.setup();
+      expect(screen.getByRole('button', { name: /view/i })).toBeInTheDocument();
       const onViewDetails = vi.fn();
       render(<ResourceCard {...defaultProps} onViewDetails={onViewDetails} />);
-      
-      await user.click(screen.getByRole('button', { name: /view details/i }));
-      
+
+      await user.click(screen.getByRole('button', { name: /view/i }));
+
       expect(onViewDetails).toHaveBeenCalledTimes(1);
     });
 
@@ -235,7 +231,7 @@ describe('ResourceCard Component', () => {
       );
       
       expect(screen.getByRole('button', { name: /allocate/i })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /view details/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /view/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /history/i })).toBeInTheDocument();

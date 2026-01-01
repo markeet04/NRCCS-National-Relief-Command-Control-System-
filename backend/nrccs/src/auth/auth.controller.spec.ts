@@ -11,7 +11,6 @@
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { UnauthorizedException } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from '../common/guards/local-auth.guard';
@@ -25,7 +24,6 @@ import {
 
 describe('AuthController', () => {
   let controller: AuthController;
-  let authService: jest.Mocked<AuthService>;
 
   // Mock AuthService
   const mockAuthService = {
@@ -64,7 +62,7 @@ describe('AuthController', () => {
       const mockUser = mockCivilianUser;
       const mockRequest = {
         user: mockUser,
-        session: {} as any,
+        session: {} as Record<string, any>,
       };
       
       mockAuthService.updateLastLogin.mockResolvedValue(undefined);
@@ -80,7 +78,7 @@ describe('AuthController', () => {
       const mockUser = mockDistrictUser;
       const mockRequest = {
         user: mockUser,
-        session: {} as any,
+        session: {} as Record<string, any>,
       };
 
       mockAuthService.updateLastLogin.mockResolvedValue(undefined);
@@ -95,7 +93,7 @@ describe('AuthController', () => {
       const mockUser = mockNdmaUser;
       const mockRequest = {
         user: mockUser,
-        session: {} as any,
+        session: {} as Record<string, any>,
       };
 
       mockAuthService.updateLastLogin.mockResolvedValue(undefined);
@@ -110,7 +108,7 @@ describe('AuthController', () => {
       const mockUser = createMockUser({ id: 99, email: 'session@test.com' });
       const mockRequest = {
         user: mockUser,
-        session: {} as any,
+        session: {} as Record<string, any>,
       };
 
       mockAuthService.updateLastLogin.mockResolvedValue(undefined);
@@ -124,7 +122,7 @@ describe('AuthController', () => {
       const mockUser = mockCivilianUser;
       const mockRequest = {
         user: mockUser,
-        session: {} as any,
+        session: {} as Record<string, any>,
       };
 
       mockAuthService.updateLastLogin.mockRejectedValue(new Error('DB Error'));

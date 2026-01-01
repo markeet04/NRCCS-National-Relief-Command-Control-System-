@@ -37,14 +37,14 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock ResizeObserver
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
+globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
 }));
 
 // Mock IntersectionObserver
-global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+globalThis.IntersectionObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
@@ -133,23 +133,23 @@ vi.mock('react-router-dom', async () => {
 vi.mock('framer-motion', () => ({
   motion: {
     div: ({ children, ...props }) => {
-      const { initial, animate, exit, variants, whileHover, whileTap, ...rest } = props;
+      const { initial: _initial, animate: _animate, exit: _exit, variants: _variants, whileHover: _whileHover, whileTap: _whileTap, ...rest } = props;
       return { type: 'div', props: { ...rest, children } };
     },
     span: ({ children, ...props }) => {
-      const { initial, animate, exit, variants, whileHover, whileTap, ...rest } = props;
+      const { initial: _initial2, animate: _animate2, exit: _exit2, variants: _variants2, whileHover: _whileHover2, whileTap: _whileTap2, ...rest } = props;
       return { type: 'span', props: { ...rest, children } };
     },
     button: ({ children, ...props }) => {
-      const { initial, animate, exit, variants, whileHover, whileTap, ...rest } = props;
+      const { initial: _initial3, animate: _animate3, exit: _exit3, variants: _variants3, whileHover: _whileHover3, whileTap: _whileTap3, ...rest } = props;
       return { type: 'button', props: { ...rest, children } };
     },
     ul: ({ children, ...props }) => {
-      const { initial, animate, exit, variants, whileHover, whileTap, ...rest } = props;
+      const { initial: _initial4, animate: _animate4, exit: _exit4, variants: _variants4, whileHover: _whileHover4, whileTap: _whileTap4, ...rest } = props;
       return { type: 'ul', props: { ...rest, children } };
     },
     li: ({ children, ...props }) => {
-      const { initial, animate, exit, variants, whileHover, whileTap, ...rest } = props;
+      const { initial: _initial5, animate: _animate5, exit: _exit5, variants: _variants5, whileHover: _whileHover5, whileTap: _whileTap5, ...rest } = props;
       return { type: 'li', props: { ...rest, children } };
     },
   },
