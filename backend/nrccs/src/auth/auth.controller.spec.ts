@@ -135,7 +135,7 @@ describe('AuthController', () => {
     it('should logout successfully and destroy session', async () => {
       const mockRequest = {
         session: {
-          destroy: jest.fn((callback) => callback(null)),
+          destroy: jest.fn((callback: (err: Error | null) => void) => callback(null)),
           user: mockCivilianUser,
         },
         res: {
@@ -153,7 +153,7 @@ describe('AuthController', () => {
     it('should handle session destroy error', async () => {
       const mockRequest = {
         session: {
-          destroy: jest.fn((callback) => callback(new Error('Session error'))),
+          destroy: jest.fn((callback: (err: Error | null) => void) => callback(new Error('Session error'))),
           user: mockCivilianUser,
         },
         res: {
@@ -168,7 +168,7 @@ describe('AuthController', () => {
       const mockClearCookie = jest.fn();
       const mockRequest = {
         session: {
-          destroy: jest.fn((callback) => callback(null)),
+          destroy: jest.fn((callback: (err: Error | null) => void) => callback(null)),
           user: mockCivilianUser,
         },
         res: {
