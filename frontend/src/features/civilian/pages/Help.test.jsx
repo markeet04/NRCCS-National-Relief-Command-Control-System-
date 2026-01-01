@@ -204,7 +204,8 @@ describe('Help Page', () => {
       render(<Help />);
       
       expect(screen.getByText(/All/)).toBeInTheDocument();
-      expect(screen.getByText(/Emergency/)).toBeInTheDocument();
+      // 'Emergency' appears in both category button and contact section
+      expect(screen.getAllByText(/Emergency/)[0]).toBeInTheDocument();
       expect(screen.getByText(/Shelters/)).toBeInTheDocument();
     });
 

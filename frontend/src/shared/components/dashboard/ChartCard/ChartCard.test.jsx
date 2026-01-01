@@ -32,16 +32,18 @@ describe('ChartCard Component', () => {
     it('displays first data point value prominently', () => {
       render(<ChartCard {...defaultProps} />);
       
-      expect(screen.getByText('150')).toBeInTheDocument();
-      expect(screen.getByText('Active Alerts')).toBeInTheDocument();
+      // First value appears in both header (large) and grid
+      expect(screen.getAllByText('150')[0]).toBeInTheDocument();
+      expect(screen.getAllByText('Active Alerts')[0]).toBeInTheDocument();
     });
 
     it('renders all data point labels', () => {
       render(<ChartCard {...defaultProps} />);
       
-      expect(screen.getByText('Active Alerts')).toBeInTheDocument();
-      expect(screen.getByText('Resolved')).toBeInTheDocument();
-      expect(screen.getByText('Pending')).toBeInTheDocument();
+      // Labels appear in both header and grid
+      expect(screen.getAllByText('Active Alerts')[0]).toBeInTheDocument();
+      expect(screen.getAllByText('Resolved')[0]).toBeInTheDocument();
+      expect(screen.getAllByText('Pending')[0]).toBeInTheDocument();
     });
 
     it('renders with default title when not provided', () => {

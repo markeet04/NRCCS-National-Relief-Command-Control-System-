@@ -246,8 +246,9 @@ describe('FindShelters Page', () => {
       ];
       render(<FindShelters />);
       
-      expect(screen.getByText('Shelter A')).toBeInTheDocument();
-      expect(screen.getByText('Shelter B')).toBeInTheDocument();
+      // Shelter names appear in both map markers and list
+      expect(screen.getAllByText('Shelter A')[0]).toBeInTheDocument();
+      expect(screen.getAllByText('Shelter B')[0]).toBeInTheDocument();
     });
 
     it('calls handleShelterClick when shelter clicked', async () => {
@@ -329,7 +330,8 @@ describe('FindShelters Page', () => {
       ];
       render(<FindShelters />);
       
-      expect(screen.getByText('Very Long Shelter Name That Might Need Truncation in UI')).toBeInTheDocument();
+      // Long name appears in both map marker and list
+      expect(screen.getAllByText('Very Long Shelter Name That Might Need Truncation in UI')[0]).toBeInTheDocument();
     });
 
     it('handles null userLocation', () => {

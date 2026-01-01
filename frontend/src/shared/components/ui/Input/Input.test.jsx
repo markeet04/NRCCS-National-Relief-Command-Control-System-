@@ -128,9 +128,13 @@ describe('Input Component', () => {
       // Input defaults to text type (may not have explicit attribute)
       expect(input.tagName).toBe('INPUT');
       expect(input.type).toBe('text');
-      const input = screen.getByTestId('input');
+    });
+
+    it('supports email type', () => {
+      render(<Input type="email" data-testid="input" />);
+      const emailInput = screen.getByTestId('input');
       
-      expect(input).toHaveAttribute('type', 'email');
+      expect(emailInput).toHaveAttribute('type', 'email');
     });
 
     it('supports password type', () => {

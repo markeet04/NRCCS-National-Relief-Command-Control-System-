@@ -234,6 +234,71 @@ vi.mock('recharts', () => ({
   Cell: () => null,
 }));
 
+// Mock ThemeProvider
+vi.mock('@app/providers/ThemeProvider', () => ({
+  useSettings: () => ({
+    settings: {
+      theme: 'dark',
+      language: 'en',
+    },
+  }),
+  ThemeProvider: ({ children }) => children,
+}));
+
+// Mock AuthProvider
+vi.mock('@app/providers/AuthProvider', () => ({
+  useAuth: () => ({
+    user: null,
+    login: vi.fn(),
+    logout: vi.fn(),
+    isAuthenticated: false,
+  }),
+  AuthProvider: ({ children }) => children,
+}));
+
+// Mock config constants
+vi.mock('@config/constants', () => ({
+  UI_CONSTANTS: {
+    ALERT_SEVERITY: {
+      HIGH: 'high',
+      MEDIUM: 'medium',
+      LOW: 'low',
+    },
+    STATUS: {
+      ACTIVE: 'active',
+      RESOLVED: 'resolved',
+      PENDING: 'pending',
+    },
+  },
+}));
+
+// Mock utility functions
+vi.mock('@utils/formatUtils', () => ({
+  formatNumber: (num) => num?.toLocaleString() || '0',
+  formatDate: (date) => new Date(date).toLocaleDateString(),
+}));
+
+vi.mock('@utils/colorUtils', () => ({
+  getSeverityColor: (severity) => {
+    const colors = { high: 'red', medium: 'orange', low: 'yellow' };
+    return colors[severity] || 'gray';
+  },
+  getStatusColor: (status) => {
+    const colors = { active: 'red', resolved: 'green', pending: 'yellow' };
+    return colors[status] || 'gray';
+  },
+}));
+
+vi.mock('@shared/utils/themeColors', () => ({
+  getThemeColors: () => ({
+    primary: '#3b82f6',
+    secondary: '#64748b',
+    success: '#10b981',
+    danger: '#ef4444',
+    warning: '#f59e0b',
+  }),
+}));
+
 // ============================================
 // Test Utilities Export
 // ============================================
