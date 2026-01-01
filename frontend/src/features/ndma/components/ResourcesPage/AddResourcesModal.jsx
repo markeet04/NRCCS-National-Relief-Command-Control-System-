@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { X, Plus, Package } from 'lucide-react';
-import NdmaApiService from '@shared/services/NdmaApiService';
+import NdmaApiService from '@shared/services/NdmaApiService.js';
 import { NotificationService } from '@services/NotificationService';
 
 /**

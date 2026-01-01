@@ -4,7 +4,7 @@ import { DashboardLayout } from '@shared/components/layout';
 import { useSettings } from '@app/providers/ThemeProvider';
 import { useBadge } from '@shared/contexts/BadgeContext';
 import { useAuth } from '@shared/hooks';
-import NdmaApiService from '@shared/services/NdmaApiService';
+import NdmaApiService from '@shared/services/NdmaApiService.js';
 
 // Import modular components
 import {
