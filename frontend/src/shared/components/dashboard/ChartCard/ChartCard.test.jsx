@@ -53,9 +53,9 @@ describe('ChartCard Component', () => {
     it('renders with default data when not provided', () => {
       render(<ChartCard title="Test Chart" />);
       
-      // Default data has label 'Metric' with value 0
-      expect(screen.getByText('Metric')).toBeInTheDocument();
-      expect(screen.getByText('0')).toBeInTheDocument();
+      // Default data has label 'Metric' with value 0 (appears in header + grid)
+      expect(screen.getAllByText('Metric')[0]).toBeInTheDocument();
+      expect(screen.getAllByText('0')[0]).toBeInTheDocument();
     });
   });
 
@@ -108,16 +108,17 @@ describe('ChartCard Component', () => {
       const largeData = [{ label: 'Total', value: 1234567 }];
       render(<ChartCard data={largeData} />);
       
-      // Should show formatted number
-      expect(screen.getByText('1,234,567')).toBeInTheDocument();
+      // Should show formatted number (appears in header + grid)
+      expect(screen.getAllByText('1,234,567')[0]).toBeInTheDocument();
     });
 
     it('displays all metric values in grid', () => {
       render(<ChartCard {...defaultProps} />);
       
-      expect(screen.getByText('150')).toBeInTheDocument();
-      expect(screen.getByText('250')).toBeInTheDocument();
-      expect(screen.getByText('50')).toBeInTheDocument();
+      // Values appear in both header and grid
+      expect(screen.getAllByText('150')[0]).toBeInTheDocument();
+      expect(screen.getAllByText('250')[0]).toBeInTheDocument();
+      expect(screen.getAllByText('50')[0]).toBeInTheDocument();
     });
 
     it('handles zero values', () => {
@@ -127,7 +128,8 @@ describe('ChartCard Component', () => {
       ];
       render(<ChartCard data={zeroData} />);
       
-      expect(screen.getByText('No Data')).toBeInTheDocument();
+      // Label appears in both header and grid
+      expect(screen.getAllByText('No Data')[0]).toBeInTheDocument();
     });
   });
 
@@ -174,8 +176,9 @@ describe('ChartCard Component', () => {
       const singleData = [{ label: 'Single Metric', value: 500 }];
       render(<ChartCard data={singleData} />);
       
-      expect(screen.getByText('Single Metric')).toBeInTheDocument();
-      expect(screen.getByText('500')).toBeInTheDocument();
+      // Data appears in both header and grid
+      expect(screen.getAllByText('Single Metric')[0]).toBeInTheDocument();
+      expect(screen.getAllByText('500')[0]).toBeInTheDocument();
     });
 
     it('renders single circle for single data point', () => {
@@ -211,10 +214,7 @@ describe('ChartCard Component', () => {
     it('renders default data when empty array provided', () => {
       render(<ChartCard data={[]} />);
       
-      expect(screen.getByText('Metric')).toBeInTheDocument();
-    });
-
-    it('renders chart structure with empty data', () => {
+      expect(screen.getAllByText('Metric')[0]).toBeInTheDocument();
       render(<ChartCard data={[]} />);
       
       const svg = document.querySelector('svg');
@@ -265,10 +265,10 @@ describe('ChartCard Component', () => {
     it('metric labels are readable', () => {
       render(<ChartCard {...defaultProps} />);
       
-      // All labels should be visible text
-      expect(screen.getByText('Active Alerts')).toBeVisible();
-      expect(screen.getByText('Resolved')).toBeVisible();
-      expect(screen.getByText('Pending')).toBeVisible();
+      // All labels should be visible text (use getAllByText since labels appear in header + grid)
+      expect(screen.getAllByText('Active Alerts')[0]).toBeVisible();
+      expect(screen.getAllByText('Resolved')[0]).toBeVisible();
+      expect(screen.getAllByText('Pending')[0]).toBeVisible();
     });
   });
 
@@ -277,18 +277,18 @@ describe('ChartCard Component', () => {
       const largeValues = [{ label: 'Big Number', value: 999999999 }];
       render(<ChartCard data={largeValues} />);
       
-      expect(screen.getByText('999,999,999')).toBeInTheDocument();
+      expect(screen.getAllByText('999,999,999')[0]).toBeInTheDocument();
     });
 
     it('handles decimal values (rounded display)', () => {
       const decimalData = [{ label: 'Decimal', value: 123.456 }];
       render(<ChartCard data={decimalData} />);
       
-      // toLocaleString handles decimal formatting
-      expect(screen.getByText('123.456')).toBeInTheDocument();
+      // toLocaleString handles decimal formatting (appears in header + grid)
+      expect(screen.getAllByText('123.456')[0]).toBeInTheDocument();
     });
 
-    it('handles negative trend values correctly', () => {
+    it('handles negative trend values', () => {
       const negativeTrend = [{ label: 'Declining', value: 50, trend: -25 }];
       render(<ChartCard data={negativeTrend} />);
       

@@ -1,4 +1,4 @@
-# 🌊 NRCCS - National Relief Command & Control System
+# NRCCS - National Relief Command & Control System
 
 [![Azure Deployment](https://img.shields.io/badge/Deployment-Azure-blue.svg)](https://azure.microsoft.com/)
 [![NestJS](https://img.shields.io/badge/Backend-NestJS-red.svg)](https://docs.nestjs.com/)
