@@ -130,34 +130,50 @@ vi.mock('react-router-dom', async () => {
 });
 
 // Mock framer-motion to avoid animation issues in tests
-vi.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }) => {
-      const { initial: _initial, animate: _animate, exit: _exit, variants: _variants, whileHover: _whileHover, whileTap: _whileTap, ...rest } = props;
-      return { type: 'div', props: { ...rest, children } };
+vi.mock('framer-motion', () => {
+  const React = require('react');
+  
+  // Helper to create a motion component that filters out framer-motion specific props
+  const createMotionComponent = (element) => {
+    return React.forwardRef(({ children, initial, animate, exit, variants, whileHover, whileTap, whileInView, transition, layout, layoutId, drag, dragConstraints, onDragEnd, ...rest }, ref) => {
+      return React.createElement(element, { ...rest, ref }, children);
+    });
+  };
+
+  return {
+    motion: {
+      div: createMotionComponent('div'),
+      span: createMotionComponent('span'),
+      button: createMotionComponent('button'),
+      ul: createMotionComponent('ul'),
+      li: createMotionComponent('li'),
+      h1: createMotionComponent('h1'),
+      h2: createMotionComponent('h2'),
+      h3: createMotionComponent('h3'),
+      h4: createMotionComponent('h4'),
+      p: createMotionComponent('p'),
+      a: createMotionComponent('a'),
+      img: createMotionComponent('img'),
+      section: createMotionComponent('section'),
+      article: createMotionComponent('article'),
+      nav: createMotionComponent('nav'),
+      header: createMotionComponent('header'),
+      footer: createMotionComponent('footer'),
+      form: createMotionComponent('form'),
+      input: createMotionComponent('input'),
+      label: createMotionComponent('label'),
+      svg: createMotionComponent('svg'),
+      path: createMotionComponent('path'),
+      circle: createMotionComponent('circle'),
     },
-    span: ({ children, ...props }) => {
-      const { initial: _initial2, animate: _animate2, exit: _exit2, variants: _variants2, whileHover: _whileHover2, whileTap: _whileTap2, ...rest } = props;
-      return { type: 'span', props: { ...rest, children } };
-    },
-    button: ({ children, ...props }) => {
-      const { initial: _initial3, animate: _animate3, exit: _exit3, variants: _variants3, whileHover: _whileHover3, whileTap: _whileTap3, ...rest } = props;
-      return { type: 'button', props: { ...rest, children } };
-    },
-    ul: ({ children, ...props }) => {
-      const { initial: _initial4, animate: _animate4, exit: _exit4, variants: _variants4, whileHover: _whileHover4, whileTap: _whileTap4, ...rest } = props;
-      return { type: 'ul', props: { ...rest, children } };
-    },
-    li: ({ children, ...props }) => {
-      const { initial: _initial5, animate: _animate5, exit: _exit5, variants: _variants5, whileHover: _whileHover5, whileTap: _whileTap5, ...rest } = props;
-      return { type: 'li', props: { ...rest, children } };
-    },
-  },
-  AnimatePresence: ({ children }) => children,
-  useAnimation: () => ({ start: vi.fn(), stop: vi.fn() }),
-  useMotionValue: () => ({ get: vi.fn(), set: vi.fn() }),
-  useTransform: () => ({ get: vi.fn() }),
-}));
+    AnimatePresence: ({ children }) => children,
+    useAnimation: () => ({ start: vi.fn(), stop: vi.fn() }),
+    useMotionValue: (initial) => ({ get: () => initial, set: vi.fn() }),
+    useTransform: () => ({ get: () => 1 }),
+    useScroll: () => ({ scrollYProgress: { get: () => 0 } }),
+    useInView: () => true,
+  };
+});
 
 // Mock Leaflet (for map components)
 vi.mock('leaflet', () => ({

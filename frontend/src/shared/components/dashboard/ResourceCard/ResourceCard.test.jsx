@@ -157,6 +157,10 @@ describe('ResourceCard Component', () => {
       render(<ResourceCard {...defaultProps} onViewDetails={onViewDetails} />);
       
       expect(screen.getByRole('button', { name: /view/i })).toBeInTheDocument();
+    });
+
+    it('calls onViewDetails when clicked', async () => {
+      const user = userEvent.setup();
       const onViewDetails = vi.fn();
       render(<ResourceCard {...defaultProps} onViewDetails={onViewDetails} />);
 
