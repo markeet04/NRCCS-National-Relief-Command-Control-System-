@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { X, Clock, Package, Stethoscope, Home, Droplets, MapPin } from 'lucide-react';
-import NdmaApiService from '@shared/services/NdmaApiService.js';
+import NdmaApiService from '@shared/services/ndmaApiService.js';
 import { PageLoader } from '@shared/components/ui';
 
 /**

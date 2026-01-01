@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { DashboardLayout } from '@shared/components/layout';
-import NdmaApiService from '@shared/services/NdmaApiService.js';
+import NdmaApiService from '@shared/services/ndmaApiService.js';
 import { NotificationService } from '@services/NotificationService';
 import { useAuth } from '@shared/hooks';
 
