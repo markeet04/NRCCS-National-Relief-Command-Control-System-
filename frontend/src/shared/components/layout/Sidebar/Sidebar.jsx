@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { useAuth } from '@app/providers/AuthProvider';
 import {
   LayoutDashboard,
   AlertTriangle,
@@ -51,11 +52,17 @@ const Sidebar = ({
   const [hoveredItem, setHoveredItem] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
 
-  const handleLogout = () => {
-    // TODO: Implement logout logic
-    console.log('Logging out...');
-    window.location.href = '/';
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Force redirect even on error
+      navigate('/');
+    }
   };
 
   const handleMenuClick = (route) => {

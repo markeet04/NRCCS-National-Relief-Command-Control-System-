@@ -12,12 +12,7 @@ import {
   MAP_TYPE_OPTIONS,
 } from '../constants';
 
-/**
- * useFloodMapLogic Hook
- * Manages all business logic for the NDMA Flood Map page
- * Fetches real data from backend API
- * Includes ML flood prediction with simulation mode
- */
+
 export const useFloodMapLogic = () => {
   // Get badge counts from context for global visibility
   const { activeStatusCount, provincialRequestsCount } = useBadge();

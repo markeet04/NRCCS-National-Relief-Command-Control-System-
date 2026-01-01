@@ -48,9 +48,17 @@ class AuthService {
   async logout() {
     try {
       await apiClient.post('/auth/logout');
+      
+      // Clear any client-side storage
+      localStorage.clear();
+      sessionStorage.clear();
+      
       return true;
     } catch (error) {
       console.error('Logout error:', error);
+      // Even if server logout fails, clear client storage
+      localStorage.clear();
+      sessionStorage.clear();
       return false;
     }
   }
