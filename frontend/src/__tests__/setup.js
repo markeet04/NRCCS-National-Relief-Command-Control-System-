@@ -133,10 +133,23 @@ vi.mock('react-router-dom', async () => {
 vi.mock('framer-motion', async () => {
   const React = await import('react');
   
+  // Props that framer-motion uses but should be filtered from DOM
+  const framerMotionProps = [
+    'initial', 'animate', 'exit', 'variants', 'whileHover', 'whileTap',
+    'whileInView', 'transition', 'layout', 'layoutId', 'drag', 'dragConstraints',
+    'onDragEnd', 'onHoverStart', 'onHoverEnd', 'onTap', 'onTapStart', 'onTapCancel'
+  ];
+  
   // Helper to create a motion component that filters out framer-motion specific props
   const createMotionComponent = (element) => {
-    return React.forwardRef(({ children, initial: _initial, animate: _animate, exit: _exit, variants: _variants, whileHover: _whileHover, whileTap: _whileTap, whileInView: _whileInView, transition: _transition, layout: _layout, layoutId: _layoutId, drag: _drag, dragConstraints: _dragConstraints, onDragEnd: _onDragEnd, ...rest }, ref) => {
-      return React.createElement(element, { ...rest, ref }, children);
+    return React.forwardRef((props, ref) => {
+      const filteredProps = Object.keys(props)
+        .filter(key => !framerMotionProps.includes(key))
+        .reduce((obj, key) => {
+          obj[key] = props[key];
+          return obj;
+        }, {});
+      return React.createElement(element, { ...filteredProps, ref }, props.children);
     });
   };
 

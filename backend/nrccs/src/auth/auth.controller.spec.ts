@@ -20,6 +20,7 @@ import {
   mockCivilianUser,
   mockDistrictUser,
   mockNdmaUser,
+  MockUser,
 } from '../test-utils';
 
 describe('AuthController', () => {
@@ -84,8 +85,8 @@ describe('AuthController', () => {
 
       const result = await controller.login(mockRequest);
 
-      expect((result.user as any).role).toBe('district');
-      expect((result.user as any).districtId).toBeDefined();
+      expect((result.user as MockUser).role).toBe('district');
+      expect((result.user as MockUser).districtId).toBeDefined();
     });
 
     it('should login NDMA user successfully', async () => {
@@ -99,8 +100,8 @@ describe('AuthController', () => {
 
       const result = await controller.login(mockRequest);
 
-      expect((result.user as any).role).toBe('ndma');
-      expect((result.user as any).level).toBe('National');
+      expect((result.user as MockUser).role).toBe('ndma');
+      expect((result.user as MockUser).level).toBe('National');
     });
 
     it('should store user in session after login', async () => {
@@ -201,8 +202,8 @@ describe('AuthController', () => {
 
       const result = await controller.getMe(mockRequest);
 
-      expect((result.user as any).districtId).toBeDefined();
-      expect((result.user as any).provinceId).toBeDefined();
+      expect((result.user as MockUser).districtId).toBeDefined();
+      expect((result.user as MockUser).provinceId).toBeDefined();
     });
 
     it('should return user with all properties', async () => {
@@ -219,9 +220,9 @@ describe('AuthController', () => {
 
       const result = await controller.getMe(mockRequest);
 
-      expect((result.user as any).email).toBe('complete@test.com');
-      expect((result.user as any).phone).toBe('03001234567');
-      expect((result.user as any).cnic).toBe('1234567890123');
+      expect((result.user as MockUser).email).toBe('complete@test.com');
+      expect((result.user as MockUser).phone).toBe('03001234567');
+      expect((result.user as MockUser).cnic).toBe('1234567890123');
     });
   });
 
@@ -253,7 +254,7 @@ describe('AuthController', () => {
     it('should include full user object in validation response', async () => {
       const mockUser = createMockUser({
         id: 15,
-        role: 'pdma' as any,
+        role: 'pdma' as MockUser['role'],
         provinceId: 2,
       });
       const mockRequest = {
