@@ -106,9 +106,9 @@ jobs:
           path: ./frontend/coverage
           retention-days: 7
 
-  # ============================================
+  # =========================================
   # Build Verification
-  # ============================================
+  # =========================================
   build-verification:
     name: Build Verification
     runs-on: ubuntu-latest
